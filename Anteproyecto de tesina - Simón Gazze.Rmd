@@ -1,5 +1,5 @@
 ---
-title: ""        # dejamos vacío para que no genere la portada automática
+title: ""        
 author: ""
 date: ""
 output:
@@ -39,7 +39,7 @@ A pesar de que las primeras aplicaciones al análisis de datos al deporte se rem
 
 [^1]: Término acuñado por Bill James (1980) para referirse al análisis estadístico del béisbol, basado en la recopilación y estudio sistemático de datos con el fin de comprender y cuantificar el desempeño de los jugadores y equipos. El nombre proviene de SABR (Society for American Baseball Research).
 
-El **básquetbol** es uno de los deportes que más ha incorporado el análisis estadístico en su evolución reciente. Desde las primeras métricas derivadas del *box score*, el desarrollo de bases de datos *play-by-play* a partir de la década del 2000 hasta la incorporación más reciente de tecnologías de *player tracking*[^2]. A partir de esta información, se han desarrollado distintas herramientas estadísticas para poder estudiar la eficiencia de los jugadores, la eficiencia de los tiros al aro, el desempempeño de los equipo, la importancia en la creación de espacios, entre otras cosas.
+El **básquetbol** es uno de los deportes que más ha incorporado el análisis estadístico en su evolución reciente. Desde las primeras métricas derivadas del *box score* (resumen estructurado de los resultados de un partido), el desarrollo de bases de datos *play-by-play* (registro de cada una de las acciones del partido) a partir de la década del 2000 hasta la incorporación más reciente de tecnologías de *player tracking*[^2]. A partir de esta información, se han desarrollado distintas herramientas estadísticas para poder estudiar la eficiencia de los jugadores, la eficiencia de los tiros al aro, el desempempeño de los equipo, la importancia en la creación de espacios, entre otras cosas.
 
 [^2]: El player tracking es un sistema tecnológico que utiliza cámaras y software de visión artificial en los estadios para registrar los movimientos de jugadores y pelotas en tiempo real en la cancha, produciendo datos detallados sobre su rendimiento.
 
@@ -47,7 +47,7 @@ El **básquetbol** es uno de los deportes que más ha incorporado el análisis e
 
 Desde la consolidación del box-score en el básquetbol profesional, durante la década de 1950, empezaron a calcularse las primeras medidas de desempeño para los jugadores, como pueden ser los puntos, rebotes, asistencias, etc. Durante mucho tiempo estas métricas constituyeron una de las formas más tradicionales de evaluar el rendimiento individual en el básquetbol. Su amplia disponibilidad y fácil interpretación las convirtieron en el principal insumo para comparar jugadores, otorgar premios o negociar contratos. Estas medidas suelen agruparse en un conjunto de estadísticas denominadas *bottom-up*, las cuales se calculan en función de las acciones individuales de los jugadores, es decir, si un jugador realiza una acción que se asocia con un resultado positivo para el equipo, la calificación de ese jugador aumenta, mientras que la calificación de los demás jugadores, que no participaron en la jugada, permanece sin cambios. Pero estas medidas presentan algunas limitaciones importantes. Por ejemplo, sólo capturan una parte de los eventos relevantes del partido (acciones como una defensa asfixiante, buenas rotaciones defensivas o pases rápidos para iniciar una posesión no están contempladas) y no necesariamente reflejan el impacto real de un jugador en las victorias de su equipo, que es lo que importa a fin de cuentas.
 
-Por otra parte, las medidas *top-down* se basan en el rendimiento del equipo en su conjunto, y el crédito por dicho rendimiento se distribuye entre los jugadores que estuvieron involucrados en el partido, sin importar qué acciones puntuales hayan realizado. Dentro de este conjunto de métricas encontramos una gran variedad de estadísticas muy utilizadas en la actualidad como el Plus/Minus (+/-), Win Shares, On-Off Rating, etc.
+Por otra parte, las medidas *top-down* se basan en el rendimiento del equipo en su conjunto, y el crédito por dicho rendimiento se distribuye entre los jugadores que estuvieron involucrados en el partido, sin importar qué acciones puntuales hayan realizado. Dentro de este conjunto de métricas encontramos una gran variedad de estadísticas muy utilizadas en la actualidad.
 
 Con la idea de que lo más importante en un partido es **ganar**, y entendiendo que las estadísticas tradicionales son solo una medida imperfecta de muchas de las contribuciones que realizan los jugadores a la victoria, en este trabajo buscaremos “pensar más allá del box score” y nos centraremos en estadísticas *top-down*, más precisamente en la medida Plus/Minus. Esta estadística registra los cambios que se producen en el marcador durante los minutos en que el jugador de interés está en cancha, partiendo de la idea de que los equipos deberían rendir mejor (reflejado en un Plus/Minus más alto) cuando sus buenos jugadores están en cancha que cuando no lo están. Sin embargo esta métrica posee una deficiencia clave: **la calificación de cada jugador va a depender en gran medida de la calidad de sus compañeros en el campo**.Por ejemplo: un jugador de rol dentro de un gran equipo va a tener un mayor Plus/Minus que una superestrella en un equipo con mal desempeño.
 
@@ -91,7 +91,7 @@ Por este motivo, resulta fundamental la incorporación de profesionales en carre
 
 ## Objetivo general
 
-Realizar el cálculo de RAPMs para los jugadores de la Liga Nacional de Básquetbol en Argentina para la temporada 2024/2025. Se buscará obtener un ranking de jugadores que pueda estimar de manera adecuada el aporte realizado por cada uno de los jugadores cuando están en cancha, para que sus equipos sean mejores.
+Realizar el cálculo de los RAPMs para los jugadores de la Liga Nacional de Básquetbol de Argentina para la temporada 2024/2025, con el fin de obtener un ranking de jugadores que estime de manera adecuada el aporte que cada uno realiza a la performance de su equipo cuando está en cancha.
 
 ## Objetivos específicos
 
@@ -103,11 +103,7 @@ Realizar el cálculo de RAPMs para los jugadores de la Liga Nacional de Básquet
 
 4)  **Determinar una metodología objetiva para evaluar modelos**: Definir criterios de evaluación para poder determinar que modelo proporciona mejores métricas, las cuales deben resumir de manera consistente y precisa el aporte ofensivo y defensivo de cada jugador en relación al desempeño de su equipo.
 
-5)  **Comparación de modelos en base a la distribución de la respuesta**: Comparar modelos gaussianos de referencia o *benchmarks models* planteados en la literatura relevante con modelos multinomiales que representen de manera más adecuada la naturaleza de nuestra variable de interés.
-
-6)  **Comparación de modelos en base a la forma de estimación de los parámetros**: Comparar modelos con distintas formas de regularización para estimar los parámetros, comparando los modelos de referencia que utilizan regresión ridge con modelos que utilicen las técnicas: lasso y elastic net.
-
-7)  **Evaluación del efecto de variables explicativas en el modelo**: Se incorporarán variables exógenas para evaluar si las mismas mejoran los resultados obtenidos por el modelo.
+5) **Comparación de modelos**: Comparar el desempeño de distintos modelos, variando la especificación de la distribución de la variable respuesta y los métodos de estimación de los parámetros, con el fin de identificar el enfoque más adecuado para los datos disponibles.
 
 # Metodología
 
@@ -406,8 +402,6 @@ row_spec(0, bold = TRUE, background = "#64B5F6", color = "white")   # línea ver
 Agresti, A. (2013). *Categorical Data Analysis* (3rd ed.). Wiley Series in Probability and Statistics. Wiley, New York.
 
 Damoulaki, A., Ntzoufras, I. & Pelechrinis, K. *Lasso multinomial performance indicators for in-play basketball data.* Comput Stat 40, 2157–2181 (2025).
-
-Dunn, P. K., & Smyth, G. K. (2018). *Generalized Linear Models with Examples in R* (2nd ed.). Springer.
 
 Hvattum, L. M. (2019). *A comprehensive review of plus–minus ratings for evaluating individual players in team sports.* International Journal of Computer Science in Sport, 18, 1–23.
 
