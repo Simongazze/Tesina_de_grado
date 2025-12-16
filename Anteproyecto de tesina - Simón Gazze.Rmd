@@ -419,7 +419,9 @@ row_spec(0, bold = TRUE, background = "#64B5F6", color = "white")   # línea ver
 
 Agresti, A. (2013). *Categorical Data Analysis* (3rd ed.). Wiley Series in Probability and Statistics. Wiley, New York.
 
-Damoulaki, A., Ntzoufras, I. & Pelechrinis, K. *Lasso multinomial performance indicators for in-play basketball data.* Comput Stat 40, 2157–2181 (2025).
+Damoulaki, A., Ntzoufras, I. & Pelechrinis, K. (2025). *Lasso multinomial performance indicators for in-play basketball data.* Comput Stat 40, 2157–2181.
+
+Dunn, P. K., & Smyth, G. K. (2018). *Generalized linear models with examples in R. Springer.*
 
 Hvattum, L. M. (2019). *A comprehensive review of plus–minus ratings for evaluating individual players in team sports.* International Journal of Computer Science in Sport, 18, 1–23.
 
