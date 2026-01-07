@@ -26,10 +26,10 @@ maximos = pbp_preprocesado_temporada %>%
              summarise(max(posesion))
 
 partido1 = pbp.crudo.temporada %>%
-  filter(partido_key == "GIMNASIA (CR) vs REGATAS (C) (003/05/2025 20:30)")
+  filter(partido_key == "QUIMSA vs BOCA (019/10/2024 11:30)")
 
 partido11 = pbp_preprocesado_temporada %>%
-  filter(partido_key == "GIMNASIA (CR) vs REGATAS (C) (003/05/2025 20:30)")
+  filter(partido_key == "QUIMSA vs BOCA (019/10/2024 11:30)")
 
 
 a = partido1 %>%
