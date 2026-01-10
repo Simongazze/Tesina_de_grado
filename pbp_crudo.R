@@ -2,10 +2,22 @@ library(dplyr)
 library(stringr)
 library(writexl)
 
-c = data.frame(a = unique(pbp.partido.crudo$accion))
+#faltas cometidas revision
+
+pbp.partido.crudo %>%
+  filter(accion == "FALTA COMETIDA") %>%
+  count()
+
+pbp_preprocesado_temporada %>%
+  filter(accion == "FALTA COMETIDA") %>%
+  count()
+
+#Pareceria correcto, en la fila 88 pareciera haber un error
+
+
 
 a =pbp.partido.crudo %>%
-  group_by(partido_key) %>%
+  group_by(partido_key, cuarto) %>%
   count()
 
 hist(a$n)  
@@ -19,12 +31,15 @@ b = pbp.partido.crudo %>%
 pbp.crudo.temporada %>% semi_join(b, by = "partido_key") %>%
   count(partido_key)
 
+unique(pbp_preprocesado_temporada$accion)
+
 write_xlsx(c, "acciones.xlsx")
 
 maximos = pbp_preprocesado_temporada %>%
              group_by(partido_key)%>%
              summarise(max(posesion))
 
+sum(maximos$`max(posesion)`)
 partido1 = pbp.partido.crudo %>%
   filter(partido_key == "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)")
 
@@ -34,7 +49,13 @@ partido11 = pbp_preprocesado_temporada %>%
 
 a = pbp.partido.crudo %>%
   mutate(
-    n_comillas_simples = str_count(quinteto_local, "'")
+    local = str_count(quinteto_local, "'"),
+    visitante = str_count(quinteto_visita, "'")
   )
 
-unique(a$n_comillas_simples)
+
+accion_vacia = pbp.partido.crudo %>%
+                filter(jugador == "")
+
+unique(accion_vacia$accion)
+
