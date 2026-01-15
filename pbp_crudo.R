@@ -14,22 +14,11 @@ pbp_preprocesado_temporada %>%
 
 #Pareceria correcto, en la fila 88 pareciera haber un error
 
-
-
-a =df_pbp_final %>%
+a =pbp_preprocesado_temporada %>%
   group_by(partido_key, cuarto) %>%
   count()
 
 hist(a$n)  
-
-
-
-b = pbp.partido.crudo %>%
-  filter(cuarto == 5) %>%
-  distinct(partido_key)
-
-pbp.crudo.temporada %>% semi_join(b, by = "partido_key") %>%
-  count(partido_key)
 
 unique(pbp_preprocesado_temporada$accion)
 
@@ -54,7 +43,7 @@ partido2 = pbp_preprocesado_temporada %>%
 unique(partido1$quinteto_local)
 unique(partido2$quinteto_local)
 
-#Corregimos error y eliminamos al jugador que no corresponde
+#Corregimos error y eliminamos al jugador que no corresponde, Merchant
 
 library(stringr)
 
@@ -106,7 +95,7 @@ accion_vacia = df_pbp_final %>%
 
 unique(accion_vacia$accion)
 
-#Revision de posesiones con cantidad de puntos raras
+#Revision de posesiones con cantidad de puntos raras, habia -2,-4,0,1,2,3,4,5,6,7 y 8 puntos en una posesión
 
 unique(poss_by_poss_temporada$puntos_pos)
 
@@ -118,10 +107,10 @@ prueba = poss_by_poss_temporada %>%
 prueba = poss_by_poss_temporada %>%
   filter(puntos_pos == 8)
 
-prueba1 = poss_by_poss_temporada %>%
+prueba2 = pbp_preprocesado_temporada %>%
   filter(partido_key == "QUIMSA vs BOCA (019/10/2024 11:30)")
 
-prueba2 = pbp_preprocesado_temporada %>%
+prueba2_a = pbp_preprocesado_temporada1 %>%
   filter(partido_key == "QUIMSA vs BOCA (019/10/2024 11:30)")
 
 prueba3 = df_pbp_final %>%
@@ -138,6 +127,9 @@ prueba3 = poss_by_poss_temporada %>%
   filter(puntos_pos == -2)
 
 prueba4 = pbp_preprocesado_temporada %>%
+  filter(partido_key == "OBERA vs OBRAS (027/04/2025 21:00)")
+
+prueba4_a = pbp_preprocesado_temporada1 %>%
   filter(partido_key == "OBERA vs OBRAS (027/04/2025 21:00)")
 
 #Error de carga desde cuarto 2 minuto 00:14 a 00:00
@@ -190,7 +182,7 @@ prueba9 = df_pbp_final %>%
 # falló el segundo y tomaron el rebote ofensivo, luego convirtieron un triple obteniendo así
 # una única posesión donde se convirtieron 6 puntos.
 
-prueba10 = df_pbp_final %>%
+prueba10 = pbp_preprocesado_temporada1 %>%
   filter(partido_key == "OBERA vs BOCA (005/11/2024 21:00)", cuarto == 1) 
 # 2 triples
 
@@ -225,5 +217,79 @@ sum(a$n*a$puntos_pos)
 
 #podriamos llevar el conteo de puntos de manera diferente para evitar estos problemas
 
+#Solución al problema de los puntos mal cargados: Al identificar errores en la página web a la hora
+#de ir contabilizando los puntos, decidi corregir esto "manualmente". Se identificó que solo hay 3 posibles
+#tipos de acciones que suman puntos: TIRO LIBRE ANOTADO, CANASTA DE 2 PUNTOS y TRIPLE. Así que se agregan
+#2 nuevas columnas, puntos_local_manual y puntos_visitante_manual en los cuales acumularemos los puntos
+#identificados a traves de la columna accion para de esta manera no tener ese tipo de errores
 
+pbp_preprocesado_temporada1 <- pbp_preprocesado_temporada %>%
+  group_by(partido_key) %>%
+  mutate(
+    # Incrementos de puntos por acción
+    inc_local = case_when(
+      accion == "TIRO LIBRE ANOTADO" & tipo_equipo_accion == "local" ~ 1,
+      accion == "CANASTA DE 2 PUNTOS" & tipo_equipo_accion == "local" ~ 2,
+      accion == "TRIPLE" & tipo_equipo_accion == "local" ~ 3,
+      TRUE ~ 0
+    ),
+    inc_visitante = case_when(
+      accion == "TIRO LIBRE ANOTADO" & tipo_equipo_accion == "visitante" ~ 1,
+      accion == "CANASTA DE 2 PUNTOS" & tipo_equipo_accion == "visitante" ~ 2,
+      accion == "TRIPLE" & tipo_equipo_accion == "visitante" ~ 3,
+      TRUE ~ 0
+    ),
+    
+    # Acumulados por partido (el orden ya es correcto)
+    puntos_local_manual = rev(cumsum(rev(inc_local))),
+    puntos_visitante_manual = rev(cumsum(rev(inc_visitante))),
+    
+    # Dejar NA cuando la acción no suma puntos
+    puntos_local_manual = if_else(
+      accion %in% c("TIRO LIBRE ANOTADO", "CANASTA DE 2 PUNTOS", "TRIPLE"),
+      puntos_local_manual,
+      NA_real_
+    ),
+    puntos_visitante_manual = if_else(
+      accion %in% c("TIRO LIBRE ANOTADO", "CANASTA DE 2 PUNTOS", "TRIPLE"),
+      puntos_visitante_manual,
+      NA_real_
+    )
+  ) %>%
+  ungroup() %>%
+  select(-inc_local, -inc_visitante)
+
+#Identificar acciones imposibles juntas
+
+acciones_validas <- c("CANASTA DE 2 PUNTOS", "TRIPLE")
+
+pbp_dobles_consecutivos <- pbp_preprocesado_temporada1 %>%
+  group_by(partido_key, cuarto) %>%
+  mutate(
+    accion_prev  = lag(accion),
+    equipo_prev  = lag(tipo_equipo_accion),
+    accion_next  = lead(accion),
+    equipo_next  = lead(tipo_equipo_accion),
+    
+    es_segunda = accion %in% acciones_validas &
+      accion_prev %in% acciones_validas &
+      tipo_equipo_accion == equipo_prev,
+    
+    es_primera = accion %in% acciones_validas &
+      accion_next %in% acciones_validas &
+      tipo_equipo_accion == equipo_next
+  ) %>%
+  ungroup() %>%
+  filter(es_primera | es_segunda)
+
+pbp_multi_anotacion_sin_ro <- pbp_preprocesado_temporada1 %>%
+  group_by(partido_key, posesion) %>%
+  filter(
+    # ≥ 2 anotaciones válidas
+    sum(accion %in% acciones_validas, na.rm = TRUE) >= 2,
+    
+    # NO existe "REBOTE OFENSIVO" en la posesión
+    !any(grepl("REBOTE OFENSIVO", accion))
+  ) %>%
+  ungroup()
 
