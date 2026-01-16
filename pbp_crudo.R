@@ -18,6 +18,10 @@ a =pbp_preprocesado_temporada %>%
   group_by(partido_key, cuarto) %>%
   count()
 
+b =poss_by_poss_temporada %>%
+  group_by(partido_key,cuarto) %>%
+  count()
+
 hist(a$n)  
 
 unique(pbp_preprocesado_temporada$accion)
@@ -252,7 +256,6 @@ pbp_preprocesado_temporada1 <- pbp_preprocesado_temporada %>%
 pbp_preprocesado_temporada1 = pbp_preprocesado_temporada1 %>%
                                     mutate(pts_fin_loc = ifelse(is.na(pts_fin_loc), pts_fin_loc, puntos_acum_local_manual),
                                           pts_fin_vis = ifelse(is.na(pts_fin_vis), pts_fin_vis, puntos_acum_visitante_manual))
-
 
 #write.csv(pbp_preprocesado_temporada1, "df_pbp_final_preproc.csv")
 
