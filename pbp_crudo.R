@@ -209,7 +209,7 @@ prueba = poss_by_poss_temporada %>%
 
 a = poss_by_poss_temporada %>%
       group_by(puntos_pos) %>%
-      count() 
+      count()
 
 sum(a$n*a$puntos_pos)
 
@@ -241,23 +241,20 @@ pbp_preprocesado_temporada1 <- pbp_preprocesado_temporada %>%
     ),
     
     # Acumulados por partido (el orden ya es correcto)
-    puntos_local_manual = rev(cumsum(rev(inc_local))),
-    puntos_visitante_manual = rev(cumsum(rev(inc_visitante))),
-    
-    # Dejar NA cuando la acción no suma puntos
-    puntos_local_manual = if_else(
-      accion %in% c("TIRO LIBRE ANOTADO", "CANASTA DE 2 PUNTOS", "TRIPLE"),
-      puntos_local_manual,
-      NA_real_
-    ),
-    puntos_visitante_manual = if_else(
-      accion %in% c("TIRO LIBRE ANOTADO", "CANASTA DE 2 PUNTOS", "TRIPLE"),
-      puntos_visitante_manual,
-      NA_real_
-    )
+    puntos_acum_local_manual = rev(cumsum(rev(inc_local))),
+    puntos_acum_visitante_manual = rev(cumsum(rev(inc_visitante)))
   ) %>%
   ungroup() %>%
   select(-inc_local, -inc_visitante)
+
+# Reemplazo pts_fin_loc y pts_fin_vis
+
+pbp_preprocesado_temporada1 = pbp_preprocesado_temporada1 %>%
+                                    mutate(pts_fin_loc = ifelse(is.na(pts_fin_loc), pts_fin_loc, puntos_acum_local_manual),
+                                          pts_fin_vis = ifelse(is.na(pts_fin_vis), pts_fin_vis, puntos_acum_visitante_manual))
+
+
+#write.csv(pbp_preprocesado_temporada1, "df_pbp_final_preproc.csv")
 
 #Identificar acciones imposibles juntas
 
@@ -293,3 +290,7 @@ pbp_multi_anotacion_sin_ro <- pbp_preprocesado_temporada1 %>%
   ) %>%
   ungroup()
 
+# Voy a cortar acá la limpieza de los datos, queda por revisar en un futuro las faltas cometidas que dejo y las
+#posesiones con mas de un tipo de anotación y que no presentan rebote ofensivo
+
+# No veria mal pasar lo que haya hecho acá a python para quedar con el trabajo de los datos ahí
