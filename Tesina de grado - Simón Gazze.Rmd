@@ -21,7 +21,7 @@ output:
 \vspace{1.5cm}
 
 % --- Subtítulo ---
-{\LARGE \textbf{Anteproyecto de Tesina}\par}
+{\LARGE \textbf{Tesina de grado}\par}
 
 \vspace{2cm}
 
@@ -66,7 +66,7 @@ El **básquetbol** es uno de los deportes que más ha incorporado el análisis e
 
 Desde la consolidación del box-score en el básquetbol profesional, durante la década de 1950, empezaron a calcularse las primeras medidas de desempeño para los jugadores, como pueden ser los puntos, rebotes, asistencias, etc. Durante mucho tiempo estas métricas constituyeron una de las formas más tradicionales de evaluar el rendimiento individual en el básquetbol. Su amplia disponibilidad y fácil interpretación las convirtieron en el principal insumo para comparar jugadores, otorgar premios o negociar contratos. Estas medidas suelen agruparse en un conjunto de estadísticas denominadas *bottom-up*, las cuales se calculan en función de las acciones individuales de los jugadores, es decir, si un jugador realiza una acción que se asocia con un resultado positivo para el equipo, la calificación de ese jugador aumenta, mientras que la calificación de los demás jugadores, que no participaron en la jugada, permanece sin cambios. Pero estas medidas presentan algunas limitaciones importantes, ya que, sólo capturan una parte de los eventos relevantes del partido (acciones como una defensa asfixiante, buenas rotaciones defensivas o pases rápidos para iniciar una posesión no están contempladas) y no necesariamente reflejan el impacto real de un jugador en las victorias de su equipo, que es lo que importa a fin de cuentas.
 
-Por otra parte, las medidas *top-down* se basan en el rendimiento del equipo en su conjunto, y el crédito por dicho rendimiento se distribuye entre los jugadores que estuvieron involucrados en el partido, sin importar qué acciones puntuales hayan realizado. 
+Por otra parte, las medidas *top-down* se basan en el rendimiento del equipo en su conjunto, y el crédito por dicho rendimiento se distribuye entre los jugadores que estuvieron involucrados en el partido, sin importar qué acciones puntuales hayan realizado.
 
 Con la idea de que lo más importante en un partido es **ganar**, y entendiendo que las estadísticas tradicionales son solo una medida imperfecta de muchas de las contribuciones que realizan los jugadores a la victoria, en este trabajo buscaremos “pensar más allá del box score” y nos centraremos en estadísticas *top-down*, más precisamente en la medida Plus/Minus. Esta estadística registra los cambios que se producen en el marcador durante los minutos en que el jugador de interés está en cancha, partiendo de la idea de que los equipos deberían rendir mejor (reflejado en un Plus/Minus más alto) cuando sus buenos jugadores están en cancha que cuando no lo están. Sin embargo esta métrica posee una deficiencia clave: **la calificación de cada jugador va a depender en gran medida de la calidad de sus compañeros en el campo**.Por ejemplo: un jugador de rol dentro de un gran equipo va a tener un mayor Plus/Minus que una superestrella en un equipo con mal desempeño.
 
@@ -122,7 +122,7 @@ Realizar el cálculo de los RAPMs para los jugadores de la Liga Nacional de Bás
 
 4)  **Determinar una metodología objetiva para evaluar modelos**: Definir criterios de evaluación para poder determinar que modelo proporciona mejores métricas, las cuales deben resumir de manera consistente y precisa el aporte ofensivo y defensivo de cada jugador en relación al desempeño de su equipo.
 
-5) **Comparación de modelos**: Comparar el desempeño de distintos modelos, variando la especificación de la distribución de la variable respuesta y los métodos de estimación de los parámetros, con el fin de identificar el enfoque más adecuado para los datos disponibles.
+5)  **Comparación de modelos**: Comparar el desempeño de distintos modelos, variando la especificación de la distribución de la variable respuesta y los métodos de estimación de los parámetros, con el fin de identificar el enfoque más adecuado para los datos disponibles.
 
 # Metodología
 
@@ -348,9 +348,21 @@ Fuente: Hvattum (2023), *How to evaluate football player ratings?* [Video]. YouT
 
 ## Generación y preprocesamiento de la base de datos
 
-Una parte central de esta tesina estará dedicada a la construcción de una base de datos *play-by-play* correspondiente a la temporada 2024/2025 de la Liga Nacional de Básquetbol de Argentina. Este tipo de base registra todas las acciones ocurridas dentro de un partido. Dado que esta información no se encuentra disponible de forma accesible, será necesario recurrir a técnicas de web scraping para su obtención. Los datos necesarios se extraerán del [Sitio Oficial de la Liga Nacional de Básquet](https://www.laliganacional.com.ar/laliga) , utilizando librerías de Python como `Selenium` y `BeautifulSoup`.
+Una parte central de esta tesina estará dedicada a la construcción de una base de datos *play-by-play* correspondiente a la temporada 2024/2025 de la Liga Nacional de Básquetbol de Argentina. Este tipo de base registra todas las acciones ocurridas dentro de un partido. Dado que no existe una fuente oficial que provea los datos en formato estructurado y descargable para su análisis estadístico, fue necesario diseñar y ejecutar un proceso de *web scraping* que permitiera recolectar, integrar y depurar la información de manera sistemática y reproducible. Los datos necesarios se extraerán del [Sitio Oficial de la Liga Nacional de Básquet](#0) , utilizando librerías de Python como `Selenium` y `BeautifulSoup`.
 
-En primera instancia, se automatizará el proceso de identificar cada uno de los enlaces de los 379 partidos de temporada regular y posteriormente se iterará sobre los mismos para obtener la información de cada una de las jugadas del partido. Cabe destacar que en nuestro dataset final sin procesar cada fila se correspondera con cada una de las jugadas o acciones que sucedan dentro del partido, por lo cual posteriormente sera necesario realizar un proceso de preprocesamiento de los datos que permita agrupar dichas acciones en **posesiones**, entendidas como el conjunto de jugadas ocurridas antes de que cambie el control de la pelota.
+La información requerida para armar nuestra base de datos se encuentra subida en páginas webs particulares para cada uno de los partidos que han transcurrido en la temporada, el formato de dichas páginas es el siguiente:
+
+### Generación del listado de links de los partidos
+
+El primer paso consistió en la identificación y recopilación de los enlaces individuales de todos los partidos incluidos en el período de estudio (378 partidos de temporada regular). Para ello, se accedió a la página de la Liga Nacional, [sección Fixture](https://www.laliganacional.com.ar/laliga/fixture), la cual presenta una tabla dinámica con los encuentros disputados.
+
+A partir de este procesamiento se identificaron todas las etiquetas HTML que contenían enlaces a las estadísticas detalladas de cada partido, reconociendo un patrón común en las URLs asociadas a los encuentros individuales: "estadisticascabb.gesdeportiva.es/partido/". Estos enlaces fueron almacenados en una estructura de datos, evitando duplicaciones, y posteriormente volcados a un archivo de texto (.txt). Dicho archivo constituyó el insumo básico para el proceso posterior de scraping masivo, sobre los cuales se iterará para obtener así la información correspondiente a cada una de las acciones de cada partido.
+
+Esta estrategia permitió, además, asegurar la reproducibilidad del proceso, ya que el listado de partidos es eliminado de la página web una vez terminada la temporada, quedando fijado y documentado de manera explícita para su uso, en caso de ser requerido.
+
+### Generación de la base de datos *play-by-play*
+
+Cabe destacar que en nuestro dataset final sin procesar cada fila se correspondera con cada una de las jugadas o acciones que sucedan dentro del partido, por lo cual posteriormente sera necesario realizar un proceso de preprocesamiento de los datos que permita agrupar dichas acciones en **posesiones**, entendidas como el conjunto de jugadas ocurridas antes de que cambie el control de la pelota.
 
 A través de este proceso, las variables que se registrarán son: la cantidad de puntos que se anotaron en esa posesión, los jugadores en cancha en ese momento, la condición de localía del equipo en posesión de la pelota, el momento del partido (minutos restantes), el marcador en ese momento de partido y los equipos involucrados.
 
