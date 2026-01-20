@@ -386,8 +386,6 @@ Esta tabla constituye un diccionario que permite asociar a cada jugador con su r
 
 ### Preprocesamiento de los datos
 
-Cabe destacar que en nuestro dataset final sin procesar cada fila se correspondera con cada una de las jugadas o acciones que sucedan dentro del partido por lo cual, una vez obtenida la base de datos "cruda", sera necesario realizar un proceso de preprocesamiento de los datos que permita agrupar dichas acciones en **posesiones**, entendidas como el conjunto de acciones ocurridas antes de que cambie el control de la pelota.
-
 #### Integración del box score con el play-by-play
 
 Una vez construida la tabla jugadores-equipos, se procedió a integrar dicha información con la base de datos play-by-play. Para ello, los nombres de los jugadores fueron previamente normalizados con el objetivo de reducir posibles inconsistencias de formato (espacios adicionales, diferencias menores de escritura), y luego se utilizó la correspondencia jugador–equipo para asignar a cada acción del play-by-play el equipo del jugador involucrado.
@@ -407,6 +405,26 @@ Una vez identificado el conjunto de jugadores presentes en cancha en cada moment
 Una vez reconstruidos los quintetos en cancha para cada acción, se incorporó un control de consistencia basado en la cantidad total de jugadores activos. Dado que una situación de juego regular involucra diez jugadores (cinco por equipo), se podrán identificar aquellas acciones en las que la cantidad total de jugadores en cancha fuera superior o inferior a dicho umbral.
 
 ### Generación de la base de datos *poss-by-poss*
+
+Como resultado de las etapas anteriores, pudimos obtener una base de datos unificada donde cada fila se corresponde con cada una de las jugadas o acciones que suceden dentro del partido, incluyendo información relevante para este trabajo como lo es el marcador del partido al momento de la acción, la composición de los quintetos en cancha y la condición de local o visitante. Sin embargo, para poder aplicar los modelos estadísticos mencionados en esta tesina de grado, resulta necesario agrupar estas acciones en **posesiones**, entendidas como el conjunto de acciones ocurridas antes de que cambie el control de la pelota.
+
+Para llevar a cabo este proceso fue necesario definir una metodología adecuada que permita diferenciar qué acciones pertenecían a una misma posesión, y en que momento comenzaba una distinta.
+
+#### Eliminación de acciones no relevantes para la posesión
+
+Este procedimiento no pudo realizarse de manera directa, ya que, a pesar de contar con la información secuencial sobre el que equipo realizaba cada acción, no todo cambio en el equipo asociado a una acción implica necesariamente un cambio de posesión del balón. Existen situaciones en las que se registran acciones del equipo defensor dentro de una posesión del equipo atacante. A los cuales se ha decidido por llamar como "acciones intrusas".
+
+-------- ejemplo de acciones intrusas en un partido ----------- puede ser algo que si contaramos la accion intrusa serian 3 posesiones y una X, y otro caso en que si la eliminamos se contaria una sola posesion y agregamos una tilde 
+
+Luego de hacer una revisión manual en un conjunto limitado de partidos, se llegó a la definición de que el siguiente conjunto de acciones suelen ser siempre acciones intrusas o nunca resultan informativas para la delimitación de las posesiones. En consecuencia se ha decidido eliminar las filas en las que ocurren estas acciones en la base de datos.
+
+Estas acciones son:
+
+"ENTRA A PISTA", "INICIO DEL PERIODO", "FINAL DEL PERIODO", "ABANDONA LA PISTA", "TAPON REALIZADO", "TECNICA", "TECNICA BANQUILLO (C)", "TECNICA BANQUILLO (B)", "TECNICA DESCALIFICANTE", "TECNICA DESCALIFICANTE ACOMPAÑANTE NO PARTICIPA", "TECNICA-E (ALINEACIÓN ILEGAL)", "TIEMPO MUERTO SOLICITADO", "ANTIDEPORTIVA" (poner como tabla)
+
+
+
+Para poder aplicar los modelos estadísticos presentes en esta tesina de grado, se deberá definir una metodología adecuada para obtener una base de datos co
 
 A través de este proceso, las variables que se registrarán son: la cantidad de puntos que se anotaron en esa posesión, los jugadores en cancha en ese momento, la condición de localía del equipo en posesión de la pelota, el momento del partido (minutos restantes), el marcador en ese momento de partido y los equipos involucrados.
 
