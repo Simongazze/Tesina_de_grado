@@ -422,9 +422,46 @@ Estas acciones son:
 
 "ENTRA A PISTA", "INICIO DEL PERIODO", "FINAL DEL PERIODO", "ABANDONA LA PISTA", "TAPON REALIZADO", "TECNICA", "TECNICA BANQUILLO (C)", "TECNICA BANQUILLO (B)", "TECNICA DESCALIFICANTE", "TECNICA DESCALIFICANTE ACOMPAÑANTE NO PARTICIPA", "TECNICA-E (ALINEACIÓN ILEGAL)", "TIEMPO MUERTO SOLICITADO", "ANTIDEPORTIVA" (poner como tabla)
 
+#### Manejo de otro tipo de acciones particulares
+
+1) Tratamiento de la flecha de alternancia
+
+En el básquetbol bajo reglamento FIBA, la flecha de alternancia determina la posesión del balón en los inicios de cuarto o en situaciones de salto entre dos. Cuando este evento aparece registrado en el play-by-play, el equipo que obtiene la posesión es el opuesto al que figura inicialmente asociado a la acción.
+
+Para corregir este comportamiento, se implementó una regla que invierte el equipo asignado a la acción en presencia de una flecha de alternancia, garantizando la correcta identificación del equipo en control del balón.
+
+2) Eliminación de rebotes defensivos al final de cada cuarto
+
+Se detectó que, en algunos casos, el play-by-play registra un rebote defensivo como última acción de un cuarto. Ya que esta situación sucede quedando unos pocos segundos para terminar el cuarto, no debe ser contabilizada como una posesión real, y para evitar dichas situaciones se eliminó dichas acciones de la base de datos.
+
+3) Reglas específicas para el tratamiento de faltas ofensivas
+
+Las faltas ofensivas representan un caso particular dentro del play-by-play, ya que no son diferenciadas de las faltas defensivas en la descripción de la acción, y tienen una diferencia fundamental a la hora de definir las posesiones, ya que las faltas defensivas corresponden a una "acción intrusa" y deben ser eliminadas de la base, mientras que las faltas ofensivas siempre implican un cambio inmediato de posesión y pueden ser la única acción que realice un equipo dentro de una posesión, por lo que en esos casos deben conservarse. En consecuencia, se desarrolló un conjunto de reglas basadas en el contexto de la acción previa para decidir si una falta debe ser conservada o eliminada del registro.
+
+En particular, se definió que las faltas ofensivas a conservar son las que que ocurren luego de lanzamientos, pérdidas o acciones de anotación con una separación temporal suficiente, e identificando que el equipo que comete la falta es distinto del equipo que ejecutó la acción previa. Todas las faltas restantes fueron eliminadas para evitar duplicaciones o interrupciones artificiales en la secuencia de juego.
+
+-----ejemplo de falta ofensiva-------
+
+#### Identificación de la finalización de las posesiones
+
+Una vez realizada está tarea de preprocesamiento anteriormente mencionada, se incorporó un identificador preliminar de posesión, basado en dos criterios fundamentales: el cambio de equipo en control del balón y el cambio de cuarto. De manera que cada vez que ocurre alguno de estos eventos, se identifica como el inicio una nueva posesión.
+
+-----ejemplo------
 
 
-Para poder aplicar los modelos estadísticos presentes en esta tesina de grado, se deberá definir una metodología adecuada para obtener una base de datos co
+De este modo, se seleccionaron las filas correspondientes a los eventos finales de cada posesión, descartando las acciones intermedias que no determinan su conclusión.
+
+#### Cálculo de puntos por posesión
+
+Para obtener la cantidad de puntos obtenidos en cada posesión, se calculó la diferencia entre el puntaje acumulado del equipo atacante al final de la posesión y el puntaje acumulado registrado al cierre de la posesión inmediatamente anterior. De esta manera, cada posesión queda caracterizada por una variable discreta que representa su resultado ofensivo en términos de puntos anotados.
+
+#### Identificación de jugadores ofensivos y defensivos en cancha
+
+Con el objetivo de poder distinguir la participación individual de los jugadores en cada posesión, se utilizó la información de los quintetos en cancha previamente reconstruidos durante el preprocesamiento. Para cada posesión se identificaron los cinco jugadores del equipo atacante y los cinco jugadores del equipo defensor.
+
+A partir de esta información se construyó una representación matricial de jugadores por posesión, donde cada jugador de la temporada cuenta con dos variables indicadora. En la cual, la primer variable Dummie asigna a cada jugador un 1 si el jugador forma parte del quinteto ofensivo y 0 en caso contratrio; mientras que la segunda variable Dummie asigna un -1 si el jugador forma parte del quinteto defensivo, y 0 en otro caso. Este esquema permite modelar de manera explícita la contribución ofensiva y defensiva de manera independiente/separada para cada uno de los jugadores que han participado en al menos un partido dentro de la temporada en estudio.
+
+### Base de datos final: *poss-by-poss*
 
 A través de este proceso, las variables que se registrarán son: la cantidad de puntos que se anotaron en esa posesión, los jugadores en cancha en ese momento, la condición de localía del equipo en posesión de la pelota, el momento del partido (minutos restantes), el marcador en ese momento de partido y los equipos involucrados.
 
