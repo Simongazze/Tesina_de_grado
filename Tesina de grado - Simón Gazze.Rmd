@@ -414,7 +414,7 @@ Para llevar a cabo este proceso fue necesario definir una metodología adecuada 
 
 Este procedimiento no pudo realizarse de manera directa, ya que, a pesar de contar con la información secuencial sobre el que equipo realizaba cada acción, no todo cambio en el equipo asociado a una acción implica necesariamente un cambio de posesión del balón. Existen situaciones en las que se registran acciones del equipo defensor dentro de una posesión del equipo atacante. A los cuales se ha decidido por llamar como "acciones intrusas".
 
--------- ejemplo de acciones intrusas en un partido ----------- puede ser algo que si contaramos la accion intrusa serian 3 posesiones y una X, y otro caso en que si la eliminamos se contaria una sola posesion y agregamos una tilde 
+-------- ejemplo de acciones intrusas en un partido ----------- puede ser algo que si contaramos la accion intrusa serian 3 posesiones y una X, y otro caso en que si la eliminamos se contaria una sola posesion y agregamos una tilde
 
 Luego de hacer una revisión manual en un conjunto limitado de partidos, se llegó a la definición de que el siguiente conjunto de acciones suelen ser siempre acciones intrusas o nunca resultan informativas para la delimitación de las posesiones. En consecuencia se ha decidido eliminar las filas en las que ocurren estas acciones en la base de datos.
 
@@ -424,17 +424,17 @@ Estas acciones son:
 
 #### Manejo de otro tipo de acciones particulares
 
-1) Tratamiento de la flecha de alternancia
+1)  Tratamiento de la flecha de alternancia
 
 En el básquetbol bajo reglamento FIBA, la flecha de alternancia determina la posesión del balón en los inicios de cuarto o en situaciones de salto entre dos. Cuando este evento aparece registrado en el play-by-play, el equipo que obtiene la posesión es el opuesto al que figura inicialmente asociado a la acción.
 
 Para corregir este comportamiento, se implementó una regla que invierte el equipo asignado a la acción en presencia de una flecha de alternancia, garantizando la correcta identificación del equipo en control del balón.
 
-2) Eliminación de rebotes defensivos al final de cada cuarto
+2)  Eliminación de rebotes defensivos al final de cada cuarto
 
 Se detectó que, en algunos casos, el play-by-play registra un rebote defensivo como última acción de un cuarto. Ya que esta situación sucede quedando unos pocos segundos para terminar el cuarto, no debe ser contabilizada como una posesión real, y para evitar dichas situaciones se eliminó dichas acciones de la base de datos.
 
-3) Reglas específicas para el tratamiento de faltas ofensivas
+3)  Reglas específicas para el tratamiento de faltas ofensivas
 
 Las faltas ofensivas representan un caso particular dentro del play-by-play, ya que no son diferenciadas de las faltas defensivas en la descripción de la acción, y tienen una diferencia fundamental a la hora de definir las posesiones, ya que las faltas defensivas corresponden a una "acción intrusa" y deben ser eliminadas de la base, mientras que las faltas ofensivas siempre implican un cambio inmediato de posesión y pueden ser la única acción que realice un equipo dentro de una posesión, por lo que en esos casos deben conservarse. En consecuencia, se desarrolló un conjunto de reglas basadas en el contexto de la acción previa para decidir si una falta debe ser conservada o eliminada del registro.
 
@@ -447,7 +447,6 @@ En particular, se definió que las faltas ofensivas a conservar son las que que 
 Una vez realizada está tarea de preprocesamiento anteriormente mencionada, se incorporó un identificador preliminar de posesión, basado en dos criterios fundamentales: el cambio de equipo en control del balón y el cambio de cuarto. De manera que cada vez que ocurre alguno de estos eventos, se identifica como el inicio una nueva posesión.
 
 -----ejemplo------
-
 
 De este modo, se seleccionaron las filas correspondientes a los eventos finales de cada posesión, descartando las acciones intermedias que no determinan su conclusión.
 
@@ -463,9 +462,27 @@ A partir de esta información se construyó una representación matricial de jug
 
 ### Base de datos final: *poss-by-poss*
 
-A través de este proceso, las variables que se registrarán son: la cantidad de puntos que se anotaron en esa posesión, los jugadores en cancha en ese momento, la condición de localía del equipo en posesión de la pelota, el momento del partido (minutos restantes), el marcador en ese momento de partido y los equipos involucrados.
+A través de este proceso, se generó una base de datos que permitirá modelar la cantidad de puntos por posesión teniendo en cuenta los jugadores presentes en cancha, dicha base cuenta con la información correspondiente a 58.625 posesiones, asociadas a 378 partidos disputados en la temporada en estudio.
 
-Finalmente, luego de un proceso de limpieza y estructuración de los datos, se obtendrá una base que pueda ser utilizada en la implementación de los modelos estadísticos mencionados en las secciones anteriores.
+Las variables presentes son las siguientes:
+
+`puntos_pos` = Cantidad de puntos en la posesión.
+
+`cuarto` = Cuarto en el que se desarrollo la posesión.
+
+`tiempo` = Tiempo restante del cuarto en el momento que finaliza la acción.
+
+`equipo_accion` = Nombre del equipo que está atacando en la posesión.
+
+`localia_accion` = Condición de localia del equipo que está atacando en la posesión.
+
+Y se cuenta con variables indicadoras referentes a las presencias ofensivas y defensivas al momento de la posesión para cada uno de los jugadores que hayan completado al menos una posesión a lo largo de la temporada, contabilizando de esta manera otras 700 (350 indicadoras ofensivas y 350 indicadoras defensivas) variables dentro del dataset.
+
+podria en la parte de la generación del box score comentar que tambien se utilizará para poder filtrar a los jugadores que hayan participado menos de cierto umbral de minutos durante la temporada.
+
+agregar tambien que los datos en el play by play son cargados por una mesa de control y que posiblemente contengan errores los cuales van a intentar de ser minimizados al maximo
+
+falta lo de MERCHANT que es un error propio de la carga de datos, quizas depende de como tome las posesiones con 7 puntos por ejemplo puedo ponerlos todos juntos en un nuevo apartado
 
 ## Estimación de los RAPMs
 
