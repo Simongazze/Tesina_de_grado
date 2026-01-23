@@ -496,6 +496,21 @@ Por otro lado, en caso de presentarse limitaciones computacionales que dificulte
 
 En esta última etapa, se procederá a la evaluación y comparación de los modelos ajustados, siguiendo la metodología propuesta por Hvattum pero aplicada al básquetbol. Cada uno de los distintos modelos será evaluado en función de la consistencia que presenten y la validez de los mismos. Los resultados se presentarán mediante gráficos comparativos que faciliten la visualización de las diferencias entre enfoques y estará acompañado de un análisis personal basado en la experiencia propia sobre los jugadores de la liga, permitiendo contextualizar los resultados y destacar aspectos relevantes que puedan no ser capturados únicamente por los modelos estadísticos.
 
+# Cuestiones a tener en cuenta
+
+No olvidar el error producido por las posesiones que arrancan en un quinteto y terminan con otro.
+
+
+
+
+
+
+
+
+
+
+
+
 \newpage
 
 # Cronograma de actividades
