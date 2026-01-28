@@ -26,7 +26,7 @@ Posteriormente, se realizó un preprocesamiento orientado a transformar los even
 
 El primer paso consistió en la identificación y recopilación de los enlaces individuales de todos los partidos incluidos en el período de estudio (378 partidos de temporada regular). Para ello, se accedió a la página de la Liga Nacional, [sección Fixture](https://www.laliganacional.com.ar/laliga/fixture), la cual presenta una tabla dinámica con los encuentros disputados.
 
-```{r, echo=FALSE, fig.cap="Fixture dentro de la página web de la LNB.", out.width="100%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Fixture dentro de la página web de la LNB.", out.width="70%", fig.align="center"}
 knitr::include_graphics("imagen links partidos.png")
 ```
 
@@ -42,39 +42,44 @@ Una vez obtenido el listado completo de enlaces correspondientes a cada uno de l
 
 Esta sección del sitio web contiene una tabla que se genera dinámicamente y que registra, en orden cronológico, todas las acciones ocurridas durante el partido.
 
-```{r, echo=FALSE, fig.cap="Pestaña en vivo dentro de la página web de estadísticas de un partido", out.width="80%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Pestaña en vivo dentro de la página web de estadísticas de un partido", out.width="70%", fig.align="center"}
 knitr::include_graphics("imagen play by play_1.png")
 ```
 
 En dicha tabla, cada acción del partido se encuentra representada como un elemento ordenado de manera cronológica que incluye información textual sobre el tipo de acción (por ejemplo, lanzamiento convertido, falta, pérdida, etc), el jugador que realiza dicha acción, el cuarto de juego, el tiempo restante en el cuarto y , en caso de ser una acción donde se generan puntos, el marcador parcial en ese momento del partido. Esta información fue sistemáticamente extraída y almacenada en una estructura tabular, conservando el orden temporal de las acciones.
 
-Este procedimiento se aplicó de forma idéntica a todos los partidos de la temporada analizada, utilizando como insumo los enlaces previamente identificados. Finalmente, los registros de acciones obtenidos para cada encuentro fueron concatenados en una única base de datos de play-by-play, incorporando un identificador de partido que permite distinguir y vincular las acciones correspondientes a cada juego.
+Este procedimiento se aplicó de forma idéntica a todos los partidos de la temporada analizada, utilizando como insumo los enlaces previamente identificados. Finalmente, los registros de acciones obtenidos para cada encuentro fueron concatenados en una única base de datos de *play-by-play*, incorporando un identificador de partido que permite distinguir y vincular las acciones correspondientes a cada juego.
 
 Cabe destacar que, el *play-by-play* resultante constituye una secuencia detallada de eventos, pero en su forma original no incluye una identificación explícita del equipo asociado a cada acción, lo cual resulta indispensable a la hora de poder determinar a todos los jugadores presentes, tanto de manera ofensiva como defensiva, en cada una de las acciones del partido.
 
 #### Tabla de jugadores-equipos
 
-Para resolver este problema, se obtendrá dicha información a partir de los datos provenientes del *Box Score*, los cuales se encuentran en la pestaña "Estadísticas" de la página web del partido. Aquí encontraremos información referida a cada uno de los jugadores anotados en la plantilla de ambos equipos.
+Para resolver este problema, se obtuvo dicha información a partir de los datos provenientes del *Box Score*, los cuales se encuentran en la pestaña "Estadísticas" de la página web del partido. Aquí encontraremos información referida a cada uno de los jugadores anotados en la plantilla de ambos equipos.
 
-------imagen del box score -----------
+```{r, echo=FALSE, fig.cap="Ejemplo del Box Score de un partido", out.width="70%", fig.align="center"}
+knitr::include_graphics("imagen box score.png")
+```
 
 En esta pestaña, la información se organiza en dos tablas con estadísticas individuales de los jugadores, una correspondiente al equipo local y otra al equipo visitante, las cuales aparecen en el mismo orden en que se muestran los nombres de los equipos en la interfaz del sitio web. A partir de esta estructura, se extrajo para cada jugador su nombre completo ,el equipo al que pertenece y la cantidad de minutos disputados en dicho partido, generándose así una tabla de correspondencia jugador–equipo.
 
-Esta tabla constituye un diccionario que permite asociar a cada jugador con su respectivo equipo, y es utilizada posteriormente como insumo para identificar el equipo que realiza cada acción en la base *play-by-play*. A su vez, mediante la adición de la cantidad de minutos en el partido se podrá realizar un filtrado posterior de los jugadores que hayan participado menos de cierto umbral requerido de tiempo durante la temporada, cuestión fundamental a tratar posteriormente en este trabajo.
+Esta tabla constituye un diccionario que permite asociar a cada jugador con su respectivo equipo, y es utilizada posteriormente como insumo para identificar el equipo que realiza cada acción en la base *play-by-play*. A su vez, mediante la adición de la cantidad de minutos en el partido se podrá realizar un filtrado de jugadores que hayan participado menos de cierto umbral requerido de tiempo durante la temporada, cuestión fundamental a tratar posteriormente en este trabajo.
 
 ### Preprocesamiento de los datos
 
 #### Integración del box score con el play-by-play
 
-Una vez construida la tabla jugadores-equipos, se procedió a integrar dicha información con la base de datos play-by-play. Para ello, los nombres de los jugadores fueron previamente normalizados con el objetivo de reducir posibles inconsistencias de formato (espacios adicionales, diferencias menores de escritura), y luego se utilizó la correspondencia jugador–equipo para asignar a cada acción del play-by-play el equipo del jugador involucrado.
+Una vez construida la tabla jugadores-equipos, se procedió a integrar dicha información con la base de datos play-by-play. Para ello, los nombres de los jugadores fueron previamente normalizados con el objetivo de reducir posibles inconsistencias de formato (espacios adicionales, diferencias menores de escritura), y luego se utilizó la correspondencia jugador–equipo para asignar a cada acción del *play-by-play* el equipo del jugador involucrado.
 
-De este modo, cada acción queda asociada explícitamente a uno de los dos equipos del partido, aun cuando dicha información no se encuentre disponible de forma directa en el registro original del play-by-play. Este procedimiento permite identificar que jugadores estarán en cancha para cada uno de los equipos, permitiendo construir los quintetos en cada momento del partido.
+De este modo, cada acción queda asociada explícitamente a uno de los dos equipos del partido, aun cuando dicha información no se encuentre disponible de forma directa en el registro original del *play-by-play*. Este procedimiento permite identificar que jugadores estarán en cancha para cada uno de los equipos, permitiendo construir los quintetos en cada momento del partido.
 
 #### Identificación de los quintetos en cancha al momento de la acción
 
 A partir de la nueva tabla generada, se procedió a construir la presencia de los jugadores en cancha a lo largo del partido. Para ello, se identificaron las acciones asociadas a sustituciones, distinguiendo entre entradas (acción = ENTRA A PISTA) y salidas de jugadores (acción = ABANDONA LA PISTA).
 
--------ejemplo de un inicio de partido-----------
+```{r, echo=FALSE, fig.cap="Ejemplo de secuencia de acciones con sustitución", out.width="50%", fig.align="center"}
+knitr::include_graphics("imagen sustitucion.png")
+```
+\newpage
 
 El conjunto de jugadores en cancha se actualiza a medida que se recorren las acciones del partido, reiniciándose al comienzo de cada cuarto. De este modo, para cada instante del juego se obtiene el conjunto de jugadores activos en cancha.
 
