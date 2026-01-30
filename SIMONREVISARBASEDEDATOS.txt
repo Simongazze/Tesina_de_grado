@@ -1,0 +1,9 @@
+Cuestiones a modificar para mejorar la base de datos:
+
+Agregar flecha de alternancia al comienzo de cada cuarto
+
+Revisar las acciones con más de una anotación, dentro de la misma posesión
+
+1)Si hay falta en ataque (a)- falta recibida(b) - perdida(a) deberia ser una sola posesión en vez de tres ... es muy posible que esta sea una forma de identificar las faltas en ataque
+
+2)tiro y desp falta del rival siempre se deja, quizas habría que poner un margen de 3/4 segundos porque hay muchas faltas en el rebote que general libres y se corresponden a la misma posesión

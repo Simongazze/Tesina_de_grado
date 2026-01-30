@@ -152,11 +152,17 @@ Se detectó que, en algunos casos, el *play-by-play* registra un rebote defensiv
 
 3)  Reglas específicas para el tratamiento de faltas ofensivas
 
-Las faltas ofensivas representan un caso particular dentro del play-by-play, ya que no son diferenciadas de las faltas defensivas en la descripción de la acción, y tienen una diferencia fundamental a la hora de definir las posesiones. Por un lado, las faltas defensivas corresponden a una "acción intrusa" y deben ser eliminadas de la base, mientras que las faltas ofensivas siempre implican un cambio inmediato de posesión y pueden ser la única acción que realice un equipo dentro de una posesión, por lo que en esos casos deben conservarse. En consecuencia, se desarrolló un conjunto de reglas basadas en el contexto de la acción previa para decidir si una falta debe ser conservada o eliminada del registro.
+Las faltas ofensivas representan un caso particular dentro del play-by-play, ya que no son diferenciadas de las faltas defensivas en la descripción de la acción, y tienen una diferencia fundamental a la hora de definir las posesiones. Por un lado, las faltas defensivas corresponden a una "acción intrusa" y deben ser eliminadas de la base, mientras que las faltas ofensivas siempre implican un cambio inmediato de posesión y, en ocasiones, pueden ser la única acción que realice un equipo dentro de una posesión, por lo que en esos casos puntuales dicha acción debe conservarse. 
 
-En particular, se definió que las faltas ofensivas a conservar son las que que ocurren luego de lanzamientos, pérdidas o acciones de anotación con una separación temporal suficiente, e identificando que el equipo que comete la falta es distinto del equipo que ejecutó la acción previa. Todas las faltas restantes fueron eliminadas para evitar errores en el conteo de posesiones.
+En consecuencia, se desarrolló un conjunto de reglas basadas en el contexto de la acción previa para decidir si una falta debe ser conservada o eliminada del registro. Particularmente, se definió que: una falta debe conservarse si el equipo que la comete es distinto al equipo que realizó la acción inmediata anterior, siempre que dicha acción previa sea:
 
------ejemplo de falta ofensiva-------revisar si desp de tiro fallado no es siempre falta ofensiva
+1) un lanzamiento fallido.
+2) una pérdida de balón.
+3) Una anotación con una separación temporal suficiente que indique el transcurso de una nueva posesión.
+
+Todas las faltas que no cumplían esta condición fueron eliminadas para evitar errores en el conteo de posesiones.
+
+-----ejemplo de falta ofensiva-------
 
 #### Identificación de la finalización de las posesiones
 
