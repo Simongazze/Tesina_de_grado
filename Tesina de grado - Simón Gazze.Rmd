@@ -331,7 +331,7 @@ Según Hvattum, un buen modelo producirá resultados similares independientement
 Para evaluar esto, se divide el conjunto de datos completo en dos particiones con cantidades similares de posesiones. Luego, se calculan los valores de RAPM para cada partición y se estima la correlación de Pearson entre ambos conjuntos de coeficientes. Cuanto mayor sea este coeficiente, mayor será la consistencia del modelo.
 
 ![Procedimiento para evaluar la consistencia de los modelos RAPM.\
-Fuente: Hvattum (2023), *How to evaluate football player ratings?* [Video]. YouTube.](consistencia-hvattum.PNG){width="80%"}
+Fuente: Hvattum (2023), *How to evaluate football player ratings?* [Video]. YouTube.](img/consistencia-hvattum.PNG){width="80%"}
 
 ### Validez
 
@@ -342,7 +342,7 @@ La idea general se basa en plantear un modeo de regresión logística binario, d
 Para ello, se estiman los valores de RAPM utilizando los datos de, por ejemplo, la primera mitad de la temporada. Posteriormente, se ajusta el modelo logístico con un conjunto de partidos posteriores y, finalmente, se evalúa la capacidad predictiva del modelo sobre los partidos restantes, empleando métricas de desempeño como el AUC, Accuracy, etc.
 
 ![Procedimiento para evaluar la validez de los modelos RAPM.\
-Fuente: Hvattum (2023), *How to evaluate football player ratings?* [Video]. YouTube.](Diseño%20sin%20título%20(1).png){width="80%"}
+Fuente: Hvattum (2023), *How to evaluate football player ratings?* [Video]. YouTube.](img/Diseño%20sin%20título%20(1).png){width="80%"}
 
 # Aplicación
 

@@ -24,40 +24,40 @@ Posteriormente, se realizó un preprocesamiento orientado a transformar los even
 
 #### Listado de links de los partidos
 
-El primer paso consistió en la identificación y recopilación de los enlaces individuales de todos los partidos incluidos en el período de estudio (378 partidos de temporada regular). Para ello, se accedió a la página de la Liga Nacional, [sección Fixture](https://www.laliganacional.com.ar/laliga/fixture), la cual presenta una tabla dinámica con los encuentros disputados.
+El primer paso consistió en la identificación y recopilación de los enlaces a las páginas webs que contienen las estadísticas individuales de todos los partidos incluidos en el período de estudio (378 partidos de temporada regular). Para ello, se accedió a la página de la Liga Nacional, [sección Fixture](https://www.laliganacional.com.ar/laliga/fixture), la cual presenta una tabla dinámica con los encuentros disputados y permite acceder a la información detallada de cada partido.
 
 ```{r, echo=FALSE, fig.cap="Fixture dentro de la página web de la LNB.", out.width="70%", fig.align="center"}
-knitr::include_graphics("imagen links partidos.png")
+knitr::include_graphics("img/imagen links partidos.png")
 ```
 
 Dado que la tabla de partidos no se encuentra disponible en el código HTML inicial de la página, sino que es incorporada una vez que el navegador ejecuta los scripts del sitio, fue necesario utilizar Selenium para acceder al contenido en un entorno de navegación real. Este enfoque permitió cargar la página de la misma forma en que lo haría un usuario, esperar a que la tabla de partidos estuviera efectivamente disponible y, recién entonces, extraer el código HTML final.
 
-Una vez hecho esto, se identificaron todas las etiquetas HTML que contenían enlaces a las estadísticas detalladas de cada partido, reconociendo un patrón común en las URLs asociadas a los encuentros individuales: "estadisticascabb.gesdeportiva.es/partido/". Estos enlaces fueron almacenados en una estructura de datos, evitando duplicaciones, y posteriormente volcados a un archivo de texto (.txt). Dicho archivo constituyó el insumo básico para el proceso posterior de scraping masivo, sobre los cuales se iterará para obtener así la información correspondiente a cada una de las acciones de cada partido.
+Una vez hecho esto, se identificaron todas las etiquetas HTML que contenían enlaces a las estadísticas detalladas de cada partido, reconociendo un patrón común en las URLs asociadas a los encuentros individuales, correspondiente a la ruta utilizada para las páginas de estadísticas de cada partido (estadisticascabb.gesdeportiva.es/partido/). Estos enlaces fueron almacenados en una estructura de datos y posteriormente volcados a un archivo de texto (.txt). Dicho archivo constituyó el insumo básico para el proceso posterior de scraping masivo, sobre los cuales se iterará para obtener así la información correspondiente a cada una de las acciones registradas en cada partido.
 
 Esta estrategia permitió, además, asegurar la reproducibilidad del proceso, ya que el listado de partidos es eliminado de la página web una vez terminada la temporada, quedando fijado y documentado de manera explícita para su uso, en caso de ser requerido.
 
 #### Base de datos *play-by-play*
 
-Una vez obtenido el listado completo de enlaces correspondientes a cada uno de los partidos en el período de estudio, se procedió a la extracción del registro de acciones del partido (*play-by-play*) para cada uno de ellos. Para esto, se accedió individualmente a la página de estadísticas, particularmente a la pestaña denominada “en vivo”, donde se presenta el detalle secuencial de los eventos del encuentro.
+Una vez obtenido el listado completo de enlaces correspondientes a cada uno de los partidos en el período de estudio, se procedió a la extracción del registro de acciones del partido (*play-by-play*). Para esto, se accedió individualmente a la página de estadísticas de cada encuentro, particularmente a la pestaña denominada “en vivo”, donde se presenta el detalle secuencial de los eventos.
 
 Esta sección del sitio web contiene una tabla que se genera dinámicamente y que registra, en orden cronológico, todas las acciones ocurridas durante el partido.
 
 ```{r, echo=FALSE, fig.cap="Pestaña en vivo dentro de la página web de estadísticas de un partido", out.width="70%", fig.align="center"}
-knitr::include_graphics("imagen play by play_1.png")
+knitr::include_graphics("img/imagen play by play_1.png")
 ```
 
-En dicha tabla, cada acción del partido se encuentra representada como un elemento ordenado de manera cronológica que incluye información textual sobre el tipo de acción (por ejemplo, lanzamiento convertido, falta, pérdida, etc), el jugador que realiza dicha acción, el cuarto de juego, el tiempo restante en el cuarto y , en caso de ser una acción donde se generan puntos, el marcador parcial en ese momento del partido. Esta información fue sistemáticamente extraída y almacenada en una estructura tabular, conservando el orden temporal de las acciones.
+En dicha tabla, cada acción del partido se encuentra representada como un elemento que incluye información textual sobre el tipo de acción (por ejemplo, lanzamiento convertido, falta, pérdida, etc), el jugador que realiza dicha acción, el cuarto de juego, el tiempo restante en el cuarto y , en caso de ser una acción donde se generan puntos, el marcador parcial en ese momento del partido. Esta información fue sistemáticamente extraída y almacenada en una estructura tabular, conservando el orden temporal de las acciones.
 
 Este procedimiento se aplicó de forma idéntica a todos los partidos de la temporada analizada, utilizando como insumo los enlaces previamente identificados. Finalmente, los registros de acciones obtenidos para cada encuentro fueron concatenados en una única base de datos de *play-by-play*, incorporando un identificador de partido que permite distinguir y vincular las acciones correspondientes a cada juego.
 
-Cabe destacar que, el *play-by-play* resultante constituye una secuencia detallada de eventos, pero en su forma original no incluye una identificación explícita del equipo asociado a cada acción, lo cual resulta indispensable a la hora de poder determinar a todos los jugadores presentes, tanto de manera ofensiva como defensiva, en cada una de las acciones del partido.
+Cabe destacar que el *play-by-play* resultante constituye una secuencia detallada de eventos, pero en su forma original no incluye una identificación explícita del equipo asociado a cada acción, lo cual resulta indispensable a la hora de poder determinar a todos los jugadores presentes, tanto de manera ofensiva como defensiva, en cada una de las acciones del partido.
 
 #### Tabla de jugadores-equipos
 
-Para resolver este problema, se obtuvo dicha información a partir de los datos provenientes del *Box Score*, los cuales se encuentran en la pestaña "Estadísticas" de la página web del partido. Aquí encontraremos información referida a cada uno de los jugadores anotados en la plantilla de ambos equipos.
+Para resolver este problema, se obtuvo dicha información a partir de los datos provenientes del *Box Score*, localizados en la pestaña "Estadísticas" de la página web del partido. Aquí encontraremos información referida a cada uno de los jugadores anotados en la planilla de ambos equipos.
 
 ```{r, echo=FALSE, fig.cap="Ejemplo del Box Score de un partido", out.width="70%", fig.align="center"}
-knitr::include_graphics("imagen box score.png")
+knitr::include_graphics("img/imagen box score.png")
 ```
 
 En esta pestaña, la información se organiza en dos tablas con estadísticas individuales de los jugadores, una correspondiente al equipo local y otra al equipo visitante, las cuales aparecen en el mismo orden en que se muestran los nombres de los equipos en la interfaz del sitio web. A partir de esta estructura, se extrajo para cada jugador su nombre completo ,el equipo al que pertenece y la cantidad de minutos disputados en dicho partido, generándose así una tabla de correspondencia jugador–equipo.
@@ -77,7 +77,7 @@ De este modo, cada acción queda asociada explícitamente a uno de los dos equip
 A partir de la nueva tabla generada, se procedió a construir la presencia de los jugadores en cancha a lo largo del partido. Para ello, se identificaron las acciones asociadas a sustituciones, distinguiendo entre entradas (acción = ENTRA A PISTA) y salidas de jugadores (acción = ABANDONA LA PISTA).
 
 ```{r, echo=FALSE, fig.cap="Ejemplo de secuencia de acciones con sustitución", out.width="50%", fig.align="center"}
-knitr::include_graphics("imagen sustitucion.png")
+knitr::include_graphics("img/imagen sustitucion.png")
 ```
 
 \newpage
@@ -111,7 +111,7 @@ Para llevar a cabo este proceso fue necesario definir una metodología adecuada 
 Este procedimiento no pudo realizarse de manera directa, ya que, a pesar de contar con la información secuencial sobre el que equipo realizaba cada acción, no todo cambio en el equipo asociado a una acción implica necesariamente un cambio de posesión del balón. Existen situaciones en las que se registran acciones del equipo defensor dentro de una posesión del equipo atacante. A los cuales se ha decidido por llamar como "acciones intrusas".
 
 ```{r, echo=FALSE, fig.cap="Ejemplo del Box Score de un partido", out.width="70%", fig.align="center"}
-knitr::include_graphics("acciones intrusas.png")
+knitr::include_graphics("img/acciones intrusas.png")
 ```
 
 Luego de hacer una revisión manual en un conjunto limitado de partidos, se llegó a la definición de que el siguiente conjunto de acciones suelen ser siempre acciones intrusas o nunca resultan informativas para la delimitación de las posesiones. En consecuencia se ha decidido eliminar las filas en las que ocurren estas acciones en la base de datos.
@@ -162,19 +162,48 @@ En consecuencia, se desarrolló un conjunto de reglas basadas en el contexto de 
 
 Todas las faltas que no cumplían esta condición fueron eliminadas para evitar errores en el conteo de posesiones.
 
------ejemplo de falta ofensiva-------
+```{r, echo=FALSE, fig.cap="Ejemplo de falta ofensiva en una secuencia de acciones", out.width="70%", fig.align="center"}
+knitr::include_graphics("img/falta ofensiva.png")
+```
 
 #### Identificación de la finalización de las posesiones
 
 Una vez realizada está tarea de preprocesamiento anteriormente mencionada, se incorporó un identificador preliminar de posesión, basado en dos criterios fundamentales: el cambio de equipo en control del balón y el cambio de cuarto. De manera que cada vez que ocurre alguno de estos eventos, se identifica como el inicio una nueva posesión.
 
------ejemplo------
+\begin{center}
+Tabla 2: Ejemplo de secuencia de acciones diferenciando cada posesión
+\end{center}
+
+| Cuarto | Tiempo   | Acción               | Jugador                     | Equipo  | Tipo de equipo | Posesión |
+|--------|----------|----------------------|-----------------------------|---------|---------------|----------|
+| 1      | 00:08:54 | TIRO DE 3 FALLADO    | STENTA, NICOLAS             | BOCA    | visitante     | 4        |
+| 1      | 00:09:12 | REBOTE DEFENSIVO#11  | VILDOZA, JOSE IGNACIO       | BOCA    | visitante     | 4        |
+| 1      | 00:09:13 | TIRO DE 3 FALLADO    | BUEMO, CARLOS EMANUEL       | ATENAS  | local         | 3        |
+| 1      | 00:09:18 | FALTA RECIBIDA       | BUENDIA, CARLOS MANUEL      | ATENAS  | local         | 3        |
+| 1      | 00:09:31 | ASISTENCIA           | VILDOZA, JOSE IGNACIO       | BOCA    | visitante     | 2        |
+| 1      | 00:09:32 | TRIPLE               | PIÑERO, FACUNDO             | BOCA    | visitante     | 2        |
+| 1      | 00:09:42 | REBOTE DEFENSIVO#11  | VILDOZA, JOSE IGNACIO       | BOCA    | visitante     | 2        |
+| 1      | 00:09:43 | TIRO DE 2 FALLADO    | OBERTO, JUAN CRUZ MATEO     | ATENAS  | local         | 1        |
+
 
 De este modo, se seleccionaron las filas correspondientes a los eventos finales de cada posesión, descartando las acciones intermedias que no determinan su conclusión.
 
 #### Cálculo de puntos por posesión
 
 Para obtener la cantidad de puntos obtenidos en cada posesión, se calculó la diferencia entre el puntaje acumulado del equipo atacante al final de la posesión y el puntaje acumulado registrado al cierre de la posesión inmediatamente anterior. De esta manera, cada posesión queda caracterizada por una variable discreta que representa su resultado ofensivo en términos de puntos anotados.
+
+\begin{center}
+Tabla 3: Ejemplo de estructura con una fila por posesión y el conteo de puntos en la misma
+\end{center}
+
+
+| Cuarto | Tiempo   | Acción            | Jugador                     | Equipo  | Tipo de equipo | Posesión | Puntos |
+|--------|----------|-------------------|-----------------------------|---------|---------------|----------|--------|
+| 1      | 00:08:54 | TIRO DE 3 FALLADO | STENTA, NICOLAS             | BOCA    | visitante     | 4        | 0      |
+| 1      | 00:09:13 | TIRO DE 3 FALLADO | BUEMO, CARLOS EMANUEL       | ATENAS  | local         | 3        | 0      |
+| 1      | 00:09:31 | ASISTENCIA        | VILDOZA, JOSE IGNACIO       | BOCA    | visitante     | 2        | 3      |
+| 1      | 00:09:43 | TIRO DE 2 FALLADO | OBERTO, JUAN CRUZ MATEO     | ATENAS  | local         | 1        | 0      |
+
 
 #### Identificación de jugadores ofensivos y defensivos en cancha
 
