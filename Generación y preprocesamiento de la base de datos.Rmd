@@ -110,7 +110,7 @@ Para llevar a cabo este proceso fue necesario definir una metodología adecuada 
 
 Este procedimiento no pudo realizarse de manera directa, ya que, a pesar de contar con la información secuencial sobre el que equipo realizaba cada acción, no todo cambio en el equipo asociado a una acción implica necesariamente un cambio de posesión del balón. Existen situaciones en las que se registran acciones del equipo defensor dentro de una posesión del equipo atacante. A los cuales se ha decidido por llamar como "acciones intrusas".
 
-```{r, echo=FALSE, fig.cap="Ejemplo del Box Score de un partido", out.width="70%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Comparación entre distintas formas de contabilizar las posesiones", out.width="70%", fig.align="center"}
 knitr::include_graphics("img/acciones intrusas.png")
 ```
 
@@ -152,13 +152,13 @@ Se detectó que, en algunos casos, el *play-by-play* registra un rebote defensiv
 
 3)  Reglas específicas para el tratamiento de faltas ofensivas
 
-Las faltas ofensivas representan un caso particular dentro del play-by-play, ya que no son diferenciadas de las faltas defensivas en la descripción de la acción, y tienen una diferencia fundamental a la hora de definir las posesiones. Por un lado, las faltas defensivas corresponden a una "acción intrusa" y deben ser eliminadas de la base, mientras que las faltas ofensivas siempre implican un cambio inmediato de posesión y, en ocasiones, pueden ser la única acción que realice un equipo dentro de una posesión, por lo que en esos casos puntuales dicha acción debe conservarse. 
+Las faltas ofensivas representan un caso particular dentro del play-by-play, ya que no son diferenciadas de las faltas defensivas en la descripción de la acción, y tienen una diferencia fundamental a la hora de definir las posesiones. Por un lado, las faltas defensivas corresponden a una "acción intrusa" y deben ser eliminadas de la base, mientras que las faltas ofensivas siempre implican un cambio inmediato de posesión y, en ocasiones, pueden ser la única acción que realice un equipo dentro de una posesión, por lo que en esos casos puntuales dicha acción debe conservarse.
 
 En consecuencia, se desarrolló un conjunto de reglas basadas en el contexto de la acción previa para decidir si una falta debe ser conservada o eliminada del registro. Particularmente, se definió que: una falta debe conservarse si el equipo que la comete es distinto al equipo que realizó la acción inmediata anterior, siempre que dicha acción previa sea:
 
-1) un lanzamiento fallido.
-2) una pérdida de balón.
-3) Una anotación con una separación temporal suficiente que indique el transcurso de una nueva posesión.
+1)  un lanzamiento fallido.
+2)  una pérdida de balón.
+3)  Una anotación con una separación temporal suficiente que indique el transcurso de una nueva posesión.
 
 Todas las faltas que no cumplían esta condición fueron eliminadas para evitar errores en el conteo de posesiones.
 
@@ -174,17 +174,16 @@ Una vez realizada está tarea de preprocesamiento anteriormente mencionada, se i
 Tabla 2: Ejemplo de secuencia de acciones diferenciando cada posesión
 \end{center}
 
-| Cuarto | Tiempo   | Acción               | Jugador                     | Equipo  | Tipo de equipo | Posesión |
-|--------|----------|----------------------|-----------------------------|---------|---------------|----------|
-| 1      | 00:08:54 | TIRO DE 3 FALLADO    | STENTA, NICOLAS             | BOCA    | visitante     | 4        |
-| 1      | 00:09:12 | REBOTE DEFENSIVO#11  | VILDOZA, JOSE IGNACIO       | BOCA    | visitante     | 4        |
-| 1      | 00:09:13 | TIRO DE 3 FALLADO    | BUEMO, CARLOS EMANUEL       | ATENAS  | local         | 3        |
-| 1      | 00:09:18 | FALTA RECIBIDA       | BUENDIA, CARLOS MANUEL      | ATENAS  | local         | 3        |
-| 1      | 00:09:31 | ASISTENCIA           | VILDOZA, JOSE IGNACIO       | BOCA    | visitante     | 2        |
-| 1      | 00:09:32 | TRIPLE               | PIÑERO, FACUNDO             | BOCA    | visitante     | 2        |
-| 1      | 00:09:42 | REBOTE DEFENSIVO#11  | VILDOZA, JOSE IGNACIO       | BOCA    | visitante     | 2        |
-| 1      | 00:09:43 | TIRO DE 2 FALLADO    | OBERTO, JUAN CRUZ MATEO     | ATENAS  | local         | 1        |
-
+| Cuarto | Tiempo | Acción | Jugador | Equipo | Tipo de equipo | Posesión |
+|----------|----------|----------|------------|----------|----------|----------|
+| 1 | 00:08:54 | TIRO DE 3 FALLADO | STENTA, NICOLAS | BOCA | visitante | 4 |
+| 1 | 00:09:12 | REBOTE DEFENSIVO#11 | VILDOZA, JOSE IGNACIO | BOCA | visitante | 4 |
+| 1 | 00:09:13 | TIRO DE 3 FALLADO | BUEMO, CARLOS EMANUEL | ATENAS | local | 3 |
+| 1 | 00:09:18 | FALTA RECIBIDA | BUENDIA, CARLOS MANUEL | ATENAS | local | 3 |
+| 1 | 00:09:31 | ASISTENCIA | VILDOZA, JOSE IGNACIO | BOCA | visitante | 2 |
+| 1 | 00:09:32 | TRIPLE | PIÑERO, FACUNDO | BOCA | visitante | 2 |
+| 1 | 00:09:42 | REBOTE DEFENSIVO#11 | VILDOZA, JOSE IGNACIO | BOCA | visitante | 2 |
+| 1 | 00:09:43 | TIRO DE 2 FALLADO | OBERTO, JUAN CRUZ MATEO | ATENAS | local | 1 |
 
 De este modo, se seleccionaron las filas correspondientes a los eventos finales de cada posesión, descartando las acciones intermedias que no determinan su conclusión.
 
@@ -193,17 +192,15 @@ De este modo, se seleccionaron las filas correspondientes a los eventos finales 
 Para obtener la cantidad de puntos obtenidos en cada posesión, se calculó la diferencia entre el puntaje acumulado del equipo atacante al final de la posesión y el puntaje acumulado registrado al cierre de la posesión inmediatamente anterior. De esta manera, cada posesión queda caracterizada por una variable discreta que representa su resultado ofensivo en términos de puntos anotados.
 
 \begin{center}
-Tabla 3: Ejemplo de estructura con una fila por posesión y el conteo de puntos en la misma
+Tabla 3: Ejemplo de estructura con una fila por posesión y contabilizando los puntos
 \end{center}
 
-
-| Cuarto | Tiempo   | Acción            | Jugador                     | Equipo  | Tipo de equipo | Posesión | Puntos |
-|--------|----------|-------------------|-----------------------------|---------|---------------|----------|--------|
-| 1      | 00:08:54 | TIRO DE 3 FALLADO | STENTA, NICOLAS             | BOCA    | visitante     | 4        | 0      |
-| 1      | 00:09:13 | TIRO DE 3 FALLADO | BUEMO, CARLOS EMANUEL       | ATENAS  | local         | 3        | 0      |
-| 1      | 00:09:31 | ASISTENCIA        | VILDOZA, JOSE IGNACIO       | BOCA    | visitante     | 2        | 3      |
-| 1      | 00:09:43 | TIRO DE 2 FALLADO | OBERTO, JUAN CRUZ MATEO     | ATENAS  | local         | 1        | 0      |
-
+| Cuarto | Tiempo | Acción | Jugador | Equipo | Tipo de equipo | Posesión | Puntos |
+|---------|---------|---------|----------|---------|---------|---------|---------|
+| 1 | 00:08:54 | TIRO DE 3 FALLADO | STENTA, NICOLAS | BOCA | visitante | 4 | 0 |
+| 1 | 00:09:13 | TIRO DE 3 FALLADO | BUEMO, CARLOS EMANUEL | ATENAS | local | 3 | 0 |
+| 1 | 00:09:31 | ASISTENCIA | VILDOZA, JOSE IGNACIO | BOCA | visitante | 2 | 3 |
+| 1 | 00:09:43 | TIRO DE 2 FALLADO | OBERTO, JUAN CRUZ MATEO | ATENAS | local | 1 | 0 |
 
 #### Identificación de jugadores ofensivos y defensivos en cancha
 
