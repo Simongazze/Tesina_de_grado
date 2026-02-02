@@ -7,11 +7,9 @@ lang: es
 header-includes:
   - \usepackage{caption}
   - \usepackage{xcolor}
-  - \captionsetup{
-      font={color=gray},
-      justification=raggedleft,
-      singlelinecheck=false
-    }
+  - \captionsetup{font={bf, small}, labelfont={bf}, justification=centering, position=top, singlelinecheck=false}
+  - \captionsetup[table]{position=top, skip=5pt}
+  - \captionsetup[figure]{position=bottom, skip=5pt}
 ---
 
 ## Generación y preprocesamiento de la base de datos
@@ -26,7 +24,7 @@ Posteriormente, se realizó un preprocesamiento orientado a transformar los even
 
 El primer paso consistió en la identificación y recopilación de los enlaces a las páginas webs que contienen las estadísticas individuales de todos los partidos incluidos en el período de estudio (378 partidos de temporada regular). Para ello, se accedió a la página de la Liga Nacional, [sección Fixture](https://www.laliganacional.com.ar/laliga/fixture), la cual presenta una tabla dinámica con los encuentros disputados y permite acceder a la información detallada de cada partido.
 
-```{r, echo=FALSE, fig.cap="Fixture dentro de la página web de la LNB.", out.width="70%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Fixture dentro de la página web de la LNB.", out.width="70%", fig.align="center", fig.pos="H"}
 knitr::include_graphics("img/imagen links partidos.png")
 ```
 
@@ -76,7 +74,7 @@ De este modo, cada acción queda asociada explícitamente a uno de los dos equip
 
 A partir de la nueva tabla generada, se procedió a construir la presencia de los jugadores en cancha a lo largo del partido. Para ello, se identificaron las acciones asociadas a sustituciones, distinguiendo entre entradas (acción = ENTRA A PISTA) y salidas de jugadores (acción = ABANDONA LA PISTA).
 
-```{r, echo=FALSE, fig.cap="Ejemplo de secuencia de acciones con sustitución", out.width="50%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Ejemplo de secuencia de acciones con sustitución", out.width="40%", fig.align="center"}
 knitr::include_graphics("img/imagen sustitucion.png")
 ```
 
@@ -118,25 +116,49 @@ Luego de hacer una revisión manual en un conjunto limitado de partidos, se lleg
 
 Estas acciones son:
 
-\begin{center}
-Tabla 1: Acciones eliminadas por no ser informativas para la delimitación de las posesiones
-\end{center}
+```{r, echo=FALSE,message=FALSE}
+library(knitr)
+library(kableExtra)
+library(dplyr)
 
-| Nº  | Acción                                          |
-|-----|-------------------------------------------------|
-| 1   | ENTRA A PISTA                                   |
-| 2   | INICIO DEL PERIODO                              |
-| 3   | FINAL DEL PERIODO                               |
-| 4   | ABANDONA LA PISTA                               |
-| 5   | TAPON REALIZADO                                 |
-| 6   | TECNICA                                         |
-| 7   | TECNICA BANQUILLO (C)                           |
-| 8   | TECNICA BANQUILLO (B)                           |
-| 9   | TECNICA DESCALIFICANTE                          |
-| 10  | TECNICA DESCALIFICANTE ACOMPAÑANTE NO PARTICIPA |
-| 11  | TECNICA-E (ALINEACIÓN ILEGAL)                   |
-| 12  | TIEMPO MUERTO SOLICITADO                        |
-| 13  | ANTIDEPORTIVA                                   |
+# 1. Crear el dataframe con las acciones
+acciones_eliminadas <- data.frame(
+  Numero = 1:13,
+  Accion = c(
+    "ENTRA A PISTA",
+    "INICIO DEL PERIODO",
+    "FINAL DEL PERIODO",
+    "ABANDONA LA PISTA",
+    "TAPON REALIZADO",
+    "TECNICA",
+    "TECNICA BANQUILLO (C)",
+    "TECNICA BANQUILLO (B)",
+    "TECNICA DESCALIFICANTE",
+    "TECNICA DESCALIFICANTE ACOMPAÑANTE NO PARTICIPA",
+    "TECNICA-E (ALINEACIÓN ILEGAL)",
+    "TIEMPO MUERTO SOLICITADO",
+    "ANTIDEPORTIVA"
+  )
+)
+
+# 2. Generar la tabla estilizada
+acciones_eliminadas %>%
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    caption = "Acciones eliminadas por no ser informativas para la delimitación de las posesiones",
+    col.names = c("N°", "Acción") # Encabezados claros
+  ) %>%
+  kable_styling(
+    latex_options = c("hold_position"), 
+    # Quitamos 'scale_down' porque esta tabla no es ancha y no lo necesita
+    position = "center",
+    font_size = 9 # Un pelín más grande ya que hay espacio de sobra
+  ) %>%
+  column_spec(1, width = "1.5cm", bold = TRUE) %>% # Columna de números centrada y negrita
+  column_spec(2, width = "12cm") # Ancho fijo para que el texto ocupe bien la hoja
+```
+
 
 #### Manejo de otro tipo de acciones particulares
 
@@ -170,20 +192,39 @@ knitr::include_graphics("img/falta ofensiva.png")
 
 Una vez realizada está tarea de preprocesamiento anteriormente mencionada, se incorporó un identificador preliminar de posesión, basado en dos criterios fundamentales: el cambio de equipo en control del balón y el cambio de cuarto. De manera que cada vez que ocurre alguno de estos eventos, se identifica como el inicio una nueva posesión.
 
-\begin{center}
-Tabla 2: Ejemplo de secuencia de acciones diferenciando cada posesión
-\end{center}
+```{r,echo=FALSE}
+library(knitr)
+library(kableExtra)
+library(dplyr)
 
-| Cuarto | Tiempo | Acción | Jugador | Equipo | Tipo de equipo | Posesión |
-|----------|----------|----------|------------|----------|----------|----------|
-| 1 | 00:08:54 | TIRO DE 3 FALLADO | STENTA, NICOLAS | BOCA | visitante | 4 |
-| 1 | 00:09:12 | REBOTE DEFENSIVO#11 | VILDOZA, JOSE IGNACIO | BOCA | visitante | 4 |
-| 1 | 00:09:13 | TIRO DE 3 FALLADO | BUEMO, CARLOS EMANUEL | ATENAS | local | 3 |
-| 1 | 00:09:18 | FALTA RECIBIDA | BUENDIA, CARLOS MANUEL | ATENAS | local | 3 |
-| 1 | 00:09:31 | ASISTENCIA | VILDOZA, JOSE IGNACIO | BOCA | visitante | 2 |
-| 1 | 00:09:32 | TRIPLE | PIÑERO, FACUNDO | BOCA | visitante | 2 |
-| 1 | 00:09:42 | REBOTE DEFENSIVO#11 | VILDOZA, JOSE IGNACIO | BOCA | visitante | 2 |
-| 1 | 00:09:43 | TIRO DE 2 FALLADO | OBERTO, JUAN CRUZ MATEO | ATENAS | local | 1 |
+# 1. Tus datos (tal cual me los pasaste)
+datos_secuencia <- data.frame(
+  Cuarto = c(1, 1, 1, 1, 1, 1, 1, 1),
+  Tiempo = c("00:08:54", "00:09:12", "00:09:13", "00:09:18", "00:09:31", "00:09:32", "00:09:42", "00:09:43"),
+  Accion = c("TIRO DE 3 FALLADO", "REBOTE DEFENSIVO #11", "TIRO DE 3 FALLADO", "FALTA RECIBIDA", "ASISTENCIA", "TRIPLE", "REBOTE DEFENSIVO #11", "TIRO DE 2 FALLADO"),
+  Jugador = c("STENTA, NICOLAS", "VILDOZA, JOSE IGNACIO", "BUEMO, CARLOS EMANUEL", "BUENDIA, CARLOS MANUEL", "VILDOZA, JOSE IGNACIO", "PIÑERO, FACUNDO", "VILDOZA, JOSE IGNACIO", "OBERTO, JUAN CRUZ MATEO"),
+  Equipo = c("BOCA", "BOCA", "ATENAS", "ATENAS", "BOCA", "BOCA", "BOCA", "ATENAS"),
+  Tipo = c("visitante", "visitante", "local", "local", "visitante", "visitante", "visitante", "local"),
+  Posesion = c(4, 4, 3, 3, 2, 2, 2, 1)
+)
+
+# 2. Generar la tabla limpia
+datos_secuencia %>%
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    caption = "Ejemplo de secuencia de acciones diferenciando cada posesión",
+    col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Equipo", "Condición", "Posesión")
+  ) %>%
+  kable_styling(
+    latex_options = c("hold_position", "scale_down"), 
+    # 'striped': facilita seguir la fila con la vista
+    # 'scale_down': asegura que entre en el ancho de la hoja
+    position = "center",
+    font_size = 9
+  )
+```
+
 
 De este modo, se seleccionaron las filas correspondientes a los eventos finales de cada posesión, descartando las acciones intermedias que no determinan su conclusión.
 
@@ -191,16 +232,40 @@ De este modo, se seleccionaron las filas correspondientes a los eventos finales 
 
 Para obtener la cantidad de puntos obtenidos en cada posesión, se calculó la diferencia entre el puntaje acumulado del equipo atacante al final de la posesión y el puntaje acumulado registrado al cierre de la posesión inmediatamente anterior. De esta manera, cada posesión queda caracterizada por una variable discreta que representa su resultado ofensivo en términos de puntos anotados.
 
-\begin{center}
-Tabla 3: Ejemplo de estructura con una fila por posesión y contabilizando los puntos
-\end{center}
+```{r, echo=FALSE}
+library(knitr)
+library(kableExtra)
+library(dplyr)
 
-| Cuarto | Tiempo | Acción | Jugador | Equipo | Tipo de equipo | Posesión | Puntos |
-|---------|---------|---------|----------|---------|---------|---------|---------|
-| 1 | 00:08:54 | TIRO DE 3 FALLADO | STENTA, NICOLAS | BOCA | visitante | 4 | 0 |
-| 1 | 00:09:13 | TIRO DE 3 FALLADO | BUEMO, CARLOS EMANUEL | ATENAS | local | 3 | 0 |
-| 1 | 00:09:31 | ASISTENCIA | VILDOZA, JOSE IGNACIO | BOCA | visitante | 2 | 3 |
-| 1 | 00:09:43 | TIRO DE 2 FALLADO | OBERTO, JUAN CRUZ MATEO | ATENAS | local | 1 | 0 |
+# 1. Crear el conjunto de datos (Tabla 3)
+datos_posesion <- data.frame(
+  Cuarto = c(1, 1, 1, 1),
+  Tiempo = c("00:08:54", "00:09:13", "00:09:31", "00:09:43"),
+  Accion = c("TIRO DE 3 FALLADO", "TIRO DE 3 FALLADO", "ASISTENCIA", "TIRO DE 2 FALLADO"),
+  Jugador = c("STENTA, NICOLAS", "BUEMO, CARLOS EMANUEL", "VILDOZA, JOSE IGNACIO", "OBERTO, JUAN CRUZ MATEO"),
+  Equipo = c("BOCA", "ATENAS", "BOCA", "ATENAS"),
+  Tipo = c("visitante", "local", "visitante", "local"),
+  Posesion = c(4, 3, 2, 1),
+  Puntos = c(0, 0, 3, 0)
+)
+
+# 2. Generar la tabla con el mismo estilo que la anterior
+datos_posesion %>%
+  kable(
+    format = "latex",
+    booktabs = TRUE, # Líneas académicas formales
+    caption = "Ejemplo de estructura con una fila por posesión",
+    col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Equipo", "Tipo", "Posesión", "Puntos")
+  ) %>%
+  kable_styling(
+    latex_options = c("hold_position", "scale_down"),
+    # 'striped': filas grises alternas (estilo cebra)
+    # 'scale_down': ajusta automáticamente al ancho de la hoja A4
+    position = "center",
+    font_size = 9
+  )
+```
+
 
 #### Identificación de jugadores ofensivos y defensivos en cancha
 
