@@ -35,7 +35,7 @@ jug_eq = df_pbp_final %>%
 # Modelo de prueba - pocos partidos - 1 partido
 
 df_1partido = poss_by_poss_temporada %>% 
-                     filter(partido_key == "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)")
+                     filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)")
 # +/-
 
 plus_minus_1partido = df_1partido[, 24:373]*df_1partido[[23]]
@@ -64,7 +64,7 @@ df_plus_minus_1partido = df_plus_minus_1partido %>%
 # Modelo de regresión lineal múltiple
 
 dfmod_1partido = poss_by_poss_temporada %>% 
-  filter(partido_key == "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)") %>% 
+  filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)") %>% 
   select(23:373)%>% 
   select(-cols_ceros)
 
@@ -132,6 +132,8 @@ a = as.data.frame(modelo2$coefficients)
 
 #probar quitando jugadores con menos de 300 minutos
 
+#Fijarse cols distintos de 0 para los 350 jugadores de la liga, quizas armar una tabla con total de posesiones, minutos, jugador, equipo
 
+#Revisar poss by poss y pbp preprec el tema del equipo_accion
 
 
