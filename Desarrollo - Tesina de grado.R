@@ -136,4 +136,8 @@ a = as.data.frame(modelo2$coefficients)
 
 #Revisar poss by poss y pbp preprec el tema del equipo_accion
 
+#Que mierda pasa con ARN BUSTAMANTE, LUCAS MARTIN... está repetido, el y muchos otros! revisar
 
+a = as.data.frame(colSums(poss_by_poss_temporada[, 23:373] != 0))
+
+                  
