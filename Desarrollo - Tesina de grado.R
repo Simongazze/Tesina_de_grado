@@ -1,7 +1,5 @@
 #Desarrollo
 
-#Cálculo del +/-
-
 library(tidyverse)
 #library(dplyr)
 #library(tidyr)
@@ -9,7 +7,39 @@ library(tidyverse)
 poss_by_poss_temporada <- read_csv("data/poss_by_poss_temporada.csv")
 poss_by_poss_temporada <- poss_by_poss_temporada[,-1]
 
-plus_minus = poss_by_poss_temporada[, 24:373]*poss_by_poss_temporada[[23]]
+#1)Me doy cuenta que hay jugadores repetidos en la base de datos.
+
+#Que mierda pasa con ARN BUSTAMANTE, LUCAS MARTIN... está repetido, el y muchos otros! revisar
+
+a = as.data.frame(colSums(poss_by_poss_temporada[, 23:373] != 0))
+
+#eliminar: ARN BUSTAMANTE, LUCAS  MARTIN, COSTA,  ALBANO NAHUEL, 
+
+#juntar: GRÜN, FEDERICO JOSE, GRUN, FEDERICO JOSE ... MAINOLDI, LEONARDO ANDRES , MAINOLDI , LEONARDO ANDRES
+
+poss_by_poss_temporada = poss_by_poss_temporada %>% 
+  select(- c(`ARN BUSTAMANTE, LUCAS  MARTIN`,`COSTA,  ALBANO NAHUEL` ))
+
+poss_by_poss_temporada = poss_by_poss_temporada %>% 
+  mutate(`GRÜN, FEDERICO JOSE` = `GRÜN, FEDERICO JOSE` + `GRUN, FEDERICO JOSE`, `MAINOLDI, LEONARDO ANDRES` = `MAINOLDI, LEONARDO ANDRES` + `MAINOLDI , LEONARDO ANDRES`) %>%
+  select(- c(`GRUN, FEDERICO JOSE`,`MAINOLDI , LEONARDO ANDRES`))
+
+#2)Revisar poss by poss y pbp preprec el tema del equipo_accion
+
+#Error increible, los equipo acción estan mal... ya desde el preprocesado
+jug_eq1 = poss_by_poss_temporada %>%
+  group_by(jugador_limpio) %>%
+  summarise(equipos = n_distinct(equipo_accion))
+
+#Pero en el play by play estan bien... mmm revisar
+jug_eq = df_pbp_final %>%
+  group_by(jugador_limpio) %>%
+  summarise(equipos = n_distinct(equipo_accion))
+#--------------------------------------------------------------------------------------------------------------------------------------
+
+#Cálculo del +/-
+
+plus_minus = poss_by_poss_temporada[, 24:369]*poss_by_poss_temporada[[23]]
 
 df_plus_minus <- plus_minus %>%
   summarise(across(everything(), sum))%>%
@@ -21,26 +51,15 @@ df_plus_minus <- plus_minus %>%
 
 #Faltaría agregar los equipos a esa tabla de jugadores y +/- creo que sería de interes. Hay algunos jugadores que estuvieron en más de un equipo a lo largo de la temporada, ver que hacer en ese caso.
 
-#Error increible, los equipo acción estan mal... ya desde el preprocesado
-jug_eq1 = poss_by_poss_temporada %>%
-  group_by(jugador_limpio) %>%
-  summarise(equipos = n_distinct(equipo_accion))
-
-#Pero en el play by play estan bien... mmm revisar
-jug_eq = df_pbp_final %>%
-          group_by(jugador_limpio) %>%
-          summarise(equipos = n_distinct(equipo_accion))
-
-
 # Modelo de prueba - pocos partidos - 1 partido
 
 df_1partido = poss_by_poss_temporada %>% 
                      filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)")
 # +/-
 
-plus_minus_1partido = df_1partido[, 24:373]*df_1partido[[23]]
+plus_minus_1partido = df_1partido[, 24:369]*df_1partido[[23]]
 
-cols_ceros = names(plus_minus_1partido)[colSums(plus_minus_1partido != 0) == 0 ]
+cols_ceros = names(df_1partido[, 24:369])[colSums(df_1partido[, 24:369] != 0) == 0 ]
 
 plus_minus_1partido = plus_minus_1partido %>% 
                         select(-cols_ceros)
@@ -65,7 +84,7 @@ df_plus_minus_1partido = df_plus_minus_1partido %>%
 
 dfmod_1partido = poss_by_poss_temporada %>% 
   filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)") %>% 
-  select(23:373)%>% 
+  select(23:369)%>% 
   select(-cols_ceros)
 
 modelo1 = lm(puntos_pos ~ . , data = dfmod_1partido)
@@ -74,20 +93,7 @@ summary(modelo1) #Analizar más
 
 alias(modelo1)
 
-round(cor(x = dfmod_1partido, method = "pearson"), 3)
-
-# como la suma de la filas siempre da 0 hay que reparametrizar
-
-X <- model.matrix(~ . - 1, data = dfmod_1partido[, -which(names(dfmod_1partido) == "puntos_pos")])
-qr(X)$rank
-ncol(X)
-
-library(MASS)
-Z <- Null(t(X))
-dim(Z)
-
-
-
+#Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
 
 # Modelo de prueba - pocos partidos - 3 partido
 
@@ -96,9 +102,9 @@ df_3partido = poss_by_poss_temporada %>%
 
 # +/-
 
-plus_minus_3partido = df_3partido[, 24:373]*df_3partido[[23]]
+plus_minus_3partido = df_3partido[, 24:369]*df_3partido[[23]]
 
-cols_ceros_3 = names(plus_minus_3partido)[colSums(plus_minus_3partido != 0) == 0 ]
+cols_ceros_3 = names(df_3partido[, 24:369])[colSums(df_3partido[, 24:369] != 0) == 0 ]
 
 plus_minus_3partido = plus_minus_3partido %>% select(-cols_ceros_3)
 
@@ -114,30 +120,35 @@ df_plus_minus_3partido <- plus_minus_3partido %>%
 
 dfmod_3partido = poss_by_poss_temporada %>% 
   filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)")) %>% 
-  select(23:373)%>% 
+  select(23:369)%>% 
   select(-cols_ceros_3)
 
 modelo2 = lm(puntos_pos ~ . , data = dfmod_3partido)
 
 summary(modelo2) #Analizar más
 
+#Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
 
-a = as.data.frame(modelo2$coefficients)
+# Toda la base
 
-#Probar con 10 partidos
+# Modelo de regresión lineal múltiple
 
-#Probar con toda la base
+plus_minus_temporada = poss_by_poss_temporada[, 24:369]*poss_by_poss_temporada[[23]]
 
-#Probar con ridge
+#cols_ceros_temp = names(poss_by_poss_temporada[, 24:369])[colSums(poss_by_poss_temporada[, 24:369] != 0) == 0 ]
 
-#probar quitando jugadores con menos de 300 minutos
+dfmod_temporada = poss_by_poss_temporada %>% select(23:369)
 
-#Fijarse cols distintos de 0 para los 350 jugadores de la liga, quizas armar una tabla con total de posesiones, minutos, jugador, equipo
+modelo_temp = lm(puntos_pos ~ . , data = dfmod_temporada)
 
-#Revisar poss by poss y pbp preprec el tema del equipo_accion
+summary(modelo_temp)
 
-#Que mierda pasa con ARN BUSTAMANTE, LUCAS MARTIN... está repetido, el y muchos otros! revisar
+#Solo 1 coeficiente no pudo estimarse por singularidad, y se debe a que la suma de las filas dan siempre 0
 
-a = as.data.frame(colSums(poss_by_poss_temporada[, 23:373] != 0))
+Coeficientes = as.data.frame(modelo_temp$coefficients)
+
+#Mínimos cuadrados restringidos
+
+
 
                   
