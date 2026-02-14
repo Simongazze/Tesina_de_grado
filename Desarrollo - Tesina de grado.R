@@ -20,11 +20,11 @@ a = as.data.frame(colSums(poss_by_poss_temporada[, 23:373] != 0))
 #juntar: GRÜN, FEDERICO JOSE, GRUN, FEDERICO JOSE ... MAINOLDI, LEONARDO ANDRES , MAINOLDI , LEONARDO ANDRES
 
 poss_by_poss_temporada = poss_by_poss_temporada %>% 
-  select(- c(`ARN BUSTAMANTE, LUCAS  MARTIN`,`COSTA,  ALBANO NAHUEL` ))
+  dplyr::select(- c(`ARN BUSTAMANTE, LUCAS  MARTIN`,`COSTA,  ALBANO NAHUEL` ))
 
 poss_by_poss_temporada = poss_by_poss_temporada %>% 
   mutate(`GRÜN, FEDERICO JOSE` = `GRÜN, FEDERICO JOSE` + `GRUN, FEDERICO JOSE`, `MAINOLDI, LEONARDO ANDRES` = `MAINOLDI, LEONARDO ANDRES` + `MAINOLDI , LEONARDO ANDRES`) %>%
-  select(- c(`GRUN, FEDERICO JOSE`,`MAINOLDI , LEONARDO ANDRES`))
+  dplyr::select(- c(`GRUN, FEDERICO JOSE`,`MAINOLDI , LEONARDO ANDRES`))
 
 #2)Revisar poss by poss y pbp preprec el tema del equipo_accion
 
@@ -170,7 +170,13 @@ fit <- lsei(A = X, B = y, E = C, F = d)
 beta_hat <- fit$X
 
 beta_hat <- setNames(beta_hat, colnames(X))
-beta_hat = as.data.frame(beta_hat)
+
+beta_hat <- data.frame(
+  jugador = names(beta_hat),
+  coeficiente = as.numeric(beta_hat)
+)
+
+beta_hat$jugador <- gsub("`", "", beta_hat$jugador)
 
 # Con Moore-Penrose
 
@@ -178,3 +184,28 @@ beta_mp <- ginv(X) %*% y
 beta_mp <- as.vector(beta_mp)
 names(beta_mp) <- colnames(X)
 beta_mp = as.data.frame(beta_mp)
+
+# La solución de Moore–Penrose coincide con el estimador de mínimos cuadrados bajo restricción de suma cero, ya que la dirección de no identificabilidad coincide con el vector constante.
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Estimación del modelo omitiendo los LTPs Players
+
+# vamos a calcular los minutos en cancha y las posesiones en cancha
+
+posesiones_jug = colSums(poss_by_poss_temporada[, 24:369] != 0)
+
+posesiones_jug <- data.frame(
+  jugador = names(posesiones_jug),
+  posesiones = as.numeric(posesiones_jug)
+)
+
+beta_hat = beta_hat %>% left_join(posesiones_jug)
+
+#-------------------------------------------------
+
+#Separar el efecto del aporte ofensivo y defensivo
+
+#Calcular Ridge
+
+#Pensar en comparar los errores de los parámetros
