@@ -1,6 +1,8 @@
 #Desarrollo
 
 library(tidyverse)
+library(limSolve)
+library(MASS)
 #library(dplyr)
 #library(tidyr)
 
@@ -149,6 +151,30 @@ Coeficientes = as.data.frame(modelo_temp$coefficients)
 
 #Mínimos cuadrados restringidos
 
+X <- model.matrix(
+  puntos_pos ~ . - 1,
+  data = dfmod_temporada
+)
 
+y <- dfmod_temporada$puntos_pos
 
-                  
+##Calculo el modelo con la restricción (suma de betas igual a 0)
+
+C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+d <- 0 # resultado de la suma
+
+# Ajuste de coeficientes
+
+fit <- lsei(A = X, B = y, E = C, F = d)
+
+beta_hat <- fit$X
+
+beta_hat <- setNames(beta_hat, colnames(X))
+beta_hat = as.data.frame(beta_hat)
+
+# Con Moore-Penrose
+
+beta_mp <- ginv(X) %*% y
+beta_mp <- as.vector(beta_mp)
+names(beta_mp) <- colnames(X)
+beta_mp = as.data.frame(beta_mp)
