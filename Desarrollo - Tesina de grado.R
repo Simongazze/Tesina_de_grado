@@ -209,3 +209,5 @@ beta_hat = beta_hat %>% left_join(posesiones_jug)
 #Calcular Ridge
 
 #Pensar en comparar los errores de los parámetros
+
+#Hacerlo con los segmentos
