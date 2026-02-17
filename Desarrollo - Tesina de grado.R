@@ -3,6 +3,8 @@
 library(tidyverse)
 library(limSolve)
 library(MASS)
+library(readxl)
+library(hms)
 #library(dplyr)
 #library(tidyr)
 
@@ -13,7 +15,7 @@ poss_by_poss_temporada <- poss_by_poss_temporada[,-1]
 
 #Que mierda pasa con ARN BUSTAMANTE, LUCAS MARTIN... está repetido, el y muchos otros! revisar
 
-a = as.data.frame(colSums(poss_by_poss_temporada[, 23:373] != 0))
+#a = as.data.frame(colSums(poss_by_poss_temporada[, 23:373] != 0))
 
 #eliminar: ARN BUSTAMANTE, LUCAS  MARTIN, COSTA,  ALBANO NAHUEL, 
 
@@ -37,8 +39,18 @@ jug_eq1 = poss_by_poss_temporada %>%
 jug_eq = df_pbp_final %>%
   group_by(jugador_limpio) %>%
   summarise(equipos = n_distinct(equipo_accion))
+
 #--------------------------------------------------------------------------------------------------------------------------------------
 
+#Box score
+
+box_score <- read_excel("data/Box score - temporada - sin minutos igual a 0.xlsx")
+
+box_score = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod))
+
+minutos_jugad = box_score %>% group_by(NombreCompleto_limpio) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+
+#--------------------------------------------------------------------------------------------------------------------------------------
 #Cálculo del +/-
 
 plus_minus = poss_by_poss_temporada[, 24:369]*poss_by_poss_temporada[[23]]
@@ -47,7 +59,7 @@ df_plus_minus <- plus_minus %>%
   summarise(across(everything(), sum))%>%
   pivot_longer(
     cols = everything(),
-    names_to = "Jugador",
+    names_to = "NombreCompleto_limpio",
     values_to = "+/-"
   )
 
@@ -172,11 +184,11 @@ beta_hat <- fit$X
 beta_hat <- setNames(beta_hat, colnames(X))
 
 beta_hat <- data.frame(
-  jugador = names(beta_hat),
+  NombreCompleto_limpio = names(beta_hat),
   coeficiente = as.numeric(beta_hat)
 )
 
-beta_hat$jugador <- gsub("`", "", beta_hat$jugador)
+beta_hat$NombreCompleto_limpio <- gsub("`", "", beta_hat$NombreCompleto_limpio)
 
 # Con Moore-Penrose
 
@@ -196,11 +208,15 @@ beta_mp = as.data.frame(beta_mp)
 posesiones_jug = colSums(poss_by_poss_temporada[, 24:369] != 0)
 
 posesiones_jug <- data.frame(
-  jugador = names(posesiones_jug),
+  NombreCompleto_limpio = names(posesiones_jug),
   posesiones = as.numeric(posesiones_jug)
 )
 
-beta_hat = beta_hat %>% left_join(posesiones_jug)
+posesiones_jug = posesiones_jug %>% left_join(minutos_jugad)
+
+posesiones_jug = posesiones_jug %>% left_join(beta_hat)
+
+posesiones_jug = posesiones_jug %>% left_join(df_plus_minus)
 
 #-------------------------------------------------
 
