@@ -28,13 +28,13 @@ output:
 
 % --- Datos del autor y directores ---
 {\Large Estudiante: Simón Pedro Gazze\par}
-{\Large Director/a: Andrés Sosa\par}
-{\Large Co-director/a: Cristina Cuesta\par}
+{\Large Director: Andrés Sosa\par}
+{\Large Co-directora: Cristina Cuesta\par}
 
 \vspace{2cm}
 
 % --- Fecha ---
-{\Large Fecha: 2 de noviembre de 2025\par}
+{\Large Fecha: 18 de febrero de 2026\par}
 
 \vfill
 
@@ -53,15 +53,15 @@ output:
 
 ## Sports Analytics
 
-*Sports Analytics* o analítica en el deporte es un término que refiere a la aplicación de métodos estadísticos para describir, explicar y/o predecir fenómenos vinculados al rendimiento deportivo, tanto a nivel individual como colectivo con el objetivo de facilitar la toma de decisiones de entrenadores o staff técnico antes, durante y después de los partidos.
+*Sports Analytics* o analítica en el deporte es un término que refiere a la aplicación de métodos estadísticos para describir, explicar y/o predecir fenómenos vinculados al rendimiento deportivo, tanto a nivel individual como colectivo con el objetivo de facilitar la toma de decisiones de entrenadores o *staff* técnico antes, durante y después de los partidos.
 
-A pesar de que las primeras aplicaciones al análisis de datos al deporte se remontan a mediados del siglo XX, el impulso más significativo ocurrió a partir de los años 2000, en particular en el béisbol, con la popularización del enfoque conocido como *sabermetrics*[^1]. Desde entonces, la práctica se extendió a otros deportes como el básquetbol, el fútbol o el tenis; dando lugar a una nueva cultura de toma de decisiones basada en evidencia. Hoy en día, los equipos profesionales, las ligas y las federaciones emplean departamentos especializados en análisis de datos para optimizar estrategias de juego, evaluar el rendimiento de jugadores, prevenir lesiones y gestionar recursos económicos de manera más eficiente.
+A pesar de que las primeras aplicaciones al análisis de datos al deporte se remontan a mediados del siglo XX, el impulso más significativo ocurrió a partir del año 2000, en particular en el béisbol, con la popularización del enfoque conocido como *sabermetrics*[^1]. Desde entonces, la práctica se extendió a otros deportes como el básquetbol, el fútbol o el tenis; dando lugar a una nueva cultura de toma de decisiones basada en evidencia. Hoy en día, los equipos profesionales, las ligas y las federaciones emplean departamentos especializados en análisis de datos para optimizar estrategias de juego, evaluar el rendimiento de jugadores, prevenir lesiones y gestionar recursos económicos de manera más eficiente.
 
-[^1]: Término acuñado por Bill James (1980) para referirse al análisis estadístico del béisbol, basado en la recopilación y estudio sistemático de datos con el fin de comprender y cuantificar el desempeño de los jugadores y equipos. El nombre proviene de SABR (Society for American Baseball Research).
+[^1]: Término acuñado por Bill James (1980) para referirse al análisis estadístico del béisbol, basado en la recopilación y estudio sistemático de datos con el fin de comprender y cuantificar el desempeño de los jugadores y equipos. El nombre proviene de SABR (*Society for American Baseball Research*).
 
 El **básquetbol** es uno de los deportes que más ha incorporado el análisis estadístico en su evolución reciente. Desde las primeras métricas derivadas del *box score* (resumen estructurado de los resultados de un partido), el desarrollo de bases de datos *play-by-play* (registro de cada una de las acciones del partido) a partir de la década del 2000 hasta la incorporación más reciente de tecnologías de *player tracking*[^2]. A partir de esta información, se han desarrollado distintas herramientas estadísticas para poder estudiar la eficiencia de los jugadores, la eficiencia de los tiros al aro, el desempempeño de los equipo, la importancia en la creación de espacios, entre otras cosas.
 
-[^2]: El player tracking es un sistema tecnológico que utiliza cámaras y software de visión artificial en los estadios para registrar los movimientos de jugadores y pelotas en tiempo real en la cancha, produciendo datos detallados sobre su rendimiento.
+[^2]: El *player tracking* es un sistema tecnológico que utiliza cámaras y software de visión artificial en los estadios para registrar los movimientos de jugadores y pelotas en tiempo real en la cancha, produciendo datos detallados sobre su rendimiento.
 
 ## Medidas de desempeño para jugadores de básquetbol
 
@@ -69,19 +69,19 @@ Desde la consolidación del *box-score* en el básquetbol profesional, durante l
 
 Por otra parte, las medidas *top-down* se basan en el rendimiento del equipo en su conjunto, y el crédito por dicho rendimiento se distribuye entre los jugadores que estuvieron involucrados en el partido, sin importar qué acciones puntuales hayan realizado. 
 
-Con la idea de que lo más importante en un partido es **ganar**, y entendiendo que las estadísticas tradicionales son solo una medida imperfecta de muchas de las contribuciones que realizan los jugadores a la victoria, en este trabajo buscaremos “pensar más allá del *box score*” y nos centraremos en estadísticas *top-down*, más precisamente en la medida *Plus/Minus*. Esta estadística registra los cambios que se producen en el marcador durante los minutos en que el jugador de interés está en cancha, partiendo de la idea de que los equipos deberían rendir mejor (reflejado en un Plus/Minus más alto) cuando sus buenos jugadores están en cancha que cuando no lo están. Sin embargo esta métrica posee una deficiencia clave: **la calificación de cada jugador va a depender en gran medida de la calidad de sus compañeros en el campo**. Por ejemplo: un jugador de rol dentro de un gran equipo va a tener un mayor *Plus/Minus* que una superestrella en un equipo con mal desempeño.
+Con la idea de que lo más importante en un partido es **ganar**, y entendiendo que las estadísticas tradicionales son solo una medida imperfecta de muchas de las contribuciones que realizan los jugadores a la victoria, en este trabajo buscaremos “pensar más allá del *box score*” y nos centraremos en estadísticas *top-down*, más precisamente en la medida *Plus/Minus*. Esta estadística registra los cambios que se producen en el marcador durante los minutos en que el jugador de interés está en cancha, partiendo de la idea de que los equipos deberían rendir mejor (reflejado en un *Plus/Minus* más alto) cuando sus buenos jugadores están en cancha que cuando no lo están. Sin embargo esta métrica posee una deficiencia clave: **la calificación de cada jugador va a depender en gran medida de la calidad de sus compañeros en el campo**. Por ejemplo: un jugador de rol dentro de un gran equipo va a tener un mayor *Plus/Minus* que una superestrella en un equipo con mal desempeño.
 
 ## RAPM (Regularized Adjusted Plus Minus)
 
-Esta deficiencia anteriormente mencionada se ha intentado solucionar implementando **modelos matemáticos** que incorporen los efectos tanto de los compañeros presentes en cancha como de los rivales en ese momento, buscando aislar el efecto real de los jugadores en la cancha. El primero en realizar una publicación sobre el tema fue Dan Rosenbaum (2004), el cual planteó un **modelo de regresión lineal múltiple** en base a observaciones provenientes de partidos de las temporadas 2002-2003 y 2003-2004 de la National Basketball Association o *NBA*. Como unidad de análisis se utilizaron segmentos de partidos donde no ocurrian sustituciones ,la variable respuesta fue la diferencia en el marcador entre el equipo local y el visitante en ese segmento; y como variables explicativas se postularon variables dicotómicas para cada uno de los jugadores que hayan jugado al menos un partido en esas temporadas. Finalmente las métricas de desempeño se correspondían con los coeficientes estimados que acompañaban a las "Dummies" de cada jugador, dichas estimaciones se realizaron mediante la técnica de Mínimos Cuadrados Ordinarios. Estas estadísticas se conocen como Adjusted Plus Minus (APM).
+La deficiencia anteriormente mencionada se ha intentado solucionar implementando **modelos matemáticos** que incorporen los efectos tanto de los compañeros presentes en cancha como de los rivales en ese momento, buscando aislar el efecto real de los jugadores en la cancha. El primero en realizar una publicación sobre el tema fue Dan Rosenbaum (2004), el cual planteó un **modelo de regresión lineal múltiple** en base a observaciones provenientes de partidos de las temporadas 2002-2003 y 2003-2004 de la National Basketball Association o *NBA*. Como unidad de análisis se utilizaron segmentos de partidos donde no ocurrian sustituciones, la variable respuesta fue la diferencia en el marcador entre el equipo local y el visitante en ese segmento; y como variables explicativas se postularon variables dicotómicas para cada uno de los jugadores que hayan jugado al menos un partido en esas temporadas. Finalmente las métricas de desempeño se correspondían con los coeficientes estimados que acompañaban a las "Dummies" de cada jugador, dichas estimaciones se realizaron mediante la técnica de Mínimos Cuadrados Ordinarios. Estas estadísticas se conocen como *Adjusted Plus Minus* (APM).
 
 A pesar de que estas métricas presentaban una solución innovadora a la problematica inicial, Rosenbaum señaló que las estimaciones obtenidas no resultaron muy precisas. El modelo propuesto presentaba estimaciones con mucho error, debido a un claro problema de **multicolinealidad** ya que muchos de los jugadores compartían una gran cantidad de minutos juntos en cancha, y se necesitaba de una gran cantidad observaciones de varias temporadas para que el modelo pudiera separar el efecto propio de cada jugador.
 
 Para solucionar está problemática, se plantea la métrica RAPM introducida por Sill (2010) en la cual se aborda el problema de la Multicolinealidad mediante estimaciones de los parametros realizadas con Métodos de Regularización, particularmente utilizando la **Regresión Ridge**. Esté método de regularización es el más abordado a lo largo de toda la literatura relevante sobre RAPM hasta la fecha.
 
-Otro de los problemas recurrentes en estos modelos esta relacionado con la inclusión de jugadores que participan muy pocos minutos en cancha (*LTPs Players*). Cuando un jugador juega muy poco, el modelo solo tiene unas pocas observaciones (segmentos) para evaluarlo, y si particularmente en esas observaciones el equipo tiene un muy buen desempeño (probablemente por casualidad); entonces el modelo no puede diferenciar si el efecto es propio del jugador y ajusta coeficientes extremos. Para solucionar estos casos se han contemplado las siguientes alternativas: 1)excluir a los jugadores con pocos minutos dentro de las temporadas (por ejemplo: Rosembaum (2004) excluye a lo jugadores con menos de 250 minutos, Ilardi (2007) excluyen a lo jugadores con menos de 400 minutos, etc), 2) utilizar una gran cantidad de observaciones (Ilardi & Barzilai (2008) incorpora información de 5 temporadas), 3) plantear métodos de estimación de los parámetros que penalicen a este tipo de jugadores.
+Otro de los problemas recurrentes en estos modelos esta relacionado con la inclusión de jugadores que participan muy pocos minutos en cancha (*LTPs Players*). Cuando un jugador juega muy poco, el modelo solo tiene unas pocas observaciones (segmentos) para evaluarlo, y si particularmente en esas observaciones el equipo tiene un muy buen desempeño (probablemente por casualidad); entonces el modelo no puede diferenciar si el efecto es propio del jugador y estima coeficientes extremos. Para solucionar estos casos se han contemplado las siguientes alternativas: 1)excluir a los jugadores con pocos minutos dentro de las temporadas (por ejemplo: Rosembaum (2004) excluye a lo jugadores con menos de 250 minutos, Ilardi (2007) excluyen a lo jugadores con menos de 400 minutos, etc), 2) utilizar una gran cantidad de observaciones (Ilardi & Barzilai (2008) incorpora información de 5 temporadas), 3) plantear métodos de estimación de los parámetros que penalicen a este tipo de jugadores.
 
-En los últimos años, muchos investigadores han publicado trabajos orientados a mejorar los resultados de las métricas RAPM. Particularmente en este trabajo usaremos como referencia central al artículo titulado: **Lasso multinomial performance indicators for in‑play basketball data (Damoulaki et.al , 2025)**, el cual presenta diferencias importantes respecto de los estudios previos. Dicho artículo utiliza **posesiones**[^3] como unidad de análisis, **puntos** en esas posesiones como variable respuesta y emplea **modelos logísticos** que representan de manera más adecuada la naturaleza de la respuesta.
+En los últimos años, muchos investigadores han publicado trabajos orientados a mejorar los resultados de las métricas RAPM. Particularmente en este trabajo usaremos como referencia central al artículo titulado: **Lasso multinomial performance indicators for in‑play basketball data (Damoulaki et.al , 2025)**, el cual presenta diferencias importantes respecto de los estudios previos. Dicho artículo utiliza **posesiones**[^3] como unidad de análisis, **puntos** en esas posesiones como variable respuesta y emplea **modelos logísticos multinomiales** que representan de manera más adecuada la naturaleza de la respuesta.
 
 [^3]: Una posesión comienza (Kubatko et al., 2007) cuando un equipo obtiene el control de la pelota y termina cuando ese equipo cede el control de la misma al equipo rival.
 
@@ -89,7 +89,7 @@ Además de calcular estas métricas por primera vez para jugadores de Liga Nacio
 
 # Motivación
 
-El creciente interés por la analítica deportiva que se ha evidenciado en los últimos años en distintos paises del mundo, ha empezado a captar la atención de las entidades deportivas en Argentina. Particularmente este año la Confederación Argentina de Básquetbol (CABB) y la Asociación de Clubes (AdC) anunciaron en octubre la ampliación de su alianza con Catapult (empresa australiana de tecnología deportiva), integrando equipamiento de wearables (GPS) y software de videoanálisis para las 19 franquicias de la Liga Nacional, las 34 de la Liga Argentina y las selecciones nacionales en todas las ramas. Mientras que en el ámbito educativo, el Instituto CAB (creado en 2023) realizó un convenio con Sports Data Campus (España) para ofrecer, en agosto de este año, el primer curso de *Big Data aplicado al básquetbol* en Argentina, con el objetivo de que entrenadores y staff técnico colaboren en proyectos reales de la CABB, aportando soluciones basadas en datos sobre rendimiento, scouting y optimización de procesos[^4].
+El creciente interés por la analítica deportiva que se ha evidenciado en los últimos años en distintos paises del mundo, ha empezado a captar la atención de las entidades deportivas en Argentina. Particularmente este año la Confederación Argentina de Básquetbol (CABB) y la Asociación de Clubes (AdC) anunciaron en octubre la ampliación de su alianza con Catapult (empresa australiana de tecnología deportiva), integrando equipamiento de *wearables* (GPS) y software de videoanálisis para las 19 franquicias de la Liga Nacional, las 34 de la Liga Argentina y las selecciones nacionales en todas las ramas. Mientras que en el ámbito educativo, el Instituto CAB (creado en 2023) realizó un convenio con Sports Data Campus (España) para ofrecer, en agosto de este año, el primer curso de *Big Data aplicado al básquetbol* en Argentina, con el objetivo de que entrenadores y *staff* técnico colaboren en proyectos reales de la CABB, aportando soluciones basadas en datos sobre rendimiento, *scouting* y optimización de procesos[^4].
 
 [^4]: <https://www.argentina.basketball/ver/noticia/la-confederacion-argentina-de-basquet-y-sports-data-campus-firman-un-acuerdo-de-colaboracion#>:\~:text=que%2C%20gracias%20a%20esta%20colaboraci%C3%B3n%2C,el%20rendimiento%20deportivo%2C%20el%20scouting
 
@@ -97,11 +97,11 @@ Estas cuestiones previamente mencionadas dan indicio de que estamos ante un mome
 
 En este marco, y con el fin de caracterizar el estado de situación del análisis de datos en el básquet argentino, se relevaron los proyectos e iniciativas actualmente activos en el país vinculados a la estadística y la tecnología aplicada al deporte.
 
--   Facundo Salas y Sebastián Fiol son entrenadores de básquetbol Nivel 3 Eneba, especialistas en estadísticas avanzadas y analistas de datos en equipos profesionales. Ambos son propietarios de la firma *CHAS All Stats* y analistas de datos de Zárate Básquet, equipo perteneciente a la Liga Nacional de Básquetbol de Argentina.
+-   Facundo Salas y Sebastián Fiol son entrenadores de básquetbol Nivel 3, especialistas en estadísticas avanzadas y analistas de datos en equipos profesionales. Ambos son propietarios de la firma *CHAS All Stats* y analistas de datos de Zárate Básquet, equipo perteneciente a la Liga Nacional de Básquetbol de Argentina.
 
--   *Básquet Advance*, dirigido por el entrenador Cristian Sánchez, ofrece informes pre/post partido con estadísticas avanzadas y tendencias clave para entrenadores y scouts.
+-   *Básquet Advance*, dirigido por el entrenador Cristian Sánchez, ofrece informes pre/post partido con estadísticas avanzadas y tendencias clave para entrenadores y *scouts*.
 
-Ambos proyectos ofrecen herramientas muy importantes y de gran valor tanto para los equipos como para el desarrollo del análisis de datos en el deporte. Pero particularmente en ambos casos, los que llevan adelante estos proyectos son entrenadores de básquetbol, los cuales a pesar de que pueden contar con una sólida formación técnica, no son profesionales de ciencias estadísticas o matemáticas.
+Ambos proyectos ofrecen herramientas muy importantes y de gran valor tanto para los equipos como para el desarrollo del análisis de datos en el deporte. Pero particularmente en ambos casos, los que llevan adelante estos proyectos son entrenadores de básquetbol, los cuales a pesar de que pueden contar con una sólida formación técnica, no son profesionales de ciencias estadística o matemática.
 
 Por este motivo, resulta fundamental la incorporación de profesionales en carreras de ciencias exactas, que trabajen en conjunto con los entrenadores y cuerpos técnicos, para de esta manera poder ofrecer nuevos análisis más rigurosos y profundos, así como mejorar las herramientas actualmente disponibles. Esta correspondencia entre el conocimiento técnico-deportivo y el enfoque estadístico permitiría potenciar el desarrollo del básquet argentino y contribuir a elevar su nivel competitivo en un futuro.
 
@@ -111,9 +111,7 @@ Por este motivo, resulta fundamental la incorporación de profesionales en carre
 
 ## Objetivo general
 
-El objetivo central de esta tesina es obtener un ranking de jugadores que estime de manera adecuada el aporte que cada uno realiza a la performance de su equipo cuando está en cancha, para la temporada 2024/2025 de la Liga Nacional de Básquetbol de Argentina.
-
-El objetivo central de esta tesina es estimar el aporte individual de los jugadores de la Liga Nacional de Básquetbol de Argentina durante la temporada 2024/2025 mediante modelos RAPM, con el fin de construir un ranking que refleje su impacto en la performance de sus equipos.
+El objetivo general de esta tesina es estimar el aporte individual de los jugadores de la Liga Nacional de Básquetbol de Argentina durante la temporada 2024/2025 mediante modelos RAPM, con el fin de construir un ranking que refleje su impacto en el desempeño de sus equipos.
 
 ## Objetivos específicos
 
@@ -123,7 +121,7 @@ El objetivo central de esta tesina es estimar el aporte individual de los jugado
 
 3) Desarrollar una metodología adecuada que permita solucionar el problema de los coeficientes extremos asociados a los jugadores con pocos minutos de juego (*LTPs Players*) durante la temporada.
 
-4) Definir criterios de evaluación para poder determinar que modelo proporciona mejores métricas, las cuales deben resumir de manera consistente y precisa el aporte ofensivo y defensivo de cada jugador en relación al desempeño de su equipo.
+4) Comparar modelos en base a distintos criterios de evaluación, para poder determinar cual de ellos proporciona mejores métricas, debiendo resumir de manera consistente y precisa el aporte ofensivo y defensivo de cada jugador en relación al desempeño de su equipo.
 
 # Metodología
 
@@ -146,15 +144,13 @@ y_i \sim N(\mu_i  , \sigma^2/w_i) \\
 
 para $i = 1,...,n$;
 
-Donde:
+donde:
 
-$n$: es el número total de posesiones en el dataset, $K$: es el número total de jugadores en consideración, $y_i$: es el número de puntos realizados en la posesión $i$ (los puntos en una posesión pueden variar de 0 a 6, siendo los casos en que se anotan 5 o 6 puntos, jugadas extremadamente atípicas), $\mu_i$ = es la cantidad esperada de puntos anotados en la posesión i, $x^o_{ik}$: indicadora ofensiva del jugador k en la posesión i ($1$ si el jugador $k$ estaba jugando en ataque en la posesión $i$, $0$ en otro caso), $x^d_{ik}$: indicadora defensiva del jugador k en la posesión i ($-1$ si el jugador $k$ estaba jugando en defensa en la posesión $i$, $0$ en otro caso), $\beta_0$: Intercepto del modelo (usualmente representa al jugador de referencia, definido como aquel con coeficientes RAPM iguales o cercanos a cero), $\beta^o_k$: coeficiente ofensivo del jugador k ($ORAPM$), $\beta^d_k$: coeficiente defensivo del jugador k ($DRAPM$).
+$n$: es el número total de posesiones en el *dataset*, $K$: es el número total de jugadores en consideración, $y_i$: es el número de puntos realizados en la posesión $i$ (los puntos en una posesión pueden variar de 0 a 6, siendo los casos en que se anotan 5 o 6 puntos, jugadas extremadamente atípicas), $\mu_i$ = es la cantidad esperada de puntos anotados en la posesión i, $x^o_{ik}$: indicadora ofensiva del jugador k en la posesión i ($1$ si el jugador $k$ estaba jugando en ataque en la posesión $i$, $0$ en otro caso), $x^d_{ik}$: indicadora defensiva del jugador k en la posesión i ($-1$ si el jugador $k$ estaba jugando en defensa en la posesión $i$, $0$ en otro caso), $\beta_0$: Intercepto del modelo, $\beta^o_k$: coeficiente ofensivo del jugador k ($ORAPM$), $\beta^d_k$: coeficiente defensivo del jugador k ($DRAPM$).
 
-Como $\hat{\beta}_j$ es una combinacion lineal de $y_j$ , entonces la distribución de estos parámetros es conocida. Tenemos que:
+Como $\hat{\beta}_j$ es una combinacion lineal de $y_i$ , entonces la distribución de estos parámetros es conocida. Tenemos que:
 
 $$\hat{\beta}_j \sim N(\beta_j, var[\hat{\beta_j}])$$
-
-Tanto los parámetros de regresión ($\boldsymbol{\beta}$) como la variancia de la respuesta ($\sigma^2$) son desconocidos, por lo que deben estimarse a través de los datos.
 
 Este modelo es de sencilla aplicación y ha sido ampliamente utilizado por distintos analistas que trabajan con este tipo de métricas. Sin embargo, la variable respuesta en este caso es discreta, tomando valores enteros entre 0 y 6, lo que sugiere que el supuesto de normalidad del modelo de regresión lineal múltiple no resulta apropiado para representar adecuadamente la naturaleza de la variable de interés.
 
@@ -178,7 +174,7 @@ Luego construimos el modelo logístico multinomial con categoría de referencia,
 
 $$logit(\pi_{ic}) = log(\frac{\pi_{ic}}{\pi_{i0}})=\beta_{0c} + \sum_{j=1}^{K} \beta^o_{jc} x^o_{ji} + \sum_{j=1}^{K} \beta^d_{jc} x^d_{ji}\quad \text{con } c= \{1,2, 3\} $$
 
-Dicho modelo describe el efecto de los jugadores en cada uno de los $c-1 =3$ logits, es decir, va a permitir calcular el aporte ofensivo y defensivo del jugador para cada tipo de anotación.
+Dicho modelo describe el efecto de los jugadores en cada uno de los $c-1 =3$ logits, es decir, permite calcular el aporte ofensivo y defensivo del jugador para cada tipo de anotación.
 
 Las probabilidades multinomiales se obtienen mediante las siguientes ecuaciones:
 
@@ -190,7 +186,7 @@ $$\pi_{ic}=\frac{exp(\boldsymbol{x}_i^T\boldsymbol{\beta}_i)}{1+\sum_{c=1}^3exp(
 
 En el enfoque mencionado anteriormente los coeficientes {$\beta_1^o$,$\beta_2^o$,$\beta_3^o$} y {$\beta_1^d$,$\beta_2^d$,$\beta_3^d$} representan las contribuciones de cada jugador en los distintos tipos de anotación. Aunque puede resultar interesante y permita realizar distintos análisis, el objetivo final de este estudio es obtener una métrica que unifique la contribución ofensiva y defensiva en una única medida general.
 
-Para la contribución ofensiva, esto puede lograrse calculando la cantidad de puntos esperada en una posesión que anota el equipo de dicho jugador cuando el está incluido en el quinteto y todos los demás jugadores en la alineación pertenecen al grupo de referencia (con RAPM igual a 0).
+Para la contribución ofensiva, esto puede lograrse calculando la cantidad de puntos esperada en una posesión que anota el equipo de dicho jugador cuando él está incluido en el quinteto y todos los demás jugadores en la alineación pertenecen al grupo de referencia (con RAPM igual a 0).
 
 Mientras que la contribución defensiva de un jugador puede evaluarse mediante la cantidad esperada de puntos (por posesión) concedidos por el equipo de dicho jugador cuando él no está en la alineación y todos los demás jugadores en cancha pertenecen al grupo de referencia.
 
@@ -236,15 +232,15 @@ $$ Ahora tenemos que $\mathcal{I}(A)$ es una variable indicadora que vale 1 en c
 
 ### Método de mínimos cuadrados
 
-En el modelo de regresión lineal múltiple, vamos a estimar los parámetros buscando minimizar las diferencias entre las observaciones de nuestro dataset y las estimaciones del modelo,
+En el modelo de regresión lineal múltiple, se van a estimar los parámetros por mínimos cuadrados ponderados, siendo la función a minimizar: 
 
-Función a minimizar: $S = \sum_{i=1}^n w_i(y_i-\mu_i)^2$
+$$S = \sum_{i=1}^n w_i(y_i-\mu_i)^2$$
 
-Los estimadores de mínimos cuadrados de $beta_j$ se definen como aquellos valores de $beta_j$ que minimizan la suma de cuadrados $S$, y se denotan como $\hat{\beta}_0, \ldots, \hat{\beta}_p$.
+Los estimadores de $\beta_j$ se definen como aquellos  que minimizan la suma de cuadrados $S$, y se denotan como $\hat{\beta}_0, \ldots, \hat{\beta}_p$.
 
 Obteniendo de esta manera los siguientes coeficientes estimados: $\hat{\beta_j} = \frac{\sum_{i=1}^n w_ix_{ij}^*y_{i}}{\sum_{i=1}^n w_i(x_{ij}^*)^2}$,
 
-para $j= 0,...,p$, donde $x_{ij}^*$ da los valores de la j-ésima variable explicativa $x_j$ después de haber sido ajustada por todas las demás variables explicativas $x_0,...,x_p$ excepto $x_j$. La variable explicativa ajustada $x_{j}^*$ es aquella parte de $x_j$ que no puede ser explicada mediante una regresión sobre las otras variables explicativas (Dunn y Smyth, 2018).
+para $j= 0,...,p$, donde $x_{ij}^*$ son los valores de la j-ésima variable explicativa $x_j$ después de haber sido ajustada por todas las demás variables explicativas $x_0,...,x_p$ excepto $x_j$. La variable explicativa ajustada $x_{j}^*$ es aquella parte de $x_j$ que no puede ser explicada mediante una regresión sobre las otras variables explicativas (Dunn y Smyth, 2018).
 
 ### Método de máxima verosimilitud
 
@@ -268,13 +264,13 @@ Para el **modelo de regresión lineal múltiple** los coficientes estimados $\ha
 
 $$S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2$$
 
-Donde $\lambda \geq 0$ es un *hiperparámetro* que controla la intensidad de la penalización.
+Donde $\lambda \geq 0$ es un hiperparámetro que controla la intensidad de la penalización.
 
 Cuando $\lambda = 0$ no hay penalización y la estimación será igual a la obtenida por mínimos cuadrados; y a medida que $\lambda$ aumenta la penalización se vuelve más dominante y los coeficientes tienden a 0. Para encontrar el valor óptimo de $\lambda$ se utilizarán técnicas de **validación cruzada**.
 
 Mientras que en el caso del **modelo logístico multinomial**, se agrega un parámetro de penalización a la función de log-verosimilitud, de manera tal que la log-verosimilitud penalizada a maximizar resulta:
 
-$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p\beta_j^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{j=1}^p\beta_j^2$$ Y el *hiperparámetro* $\lambda$ se selecciona nuevamente mediante validación cruzada.
+$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p\beta_j^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{j=1}^p\beta_j^2$$ Y el hiperparámetro $\lambda$ se selecciona nuevamente mediante validación cruzada.
 
 ### Lasso o Regularización L1
 
@@ -292,7 +288,7 @@ $$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(
 
 ### Elastic Net
 
-Cuando existen predictores altamente correlacionados, **ridge** reduce la influencia de todos ellos a la vez de forma proporcional, mientras que **lasso** tiende a seleccionar uno de ellos, dándole todo el peso y excluyendo al resto. En presencia de correlaciones fuertes esta selección puede variar mucho ante pequeñas perturbaciones , por lo que las soluciones de lasso pueden ser más inestables.
+Cuando existen predictores altamente correlacionados, **ridge** reduce la influencia de todos ellos a la vez de forma proporcional, mientras que **lasso** tiende a seleccionar uno de ellos, dándole todo el peso y excluyendo al resto. En presencia de correlaciones fuertes esta selección puede variar mucho ante pequeñas perturbaciones, por lo que las soluciones de lasso pueden ser más inestables.
 
 Para encontrar un equilibrio entre ambos métodos se plantea la penalización **elastic net**, introducido por Hui Zou y Trevor Hastie (2005), la cual combina las penalizaciones L1 (Lasso) y L2 (Ridge).
 
@@ -306,11 +302,11 @@ $$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(
 
 ## Eficiencia computacional
 
-En el presente estudio trabajaremos con la base de datos *play-by-play* correspondiente a la temporada 2024/2025 de la Liga Nacional de Básquetbol en Argentina. A la largo de dicha temporada, los 20 equipos participantes disputaron 38 partidos cada uno bajo el formato todos contra todos, por lo que obtendremos datos de 379[^6] partidos. A su vez, en cada uno de estos partidos se registraron aproximadamente 80 posesiones por equipo, obteniendo 160 posesiones totales. De manera que el dataset final contará con aproximadamente 60.000 observaciones (posesiones).
+En el presente estudio trabajaremos con la base de datos *play-by-play* correspondiente a la temporada 2024/2025 de la Liga Nacional de Básquetbol en Argentina. A lo largo de dicha temporada, los 20 equipos participantes disputaron 38 partidos cada uno bajo el formato todos contra todos, por lo se obtienen datos de 378[^6] partidos. A su vez, en cada uno de estos partidos se registraron aproximadamente 80 posesiones por equipo, obteniendo 160 posesiones totales. De manera que el *dataset* final contará con aproximadamente 60.000 observaciones (posesiones).
 
-[^6]: Un (1) partido no se disputó por motivos climaticos, y se repartieron los puntos
+[^6]: Dos (2) partidos no se disputaron por motivos climáticos, y se repartieron los puntos
 
-Por otro lado, cada equipo cuenta con alrededor de 15 jugadores, lo que representará 30 variables dicotómicas por equipo (representando las presencias ofensivas y defensivas de cada uno de los jugadores de la liga). Esto representa un total de 600 variables explicativas en el dataset final. Por lo tanto, la base de datos se compondrá de una matriz cercana a las 60.000 filas y 600 columnas.
+Por otro lado, cada equipo cuenta con alrededor de 15 jugadores, lo que representará 30 variables dicotómicas por equipo (representando las presencias ofensivas y defensivas de cada uno de los jugadores de la liga). Esto representa un total de 600 variables explicativas en el *dataset* final. Por lo tanto, la base de datos se compondrá de una matriz cercana a las 60.000 filas y 600 columnas.
 
 En el estudio de *Damoulaki et.al* (2025), la liga analizada (NBA) presenta una mayor cantidad de partidos, más equipos y consecuentemente más jugadores, obteniendo una base de datos final compuesta con 322.852 posesiones y 717 jugadores (1434 variables dicotómicas). Debido al gran tamaño de los datos, los autores identificaron problemas de eficiencia computacional al ajustar un modelo de regresión logística multinomial, optando en su lugar por estimar tres modelos logísticos binomiales, uno para cada tipo de anotación. Si bien se sabe que las estimaciones basadas en el enfoque de regresiones logísticas separadas son menos eficientes, con errores estándar mayores, en comparación con el enfoque directo de regresión logística multinomial. Pero esta pérdida de eficiencia es menor cuando la categoría de referencia domina en los datos, como en este caso (Agresti, 2013).
 
@@ -332,13 +328,13 @@ Finalmente, luego de un proceso de limpieza y estructuración de los datos, se o
 
 En esta segunda etapa, se utilizará la base de datos ya preprocesada para obtener los ratings ofensivos y defensivos de cada uno de los jugadores que hayan jugado al menos 1 partido a lo largo de la temporada analizada, estos ratings se corresponderan con las estimaciones de los parámetros de los modelos planteados.
 
-Tanto el modelo de regresión lineal múltiple como el modelo logístico multinomial, seran ajustado utilizando la libreria `glmnet` del software estadístico R. Esta librería permite la estimación de parámetros mediante técnicas de regularización como Ridge, Lasso y Elastic Net, lo que resulta particularmente útil para manejar colinealidad entre variables y para la selección automática de predictores (James et al., 2021).
+Tanto el modelo de regresión lineal múltiple como el modelo logístico multinomial, seran ajustados utilizando la libreria `glmnet` del software estadístico R. Esta librería permite la estimación de parámetros mediante técnicas de regularización como Ridge, Lasso y Elastic Net, lo que resulta particularmente útil para manejar colinealidad entre variables y para la selección automática de predictores (James et al., 2021).
 
 Por otro lado, en caso de presentarse limitaciones computacionales que dificulten el ajuste de los modelos sobre la totalidad de los datos, se considerará la implementación de los mismos en Apache Spark a través de la librería `sparklyr`, lo que permitirá distribuir el procesamiento y manejar grandes volúmenes de información de manera eficiente.
 
 ## Comparación de los distintos enfoques
 
-En esta última etapa, se procederá a la evaluación y comparación de los modelos ajustados, siguiendo la metodología propuesta por Hvattum (Sæbø, O., & Hvattum, L.M., 2019; Hvattum, L.M., 2019) pero aplicada al básquetbol, donde cada uno de los distintos modelos serán comparados en función de distintos criterios de evaluación. Los resultados se presentarán mediante gráficos comparativos que faciliten la visualización de las diferencias entre enfoques y estará acompañado de un análisis personal basado en la experiencia propia sobre los jugadores de la liga, permitiendo contextualizar los resultados y destacar aspectos relevantes que puedan no ser capturados únicamente por los modelos estadísticos.
+En esta última etapa, se procederá a la evaluación y comparación de los modelos ajustados, siguiendo la metodología propuesta por Hvattum (Sæbø, O., & Hvattum, L.M., 2019; Hvattum, L.M., 2019) pero aplicada al básquetbol, donde cada uno de los distintos modelos serán comparados en función de la validez y consistencia de los mismos. Los resultados se presentarán mediante gráficos comparativos que faciliten la visualización de las diferencias entre enfoques y estará acompañado de un análisis personal basado en la experiencia propia sobre los jugadores de la liga, permitiendo contextualizar los resultados y destacar aspectos relevantes que puedan no ser capturados únicamente por los modelos estadísticos.
 
 \newpage
 
@@ -399,15 +395,15 @@ Dunn, P. K., & Smyth, G. K. (2018). *Generalized linear models with examples in 
 
 Hvattum, L. M. (2019). *A comprehensive review of plus–minus ratings for evaluating individual players in team sports.* International Journal of Computer Science in Sport, 18, 1–23.
 
-Ilardi, S. (2007). *Adjusted Plus-Minus: An idea whose time has come.* Blog: 82games. <http://www.82games.com/ilardi1.htm>
+Ilardi, S. (2007). *Adjusted Plus-Minus: An idea whose time has come.* Blog: 82games. <http://www.82games.com/ilardi1.htm>. Consultado el 17 de febrero de 2026.
 
-Ilardi, S., & Barzilai, A. (2008). *Adjusted Plus-Minus ratings: New and improved for 2007–2008.* Blog: 82games. <http://www.82games.com/ilardi2.htm>
+Ilardi, S., & Barzilai, A. (2008). *Adjusted Plus-Minus ratings: New and improved for 2007–2008.* Blog: 82games. <http://www.82games.com/ilardi2.htm>. Consultado el 17 de febrero de 2026.
 
 James, G., Witten, D., Hastie, T., & Tibshirani, R. (2021). *An Introduction to Statistical Learning with Applications in R* (ISLR2).
 
 Kubatko, J., Oliver, D., Pelton, K., & Rosenbaum, D. (2007). *A starting point for analyzing basketball statistics.* Journal of Quantitative Analysis in Sports, 3, Article 1.
 
-Rosenbaum, D. (2004). *Measuring how NBA players help their teams win.* Blog: 82games. <http://www.82games.com/comm30.htm>
+Rosenbaum, D. (2004). *Measuring how NBA players help their teams win.* Blog: 82games. <http://www.82games.com/comm30.htm>. Consultado el 17 de febrero de 2026.
 
 Sæbø, O., & Hvattum, L.M. (2019). *Modelling the financial contribution of soccer players to their clubs.* Journal of Sports Analytics, 5, 23–34.
 
