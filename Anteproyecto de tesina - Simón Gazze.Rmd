@@ -39,7 +39,7 @@ output:
 \vfill
 
 % --- Logo centrado ---
-\includegraphics[height=2.8cm]{logo-UNR.jpg}  % Cambiá por unr.png si corresponde
+\includegraphics[height=2.8cm]{Logo-unr.png}  % Cambiá por unr.png si corresponde
 
 \end{titlepage}
 
@@ -137,10 +137,12 @@ Los modelos más comunmente utilizados en la literatura relevante sobre RAPMs so
 
 El componente aleatorio supone que las respuestas $y_i$ tienen variancias constantes $\sigma^2$, o que las variancias son proporcionales a pesos conocidos y positivos $w_i$, los cuales brindan la posibilidad de asignar más peso a algunas observaciones que a otras. De esta manera tenemos que,
 
-$$\begin{cases}
+\begin{equation}
+\begin{cases}
 y_i \sim N(\mu_i  , \sigma^2/w_i) \\
 \mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_k x^d_{ik} 
-\end{cases} $$
+\end{cases}
+\end{equation}
 
 para $i = 1,...,n$;
 
@@ -150,7 +152,9 @@ $n$: es el número total de posesiones en el *dataset*, $K$: es el número total
 
 Como $\hat{\beta}_k$ es una combinacion lineal de $y_i$ , entonces la distribución de estos parámetros es conocida. Tenemos que:
 
-$$\hat{\beta}_k \sim N(\beta_k, var[\hat{\beta_k}])$$
+\begin{equation}
+\hat{\beta}_k \sim N(\beta_k, var[\hat{\beta_k}])
+\end{equation}
 
 Este modelo es de sencilla aplicación y ha sido ampliamente utilizado por distintos analistas que trabajan con este tipo de métricas. Sin embargo, la variable respuesta en este caso es discreta, tomando valores enteros entre 0 y 6, lo que sugiere que el supuesto de normalidad del modelo de regresión lineal múltiple no resulta apropiado para representar adecuadamente la naturaleza de la variable de interés.
 
@@ -160,25 +164,31 @@ En consecuencia a lo comentado anteriormente, podría ser más razonable emplear
 
 Recordando que $y_i$ es igual a la cantidad de puntos en una posesión, nuestra nueva variable respuesta resulta:
 
-$$
+\begin{equation}
 y^M_i =
 \begin{cases}
 y_i, & \text{para } y_i \in \{0, 1, 2\} \\
 3, & \text{para } y_i \geq 3
 \end{cases}
-$$ Donde, $y^M_i \sim Multinomial(n, \boldsymbol{\pi_i})$ con $\boldsymbol{\pi_i} = (\pi_{i0},\pi_{i1},\pi_{i2},\pi_{i3})$ y $\sum_{c=0}^3 \pi_{ic}=1$.
+\end{equation}
+
+Donde, $y^M_i \sim Multinomial(n, \boldsymbol{\pi_i})$ con $\boldsymbol{\pi_i} = (\pi_{i0},\pi_{i1},\pi_{i2},\pi_{i3})$ y $\sum_{c=0}^3 \pi_{ic}=1$.
 
 Resultando $\pi_{i0},\pi_{i1},\pi_{i2}$ y $\pi_{i3}$ las probabilidades respectivas de no anotar, de anotar 1 punto, de anotar 2 puntos y de anotar 3 puntos o más en la posesión $i$.
 
 Luego construimos el modelo logístico multinomial con categoría de referencia, eligiendo como categoría de referencia a $0$:
 
-$$logit(\pi_{ic}) = log(\frac{\pi_{ic}}{\pi_{i0}})=\beta_{0c} + \sum_{k=1}^{K} \beta^o_{kc} x^o_{ik} + \sum_{k=1}^{K} \beta^d_{kc} x^d_{ik}\quad \text{con } c= \{1,2, 3\} $$
+\begin{equation}
+logit(\pi_{ic}) = log(\frac{\pi_{ic}}{\pi_{i0}})=\beta_{0c} + \sum_{k=1}^{K} \beta^o_{kc} x^o_{ik} + \sum_{k=1}^{K} \beta^d_{kc} x^d_{ik}\quad \text{con } c= \{1,2, 3\}
+\end{equation}
 
 Dicho modelo describe el efecto de los jugadores en cada uno de los $c-1 =3$ logits, es decir, permite calcular el aporte ofensivo y defensivo del jugador para cada tipo de anotación.
 
 Las probabilidades multinomiales se obtienen mediante las siguientes ecuaciones:
 
-$$\pi_{ic}=\frac{exp(\boldsymbol{x}_i^T\boldsymbol{\beta}_i)}{1+\sum_{c=1}^3exp(\boldsymbol{x}_i^T\boldsymbol{\beta}_i)} $$
+\begin{equation}
+\pi_{ic}=\frac{exp(\boldsymbol{x}_i^T\boldsymbol{\beta}_i)}{1+\sum_{c=1}^3exp(\boldsymbol{x}_i^T\boldsymbol{\beta}_i)}
+\end{equation}
 
 ## EPTS y wEPTS
 
@@ -198,7 +208,9 @@ $$
 
 Estas dos medidas, $ETPS^o$ y $ETPS^d$, serán funciones de los coeficientes ofensivos y defensivos del modelo multinomial ajustado. Se obtienen mediante:
 
-$$EPTS_k^r= \pi^r_{k1}+2\pi_{k2}^r+3.01\pi_{k3}^r, \quad r \in \{o,d\}$$
+\begin{equation}
+EPTS_k^r= \pi^r_{k1}+2\pi_{k2}^r+3.01\pi_{k3}^r, \quad r \in \{o,d\}
+\end{equation}
 
 Donde $\pi_{kc}^o$ son las probabilidades estimadas mediante un modelo de regresión logística multinomial de anotar uno, dos o tres puntos o más, respectivamente, por posesión del equipo del jugador k cuando él está incluido en la alineación y todos sus compañeros de equipo en la alineación y todos los oponentes son jugadores incluidos en el grupo de referencia (es decir, aquellos con coeficientes de regresión iguales a cero).
 
@@ -206,17 +218,19 @@ De manera similar, $\pi_{kc}^d$ son las probabilidades de anotar uno, dos o tres
 
 Estas probabilidades vienen dadas por:
 
-$$\pi_{kc}^r=\frac{exp(\mu_{kc}^r)}{1+exp(\mu_{k1}^r)+exp(\mu_{k2}^r)+exp(\mu_{k3}^r)} \quad \text{con } \mu_{kc}^r=\beta_{0c}+\beta_{kc}^r$$
+\begin{equation}
+\pi_{kc}^r=\frac{exp(\mu_{kc}^r)}{1+exp(\mu_{k1}^r)+exp(\mu_{k2}^r)+exp(\mu_{k3}^r)} \quad \text{con } \mu_{kc}^r=\beta_{0c}+\beta_{kc}^r
+\end{equation}
 
 ### wEPTS
 
 Una versión mejorada y ponderada de los EPTS se calcula en *Damoulaki et.al* (2025), la cual tiene en cuenta la participación del jugador a lo largo de la temporada. En la cual la métrica anteriormente presentada se pondera según la proporción de posesiones en las que el jugador de interés estuvo en cancha. Por lo tanto, el EPTS ponderado (wEPTS) se define como:
 
-$$
+\begin{equation}
 \begin{aligned}
 wEPTS_k^{r} =  W_k^{r} \, EPTS_k^{r} + (1 - W_k^{r}) \, EPTS_0
 \end{aligned}
-$$
+\end{equation}
 
 donde $r \in \{o, d\}$. Además, el peso $W_k^{r}$ se estima como:
 
@@ -226,7 +240,8 @@ $$
 = 
 \frac{\sum_{i=1}^{n} \mathcal{I}(X_{ik}^{r} \ne 0)}
      {\sum_{i=1}^{n} \mathcal{I}(T_i^{r} = t_k)}.
-$$ Ahora tenemos que $\mathcal{I}(A)$ es una variable indicadora que vale 1 en caso de que A sea verdadero y 0 en caso contrario, $T_i^k$ es el equipo en ataque ($r=o$) o en defensa ($r=d$) en la posesión i, $t_k$ es el equipo del jugador $k$, $n_k^r$ es el número de posesiones en las que el jugador $k$ participó en el quinteto en ataque o defensa en la temporada y $n_{t_k}^r$ es el número de posesiones en las que el equipo del jugador $k$ está en ataque o defensa en la temporada.
+$$ 
+Ahora tenemos que $\mathcal{I}(A)$ es una variable indicadora que vale 1 en caso de que A sea verdadero y 0 en caso contrario, $T_i^k$ es el equipo en ataque ($r=o$) o en defensa ($r=d$) en la posesión i, $t_k$ es el equipo del jugador $k$, $n_k^r$ es el número de posesiones en las que el jugador $k$ participó en el quinteto en ataque o defensa en la temporada y $n_{t_k}^r$ es el número de posesiones en las que el equipo del jugador $k$ está en ataque o defensa en la temporada.
 
 ## Estimación de los RAPMs
 
@@ -234,11 +249,16 @@ $$ Ahora tenemos que $\mathcal{I}(A)$ es una variable indicadora que vale 1 en c
 
 En el modelo de regresión lineal múltiple, se van a estimar los parámetros por mínimos cuadrados ponderados, siendo la función a minimizar: 
 
-$$S = \sum_{i=1}^n w_i(y_i-\mu_i)^2$$
+\begin{equation}
+S = \sum_{i=1}^n w_i(y_i-\mu_i)^2
+\end{equation}
 
 Los estimadores de $\beta_j$ se definen como aquellos  que minimizan la suma de cuadrados $S$, y se denotan como $\hat{\beta}_0, \ldots, \hat{\beta}_p$.
 
-Obteniendo de esta manera los siguientes coeficientes estimados: $\hat{\beta_k} = \frac{\sum_{i=1}^n w_ix_{ik}^*y_{i}}{\sum_{i=1}^n w_i(x_{ik}^*)^2}$,
+Obteniendo de esta manera los siguientes coeficientes estimados: 
+\begin{equation}
+\hat{\beta_k} = \frac{\sum_{i=1}^n w_ix_{ik}^*y_{i}}{\sum_{i=1}^n w_i(x_{ik}^*)^2}
+\end{equation},
 
 para $j= 0,...,p$, donde $x_{ik}^*$ son los valores de la k-ésima variable explicativa $x_k$ después de haber sido ajustada por todas las demás variables explicativas $x_0,...,x_p$ excepto $x_k$. La variable explicativa ajustada $x_{k}^*$ es aquella parte de $x_k$ que no puede ser explicada mediante una regresión sobre las otras variables explicativas (Dunn y Smyth, 2018).
 
@@ -246,7 +266,10 @@ para $j= 0,...,p$, donde $x_{ik}^*$ son los valores de la k-ésima variable expl
 
 En el modelo logístico multinomial, los parámetros $\beta_0, \beta_1, . . ., \beta_p$ se estiman utilizando simultáneamente las (c-1) ecuaciones logit, de manera que se maximice la log-verosimilitud:
 
-Función a maximizar: $L_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}),$
+Función a maximizar: 
+\begin{equation}
+L_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij})
+\end{equation},
 
 Como esto no tiene una solución cerrada, debe recurrirse a algoritmos iterativos como *Newthon-Rapshon* o *Fisher-Scoring* para obtener los resultados.
 
@@ -262,7 +285,9 @@ Este método incorpora una penalización cuadrática sobre los coeficientes del 
 
 Para el **modelo de regresión lineal múltiple** los coficientes estimados $\hat{\boldsymbol{\beta}}$ se obtienen minimizando la función de perdida ($S$) modificada de la siguiente manera:
 
-$$S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2$$
+\begin{equation}
+S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2
+\end{equation}
 
 Donde $\lambda \geq 0$ es un hiperparámetro que controla la intensidad de la penalización.
 
@@ -270,7 +295,11 @@ Cuando $\lambda = 0$ no hay penalización y la estimación será igual a la obte
 
 Mientras que en el caso del **modelo logístico multinomial**, se agrega un parámetro de penalización a la función de log-verosimilitud, de manera tal que la log-verosimilitud penalizada a maximizar resulta:
 
-$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p\beta_k^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p\beta_k^2$$ Y el hiperparámetro $\lambda$ se selecciona nuevamente mediante validación cruzada.
+\begin{equation}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p\beta_k^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p\beta_k^2
+\end{equation}
+
+Y el hiperparámetro $\lambda$ se selecciona nuevamente mediante validación cruzada.
 
 ### Lasso o Regularización L1
 
@@ -282,9 +311,17 @@ La penalización en este caso se basa en la suma de los valores absolutos de los
 
 Para el **modelo de regresión lineal múltiple** resulta:
 
-$$S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{k=1}^p|\beta_k|=S+\lambda \sum_{k=1}^p\ |\beta_k|$$ Para el **modelo logístico multinomial** resulta:
+\begin{equation}
+S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{k=1}^p|\beta_k|=S+\lambda \sum_{k=1}^p\ |\beta_k|
+\end{equation}
 
-$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p|\beta_k|=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p|\beta_k|$$ En este caso valores grandes de $\lambda$ incrementan la penalización, llevando a que un mayor número de coeficientes se reduzcan exactamente a cero.
+Para el **modelo logístico multinomial** resulta:
+
+\begin{equation}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p|\beta_k|=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p|\beta_k|
+\end{equation}
+
+En este caso valores grandes de $\lambda$ incrementan la penalización, llevando a que un mayor número de coeficientes se reduzcan exactamente a cero.
 
 ### Elastic Net
 
@@ -294,11 +331,17 @@ Para encontrar un equilibrio entre ambos métodos se plantea la penalización **
 
 Para el **modelo de regresión lineal múltiple** resulta:
 
-$$S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=S+\lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]$$
+\begin{equation}
+S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=S+\lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+\end{equation}
 
 Para el **modelo logístico multinomial** resulta:
 
-$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]$$ Donde, $\lambda \geq 0$ sigue siendo el parámetro de regularización que controla la fuerza de la penalización, y se agrega un nuevo hiperparámetro $\alpha \in [0,1]$ que controla la combinación entre lasso y ridge. Si $\alpha = 1$ se obtiene lasso y si $\alpha = 0$ se obtiene ridge.
+\begin{equation}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+\end{equation}
+
+Donde, $\lambda \geq 0$ sigue siendo el parámetro de regularización que controla la fuerza de la penalización, y se agrega un nuevo hiperparámetro $\alpha \in [0,1]$ que controla la combinación entre lasso y ridge. Si $\alpha = 1$ se obtiene lasso y si $\alpha = 0$ se obtiene ridge.
 
 ## Eficiencia computacional
 
@@ -318,7 +361,7 @@ En el presente estudio, dado que el volumen de datos es considerablemente menor,
 
 Una parte central de esta tesina estará dedicada a la construcción de una base de datos *play-by-play* correspondiente a la temporada 2024/2025 de la Liga Nacional de Básquetbol de Argentina. Este tipo de base registra todas las acciones ocurridas dentro de un partido. Dado que esta información no se encuentra disponible de forma accesible, será necesario recurrir a técnicas de web scraping para su obtención. Los datos necesarios se extraerán del [Sitio Oficial de la Liga Nacional de Básquet](https://www.laliganacional.com.ar/laliga) , utilizando librerías de Python como `Selenium` y `BeautifulSoup`.
 
-En primera instancia, se automatizará el proceso de identificar cada uno de los enlaces de los 379 partidos de temporada regular y posteriormente se iterará sobre los mismos para obtener la información de cada una de las jugadas del partido. Cabe destacar que en nuestro dataset final sin procesar cada fila se correspondera con cada una de las jugadas o acciones que sucedan dentro del partido, por lo cual posteriormente sera necesario realizar un proceso de preprocesamiento de los datos que permita agrupar dichas acciones en **posesiones**, entendidas como el conjunto de jugadas ocurridas antes de que cambie el control de la pelota.
+En primera instancia, se automatizará el proceso de identificar cada uno de los enlaces de los 378 partidos de temporada regular y posteriormente se iterará sobre los mismos para obtener la información de cada una de las jugadas del partido. Cabe destacar que en nuestro dataset final sin procesar cada fila se correspondera con cada una de las jugadas o acciones que sucedan dentro del partido, por lo cual posteriormente sera necesario realizar un proceso de preprocesamiento de los datos que permita agrupar dichas acciones en **posesiones**, entendidas como el conjunto de jugadas ocurridas antes de que cambie el control de la pelota.
 
 A través de este proceso, las variables que se registrarán son: la cantidad de puntos que se anotaron en esa posesión, los jugadores en cancha en ese momento, la condición de localía del equipo en posesión de la pelota, el momento del partido (minutos restantes), el marcador en ese momento de partido y los equipos involucrados.
 
