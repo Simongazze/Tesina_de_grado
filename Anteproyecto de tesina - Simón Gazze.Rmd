@@ -139,7 +139,7 @@ El componente aleatorio supone que las respuestas $y_i$ tienen variancias consta
 
 $$\begin{cases}
 y_i \sim N(\mu_i  , \sigma^2/w_i) \\
-\mu_i = \beta_0 + \sum_{j=1}^{K} \beta^o_j x^o_{ji} + \sum_{j=1}^{K} \beta^d_j x^d_{ji} 
+\mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_k x^d_{ik} 
 \end{cases} $$
 
 para $i = 1,...,n$;
@@ -148,9 +148,9 @@ donde:
 
 $n$: es el número total de posesiones en el *dataset*, $K$: es el número total de jugadores en consideración, $y_i$: es el número de puntos realizados en la posesión $i$ (los puntos en una posesión pueden variar de 0 a 6, siendo los casos en que se anotan 5 o 6 puntos, jugadas extremadamente atípicas), $\mu_i$ = es la cantidad esperada de puntos anotados en la posesión i, $x^o_{ik}$: indicadora ofensiva del jugador k en la posesión i ($1$ si el jugador $k$ estaba jugando en ataque en la posesión $i$, $0$ en otro caso), $x^d_{ik}$: indicadora defensiva del jugador k en la posesión i ($-1$ si el jugador $k$ estaba jugando en defensa en la posesión $i$, $0$ en otro caso), $\beta_0$: Intercepto del modelo, $\beta^o_k$: coeficiente ofensivo del jugador k ($ORAPM$), $\beta^d_k$: coeficiente defensivo del jugador k ($DRAPM$).
 
-Como $\hat{\beta}_j$ es una combinacion lineal de $y_i$ , entonces la distribución de estos parámetros es conocida. Tenemos que:
+Como $\hat{\beta}_k$ es una combinacion lineal de $y_i$ , entonces la distribución de estos parámetros es conocida. Tenemos que:
 
-$$\hat{\beta}_j \sim N(\beta_j, var[\hat{\beta_j}])$$
+$$\hat{\beta}_k \sim N(\beta_k, var[\hat{\beta_k}])$$
 
 Este modelo es de sencilla aplicación y ha sido ampliamente utilizado por distintos analistas que trabajan con este tipo de métricas. Sin embargo, la variable respuesta en este caso es discreta, tomando valores enteros entre 0 y 6, lo que sugiere que el supuesto de normalidad del modelo de regresión lineal múltiple no resulta apropiado para representar adecuadamente la naturaleza de la variable de interés.
 
@@ -172,7 +172,7 @@ Resultando $\pi_{i0},\pi_{i1},\pi_{i2}$ y $\pi_{i3}$ las probabilidades respecti
 
 Luego construimos el modelo logístico multinomial con categoría de referencia, eligiendo como categoría de referencia a $0$:
 
-$$logit(\pi_{ic}) = log(\frac{\pi_{ic}}{\pi_{i0}})=\beta_{0c} + \sum_{j=1}^{K} \beta^o_{jc} x^o_{ji} + \sum_{j=1}^{K} \beta^d_{jc} x^d_{ji}\quad \text{con } c= \{1,2, 3\} $$
+$$logit(\pi_{ic}) = log(\frac{\pi_{ic}}{\pi_{i0}})=\beta_{0c} + \sum_{k=1}^{K} \beta^o_{kc} x^o_{ik} + \sum_{k=1}^{K} \beta^d_{kc} x^d_{ik}\quad \text{con } c= \{1,2, 3\} $$
 
 Dicho modelo describe el efecto de los jugadores en cada uno de los $c-1 =3$ logits, es decir, permite calcular el aporte ofensivo y defensivo del jugador para cada tipo de anotación.
 
@@ -198,7 +198,7 @@ $$
 
 Estas dos medidas, $ETPS^o$ y $ETPS^d$, serán funciones de los coeficientes ofensivos y defensivos del modelo multinomial ajustado. Se obtienen mediante:
 
-$$EPTS_k^r= \pi^r_{k1}+2\pi_{k2}^r+3,01\pi_{k3}^r, \quad r \in \{o,d\}$$
+$$EPTS_k^r= \pi^r_{k1}+2\pi_{k2}^r+3.01\pi_{k3}^r, \quad r \in \{o,d\}$$
 
 Donde $\pi_{kc}^o$ son las probabilidades estimadas mediante un modelo de regresión logística multinomial de anotar uno, dos o tres puntos o más, respectivamente, por posesión del equipo del jugador k cuando él está incluido en la alineación y todos sus compañeros de equipo en la alineación y todos los oponentes son jugadores incluidos en el grupo de referencia (es decir, aquellos con coeficientes de regresión iguales a cero).
 
@@ -238,9 +238,9 @@ $$S = \sum_{i=1}^n w_i(y_i-\mu_i)^2$$
 
 Los estimadores de $\beta_j$ se definen como aquellos  que minimizan la suma de cuadrados $S$, y se denotan como $\hat{\beta}_0, \ldots, \hat{\beta}_p$.
 
-Obteniendo de esta manera los siguientes coeficientes estimados: $\hat{\beta_j} = \frac{\sum_{i=1}^n w_ix_{ij}^*y_{i}}{\sum_{i=1}^n w_i(x_{ij}^*)^2}$,
+Obteniendo de esta manera los siguientes coeficientes estimados: $\hat{\beta_k} = \frac{\sum_{i=1}^n w_ix_{ik}^*y_{i}}{\sum_{i=1}^n w_i(x_{ik}^*)^2}$,
 
-para $j= 0,...,p$, donde $x_{ij}^*$ son los valores de la j-ésima variable explicativa $x_j$ después de haber sido ajustada por todas las demás variables explicativas $x_0,...,x_p$ excepto $x_j$. La variable explicativa ajustada $x_{j}^*$ es aquella parte de $x_j$ que no puede ser explicada mediante una regresión sobre las otras variables explicativas (Dunn y Smyth, 2018).
+para $j= 0,...,p$, donde $x_{ik}^*$ son los valores de la k-ésima variable explicativa $x_k$ después de haber sido ajustada por todas las demás variables explicativas $x_0,...,x_p$ excepto $x_k$. La variable explicativa ajustada $x_{k}^*$ es aquella parte de $x_k$ que no puede ser explicada mediante una regresión sobre las otras variables explicativas (Dunn y Smyth, 2018).
 
 ### Método de máxima verosimilitud
 
@@ -270,7 +270,7 @@ Cuando $\lambda = 0$ no hay penalización y la estimación será igual a la obte
 
 Mientras que en el caso del **modelo logístico multinomial**, se agrega un parámetro de penalización a la función de log-verosimilitud, de manera tal que la log-verosimilitud penalizada a maximizar resulta:
 
-$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p\beta_j^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{j=1}^p\beta_j^2$$ Y el hiperparámetro $\lambda$ se selecciona nuevamente mediante validación cruzada.
+$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p\beta_k^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p\beta_k^2$$ Y el hiperparámetro $\lambda$ se selecciona nuevamente mediante validación cruzada.
 
 ### Lasso o Regularización L1
 
@@ -282,9 +282,9 @@ La penalización en este caso se basa en la suma de los valores absolutos de los
 
 Para el **modelo de regresión lineal múltiple** resulta:
 
-$$S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{j=1}^p|\beta_j|=S+\lambda \sum_{j=1}^p\ |\beta_j|$$ Para el **modelo logístico multinomial** resulta:
+$$S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{k=1}^p|\beta_k|=S+\lambda \sum_{k=1}^p\ |\beta_k|$$ Para el **modelo logístico multinomial** resulta:
 
-$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p|\beta_j|=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{j=1}^p|\beta_j|$$ En este caso valores grandes de $\lambda$ incrementan la penalización, llevando a que un mayor número de coeficientes se reduzcan exactamente a cero.
+$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p|\beta_k|=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p|\beta_k|$$ En este caso valores grandes de $\lambda$ incrementan la penalización, llevando a que un mayor número de coeficientes se reduzcan exactamente a cero.
 
 ### Elastic Net
 
@@ -294,11 +294,11 @@ Para encontrar un equilibrio entre ambos métodos se plantea la penalización **
 
 Para el **modelo de regresión lineal múltiple** resulta:
 
-$$S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda [\alpha\sum_{j=1}^p|\beta_j|+\frac{(1-\alpha)}{2}\sum_{j=1}^p\beta_j^2]=S+\lambda \sum_{j=1}^p[\alpha\sum_{j=1}^p|\beta_j|+\frac{(1-\alpha)}{2}\sum_{j=1}^p\beta_j^2]$$
+$$S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=S+\lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]$$
 
 Para el **modelo logístico multinomial** resulta:
 
-$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p[\alpha\sum_{j=1}^p|\beta_j|+\frac{(1-\alpha)}{2}\sum_{j=1}^p\beta_j^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{j=1}^p[\alpha\sum_{j=1}^p|\beta_j|+\frac{(1-\alpha)}{2}\sum_{j=1}^p\beta_j^2]$$ Donde, $\lambda \geq 0$ sigue siendo el parámetro de regularización que controla la fuerza de la penalización, y se agrega un nuevo hiperparámetro $\alpha \in [0,1]$ que controla la combinación entre lasso y ridge. Si $\alpha = 1$ se obtiene lasso y si $\alpha = 0$ se obtiene ridge.
+$$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]$$ Donde, $\lambda \geq 0$ sigue siendo el parámetro de regularización que controla la fuerza de la penalización, y se agrega un nuevo hiperparámetro $\alpha \in [0,1]$ que controla la combinación entre lasso y ridge. Si $\alpha = 1$ se obtiene lasso y si $\alpha = 0$ se obtiene ridge.
 
 ## Eficiencia computacional
 
