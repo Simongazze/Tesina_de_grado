@@ -13,9 +13,10 @@ poss_by_poss_temporada <- poss_by_poss_temporada[,-1]
 
 #1)Me doy cuenta que hay jugadores repetidos en la base de datos.
 
-#Que mierda pasa con ARN BUSTAMANTE, LUCAS MARTIN... está repetido, el y muchos otros! revisar
+#Inicialmente 2 jugadores con 0 posesiones en toda la base hacen surgir esa duda, y se suman 2 jugadores con nombres cargados de distinta manera a lo largo de la temporada
+#Se decide unificar estos 4 jugadores repetidos, AGREGAR EN TESIS.
 
-#a = as.data.frame(colSums(poss_by_poss_temporada[, 23:373] != 0))
+a = as.data.frame(colSums(poss_by_poss_temporada[, 23:373] != 0))
 
 #eliminar: ARN BUSTAMANTE, LUCAS  MARTIN, COSTA,  ALBANO NAHUEL, 
 
@@ -31,6 +32,8 @@ poss_by_poss_temporada = poss_by_poss_temporada %>%
 #2)Revisar poss by poss y pbp preprec el tema del equipo_accion
 
 #Error increible, los equipo acción estan mal... ya desde el preprocesado
+
+#SOLUCIONAR, actualmente pueden calcularse los modelos pero servirá a futuro para agregar variables explicativas.
 jug_eq1 = poss_by_poss_temporada %>%
   group_by(jugador_limpio) %>%
   summarise(equipos = n_distinct(equipo_accion))
@@ -39,6 +42,27 @@ jug_eq1 = poss_by_poss_temporada %>%
 jug_eq = df_pbp_final %>%
   group_by(jugador_limpio) %>%
   summarise(equipos = n_distinct(equipo_accion))
+
+#Agregamos una nueva variable que sea equipo_accion_limpio
+
+poss_by_poss_temporada <- poss_by_poss_temporada %>%
+  mutate(
+    equipos = str_split(partido_key, " vs "),
+    equipo_local = str_trim(sapply(equipos, `[`, 1)),
+    equipo_visitante = str_trim(sapply(equipos, `[`, 2)),
+    
+    # opcional: limpiar lo que venga después del nombre (paréntesis, fecha, etc.)
+    equipo_local = str_remove(equipo_local, " \\(.*"),
+    equipo_visitante = str_remove(equipo_visitante, " \\(.*"),
+    
+    equipo_limpio = if_else(
+      tipo_equipo_accion == "local",
+      equipo_local,
+      equipo_visitante
+    )
+  ) %>%
+  dplyr::select(-equipos)
+
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 
@@ -49,6 +73,11 @@ box_score <- read_excel("data/Box score - temporada - sin minutos igual a 0.xlsx
 box_score = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod))
 
 minutos_jugad = box_score %>% group_by(NombreCompleto_limpio) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+
+jug_eq2 = box_score %>%
+  group_by(NombreCompleto_limpio) %>%
+  summarise(equipos = n_distinct(equipo_normalizado))
+
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 #Cálculo del +/-
@@ -63,7 +92,7 @@ df_plus_minus <- plus_minus %>%
     values_to = "+/-"
   )
 
-#Faltaría agregar los equipos a esa tabla de jugadores y +/- creo que sería de interes. Hay algunos jugadores que estuvieron en más de un equipo a lo largo de la temporada, ver que hacer en ese caso.
+#Faltaría agregar los equipos a esa tabla de jugadores y +/- creo que sería de interes. Hay algunos jugadores que estuvieron en más de un equipo a lo largo de la temporada, ver que hacer en ese caso. También la cantidad de partidos, quizas sería rico.
 
 # Modelo de prueba - pocos partidos - 1 partido
 
