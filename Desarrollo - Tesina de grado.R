@@ -70,9 +70,21 @@ poss_by_poss_temporada <- poss_by_poss_temporada %>%
 
 box_score <- read_excel("data/Box score - temporada - sin minutos igual a 0.xlsx")
 
-box_score = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod))
+box_score = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod)) 
 
 minutos_jugad = box_score %>% group_by(NombreCompleto_limpio) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+
+minutos_jugad = minutos_jugad %>% mutate(jugador = recode(NombreCompleto_limpio, 
+                                                                        "GRUN, FEDERICO JOSE" = "GRÜN, FEDERICO JOSE",
+                                                                        "MAINOLDI , LEONARDO ANDRES" = "MAINOLDI, LEONARDO ANDRES")) %>%
+  group_by(jugador) %>%
+  summarise(
+    Segundos = sum(Segundos, na.rm = TRUE),
+    Minutos = sum(Minutos, na.rm = TRUE),
+    Partidos = sum(Partidos, na.rm = TRUE),
+    Minutos_por_part = Minutos/Partidos
+  ) %>%
+  ungroup()
 
 jug_eq2 = box_score %>%
   group_by(NombreCompleto_limpio) %>%
