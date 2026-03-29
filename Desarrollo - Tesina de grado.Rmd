@@ -12,6 +12,9 @@ library(MASS)
 library(readxl)
 library(hms)
 library(kableExtra)
+library(gt)
+library(patchwork)
+library(htmltools)
 ```
 
 
@@ -81,7 +84,7 @@ poss_by_poss_temporada %>% group_by(equipo_accion) %>% summarise(partidos = n_di
 
 A su vez, se identificó que 346 jugadores participaron en al menos una posesión ese año, obteniendo un promedio de 17.3 jugadores utilizados en promedio por equipo.
 
-Por el lado de las posesiones se identificaron 58625 posesiones finalizadas en nuestro dataset, obteniendo un promedio de 155.09 posesiones en promedio por partido (77.54 posesiones promedio por equipo). Destacandosé La Unión de Formosa y San Lorenzo como los equipos más veritiginosos del torneo con 80.05 y 80.00 posesiones consumidas en promedio respetivamente, mientras que equipos como Peñarol, Regatas y Boca Juniors (el equipo campeón) jugaron a un ritmo más pausado, todos por debajo de las 76 posesiones promedio por partido.
+Por el lado de las posesiones se identificaron 58625 posesiones finalizadas en nuestro dataset, obteniendo un promedio de 155.09 posesiones en promedio por partido (77.54 posesiones promedio por equipo). Destacandosé La Unión de Formosa y San Lorenzo como los equipos más veritiginosos del torneo con 80.05 y 80.00 posesiones consumidas en promedio respetivamente, mientras que equipos como Gimnasia de Comodoro, Peñarol, Regatas y Boca Juniors (el equipo campeón) jugaron a un ritmo más pausado, todos por debajo de las 76 posesiones promedio por partido.
 
 #Hacer gráfico de barras con escudos
 
@@ -98,7 +101,8 @@ g1 = g1 %>% left_join(minutos_jugad)
 
 ggplot(g1)+
   aes(x = posesiones)+
-  geom_density(fill = "lightblue4", alpha = 0.5) #y si acompaño con un grafico de violin?
+  geom_density(fill = "lightblue4", alpha = 0.5)+
+  theme_minimal()#y si acompaño con un grafico de violin?
 ```
 
 Se observa una distribución bimodal de las posesiones por jugador, identificandose 3 subgrupos de jugadores: vemos que un 33.8% participan en menos de 500 posesiones, siendo este grupo integrado por jugadores del fondo de la rotación o jugadores con muy poca cantidad de partidos disputados (ya sea por lesión o por haber sido incorporados al equipo una vez avanzada la temporada), por otra parte un 30% de jugadores participó en menos de 2500 posesiones, donde encontramos suplentes con una cantidad de minutos interesante o grandes jugadores que por algún motivo no han jugado gran parte de los partidos de la temporada. Por último tenemos el grupo de los titulares (124 jugadores, 36% del total), los cuales fueron participes de más de 2500 posesiones, y encontramos a los 6/7 jugadores con mayor cantidad de minutos por equipo, presentando generalmente más de 20 minutos por partido y una gran cantidad de partidos jugados en la temporada.
@@ -114,7 +118,7 @@ prop = g1 %>% summarise(
     proporcion3 = cantidad3/ total_jugadores
   )
 
-ult_grupo = g1 %>% filter(posesiones > 2500) %>% count(equipo_normalizado)#contabilizar cuantos jugadores de cada equipo hay en el último grupo
+ult_grupo = g1 %>% filter(posesiones > 2500) %>% count(Equipos)#contabilizar cuantos jugadores de cada equipo hay en el último grupo
 ```
 
 Cada una de las posesiones analizadas contabilizaba cierta cantidad de puntos al finalizar, pudiendo observarse un rango de puntos que varió de 0 a 7 puntos. Resultando los casos de 5,6 y 7 puntos situaciones extremadamente atípicas (0.089% de los casos). El resultado más frecuente al finalizar una posesión fue la ausencia de puntos, obteniendose en 31241 posesiones, lo cual representa un 53.2% del total de posesiones.
@@ -127,7 +131,7 @@ t1 = poss_by_poss_temporada %>% count(puntos_pos) %>% mutate("%" = round((n/nrow
 kable(t1)%>% 
   kable_styling(full_width = FALSE, position = "center", font_size = 15)
 
-sum(poss_by_poss_temporada$puntos_pos)/nrow(poss_by_poss_temporada)
+posesiones_prom = sum(poss_by_poss_temporada$puntos_pos)/nrow(poss_by_poss_temporada)
 ```
 
 ### Análisis del +/-
@@ -150,7 +154,164 @@ df_plus_minus <- plus_minus %>%
   )
 
 minutos_jugad = minutos_jugad %>% left_join(df_plus_minus)
-```
-agregar tabla que está en wikipedia
 
-Análisis del +/- dentro del equipo
+mej_pm = minutos_jugad %>% dplyr::select(c(jugador,Equipos, `+/-`)) %>% slice_max(order_by = `+/-`, n=10) %>% arrange(desc(`+/-`))
+
+peor_pm = minutos_jugad %>% dplyr::select(c(jugador,Equipos, `+/-`)) %>% slice_min(order_by = `+/-`, n=10) %>% arrange(`+/-`)
+
+#Tablas
+
+tabla_mej <- mej_pm %>%
+  gt() %>%
+  tab_header(title = "Mejores +/-") %>%
+  data_color(
+    columns = `+/-`,
+    colors = scales::col_numeric(c("white", "green2"), domain = NULL)
+  )
+
+tabla_peor <- peor_pm %>%
+  gt() %>%
+  tab_header(title = "Peores +/-") %>%
+  data_color(
+    columns = `+/-`,
+    colors = scales::col_numeric(c("red", "pink2"), domain = NULL)
+  )
+
+browsable(
+  div(
+    style = "display: flex; gap: 30px;",
+    div(tabla_mej, style = "width: 50%;"),
+    div(tabla_peor, style = "width: 50%;")
+  )
+)
+
+```
+
+Observando la tabla anterior queda en evidencia que los jugadores con mejor +/- pertenecen a los equipos que mejores resultados obtuvieron a lo largo del año. Dentro de los 10 mejores jugadores en base a esta métrica, 9 pertenecían a uno de los 4 primeros de la temporada (Boca Juniors, Oberá, Instituto y Quimsa), mientras que los casos de Marcos Chacón Tirado y Diego Rafael Figueredo resultaron casos atípicos pertenecientes a equipos de mitad de tabla.
+
+Por otro lado, en esta temporada 2 equipos tuvieron un desempeño mucho peor que el resto de la liga obteniendo un +/- de equipo muy bajo, reflejandosé así en los jugadores. Los 10 jugadores con peor +/- en esta temporada pertencieron a esos equipos (Zarate Basket y Argentino de Junin).
+
+
+```{r}
+df <- data.frame(
+  Equipo = c("Boca Juniors","Oberá","Instituto","Quimsa","Obras",
+             "Riachuelo","Regatas","Ferro","Gimnasia","San Martín",
+             "Unión","Atenas","Peñarol","Olímpico","San Lorenzo",
+             "Platense","Independiente","La Unión","Zárate","Argentino"),
+  
+  Pts = c(67,64,64,63,62,60,58,58,58,57,57,57,55,55,55,53,52,51,48,44),
+  PJ  = c(38,38,38,38,38,37,38,38,38,38,38,38,38,38,38,38,38,38,37,38),
+  PG  = c(29,26,26,25,24,22,20,20,20,19,19,19,18,17,17,15,14,13,10,6),
+  PP  = c(9,12,12,13,14,15,18,18,18,19,19,19,20,21,21,23,24,25,27,32),
+  PF  = c(3097,3140,3073,3320,3134,3032,3018,3108,3141,2824,3116,2997,3085,3067,2945,3018,3237,3199,2723,2724),
+  PC  = c(2884,2960,2790,2973,3028,2894,3015,3131,2985,2779,3237,3058,2990,3168,3034,3125,3348,3286,3097,3216),
+  Dif = c(213,180,283,347,106,138,3,-23,156,45,-121,-61,95,-101,-89,-107,-111,-87,-374,-492)
+)
+```
+
+```{r}
+
+tabla <- df %>%
+  arrange(desc(Pts)) %>%
+  mutate(pos = paste0(row_number(), "°."))
+
+tabla_gt <- tabla %>%
+  gt() %>%
+  
+  # Encabezados
+  cols_label(
+    pos = "",
+    Equipo = "Equipo",
+    Pts = "Pts",
+    PJ = "PJ",
+    PG = "PG",
+    PP = "PP",
+    PF = "PF",
+    PC = "PC",
+    Dif = "+/-"
+  ) %>%
+  
+  # Negrita en puntos
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(columns = Pts)
+  ) %>%
+  
+  # Colores por zonas (ajustá según reglas)
+  data_color(
+    columns = Pts,
+    colors = scales::col_numeric(
+      palette = c("#ffcccc", "#ffffcc", "#ccffcc"),
+      domain = NULL
+    )
+  ) %>%
+  
+  
+  # Centrar números
+  cols_align(
+    align = "center",
+    -Equipo
+  ) %>%
+  
+  # Ajustes visuales
+  tab_options(
+    table.font.size = px(13),
+    data_row.padding = px(4)
+  )
+
+tabla_gt <- tabla_gt %>%
+  tab_style(
+    style = cell_fill(color = "#b9e3b9"), # verde (top)
+    locations = cells_body(rows = 1:4)
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "#f3f3a1"), # amarillo
+    locations = cells_body(rows = 5:12)
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "#f0f0f0"), # gris
+    locations = cells_body(rows = 13:18)
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "#e6b0b0"), # rojo (descenso)
+    locations = cells_body(rows = 19:20)
+  )
+
+tabla_gt
+```
+
+
+### Análisis del +/- dentro del equipo
+
+Pensando en mitigar el efecto, tanto positivo como negativo, que genera pertenecer a un equipo, se calcula el +/- y se lo evalúa en relación a los valores de dicha métrica que obtienen los propios compañeros de un equipo. Buscando evidenciar los casos en que un jugador perteneciente, por ejemplo, a un "mal" equipo presenta un valor de +/- no muy alto en comparación al resto de la liga, pero si un valor alto en comparación al +/- de sus compañeros.
+
+Se plantean las siguientes alternativas:
+
+1) +/- ajustado por la media
+
+```{r}
+#Tiempo jugado
+plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS")
+
+promedio_pm = plus_minus_por_equipo %>% group_by(equipo_del_jugador) %>% summarise( pm_prom = mean(plus_minus_total))
+
+#Hay una cuestión interesante que estoy tomando la suma del +/- y eso puede afectar a los jugadores con pocos partidos en equipos buenos, o beneficiar a los jugadores de malos equipos. Podría calcular el +/- promedio por partido.
+```
+
+
+2) +/- estandarizado
+
+3) Diff on/off
+
+
+
+
+
+
+
+
+
+
+
+
+
