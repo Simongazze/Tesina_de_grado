@@ -6,15 +6,58 @@ output: html_document
 ---
 
 ```{r}
+library(tidyverse)
+library(limSolve)
+library(MASS)
+library(readxl)
+library(hms)
+library(kableExtra)
+```
+
+
+```{r}
+#Poss-by-poss
+
+poss_by_poss_temporada <- read_csv("data/poss_by_poss_temporada.csv")
+poss_by_poss_temporada <- poss_by_poss_temporada[,-1]
+poss_by_poss_temporada = poss_by_poss_temporada %>% 
+  dplyr::select(- c(`ARN BUSTAMANTE, LUCAS  MARTIN`,`COSTA,  ALBANO NAHUEL` ))
+
+poss_by_poss_temporada = poss_by_poss_temporada %>% 
+  mutate(`GRÜN, FEDERICO JOSE` = `GRÜN, FEDERICO JOSE` + `GRUN, FEDERICO JOSE`, `MAINOLDI, LEONARDO ANDRES` = `MAINOLDI, LEONARDO ANDRES` + `MAINOLDI , LEONARDO ANDRES`) %>%
+  dplyr::select(- c(`GRUN, FEDERICO JOSE`,`MAINOLDI , LEONARDO ANDRES`))
+
+poss_by_poss_temporada <- poss_by_poss_temporada %>%
+  mutate(
+    equipos = str_split(partido_key, " vs "),
+    equipo_local = str_trim(sapply(equipos, `[`, 1)),
+    equipo_visitante = str_trim(sapply(equipos, `[`, 2)),
+    
+    # opcional: limpiar lo que venga después del nombre (paréntesis, fecha, etc.)
+    equipo_local = str_remove(equipo_local, " \\(.*"),
+    equipo_visitante = str_remove(equipo_visitante, " \\(.*"),
+    
+    equipo_limpio = if_else(
+      tipo_equipo_accion == "local",
+      equipo_local,
+      equipo_visitante
+    )
+  ) %>%
+  dplyr::select(-equipos)
+
+#Box score
+
 box_score <- read_excel("data/Box score - temporada - sin minutos igual a 0.xlsx")
 
 box_score = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod)) 
 
-minutos_jugad = box_score %>% group_by(NombreCompleto_limpio) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+#Tiempo jugado
+minutos_jugad = box_score %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
 
 minutos_jugad = minutos_jugad %>% mutate(jugador = recode(NombreCompleto_limpio, "GRUN, FEDERICO JOSE" = "GRÜN, FEDERICO JOSE", "MAINOLDI , LEONARDO ANDRES" = "MAINOLDI, LEONARDO ANDRES")) %>%
   group_by(jugador) %>%
   summarise(
+    Equipos = paste(unique(equipo_normalizado), collapse = ", "),
     Segundos = sum(Segundos, na.rm = TRUE),
     Minutos = sum(Minutos, na.rm = TRUE),
     Partidos = sum(Partidos, na.rm = TRUE),
@@ -24,11 +67,13 @@ minutos_jugad = minutos_jugad %>% mutate(jugador = recode(NombreCompleto_limpio,
 ```
 
 
-
-
 ## Análisis descriptivo
 
 La temporada 2024/2025 de la Liga Nacional de Básquet contó con 20 equipos participantes, los cuales disputaron 38 partidos cada uno a lo largo de dicho año de competencia, a excepción de Zarate Basket (36 partidos), Instituto (37 partidos) y Riachuelo (37 partidos) que disputaron una menor cantidad debido a la suspensión de 2 partidos. Contabilizando un total de 378 partidos totales disputados.
+
+Zarate basket vs instituto suspendido por falla en el reloj de 24 segundos del local.
+
+Zarate basket vs Riachuelo suspendido por motivos climáticos
 
 ```{r, echo = FALSE}
 poss_by_poss_temporada %>% group_by(equipo_accion) %>% summarise(partidos = n_distinct(partido_key))
@@ -56,7 +101,7 @@ ggplot(g1)+
   geom_density(fill = "lightblue4", alpha = 0.5) #y si acompaño con un grafico de violin?
 ```
 
-Se observa una distribución bimodal de las posesiones por jugador, identificandose 3 subgrupos de jugadores: vemos que un 33.8% participan en menos de 500 posesiones, siendo este grupo integrado por jugadores del fondo de la rotación o jugadores con muy poca cantidad de partidos disputados (ya sea por lesión o por haber sido incorporados al equipo una vez avanzada la temporada), por otra parte un 30% de jugadores participó en menos de 2500 posesiones, donde encontramos suplentes con una cantidad de minutos interesante o grandes jugadores que por algún motivo no han jugado gran parte de los partidos de la temporada. Por último tenemos el grupo de los titulares (124 jugadores, 36% del total), los cuales fueron participes de más de 2500 posesiones, y encontramos a los 5/6 jugadores con mayor cantidad de minutos por equipo, presentando generalmente más de 20 minutos por partido y una gran cantidad de partidos jugados en la temporada.
+Se observa una distribución bimodal de las posesiones por jugador, identificandose 3 subgrupos de jugadores: vemos que un 33.8% participan en menos de 500 posesiones, siendo este grupo integrado por jugadores del fondo de la rotación o jugadores con muy poca cantidad de partidos disputados (ya sea por lesión o por haber sido incorporados al equipo una vez avanzada la temporada), por otra parte un 30% de jugadores participó en menos de 2500 posesiones, donde encontramos suplentes con una cantidad de minutos interesante o grandes jugadores que por algún motivo no han jugado gran parte de los partidos de la temporada. Por último tenemos el grupo de los titulares (124 jugadores, 36% del total), los cuales fueron participes de más de 2500 posesiones, y encontramos a los 6/7 jugadores con mayor cantidad de minutos por equipo, presentando generalmente más de 20 minutos por partido y una gran cantidad de partidos jugados en la temporada.
 
 ```{r}
 prop = g1 %>% summarise(
@@ -67,15 +112,45 @@ prop = g1 %>% summarise(
     proporcion2 = cantidad2/total_jugadores,
     cantidad3 = sum(posesiones > 2500, na.rm = TRUE),
     proporcion3 = cantidad3/ total_jugadores
-  )#contabilizar cuantos jugadores de cada equipo hay en el último grupo
+  )
+
+ult_grupo = g1 %>% filter(posesiones > 2500) %>% count(equipo_normalizado)#contabilizar cuantos jugadores de cada equipo hay en el último grupo
 ```
 
-Cada una de las posesiones analizadas contabilizaba cierta cantidad de puntos al finalizar, pudiendo observarse un rango de puntos que varió de 0 a 7 puntos. Resultando los casos de 5,6 y 7 puntos situaciones extremadamente atípicas (x%). El resultado más frecuente al finalizar una posesión fue la ausencia de puntos, obteniendose en x posesiones, lo cual representa un x%.
+Cada una de las posesiones analizadas contabilizaba cierta cantidad de puntos al finalizar, pudiendo observarse un rango de puntos que varió de 0 a 7 puntos. Resultando los casos de 5,6 y 7 puntos situaciones extremadamente atípicas (0.089% de los casos). El resultado más frecuente al finalizar una posesión fue la ausencia de puntos, obteniendose en 31241 posesiones, lo cual representa un 53.2% del total de posesiones.
+
+El promedio de puntos por posesión en la temporada fue de 1.04 pts.
 
 ```{r}
-#gráfico de barras
+t1 = poss_by_poss_temporada %>% count(puntos_pos) %>% mutate("%" = round((n/nrow(poss_by_poss_temporada)*100),3)) %>% rename(Puntos = puntos_pos, Posesiones = n)
+
+kable(t1)%>% 
+  kable_styling(full_width = FALSE, position = "center", font_size = 15)
+
+sum(poss_by_poss_temporada$puntos_pos)/nrow(poss_by_poss_temporada)
 ```
 
-Análisis del +/-
+### Análisis del +/-
+
+Como podemos determinar cual fue el mejor jugador de la temporada?
+
+La métrica +/- nos da un indicio de cuan eficiente fue el jugador en el tiempo que permaneció en cancha, calculando la diferencia de puntos realizados por el equipo propio en comparación con los puntos del rival dentro de ese intervalo de tiempo.
+
+Los lideres en +/- para la temporada 2024/2025 de la LNB fueron los siguientes:
+
+```{r}
+plus_minus = poss_by_poss_temporada[, 24:369]*poss_by_poss_temporada[[23]]
+
+df_plus_minus <- plus_minus %>%
+  summarise(across(everything(), sum))%>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "jugador",
+    values_to = "+/-"
+  )
+
+minutos_jugad = minutos_jugad %>% left_join(df_plus_minus)
+```
+agregar tabla que está en wikipedia
 
 Análisis del +/- dentro del equipo

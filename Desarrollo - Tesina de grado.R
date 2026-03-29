@@ -100,7 +100,7 @@ df_plus_minus <- plus_minus %>%
   summarise(across(everything(), sum))%>%
   pivot_longer(
     cols = everything(),
-    names_to = "NombreCompleto_limpio",
+    names_to = "jugador",
     values_to = "+/-"
   )
 
