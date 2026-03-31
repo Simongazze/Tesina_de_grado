@@ -5,6 +5,15 @@ date: "2026-03-28"
 output: html_document
 ---
 
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+
 ```{r}
 library(tidyverse)
 library(limSolve)
@@ -156,6 +165,8 @@ df_plus_minus <- plus_minus %>%
 
 minutos_jugad = minutos_jugad %>% left_join(df_plus_minus)
 
+g1 = g1 %>% left_join(df_plus_minus)
+
 mej_pm = minutos_jugad %>% dplyr::select(c(jugador,Equipos, `+/-`)) %>% slice_max(order_by = `+/-`, n=10) %>% arrange(desc(`+/-`))
 
 peor_pm = minutos_jugad %>% dplyr::select(c(jugador,Equipos, `+/-`)) %>% slice_min(order_by = `+/-`, n=10) %>% arrange(`+/-`)
@@ -281,6 +292,87 @@ tabla_gt <- tabla_gt %>%
 tabla_gt
 ```
 
+### Análisis del +/- penalizado por la cantidad de posesiones
+
+Pero está métrica presenta ciertas complicaciones... los valores de la suma del +/- dentro de toda la temporada se ven muy influenciadas por la cantidad de posesiones en los que participa cada jugador. Por ejemplo, 2 jugadores muy importantes de un muy buen equipo (en el cual la mayoría de sus jugadores presenta un +/- positivo dentro de un partido) pueden diferir en esta métrica en caso de que el jugador A haya jugado 10 partidos más que el jugador B.
+
+Por lo tanto se considera que una métrica que podría abordar, al menos inicialmente esta problemática es un +/- ajustado por la cant de posesiones (`+/-` / posesiones).
+
+```{r}
+ g1 = g1 %>% mutate(pm_ajust_pos = `+/-`/posesiones)
+
+#Tablas
+
+mej_pm_aj = g1 %>% dplyr::select(c(jugador,Equipos, posesiones, `+/-`, pm_ajust_pos)) %>% slice_max(order_by = pm_ajust_pos, n=10) %>% arrange(desc(pm_ajust_pos))
+
+peor_pm_aj = g1 %>% dplyr::select(c(jugador,Equipos, posesiones, `+/-`, pm_ajust_pos)) %>% slice_min(order_by = pm_ajust_pos, n=10) %>% arrange(pm_ajust_pos)
+
+tabla_mej_aj <- mej_pm_aj %>%
+  gt() %>%
+  tab_header(title = "Mejores +/- ajustados") %>%
+  data_color(
+    columns = pm_ajust_pos,
+    colors = scales::col_numeric(c("white", "green2"), domain = NULL)
+  )
+
+tabla_peor_aj <- peor_pm_aj %>%
+  gt() %>%
+  tab_header(title = "Peores +/- ajustados") %>%
+  data_color(
+    columns = pm_ajust_pos,
+    colors = scales::col_numeric(c("red", "pink2"), domain = NULL)
+  )
+
+browsable(
+  div(
+    style = "display: flex; gap: 30px;",
+    div(tabla_mej_aj, style = "width: 50%;"),
+    div(tabla_peor_aj, style = "width: 50%;")
+  )
+)
+
+```
+
+Obervando los resultados, podemos identificar que los valores más extremos del +/- ajustados son percibidos por jugadores con muy poca cantidad de posesiones consumidas durante la temporada. Este error es muy mencionado dentro de esta temática, y da pie a la presentación de los LTPs Players.
+
+A continuación se presenta el top de mejores y peores jugadores según esta métrica aplicando un filtro de >500 posesiones:
+
+```{r}
+
+#Tablas
+
+mej_pm_aj1 = g1 %>% filter(posesiones > 500) %>% dplyr::select(c(jugador,Equipos, posesiones, `+/-`, pm_ajust_pos)) %>% slice_max(order_by = pm_ajust_pos, n=10) %>% arrange(desc(pm_ajust_pos))
+
+peor_pm_aj1 = g1 %>% filter(posesiones > 500) %>% dplyr::select(c(jugador,Equipos, posesiones, `+/-`, pm_ajust_pos)) %>% slice_min(order_by = pm_ajust_pos, n=10) %>% arrange(pm_ajust_pos)
+
+tabla_mej_aj1 <- mej_pm_aj1 %>%
+  gt() %>%
+  tab_header(title = "Mejores +/- ajustados 2") %>%
+  data_color(
+    columns = pm_ajust_pos,
+    colors = scales::col_numeric(c("white", "green2"), domain = NULL)
+  )
+
+tabla_peor_aj1 <- peor_pm_aj1 %>%
+  gt() %>%
+  tab_header(title = "Peores +/- ajustados 2") %>%
+  data_color(
+    columns = pm_ajust_pos,
+    colors = scales::col_numeric(c("red", "pink2"), domain = NULL)
+  )
+
+browsable(
+  div(
+    style = "display: flex; gap: 30px;",
+    div(tabla_mej_aj1, style = "width: 50%;"),
+    div(tabla_peor_aj1, style = "width: 50%;")
+  )
+)
+```
+
+Dentro de esta lista podemos destacar la incorporación de 2 jugadores de Gimnasia de Comodoro dentro de los 10 mejores jugadores, evidenciando un impacto positivo dentro del equipo a partir de su incorporación a mitad de temporada.
+
+Mientras que en la parte inferior de la tabla vemos que ya no solo aparecen jugadores de Argentino de Junin o Zarate Basket, sino que se suman jugadores de La Unión de Formosa, Ferro y Olímpico.
 
 ### Análisis del +/- dentro del equipo
 
@@ -308,6 +400,34 @@ promedio_pm = plus_minus_por_equipo %>% group_by(equipo_del_jugador) %>% summari
 
 ### Prueba 1 partido
 
+```{r}
+df_1partido = poss_by_poss_temporada %>% 
+                     filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)")
+
+box_score_1 = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod)) %>% 
+                     filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)")
+
+
+#Tiempo jugado
+minutos_jugad_1 = box_score_1 %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+
+minutos_jugad_1 = minutos_jugad_1 %>% rename(jugador = NombreCompleto_limpio) %>%
+  group_by(jugador) %>%
+  summarise(
+    Equipos = paste(unique(equipo_normalizado), collapse = ", "),
+    Segundos = sum(Segundos, na.rm = TRUE),
+    Minutos = sum(Minutos, na.rm = TRUE),
+    Partidos = sum(Partidos, na.rm = TRUE),
+    Minutos_por_part = Minutos/Partidos
+  ) %>%
+  ungroup()
+
+g1_1 = colSums(df_1partido[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
+
+minutos_jugad_1 = minutos_jugad_1 %>% left_join(g1_1)
+```
+
+
 Buscando aislar el efecto propio del jugador, se plantea el siguiente modelo de regresión múltiple:
 
 puntos en la posesión (+ error) = coeficientes de los jugadores ofensivos - coeficientes de los jugadores defensivos
@@ -315,6 +435,30 @@ puntos en la posesión (+ error) = coeficientes de los jugadores ofensivos - coe
 Buscando minimizar el error
 
 Entonces vamos a estimar la cantidad de puntos en una posesión en base a los jugador que permanecían en cancha, tanto ofensiva como defensivamente.
+
+```{r}
+# Modelo de prueba - pocos partidos - 1 partido
+
+# +/-
+
+plus_minus_1partido = df_1partido[, 24:369]*df_1partido[[23]]
+
+cols_ceros = names(df_1partido[, 24:369])[colSums(df_1partido[, 24:369] != 0) == 0 ]
+
+plus_minus_1partido = plus_minus_1partido %>% 
+                        dplyr::select(-cols_ceros)
+
+df_plus_minus_1partido <- plus_minus_1partido %>%
+  summarise(across(everything(), sum))%>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "jugador",
+    values_to = "+/-"
+  )
+
+minutos_jugad_1 = minutos_jugad_1 %>% left_join(df_plus_minus_1partido) %>% mutate(pm_ajust_pos = `+/-`/posesiones)
+```
+
 
 ```{r}
 # Modelo de regresión lineal múltiple
@@ -328,7 +472,7 @@ modelo1 = lm(puntos_pos ~ . , data = dfmod_1partido)
 
 summary(modelo1) #Analizar más
 
-alias(modelo1)
+#alias(modelo1)
 ```
 
 Vemos que el modelo no puede estimar 4 coeficientes debido a la singularidad.
@@ -370,7 +514,7 @@ d <- 0 # resultado de la suma
 
 # Ajuste de coeficientes
 
-fit <- lsei(A = X, B = y, E = C, F = d)
+fit <- lsei(A = X, B = y, E = C, F = d, fulloutput = TRUE)
 
 beta_hat <- fit$X
 
@@ -382,14 +526,173 @@ beta_hat <- data.frame(
 )
 
 beta_hat$jugador <- gsub("`", "", beta_hat$jugador) #agregar pm/pos, pm/pos - pm/pos(media de equipo), equipo y minutos
+cov_matriz <- fit$covar
+errores_std <- sqrt(diag(cov_matriz))
+
+beta_hat$errores = errores_std
+
+minutos_jugad_1 = minutos_jugad_1 %>% left_join(beta_hat) # agregaaar otras medidas
+```
+
+### Prueba 3 partidos
+
+Aumento el tamaño de la prueba a 3 partidos (2 para cada equipo), y recalculo el modelo
+
+```{r}
+# Modelo de prueba - pocos partidos - 3 partido
+
+df_3partido = poss_by_poss_temporada %>% 
+  filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)"))
+
+# +/-
+
+plus_minus_3partido = df_3partido[, 24:369]*df_3partido[[23]]
+
+cols_ceros_3 = names(df_3partido[, 24:369])[colSums(df_3partido[, 24:369] != 0) == 0 ]
+
+plus_minus_3partido = plus_minus_3partido %>% dplyr::select(-cols_ceros_3)
+
+df_plus_minus_3partido <- plus_minus_3partido %>%
+  summarise(across(everything(), sum))%>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "jugador_limpio",
+    values_to = "+/-"
+  )
+
+# Modelo de regresión lineal múltiple
+
+dfmod_3partido = poss_by_poss_temporada %>% 
+  filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)")) %>% 
+  dplyr::select(23:369)%>% 
+  dplyr::select(-cols_ceros_3)
+
+modelo2 = lm(puntos_pos ~ . , data = dfmod_3partido)
+
+summary(modelo2) #Analizar más
+
+#Hay 2 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
+
+X <- model.matrix(~ . - 1, data = dfmod_3partido[, -which(names(dfmod_3partido) == "puntos_pos")])
+
+ncol(X)-qr(X)$rank
+
+#Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
+
+#Mínimos cuadrados restringidos
+
+y <- dfmod_3partido$puntos_pos
+
+##Calculo el modelo con la restricción (suma de betas igual a 0)
+
+C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+d <- 0 # resultado de la suma
+
+# Ajuste de coeficientes
+
+fit <- lsei(A = X, B = y, E = C, F = d)
+
+beta_hat <- fit$X
+
+beta_hat <- setNames(beta_hat, colnames(X))
+
+beta_hat <- data.frame(
+  jugador = names(beta_hat),
+  coeficiente = as.numeric(beta_hat)
+)
+
+beta_hat$jugador <- gsub("`", "", beta_hat$jugador) 
+```
+
+### Toda la base
+
+Una vez realizadas las 2 pruebas, se procede al cálculo de la métrica APM para toda la base de datos (58625 posesiones y 346 jugadores).
+
+```{r}
+# Modelo de regresión lineal múltiple
+
+plus_minus_temporada = poss_by_poss_temporada[, 24:369]*poss_by_poss_temporada[[23]]
+
+#cols_ceros_temp = names(poss_by_poss_temporada[, 24:369])[colSums(poss_by_poss_temporada[, 24:369] != 0) == 0 ]
+
+dfmod_temporada = poss_by_poss_temporada %>% dplyr::select(23:369)
+
+modelo_temp = lm(puntos_pos ~ . , data = dfmod_temporada)
+
+summary(modelo_temp)
+
+#Solo 1 coeficiente no pudo estimarse por singularidad, y se debe a que la suma de las filas dan siempre 0
+
+Coeficientes = as.data.frame(modelo_temp$coefficients)
+
+#Mínimos cuadrados restringidos
+
+X <- model.matrix(
+  puntos_pos ~ . - 1,
+  data = dfmod_temporada
+)
+
+y <- dfmod_temporada$puntos_pos
+
+##Calculo el modelo con la restricción (suma de betas igual a 0)
+
+C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+d <- 0 # resultado de la suma
+
+# Ajuste de coeficientes
+
+fit <- lsei(A = X, B = y, E = C, F = d)
+
+beta_hat <- fit$X
+
+beta_hat <- setNames(beta_hat, colnames(X))
+
+beta_hat <- data.frame(
+  jugador = names(beta_hat),
+  coeficiente = as.numeric(beta_hat)
+)
+
+beta_hat$jugador <- gsub("`", "", beta_hat$jugador)
+
+# Con Moore-Penrose
+
+beta_mp <- ginv(X) %*% y
+beta_mp <- as.vector(beta_mp)
+names(beta_mp) <- colnames(X)
+beta_mp = as.data.frame(beta_mp)
+
+# La solución de Moore–Penrose coincide con el estimador de mínimos cuadrados bajo restricción de suma cero, ya que la dirección de no identificabilidad coincide con el vector constante.
 
 ```
 
+### Estimación del modelo omitiendo los LTPs Players
 
+```{r}
+# vamos a calcular los minutos en cancha y las posesiones en cancha
 
+#posesiones_jug = colSums(poss_by_poss_temporada[, 24:369] != 0)
 
+#posesiones_jug <- data.frame(
+#  NombreCompleto_limpio = names(posesiones_jug),
+#  posesiones = as.numeric(posesiones_jug)
+#)
 
+#posesiones_jug = posesiones_jug %>% left_join(minutos_jugad)
 
+#posesiones_jug = posesiones_jug %>% left_join(beta_hat)
+
+#posesiones_jug = posesiones_jug %>% left_join(df_plus_minus)
+```
+
+### -------------------------------------------------
+
+### Separar el efecto del aporte ofensivo y defensivo
+
+### Calcular Ridge
+
+### Pensar en comparar los errores de los parámetros
+
+### Hacerlo con los segmentos
 
 
 
