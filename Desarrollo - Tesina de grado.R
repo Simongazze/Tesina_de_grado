@@ -151,7 +151,7 @@ plus_minus_1partido = df_1partido[, 24:369]*df_1partido[[23]]
 cols_ceros = names(df_1partido[, 24:369])[colSums(df_1partido[, 24:369] != 0) == 0 ]
 
 plus_minus_1partido = plus_minus_1partido %>% 
-                        select(-cols_ceros)
+                        dplyr::select(-cols_ceros)
 
 df_plus_minus_1partido <- plus_minus_1partido %>%
   summarise(across(everything(), sum))%>%
@@ -161,20 +161,20 @@ df_plus_minus_1partido <- plus_minus_1partido %>%
     values_to = "+/-"
   )
 
-jug_eq_1partido = df_1partido %>%
-  group_by(jugador_limpio) %>%
-  summarise(equipos = unique(equipo_accion))
+#jug_eq_1partido = df_1partido %>%
+#  group_by(jugador_limpio) %>%
+#  summarise(equipos = unique(equipo_limpio))
 
-df_plus_minus_1partido = df_plus_minus_1partido %>% 
-                              left_join(jug_eq_1partido)
+#df_plus_minus_1partido = df_plus_minus_1partido %>% 
+#                              left_join(jug_eq_1partido) #Agregar equipos con otra base con todos los jugadores
 
 
 # Modelo de regresión lineal múltiple
 
 dfmod_1partido = poss_by_poss_temporada %>% 
   filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)") %>% 
-  select(23:369)%>% 
-  select(-cols_ceros)
+  dplyr::select(23:369)%>% 
+  dplyr::select(-cols_ceros)
 
 modelo1 = lm(puntos_pos ~ . , data = dfmod_1partido)
 
@@ -182,7 +182,35 @@ summary(modelo1) #Analizar más
 
 alias(modelo1)
 
+X <- model.matrix(~ . - 1, data = dfmod_1partido[, -which(names(dfmod_1partido) == "puntos_pos")])
+
+ncol(X)-qr(X)$rank
+
 #Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
+
+#Mínimos cuadrados restringidos
+
+y <- dfmod_1partido$puntos_pos
+
+##Calculo el modelo con la restricción (suma de betas igual a 0)
+
+C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+d <- 0 # resultado de la suma
+
+# Ajuste de coeficientes
+
+fit <- lsei(A = X, B = y, E = C, F = d)
+
+beta_hat <- fit$X
+
+beta_hat <- setNames(beta_hat, colnames(X))
+
+beta_hat <- data.frame(
+  jugador = names(beta_hat),
+  coeficiente = as.numeric(beta_hat)
+)
+
+beta_hat$jugador <- gsub("`", "", beta_hat$jugador) #agregar pm/pos, pm/pos - pm/pos(media de equipo), equipo y minutos
 
 # Modelo de prueba - pocos partidos - 3 partido
 
@@ -195,7 +223,7 @@ plus_minus_3partido = df_3partido[, 24:369]*df_3partido[[23]]
 
 cols_ceros_3 = names(df_3partido[, 24:369])[colSums(df_3partido[, 24:369] != 0) == 0 ]
 
-plus_minus_3partido = plus_minus_3partido %>% select(-cols_ceros_3)
+plus_minus_3partido = plus_minus_3partido %>% dplyr::select(-cols_ceros_3)
 
 df_plus_minus_3partido <- plus_minus_3partido %>%
   summarise(across(everything(), sum))%>%
@@ -209,14 +237,44 @@ df_plus_minus_3partido <- plus_minus_3partido %>%
 
 dfmod_3partido = poss_by_poss_temporada %>% 
   filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)")) %>% 
-  select(23:369)%>% 
-  select(-cols_ceros_3)
+  dplyr::select(23:369)%>% 
+  dplyr::select(-cols_ceros_3)
 
 modelo2 = lm(puntos_pos ~ . , data = dfmod_3partido)
 
 summary(modelo2) #Analizar más
 
+#Hay 2 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
+
+X <- model.matrix(~ . - 1, data = dfmod_3partido[, -which(names(dfmod_3partido) == "puntos_pos")])
+
+ncol(X)-qr(X)$rank
+
 #Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
+
+#Mínimos cuadrados restringidos
+
+y <- dfmod_3partido$puntos_pos
+
+##Calculo el modelo con la restricción (suma de betas igual a 0)
+
+C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+d <- 0 # resultado de la suma
+
+# Ajuste de coeficientes
+
+fit <- lsei(A = X, B = y, E = C, F = d)
+
+beta_hat <- fit$X
+
+beta_hat <- setNames(beta_hat, colnames(X))
+
+beta_hat <- data.frame(
+  jugador = names(beta_hat),
+  coeficiente = as.numeric(beta_hat)
+)
+
+beta_hat$jugador <- gsub("`", "", beta_hat$jugador) 
 
 # Toda la base
 
@@ -259,11 +317,11 @@ beta_hat <- fit$X
 beta_hat <- setNames(beta_hat, colnames(X))
 
 beta_hat <- data.frame(
-  NombreCompleto_limpio = names(beta_hat),
+  jugador = names(beta_hat),
   coeficiente = as.numeric(beta_hat)
 )
 
-beta_hat$NombreCompleto_limpio <- gsub("`", "", beta_hat$NombreCompleto_limpio)
+beta_hat$jugador <- gsub("`", "", beta_hat$jugador)
 
 # Con Moore-Penrose
 

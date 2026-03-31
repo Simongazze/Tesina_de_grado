@@ -54,6 +54,7 @@ box_score <- read_excel("data/Box score - temporada - sin minutos igual a 0.xlsx
 
 box_score = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod)) 
 
+
 #Tiempo jugado
 minutos_jugad = box_score %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
 
@@ -82,7 +83,7 @@ Zarate basket vs Riachuelo suspendido por motivos climáticos
 poss_by_poss_temporada %>% group_by(equipo_accion) %>% summarise(partidos = n_distinct(partido_key))
 ```
 
-A su vez, se identificó que 346 jugadores participaron en al menos una posesión ese año, obteniendo un promedio de 17.3 jugadores utilizados en promedio por equipo.
+A su vez, se identificó que 346 jugadores participaron en al menos una posesión ese año, obteniendo un promedio de 17.3 jugadores utilizados en promedio por equipo. Otro dato a tener en cuenta es que un total de 12 jugadores formaron parte de 2 equipos en distintos períodos de la temporada.
 
 Por el lado de las posesiones se identificaron 58625 posesiones finalizadas en nuestro dataset, obteniendo un promedio de 155.09 posesiones en promedio por partido (77.54 posesiones promedio por equipo). Destacandosé La Unión de Formosa y San Lorenzo como los equipos más veritiginosos del torneo con 80.05 y 80.00 posesiones consumidas en promedio respetivamente, mientras que equipos como Gimnasia de Comodoro, Peñarol, Regatas y Boca Juniors (el equipo campeón) jugaron a un ritmo más pausado, todos por debajo de las 76 posesiones promedio por partido.
 
@@ -303,6 +304,86 @@ promedio_pm = plus_minus_por_equipo %>% group_by(equipo_del_jugador) %>% summari
 
 3) Diff on/off
 
+## Métricas basadas en modelos - Adjusted Plus Minus (APM)
+
+### Prueba 1 partido
+
+Buscando aislar el efecto propio del jugador, se plantea el siguiente modelo de regresión múltiple:
+
+puntos en la posesión (+ error) = coeficientes de los jugadores ofensivos - coeficientes de los jugadores defensivos
+
+Buscando minimizar el error
+
+Entonces vamos a estimar la cantidad de puntos en una posesión en base a los jugador que permanecían en cancha, tanto ofensiva como defensivamente.
+
+```{r}
+# Modelo de regresión lineal múltiple
+
+dfmod_1partido = poss_by_poss_temporada %>% 
+  filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)") %>% 
+  dplyr::select(23:369)%>% 
+  dplyr::select(-cols_ceros)
+
+modelo1 = lm(puntos_pos ~ . , data = dfmod_1partido)
+
+summary(modelo1) #Analizar más
+
+alias(modelo1)
+```
+
+Vemos que el modelo no puede estimar 4 coeficientes debido a la singularidad.
+
+La singularidad indica que hay dependencia lineal exacta en la matriz de diseño, y esto sucede debido a:
+
+1) Al ser muy pocos datos se cumple que algunos jugadores siempre jueguen juntos (supongamos el jugador 1 y 2), y por este motivo $X_1 - X_2$ = 0.Por lo que se cumple la dependencia lineal.
+
+2) En cada posesión se encuentran simultáneamente cinco jugadores en ataque y cinco en defensa. Dado que las variables indicadoras toman valor 1 si el jugador se encuentra en ataque, −1 si se encuentra en defensa y 0 en caso contrario, se cumple que para toda posesión:
+
+$$\sum_{j=1}^Jx_{ij}=0 \quad \forall \quad i=1,n$$
+
+Y por lo tanto $X_1 + X_2 + ... + X_J = 0$,
+
+Además por ser:
+
+$$\mathbf{1} ′X = \mathbf{0}$$
+
+Entonces al existir un vector no nulo $\mathbf{c}$ tal que $\mathbf{c} ′X = \mathbf{0}$ => X es de rango incompleto => X'X es de rango incompleto => X'X es no invertible
+
+Para estimar todos los coeficientes del modelo haremos uso de la técnica de mínimos cuadrados restrigindos, aplicando la restricción $\sum_{j=1}^J{\beta_j}=0$
+
+
+```{r}
+X <- model.matrix(~ . - 1, data = dfmod_1partido[, -which(names(dfmod_1partido) == "puntos_pos")])
+
+ncol(X)-qr(X)$rank
+
+#Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
+
+#Mínimos cuadrados restringidos
+
+y <- dfmod_1partido$puntos_pos
+
+##Calculo el modelo con la restricción (suma de betas igual a 0)
+
+C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+d <- 0 # resultado de la suma
+
+# Ajuste de coeficientes
+
+fit <- lsei(A = X, B = y, E = C, F = d)
+
+beta_hat <- fit$X
+
+beta_hat <- setNames(beta_hat, colnames(X))
+
+beta_hat <- data.frame(
+  jugador = names(beta_hat),
+  coeficiente = as.numeric(beta_hat)
+)
+
+beta_hat$jugador <- gsub("`", "", beta_hat$jugador) #agregar pm/pos, pm/pos - pm/pos(media de equipo), equipo y minutos
+
+```
 
 
 
