@@ -380,21 +380,33 @@ Pensando en mitigar el efecto, tanto positivo como negativo, que genera pertenec
 
 Se plantean las siguientes alternativas:
 
-1) +/- ajustado por la media
+1) +/- ajustado por la mediana y estandarización
+
+El cálculo de +/- por posesión resulta muy informativo, pero lo es más si se piensa dentro del contexto del equipo. Por lo tanto plantearemos una estandarización de la métrica dentro de cada equipo, para ver los mejor y peores jugadores dentro de cada plantel.
+
+Pero antes debemos tener en cuenta lo siguiente: jugadores con pocas posesiones consumidas presentan valores de +/- cada 100 posesiones extremos, lo que nos va a llevar a a conclusiones erroneas al estandarizar por la media. Se presentan 2 posibles soluciones, realizar una estandarización por la mediana y filtrar a los jugadores con menos de 500 posesiones en la temporada.
+
 
 ```{r}
-#Tiempo jugado
-plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS")
+plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales > 500)
 
-promedio_pm = plus_minus_por_equipo %>% group_by(equipo_del_jugador) %>% summarise( pm_prom = mean(plus_minus_total))
+#OP 2
+promedio_pm1 = plus_minus_por_equipo1 %>% group_by(equipo_del_jugador) %>% summarise( pm_prom = mean(plus_minus_total), pm_mediana = median(plus_minus_total), pm_sd = sd(plus_minus_total), pm_100_prom = mean(plus_minus_100), pm_100_mediana = median(plus_minus_100), pm_100_sd = sd(plus_minus_100))
 
-#Hay una cuestión interesante que estoy tomando la suma del +/- y eso puede afectar a los jugadores con pocos partidos en equipos buenos, o beneficiar a los jugadores de malos equipos. Podría calcular el +/- promedio por partido.
+plus_minus_por_equipo1 = plus_minus_por_equipo1 %>%  left_join(promedio_pm1)
+
+plus_minus_por_equipo1 = plus_minus_por_equipo1 %>% mutate(pm_estand_prom = plus_minus_100 - pm_100_mediana) 
+
 ```
 
+Nackie Sanders, la bestia neoyorquina
 
-2) +/- estandarizado
+No Coco No party -> Olimpico 8-4 con Mainoldi, 9-17 sin Mainoldi
 
-3) Diff on/off
+
+
+
+2) Diff on/off
 
 ## Métricas basadas en modelos - Adjusted Plus Minus (APM)
 
@@ -531,7 +543,7 @@ errores_std <- sqrt(diag(cov_matriz))
 
 beta_hat$errores = errores_std
 
-minutos_jugad_1 = minutos_jugad_1 %>% left_join(beta_hat) # agregaaar otras medidas
+minutos_jugad_1 = minutos_jugad_1 %>% left_join(beta_hat) # agregar otras medidas: On/Off
 ```
 
 ### Prueba 3 partidos
