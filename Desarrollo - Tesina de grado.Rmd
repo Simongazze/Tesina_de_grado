@@ -24,6 +24,7 @@ library(kableExtra)
 library(gt)
 library(patchwork)
 library(htmltools)
+library(broom)
 ```
 
 
@@ -675,26 +676,102 @@ beta_mp = as.data.frame(beta_mp)
 
 # La solución de Moore–Penrose coincide con el estimador de mínimos cuadrados bajo restricción de suma cero, ya que la dirección de no identificabilidad coincide con el vector constante.
 
+
+posesiones_jug = colSums(poss_by_poss_temporada[, 24:369] != 0)
+
+posesiones_jug <- data.frame(
+  jugador = names(posesiones_jug),
+  posesiones = as.numeric(posesiones_jug)
+)
+
+posesiones_jug = posesiones_jug %>% left_join(minutos_jugad) %>% mutate(pm_ajust_pos = `+/-`/posesiones)
+
+posesiones_jug = posesiones_jug %>% left_join(beta_hat)
+
+posesiones_jug = posesiones_jug %>% left_join(df_plus_minus)
+
 ```
+
+Se cumple la teoría de que los jugadores con pocos minutos presentan valores extremos en los modelos.
+
+Carabalí fue uno de los mejores defensores de la 23-24. Cerró con 9.1 ppp, 6.6 rpp y 2.3 bpp (el mejor del torneo) en 42 partidos jugados con +14.7 de valoración y 26 minutos de promedio. Fue un jugador primordial en los tableros, dominando cada juego y pilar dentro de la estructura de San Martín. Éste año venía con 9.0 ppp, 6.0 rpp y 2.2 bpp en 20 minutos.
+
+en su primera temporada alcanzó a ser considerado Mejor Defensor de la LNB.
+
+se fue el 10 de diciembre.
+
+Bryan Carabalí se transformó en el segundo jugador que San Martín pierde en pocos días por decisiones personales.
+
+Actualidad: Dentro de ese selecto grupo aparece con fuerza el nombre de Bryan Carabalí, figura clave en el gran presente de Gimnasia y Esgrima de Comodoro Rivadavia.
+
+El pivote no solo domina en defensa, sino que se consolida como uno de los jugadores más influyentes del torneo, despertando ilusión en la afición patagónica.
+
+
+
 
 ### Estimación del modelo omitiendo los LTPs Players
 
 ```{r}
-# vamos a calcular los minutos en cancha y las posesiones en cancha
+cols_ceros_mod = posesiones_jug %>% filter(posesiones<500) %>% dplyr::select(jugador)
 
-#posesiones_jug = colSums(poss_by_poss_temporada[, 24:369] != 0)
+cols_ceros_mod = cols_ceros_mod$jugador
 
-#posesiones_jug <- data.frame(
-#  NombreCompleto_limpio = names(posesiones_jug),
-#  posesiones = as.numeric(posesiones_jug)
-#)
+df_mod_ltp = poss_by_poss_temporada %>% dplyr::select(c(23:369)) %>% dplyr::select(-cols_ceros_mod)
 
-#posesiones_jug = posesiones_jug %>% left_join(minutos_jugad)
+modelo3 = lm(puntos_pos ~ . , data = df_mod_ltp)
 
-#posesiones_jug = posesiones_jug %>% left_join(beta_hat)
+summary(modelo3) #Analizar más
 
-#posesiones_jug = posesiones_jug %>% left_join(df_plus_minus)
+beta_hat <- tidy(modelo3)
+
+beta_hat$jugador <- gsub("`", "", beta_hat$term)
+
+
+#Hay 2 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
+
+X <- model.matrix(~ . - 1, data = df_mod_ltp[, -which(names(df_mod_ltp) == "puntos_pos")])
+
+ncol(X)-qr(X)$rank
+
+#Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
+
+#Mínimos cuadrados restringidos
+
+y <- df_mod_ltp$puntos_pos
+
+##Calculo el modelo con la restricción (suma de betas igual a 0)
+
+C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+d <- 0 # resultado de la suma
+
+# Ajuste de coeficientes
+
+fit <- lsei(A = X, B = y, E = C, F = d)
+
+beta_hat1 <- fit$X
+
+beta_hat1 <- setNames(beta_hat, colnames(X))
+
+beta_hat1 <- data.frame(
+  jugador = names(beta_hat),
+  coeficiente = as.numeric(beta_hat)
+)
+
+beta_hat1$jugador <- gsub("`", "", beta_hat1$jugador) 
 ```
+
+Por qué difiere el orden
+Esto es lo más importante de entender. En regresión con muchas variables correlacionadas (como es tu caso, donde los jugadores siempre comparten cancha con los mismos compañeros), los coeficientes individuales son muy inestables. Una pequeña perturbación en las restricciones del problema puede cambiar drásticamente los valores relativos. Esto ocurre porque:
+
+Las columnas de tu matriz X están altamente correlacionadas (jugadores que siempre juegan juntos tienen columnas casi idénticas)
+Eso genera una matriz X'X mal condicionada, donde pequeños cambios en el problema producen grandes cambios en los coeficientes
+La restricción Σβ = 0 no es una restricción "neutral", sino que modifica la geometría del problema de optimización
+
+Algunas cosas que probablemente vas a querer analizar al momento de comparar:
+
+Estabilidad de los coeficientes entre modelos (correlación de Spearman entre rankings, que es exactamente la pregunta que hiciste hoy)
+Error de predicción fuera de muestra con validación cruzada
+Sensatez deportiva de los resultados, es decir, si los jugadores que el modelo valora coinciden razonablemente con la percepción experta
 
 ### -------------------------------------------------
 
