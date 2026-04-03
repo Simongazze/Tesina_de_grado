@@ -389,6 +389,8 @@ Pero antes debemos tener en cuenta lo siguiente: jugadores con pocas posesiones 
 
 
 ```{r}
+
+plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS")
 plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales > 500)
 
 #OP 2
@@ -400,11 +402,9 @@ plus_minus_por_equipo1 = plus_minus_por_equipo1 %>% mutate(pm_estand_prom = plus
 
 ```
 
-Nackie Sanders, la bestia neoyorquina
+Nakie Sanders, la bestia neoyorquina: Por lejos el mejor +/- de atenas en el torneo
 
 No Coco No party -> Olimpico 8-4 con Mainoldi, 9-17 sin Mainoldi
-
-
 
 
 2) Diff on/off
@@ -632,7 +632,7 @@ dfmod_temporada = poss_by_poss_temporada %>% dplyr::select(23:369)
 
 modelo_temp = lm(puntos_pos ~ . , data = dfmod_temporada)
 
-summary(modelo_temp)
+#summary(modelo_temp)
 
 #Solo 1 coeficiente no pudo estimarse por singularidad, y se debe a que la suma de las filas dan siempre 0
 
@@ -691,25 +691,31 @@ posesiones_jug = posesiones_jug %>% left_join(beta_hat)
 posesiones_jug = posesiones_jug %>% left_join(df_plus_minus)
 
 ```
+Tal como manda la teoría,los primeros y últimos lugares del ranking se ven dominados por los jugadores con pocos minutos en la temporada, presentando valores extremos de los coeficientes en este modelo.
 
-Se cumple la teoría de que los jugadores con pocos minutos presentan valores extremos en los modelos.
+El primer jugador que observamos en el ranking con más de 500 posesiones disputadas es Bryan Carabalí de San Martín de Corrientes. Jugador que fue parte de dicho plantel en el primer tramo de la temporada, marchandosé del plantel el 10 de diciembre luego de haber participado en x de los 38 partidos que participó San Martín en dicha temporada.
 
-Carabalí fue uno de los mejores defensores de la 23-24. Cerró con 9.1 ppp, 6.6 rpp y 2.3 bpp (el mejor del torneo) en 42 partidos jugados con +14.7 de valoración y 26 minutos de promedio. Fue un jugador primordial en los tableros, dominando cada juego y pilar dentro de la estructura de San Martín. Éste año venía con 9.0 ppp, 6.0 rpp y 2.2 bpp en 20 minutos.
+Dato:
 
-en su primera temporada alcanzó a ser considerado Mejor Defensor de la LNB.
+Temporada 2023/2024:
 
-se fue el 10 de diciembre.
+Carabalí fue uno de los mejores defensores de la 23-24 (temporada anterior a la analizada). Cerró con 9.1 ppp, 6.6 rpp y 2.3 bpp (el mejor del torneo) en 42 partidos jugados con +14.7 de valoración y 26 minutos de promedio. Fue un jugador primordial en los tableros, dominando cada juego y pilar dentro de la estructura de San Martín. Éste año venía con 9.0 ppp, 6.0 rpp y 2.2 bpp en 20 minutos. En su primera temporada alcanzó a ser considerado Mejor Defensor de la LNB.
 
-Bryan Carabalí se transformó en el segundo jugador que San Martín pierde en pocos días por decisiones personales.
+Temporada 2024/2025:
 
-Actualidad: Dentro de ese selecto grupo aparece con fuerza el nombre de Bryan Carabalí, figura clave en el gran presente de Gimnasia y Esgrima de Comodoro Rivadavia.
+Se fue el 10 de diciembre de 2024 por motivos personales, después de haber disputado x partidos con un record de x-x. Bryan Carabalí se transformó en el segundo jugador que San Martín pierde en pocos días por decisiones personales. Posteriormente en esa temporada el equipo correntino presentó un record de x-x.
 
-El pivote no solo domina en defensa, sino que se consolida como uno de los jugadores más influyentes del torneo, despertando ilusión en la afición patagónica.
+Actualidad: 
 
+Bryan Carabalí, figura clave en el gran presente de Gimnasia y Esgrima de Comodoro Rivadavia (puntero de la liga). El pivote no solo domina en defensa, sino que se consolida como uno de los jugadores más influyentes del torneo, despertando ilusión en la afición patagónica.
 
-
+Retomando, una mejor forma que simplemente evitarl a estos jugadores con pocas posesiones del ranking, y es quitarlos del modeo y volver a estimar los coeficientes sin los mismos.
 
 ### Estimación del modelo omitiendo los LTPs Players
+
+Para abordar el problema de los coeficientes extremos presentados por los jugadores con pocas posesiones jugadas en la temporada se decide excluirlos del modelo. El efecto promedio de estos jugadores excluidos se verá reflejado en el intercepto (revisar).
+
+Los resultados obtenidos fueron los siguientes:
 
 ```{r}
 cols_ceros_mod = posesiones_jug %>% filter(posesiones<500) %>% dplyr::select(jugador)
@@ -720,59 +726,70 @@ df_mod_ltp = poss_by_poss_temporada %>% dplyr::select(c(23:369)) %>% dplyr::sele
 
 modelo3 = lm(puntos_pos ~ . , data = df_mod_ltp)
 
-summary(modelo3) #Analizar más
+#summary(modelo3) #Analizar más
 
-beta_hat <- tidy(modelo3)
+resultados <- tidy(modelo3)
 
-beta_hat$jugador <- gsub("`", "", beta_hat$term)
+resultados$jugador <- gsub("`", "", resultados$term)
 
+beta_hat = resultados %>% dplyr::select(c(jugador, estimate, std.error))
 
+beta_hat = beta_hat[-1,]
+
+beta_hat = beta_hat %>% left_join(g1)
 #Hay 2 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
 
-X <- model.matrix(~ . - 1, data = df_mod_ltp[, -which(names(df_mod_ltp) == "puntos_pos")])
+#X <- model.matrix(~ . - 1, data = df_mod_ltp[, -which(names(df_mod_ltp) == "puntos_pos")])
 
-ncol(X)-qr(X)$rank
+#ncol(X)-qr(X)$rank
 
 #Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
 
 #Mínimos cuadrados restringidos
 
-y <- df_mod_ltp$puntos_pos
+#y <- df_mod_ltp$puntos_pos
 
 ##Calculo el modelo con la restricción (suma de betas igual a 0)
 
-C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
-d <- 0 # resultado de la suma
+#C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+#d <- 0 # resultado de la suma
 
 # Ajuste de coeficientes
 
-fit <- lsei(A = X, B = y, E = C, F = d)
+#fit <- lsei(A = X, B = y, E = C, F = d)
 
-beta_hat1 <- fit$X
+#beta_hat1 <- fit$X
 
-beta_hat1 <- setNames(beta_hat, colnames(X))
+#beta_hat1 <- setNames(beta_hat1, colnames(X))
 
-beta_hat1 <- data.frame(
-  jugador = names(beta_hat),
-  coeficiente = as.numeric(beta_hat)
-)
+#beta_hat1 <- data.frame(
+#  jugador = names(beta_hat1),
+#  coeficiente = as.numeric(beta_hat1)
+#)
 
-beta_hat1$jugador <- gsub("`", "", beta_hat1$jugador) 
+#beta_hat1$jugador <- gsub("`", "", beta_hat1$jugador) 
 ```
+1) FIGUEREDO, DIEGO RAFAEL - Riachuelo
 
-Por qué difiere el orden
-Esto es lo más importante de entender. En regresión con muchas variables correlacionadas (como es tu caso, donde los jugadores siempre comparten cancha con los mismos compañeros), los coeficientes individuales son muy inestables. Una pequeña perturbación en las restricciones del problema puede cambiar drásticamente los valores relativos. Esto ocurre porque:
+Diego Figueredo fue el mejor jugador en base al +/- (8° en la general) por fuera de los 4 equipos que clasificaron de forma directa. Se oberva que este jugador obtuvo casí el doble en +/- que el siguiente jugador con mejor +/- de su equipo (es la mayor diferencia en la liga?).
 
-Las columnas de tu matriz X están altamente correlacionadas (jugadores que siempre juegan juntos tienen columnas casi idénticas)
-Eso genera una matriz X'X mal condicionada, donde pequeños cambios en el problema producen grandes cambios en los coeficientes
-La restricción Σβ = 0 no es una restricción "neutral", sino que modifica la geometría del problema de optimización
+También está en el top 10 de jugador con +/- por posesión y +/- estandarizado por equipo. 
 
-Algunas cosas que probablemente vas a querer analizar al momento de comparar:
+2) SANDERS, NAKIE GERALD - Atenas
 
-Estabilidad de los coeficientes entre modelos (correlación de Spearman entre rankings, que es exactamente la pregunta que hiciste hoy)
-Error de predicción fuera de muestra con validación cruzada
-Sensatez deportiva de los resultados, es decir, si los jugadores que el modelo valora coinciden razonablemente con la percepción experta
+El ya mencionado Nakie Sanders, presenta más del doble de +/- que el siguiente de su equipo... mientras que si filtramos por jugadores que hayan jugado más de 500 posesiones: Nakie presenta un +/- de +60 mientras que el segundo mejor de su equipo es WATSON, EARL OVREL con -3!!!!!!!!
 
+También vemos que Nakie Sanders es el 3er mejor jugador de la Liga con +/- estandarizado por equipo.
+
+3) CHACON TIRADO, MARCOS - Gimnasia de Comodoro
+
+Después de Figueredo el segundo mejor con +/- por fuera de los 4 equipos de playoffs (9° en la general), 4to en +/- ajustado por posesiones (mejor por fuera del big four) y 2° en el top de jugadores con mejor +/- estandarizado por equipo.
+
+4) VORHEES, WILLIAM LEONARD-DEUBLER - Oberá
+
+Primer jugador del big four en aparecer en la lista (aunque Oberá es el peor en +/- de los 4 equipos con diferencia) y 6° en la tabla general de +/- , 6° en +/- ajustado por posesiones.
+
+5) Caso Aaliya - Guerra
 ### -------------------------------------------------
 
 ### Separar el efecto del aporte ofensivo y defensivo
@@ -783,7 +800,21 @@ Sensatez deportiva de los resultados, es decir, si los jugadores que el modelo v
 
 ### Hacerlo con los segmentos
 
+### Anexo
 
+Por qué difiere el orden del modelo lm() y el lsei() con restricción (suma de coeficientes igual a 0)?
+
+En regresión con muchas variables correlacionadas (donde los jugadores siempre comparten cancha con los mismos compañeros), los coeficientes individuales son muy inestables. Una pequeña perturbación en las restricciones del problema puede cambiar drásticamente los valores relativos. Esto ocurre porque:
+
+Las columnas de la matriz X están altamente correlacionadas (jugadores que siempre juegan juntos tienen columnas casi idénticas). Eso genera una matriz X'X mal condicionada, donde pequeños cambios en el problema producen grandes cambios en los coeficientes.
+
+La restricción Σβ = 0 no es una restricción "neutral", sino que modifica la geometría del problema de optimización.
+
+Algunas cosas que probablemente se va a querer analizar al momento de comparar:
+
+Estabilidad de los coeficientes entre modelos (correlación de Spearman entre rankings)
+Error de predicción fuera de muestra con validación cruzada
+Sensatez deportiva de los resultados, es decir, si los jugadores que el modelo valora coinciden razonablemente con la percepción experta
 
 
 
