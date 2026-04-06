@@ -25,6 +25,7 @@ library(gt)
 library(patchwork)
 library(htmltools)
 library(broom)
+library(ggrepel)
 ```
 
 
@@ -80,6 +81,9 @@ minutos_jugad = minutos_jugad %>% mutate(jugador = recode(NombreCompleto_limpio,
   ungroup()
 ```
 
+### Detección de errores en la base
+
+En base al análisis descriptivo posterior pudo identificarse que 4 jugadores fueron cargados con distintos nombres en distintos momentos de la temporada, por ejemplo GRÜN, FEDERICO JOSE y GRUN, FEDERICO JOSE (difieren en la dieresis). Se unificaron ambas columnas en este y en los 3 casos restantes.
 
 ## Análisis descriptivo
 
@@ -90,20 +94,69 @@ Zarate basket vs instituto suspendido por falla en el reloj de 24 segundos del l
 Zarate basket vs Riachuelo suspendido por motivos climáticos
 
 ```{r, echo = FALSE}
-poss_by_poss_temporada %>% group_by(equipo_accion) %>% summarise(partidos = n_distinct(partido_key))
+t1 = poss_by_poss_temporada %>% group_by(equipo_accion) %>% summarise(partidos = n_distinct(partido_key))
+
+t1 %>% gt()
 ```
 
 A su vez, se identificó que 346 jugadores participaron en al menos una posesión ese año, obteniendo un promedio de 17.3 jugadores utilizados en promedio por equipo. Otro dato a tener en cuenta es que un total de 12 jugadores formaron parte de 2 equipos en distintos períodos de la temporada.
 
+### Posesiones
+
 Por el lado de las posesiones se identificaron 58625 posesiones finalizadas en nuestro dataset, obteniendo un promedio de 155.09 posesiones en promedio por partido (77.54 posesiones promedio por equipo). Destacandosé La Unión de Formosa y San Lorenzo como los equipos más veritiginosos del torneo con 80.05 y 80.00 posesiones consumidas en promedio respetivamente, mientras que equipos como Gimnasia de Comodoro, Peñarol, Regatas y Boca Juniors (el equipo campeón) jugaron a un ritmo más pausado, todos por debajo de las 76 posesiones promedio por partido.
+
+
+```{r}
 
 #Hacer gráfico de barras con escudos
 
-```{r}
-poss_by_poss_temporada %>% group_by(equipo_limpio) %>% summarise(posesiones_totales = n(), posesiones_promedio = posesiones_totales/n_distinct(partido_key))
+df_plot <- poss_by_poss_temporada %>% 
+  group_by(equipo_limpio) %>% 
+  summarise(
+    posesiones_totales = n(),
+    posesiones_promedio = posesiones_totales / n_distinct(partido_key)
+  ) %>% 
+  arrange(desc(posesiones_totales)) %>% 
+  arrange(desc(posesiones_promedio)) %>%
+  mutate(equipo_limpio = factor(equipo_limpio, levels = equipo_limpio))
+
+
+ggplot(df_plot, aes(x = equipo_limpio, group = 1)) +
+  
+  # Línea
+  geom_line(aes(y = posesiones_promedio),
+            color = "lightblue4", size = 1.2) +
+  
+  geom_point(aes(y = posesiones_promedio),
+             color = "lightblue4", size = 2) +
+  
+  # Etiquetas con fondo
+  geom_label_repel(
+    aes(y = posesiones_promedio,
+        label = round(posesiones_promedio, 1)),
+    size = 3,
+    fontface = "bold", 
+    color = "steelblue3",         
+    fill = "lightblue",           
+    label.size = 0,             
+    box.padding = 0.3,
+    point.padding = 0.2,
+    segment.color = "grey70"    
+  ) +
+  
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  
+  labs(
+    title = "Promedio de posesiones por partido - LNB",
+    x = "Equipo",
+    y = "Posesiones promedio"
+  )
 ```
 
-La distribución de posesiones por jugador es muy dispersa, encontrando jugadores que participaron de solo 1 o 2 posesiones en toda la temporada, mientras que los jugadores titulares indiscultibles de algunos equipos participaron de más de 4000 posesiones.
+La distribución de posesiones por jugador es muy dispersa, encontrando jugadores que participaron de solo 1 o 2 posesiones en toda la temporada, mientras que los jugadores titulares indiscultibles de algunos equipos participaron en más de 4000 posesiones.
 
 ```{r}
 g1 = colSums(poss_by_poss_temporada[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
@@ -113,23 +166,28 @@ g1 = g1 %>% left_join(minutos_jugad)
 ggplot(g1)+
   aes(x = posesiones)+
   geom_density(fill = "lightblue4", alpha = 0.5)+
-  theme_minimal()#y si acompaño con un grafico de violin?
+  theme_minimal()+#y si acompaño con un grafico de violin?
+  labs(
+    title = "Distribución de las posesiones consumidas por jugador",
+    x = "Posesiones",
+    y = "Densidad"
+  )
 ```
 
-Se observa una distribución bimodal de las posesiones por jugador, identificandose 3 subgrupos de jugadores: vemos que un 33.8% participan en menos de 500 posesiones, siendo este grupo integrado por jugadores del fondo de la rotación o jugadores con muy poca cantidad de partidos disputados (ya sea por lesión o por haber sido incorporados al equipo una vez avanzada la temporada), por otra parte un 30% de jugadores participó en menos de 2500 posesiones, donde encontramos suplentes con una cantidad de minutos interesante o grandes jugadores que por algún motivo no han jugado gran parte de los partidos de la temporada. Por último tenemos el grupo de los titulares (124 jugadores, 36% del total), los cuales fueron participes de más de 2500 posesiones, y encontramos a los 6/7 jugadores con mayor cantidad de minutos por equipo, presentando generalmente más de 20 minutos por partido y una gran cantidad de partidos jugados en la temporada.
+Se observa una distribución bimodal de las posesiones por jugador, identificandose 3 subgrupos de jugadores: vemos que un 33.8% participan en menos de 500 posesiones, siendo este grupo integrado por jugadores del fondo de la rotación o jugadores con muy poca cantidad de partidos disputados (ya sea por lesión o por haber sido incorporados al equipo uestando muy avanzada la temporada), por otra parte un 30% de jugadores participó en menos de 2500 posesiones, donde encontramos suplentes con una cantidad de minutos interesante o grandes jugadores que por algún motivo no han disputado gran parte de los partidos de la temporada. Por último tenemos el grupo de los titulares (124 jugadores, 36% del total), los cuales fueron participes de más de 2500 posesiones, y encontramos a los 6/7 jugadores con mayor cantidad de minutos por equipo, presentando generalmente más de 20 minutos por partido y una gran cantidad de partidos jugados en la temporada.
 
 ```{r}
-prop = g1 %>% summarise(
-    total_jugadores = n(),
-    cantidad1 = sum(posesiones < 500, na.rm = TRUE),
-    proporcion1 = cantidad1 / total_jugadores,
-    cantidad2 = sum(posesiones < 2500, na.rm = TRUE) - cantidad1,
-    proporcion2 = cantidad2/total_jugadores,
-    cantidad3 = sum(posesiones > 2500, na.rm = TRUE),
-    proporcion3 = cantidad3/ total_jugadores
-  )
+#prop = g1 %>% summarise(
+#    total_jugadores = n(),
+#    cantidad1 = sum(posesiones < 500, na.rm = TRUE),
+#    proporcion1 = cantidad1 / total_jugadores,
+#    cantidad2 = sum(posesiones < 2500, na.rm = TRUE) - cantidad1,
+#    proporcion2 = cantidad2/total_jugadores,
+#    cantidad3 = sum(posesiones > 2500, na.rm = TRUE),
+#    proporcion3 = cantidad3/ total_jugadores
+#  )
 
-ult_grupo = g1 %>% filter(posesiones > 2500) %>% count(Equipos)#contabilizar cuantos jugadores de cada equipo hay en el último grupo
+#ult_grupo = g1 %>% filter(posesiones > 2500) %>% count(Equipos)#contabilizar cuantos jugadores de cada equipo hay en el último grupo
 ```
 
 Cada una de las posesiones analizadas contabilizaba cierta cantidad de puntos al finalizar, pudiendo observarse un rango de puntos que varió de 0 a 7 puntos. Resultando los casos de 5,6 y 7 puntos situaciones extremadamente atípicas (0.089% de los casos). El resultado más frecuente al finalizar una posesión fue la ausencia de puntos, obteniendose en 31241 posesiones, lo cual representa un 53.2% del total de posesiones.
@@ -200,7 +258,7 @@ browsable(
 
 ```
 
-Observando la tabla anterior queda en evidencia que los jugadores con mejor +/- pertenecen a los equipos que mejores resultados obtuvieron a lo largo del año. Dentro de los 10 mejores jugadores en base a esta métrica, 9 pertenecían a uno de los 4 primeros de la temporada (Boca Juniors, Oberá, Instituto y Quimsa), mientras que los casos de Marcos Chacón Tirado y Diego Rafael Figueredo resultaron casos atípicos pertenecientes a equipos de mitad de tabla.
+Observando la tabla anterior queda en evidencia que los jugadores con mejor +/- pertenecen a los equipos que mejores resultados obtuvieron a lo largo del año. Dentro de los 11 mejores jugadores en base a esta métrica, 9 pertenecían a uno de los 4 primeros de la temporada (Boca Juniors, Oberá, Instituto y Quimsa), mientras que los casos de Marcos Chacón Tirado y Diego Rafael Figueredo resultaron casos atípicos pertenecientes a equipos de mitad de tabla.
 
 Por otro lado, en esta temporada 2 equipos tuvieron un desempeño mucho peor que el resto de la liga obteniendo un +/- de equipo muy bajo, reflejandosé así en los jugadores. Los 10 jugadores con peor +/- en esta temporada pertencieron a esos equipos (Zarate Basket y Argentino de Junin).
 
@@ -288,7 +346,8 @@ tabla_gt <- tabla_gt %>%
   tab_style(
     style = cell_fill(color = "#e6b0b0"), # rojo (descenso)
     locations = cells_body(rows = 19:20)
-  )
+  ) %>% 
+  tab_header(title = "Tabla de posiciones LNB - Temporada 24/25")
 
 tabla_gt
 ```
@@ -297,7 +356,7 @@ tabla_gt
 
 Pero está métrica presenta ciertas complicaciones... los valores de la suma del +/- dentro de toda la temporada se ven muy influenciadas por la cantidad de posesiones en los que participa cada jugador. Por ejemplo, 2 jugadores muy importantes de un muy buen equipo (en el cual la mayoría de sus jugadores presenta un +/- positivo dentro de un partido) pueden diferir en esta métrica en caso de que el jugador A haya jugado 10 partidos más que el jugador B.
 
-Por lo tanto se considera que una métrica que podría abordar, al menos inicialmente esta problemática es un +/- ajustado por la cant de posesiones (`+/-` / posesiones).
+Por lo tanto se considera que una métrica que podría abordar, al menos inicialmente, esta problemática es un +/- ajustado por la cant de posesiones (pm_ajust_poss = (`+/-` / posesiones)*100).
 
 ```{r}
  g1 = g1 %>% mutate(pm_ajust_pos = `+/-`/posesiones)
@@ -381,11 +440,13 @@ Pensando en mitigar el efecto, tanto positivo como negativo, que genera pertenec
 
 Se plantean las siguientes alternativas:
 
-1) +/- ajustado por la mediana y estandarización
+1) +/- ajustado: estandarización por la mediana
 
 El cálculo de +/- por posesión resulta muy informativo, pero lo es más si se piensa dentro del contexto del equipo. Por lo tanto plantearemos una estandarización de la métrica dentro de cada equipo, para ver los mejor y peores jugadores dentro de cada plantel.
 
 Pero antes debemos tener en cuenta lo siguiente: jugadores con pocas posesiones consumidas presentan valores de +/- cada 100 posesiones extremos, lo que nos va a llevar a a conclusiones erroneas al estandarizar por la media. Se presentan 2 posibles soluciones, realizar una estandarización por la mediana y filtrar a los jugadores con menos de 500 posesiones en la temporada.
+
+Por lo tanto se calcula: $\text{pm_estand_median} = ( \ +/-_{por 100 posesiones} - \ +/- \ mediano \ por \ equipo_{por 100 posesiones} \ ) \ / \ MAD$
 
 
 ```{r}
@@ -394,24 +455,73 @@ plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS")
 plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales > 500)
 
 #OP 2
-promedio_pm1 = plus_minus_por_equipo1 %>% group_by(equipo_del_jugador) %>% summarise( pm_prom = mean(plus_minus_total), pm_mediana = median(plus_minus_total), pm_sd = sd(plus_minus_total), pm_100_prom = mean(plus_minus_100), pm_100_mediana = median(plus_minus_100), pm_100_sd = sd(plus_minus_100))
+promedio_pm1 = plus_minus_por_equipo1 %>% group_by(equipo_del_jugador) %>% summarise( pm_prom = mean(plus_minus_total), pm_mediana = median(plus_minus_total), pm_sd = sd(plus_minus_total), pm_100_prom = mean(plus_minus_100), pm_100_mediana = median(plus_minus_100), pm_100_sd = sd(plus_minus_100), pm_mad = mad(plus_minus_total), pm_100_mad = mad(plus_minus_100))
 
 plus_minus_por_equipo1 = plus_minus_por_equipo1 %>%  left_join(promedio_pm1)
 
-plus_minus_por_equipo1 = plus_minus_por_equipo1 %>% mutate(pm_estand_prom = plus_minus_100 - pm_100_mediana) 
+plus_minus_por_equipo1 = plus_minus_por_equipo1 %>% mutate(pm_menos_median = plus_minus_100 - pm_100_mediana , pm_estand_median = (plus_minus_100 - pm_100_mediana)/pm_100_mad, pm_menos_prom =  plus_minus_100 - pm_100_prom, pm_estand_prom = (plus_minus_100 - pm_100_prom)/pm_100_sd, pm_tot_estand_median = (plus_minus_total - pm_mediana)/mad(plus_minus_total)) 
 
+```
+
+```{r}
+#Tablas
+
+mej_pm_aj2 = plus_minus_por_equipo1 %>% dplyr::select(c(jugador, equipo_del_jugador, posesiones_totales, plus_minus_total, pm_estand_median)) %>% slice_max(order_by = pm_estand_median, n=10) %>% arrange(desc(pm_estand_median)) %>% rename(Equipos = equipo_del_jugador, Posesiones = posesiones_totales, `+/-` = plus_minus_total, `+/- estandarizado` = pm_estand_median)
+
+peor_pm_aj2 = plus_minus_por_equipo1 %>% dplyr::select(c(jugador, equipo_del_jugador, posesiones_totales, plus_minus_total, pm_estand_median)) %>% slice_min(order_by = pm_estand_median, n=10) %>% arrange(pm_estand_median) %>% rename(Equipos = equipo_del_jugador, Posesiones = posesiones_totales, `+/-` = plus_minus_total, `+/- estandarizado` = pm_estand_median)
+
+tabla_mej_aj1 <- mej_pm_aj2 %>%
+  gt() %>%
+  tab_header(title = "Mejores +/- estandarizados") %>%
+  data_color(
+    columns = `+/- estandarizado`,
+    colors = scales::col_numeric(c("white", "green2"), domain = NULL)
+  )
+
+tabla_peor_aj1 <- peor_pm_aj2 %>%
+  gt() %>%
+  tab_header(title = "Peores +/- estandarizados") %>%
+  data_color(
+    columns = `+/- estandarizado`,
+    colors = scales::col_numeric(c("red", "pink2"), domain = NULL)
+  )
+
+browsable(
+  div(
+    style = "display: flex; gap: 30px;",
+    div(tabla_mej_aj1, style = "width: 50%;"),
+    div(tabla_peor_aj1, style = "width: 50%;")
+  )
+)
 ```
 
 Nakie Sanders, la bestia neoyorquina: Por lejos el mejor +/- de atenas en el torneo
 
-No Coco No party -> Olimpico 8-4 con Mainoldi, 9-17 sin Mainoldi
+Garello Vicente, refuerzo a mitad de temporada de San Martín: record de 15-9. (4-10 antes de su llegada).
 
+Leonardo Mainoldi, No Coco No Party -> Olimpico 8-4 con Mainoldi, 9-17 sin Mainoldi
 
-2) Diff on/off
+2) Métrica on/off
+
+En proceso...
 
 ## Métricas basadas en modelos - Adjusted Plus Minus (APM)
 
+Buscando aislar el efecto propio del jugador, teniendo en cuenta compañeros y rivales, se plantea el siguiente modelo de regresión múltiple:
+
+$$$$
+
+puntos en la posesión (+ error) = coeficientes de los jugadores ofensivos - coeficientes de los jugadores defensivos
+
+Buscando minimizar el error
+
+Entonces vamos a estimar la cantidad de puntos en una posesión en base a los jugador que permanecían en cancha, tanto ofensiva como defensivamente.
+
 ### Prueba 1 partido
+
+Se realizó un modelo de prueba para analizar si los resultados son coherentes inicialmente, por lo cual decidimos filtrar la base y utilizar solo los datos provenientes del partido `BOCA vs ZARATE BASKET (012/10/2024 11:30)`.
+
+Está partición de la base cuenta con 159 posesiones y 21 jugadores participantes.
 
 ```{r}
 df_1partido = poss_by_poss_temporada %>% 
@@ -440,14 +550,24 @@ g1_1 = colSums(df_1partido[, 24:369] != 0) %>% enframe(name = "jugador", value =
 minutos_jugad_1 = minutos_jugad_1 %>% left_join(g1_1)
 ```
 
+```{r, echo=TRUE}
+# Modelo de regresión lineal múltiple
 
-Buscando aislar el efecto propio del jugador, se plantea el siguiente modelo de regresión múltiple:
+dfmod_1partido = poss_by_poss_temporada %>% 
+  filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)") %>% 
+  dplyr::select(23:369) #Estas son solo las columnas de puntos en la posesión y de jugadores
 
-puntos en la posesión (+ error) = coeficientes de los jugadores ofensivos - coeficientes de los jugadores defensivos
+#Identifico los jugadores q no participaron de este partido
+cols_ceros = names(dfmod_1partido[, -1])[colSums(dfmod_1partido[, -1] != 0) == 0 ]
 
-Buscando minimizar el error
+dfmod_1partido = dfmod_1partido %>% dplyr::select(-cols_ceros)
 
-Entonces vamos a estimar la cantidad de puntos en una posesión en base a los jugador que permanecían en cancha, tanto ofensiva como defensivamente.
+modelo1 = lm(puntos_pos ~ . , data = dfmod_1partido)
+
+summary(modelo1)
+
+#alias(modelo1)
+```
 
 ```{r}
 # Modelo de prueba - pocos partidos - 1 partido
@@ -455,8 +575,6 @@ Entonces vamos a estimar la cantidad de puntos en una posesión en base a los ju
 # +/-
 
 plus_minus_1partido = df_1partido[, 24:369]*df_1partido[[23]]
-
-cols_ceros = names(df_1partido[, 24:369])[colSums(df_1partido[, 24:369] != 0) == 0 ]
 
 plus_minus_1partido = plus_minus_1partido %>% 
                         dplyr::select(-cols_ceros)
@@ -470,22 +588,6 @@ df_plus_minus_1partido <- plus_minus_1partido %>%
   )
 
 minutos_jugad_1 = minutos_jugad_1 %>% left_join(df_plus_minus_1partido) %>% mutate(pm_ajust_pos = `+/-`/posesiones)
-```
-
-
-```{r}
-# Modelo de regresión lineal múltiple
-
-dfmod_1partido = poss_by_poss_temporada %>% 
-  filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)") %>% 
-  dplyr::select(23:369)%>% 
-  dplyr::select(-cols_ceros)
-
-modelo1 = lm(puntos_pos ~ . , data = dfmod_1partido)
-
-summary(modelo1) #Analizar más
-
-#alias(modelo1)
 ```
 
 Vemos que el modelo no puede estimar 4 coeficientes debido a la singularidad.
@@ -509,7 +611,7 @@ Entonces al existir un vector no nulo $\mathbf{c}$ tal que $\mathbf{c} ′X = \m
 Para estimar todos los coeficientes del modelo haremos uso de la técnica de mínimos cuadrados restrigindos, aplicando la restricción $\sum_{j=1}^J{\beta_j}=0$
 
 
-```{r}
+```{r, echo=TRUE}
 X <- model.matrix(~ . - 1, data = dfmod_1partido[, -which(names(dfmod_1partido) == "puntos_pos")])
 
 ncol(X)-qr(X)$rank
@@ -519,6 +621,136 @@ ncol(X)-qr(X)$rank
 #Mínimos cuadrados restringidos
 
 y <- dfmod_1partido$puntos_pos
+
+##Calculo el modelo con la restricción (suma de betas igual a 0)
+
+C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+d <- 0 # resultado de la suma
+
+# Ajuste de coeficientes
+
+fit <- lsei(A = X, B = y, E = C, F = d, fulloutput = TRUE)
+```
+
+Los resultados obtenidos fueron los siguientes:
+
+```{r}
+beta_hat <- fit$X
+
+beta_hat <- setNames(beta_hat, colnames(X))
+
+beta_hat <- data.frame(
+  jugador = names(beta_hat),
+  coeficiente = as.numeric(beta_hat)
+)
+
+beta_hat$jugador <- gsub("`", "", beta_hat$jugador) #agregar pm/pos, pm/pos - pm/pos(media de equipo), equipo y minutos
+cov_matriz <- fit$covar
+errores_std <- sqrt(diag(cov_matriz))
+
+beta_hat$errores = errores_std
+
+minutos_jugad_1 = minutos_jugad_1 %>% left_join(beta_hat)
+
+minutos_jugad_1 %>% dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, pm_ajust_pos,coeficiente,errores))# agregar otras medidas: On/Off
+```
+
+¿Tienen sentido?
+
+
+
+Gráficos - Bondad de ajuste
+
+```{r}
+
+```
+
+
+### Prueba 3 partidos
+
+Aumento el tamaño de la prueba a 3 partidos (2 para cada equipo), y recalculo el modelo.
+
+Los partidos a utilizar seran: `ATENAS (C) vs BOCA (007/10/2024 22:10)`, `BOCA vs ZARATE BASKET (012/10/2024 11:30)` y `ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)`. Obteniendo un dataset con 462 posesiones y 35 jugadores participantes.
+
+
+
+```{r}
+# Modelo de prueba - pocos partidos - 3 partido
+
+df_3partido = poss_by_poss_temporada %>% 
+  filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)"))
+
+box_score_3 = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod)) %>% 
+                     filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)"))
+
+
+#Tiempo jugado
+minutos_jugad_3 = box_score_3 %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+
+minutos_jugad_3 = minutos_jugad_3 %>% rename(jugador = NombreCompleto_limpio) %>%
+  group_by(jugador) %>%
+  summarise(
+    Equipos = paste(unique(equipo_normalizado), collapse = ", "),
+    Segundos = sum(Segundos, na.rm = TRUE),
+    Minutos = sum(Minutos, na.rm = TRUE),
+    Partidos = sum(Partidos, na.rm = TRUE),
+    Minutos_por_part = Minutos/Partidos
+  ) %>%
+  ungroup()
+
+g1_3 = colSums(df_3partido[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
+
+minutos_jugad_3 = minutos_jugad_3 %>% left_join(g1_3)
+
+# +/-
+
+plus_minus_3partido = df_3partido[, 24:369]*df_3partido[[23]]
+
+cols_ceros_3 = names(df_3partido[, 24:369])[colSums(df_3partido[, 24:369] != 0) == 0 ]
+
+plus_minus_3partido = plus_minus_3partido %>% dplyr::select(-cols_ceros_3)
+
+df_plus_minus_3partido <- plus_minus_3partido %>%
+  summarise(across(everything(), sum))%>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "jugador",
+    values_to = "+/-"
+  )
+
+minutos_jugad_3 = minutos_jugad_3 %>% left_join(df_plus_minus_3partido) %>% mutate(pm_ajust_pos = `+/-`/posesiones)
+```
+
+
+```{r}
+# Modelo de regresión lineal múltiple
+
+dfmod_3partido = poss_by_poss_temporada %>% 
+  filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)")) %>% 
+  dplyr::select(23:369)%>% 
+  dplyr::select(-cols_ceros_3)
+
+modelo2 = lm(puntos_pos ~ . , data = dfmod_3partido)
+
+#summary(modelo2)
+```
+
+Tal como sucedió en el primer modelo de prueba, existe dependencia lineal entre las variables. Por lo tanto vamos a aplicar el modelo con la restricción de la misma manera.
+
+Resultados:
+
+
+```{r}
+
+X <- model.matrix(~ . - 1, data = dfmod_3partido[, -which(names(dfmod_3partido) == "puntos_pos")])
+
+ncol(X)-qr(X)$rank
+
+#Hay 2 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
+
+#Mínimos cuadrados restringidos
+
+y <- dfmod_3partido$puntos_pos
 
 ##Calculo el modelo con la restricción (suma de betas igual a 0)
 
@@ -538,93 +770,33 @@ beta_hat <- data.frame(
   coeficiente = as.numeric(beta_hat)
 )
 
-beta_hat$jugador <- gsub("`", "", beta_hat$jugador) #agregar pm/pos, pm/pos - pm/pos(media de equipo), equipo y minutos
+beta_hat$jugador <- gsub("`", "", beta_hat$jugador) 
+
 cov_matriz <- fit$covar
+
 errores_std <- sqrt(diag(cov_matriz))
 
 beta_hat$errores = errores_std
 
-minutos_jugad_1 = minutos_jugad_1 %>% left_join(beta_hat) # agregar otras medidas: On/Off
+minutos_jugad_3 = minutos_jugad_3 %>% left_join(beta_hat)
+
+minutos_jugad_3 %>% dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, pm_ajust_pos,coeficiente,errores))# agregar otras medidas: On/Off
 ```
 
-### Prueba 3 partidos
+Empieza a verse que los jugadores con pocos minutos dominan el ranking, en este caso el jugador de Atenas: TOMATIS, TIAGO fue el que presentó mayor valor en el coeficiente, siendo que dicho jugador solo participó de 5 posesiones y fue el mayor `+/-` por posesión de todo el dataset.
 
-Aumento el tamaño de la prueba a 3 partidos (2 para cada equipo), y recalculo el modelo
+A su vez CECI, MATEO de Zarate fue el peor jugador si miramos los coeficientes estimados, y como en el caso anterior participó solo de 3 posesiones en el partido (-1 de plus/minus) y tuvo el peor `+/-` por posesión de la base, con -0.333...
 
-```{r}
-# Modelo de prueba - pocos partidos - 3 partido
-
-df_3partido = poss_by_poss_temporada %>% 
-  filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)"))
-
-# +/-
-
-plus_minus_3partido = df_3partido[, 24:369]*df_3partido[[23]]
-
-cols_ceros_3 = names(df_3partido[, 24:369])[colSums(df_3partido[, 24:369] != 0) == 0 ]
-
-plus_minus_3partido = plus_minus_3partido %>% dplyr::select(-cols_ceros_3)
-
-df_plus_minus_3partido <- plus_minus_3partido %>%
-  summarise(across(everything(), sum))%>%
-  pivot_longer(
-    cols = everything(),
-    names_to = "jugador_limpio",
-    values_to = "+/-"
-  )
-
-# Modelo de regresión lineal múltiple
-
-dfmod_3partido = poss_by_poss_temporada %>% 
-  filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)")) %>% 
-  dplyr::select(23:369)%>% 
-  dplyr::select(-cols_ceros_3)
-
-modelo2 = lm(puntos_pos ~ . , data = dfmod_3partido)
-
-summary(modelo2) #Analizar más
-
-#Hay 2 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
-
-X <- model.matrix(~ . - 1, data = dfmod_3partido[, -which(names(dfmod_3partido) == "puntos_pos")])
-
-ncol(X)-qr(X)$rank
-
-#Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
-
-#Mínimos cuadrados restringidos
-
-y <- dfmod_3partido$puntos_pos
-
-##Calculo el modelo con la restricción (suma de betas igual a 0)
-
-C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
-d <- 0 # resultado de la suma
-
-# Ajuste de coeficientes
-
-fit <- lsei(A = X, B = y, E = C, F = d)
-
-beta_hat <- fit$X
-
-beta_hat <- setNames(beta_hat, colnames(X))
-
-beta_hat <- data.frame(
-  jugador = names(beta_hat),
-  coeficiente = as.numeric(beta_hat)
-)
-
-beta_hat$jugador <- gsub("`", "", beta_hat$jugador) 
-```
+Pareciera haber resultados lógicos.
 
 ### Toda la base
 
 Una vez realizadas las 2 pruebas, se procede al cálculo de la métrica APM para toda la base de datos (58625 posesiones y 346 jugadores).
 
+Llegado este punto solo se observa una dependencia lineal (debido a los 5 jugadores ofensivo y 5 defensivos en cada posesión).
+
 ```{r}
 # Modelo de regresión lineal múltiple
-
-plus_minus_temporada = poss_by_poss_temporada[, 24:369]*poss_by_poss_temporada[[23]]
 
 #cols_ceros_temp = names(poss_by_poss_temporada[, 24:369])[colSums(poss_by_poss_temporada[, 24:369] != 0) == 0 ]
 
@@ -654,7 +826,7 @@ d <- 0 # resultado de la suma
 
 # Ajuste de coeficientes
 
-fit <- lsei(A = X, B = y, E = C, F = d)
+fit <- lsei(A = X, B = y, E = C, F = d, fulloutput = TRUE)
 
 beta_hat <- fit$X
 
@@ -669,33 +841,25 @@ beta_hat$jugador <- gsub("`", "", beta_hat$jugador)
 
 # Con Moore-Penrose
 
-beta_mp <- ginv(X) %*% y
-beta_mp <- as.vector(beta_mp)
-names(beta_mp) <- colnames(X)
-beta_mp = as.data.frame(beta_mp)
+#beta_mp <- ginv(X) %*% y
+#beta_mp <- as.vector(beta_mp)
+#names(beta_mp) <- colnames(X)
+#beta_mp = as.data.frame(beta_mp)
 
 # La solución de Moore–Penrose coincide con el estimador de mínimos cuadrados bajo restricción de suma cero, ya que la dirección de no identificabilidad coincide con el vector constante.
 
+g1 = g1 %>% left_join(beta_hat)
 
-posesiones_jug = colSums(poss_by_poss_temporada[, 24:369] != 0)
-
-posesiones_jug <- data.frame(
-  jugador = names(posesiones_jug),
-  posesiones = as.numeric(posesiones_jug)
-)
-
-posesiones_jug = posesiones_jug %>% left_join(minutos_jugad) %>% mutate(pm_ajust_pos = `+/-`/posesiones)
-
-posesiones_jug = posesiones_jug %>% left_join(beta_hat)
-
-posesiones_jug = posesiones_jug %>% left_join(df_plus_minus)
+#posesiones_jug = posesiones_jug %>% left_join(df_plus_minus)
 
 ```
-Tal como manda la teoría,los primeros y últimos lugares del ranking se ven dominados por los jugadores con pocos minutos en la temporada, presentando valores extremos de los coeficientes en este modelo.
+Tal como manda la teoría,los primeros y últimos lugares del ranking se ven dominados por los jugadores con pocos minutos en la temporada, presentando valores extremos de los coeficientes en este modelo. Más precisamente vemos que los primeros 16 jugadores del ranking y los últimos 40, participaron en menos de 500 posesiones.
+
+Esto es algo comentado en todos y cada uno de los artículos relacionados a estos modelos.
+
+Dato de color:
 
 El primer jugador que observamos en el ranking con más de 500 posesiones disputadas es Bryan Carabalí de San Martín de Corrientes. Jugador que fue parte de dicho plantel en el primer tramo de la temporada, marchandosé del plantel el 10 de diciembre luego de haber participado en x de los 38 partidos que participó San Martín en dicha temporada.
-
-Dato:
 
 Temporada 2023/2024:
 
@@ -709,16 +873,20 @@ Actualidad:
 
 Bryan Carabalí, figura clave en el gran presente de Gimnasia y Esgrima de Comodoro Rivadavia (puntero de la liga). El pivote no solo domina en defensa, sino que se consolida como uno de los jugadores más influyentes del torneo, despertando ilusión en la afición patagónica.
 
-Retomando, una mejor forma que simplemente evitarl a estos jugadores con pocas posesiones del ranking, y es quitarlos del modeo y volver a estimar los coeficientes sin los mismos.
+Retomando, una mejor forma que simplemente evitar a los jugadores con pocas posesiones del ranking, es quitarlos del modelo y volver a estimar los coeficientes sin los mismos.
 
 ### Estimación del modelo omitiendo los LTPs Players
 
 Para abordar el problema de los coeficientes extremos presentados por los jugadores con pocas posesiones jugadas en la temporada se decide excluirlos del modelo. El efecto promedio de estos jugadores excluidos se verá reflejado en el intercepto (revisar).
 
+Se filtraran todos los jugadores que hayan participado de menos de 500 posesiones, obteniendo 117 jugadores que cumplen esa condición (31.7% del total).
+
+Al realizar esto también estamos abordando el problema de la dependencia lineal de nuestras variables, por lo que podemos aplicar el modeo lm() sin restricciones.
+
 Los resultados obtenidos fueron los siguientes:
 
-```{r}
-cols_ceros_mod = posesiones_jug %>% filter(posesiones<500) %>% dplyr::select(jugador)
+```{r, echo=TRUE}
+cols_ceros_mod = g1 %>% filter(posesiones<500) %>% dplyr::select(jugador)
 
 cols_ceros_mod = cols_ceros_mod$jugador
 
@@ -726,7 +894,7 @@ df_mod_ltp = poss_by_poss_temporada %>% dplyr::select(c(23:369)) %>% dplyr::sele
 
 modelo3 = lm(puntos_pos ~ . , data = df_mod_ltp)
 
-#summary(modelo3) #Analizar más
+#summary(modelo3)
 
 resultados <- tidy(modelo3)
 
@@ -737,37 +905,7 @@ beta_hat = resultados %>% dplyr::select(c(jugador, estimate, std.error))
 beta_hat = beta_hat[-1,]
 
 beta_hat = beta_hat %>% left_join(g1)
-#Hay 2 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
 
-#X <- model.matrix(~ . - 1, data = df_mod_ltp[, -which(names(df_mod_ltp) == "puntos_pos")])
-
-#ncol(X)-qr(X)$rank
-
-#Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
-
-#Mínimos cuadrados restringidos
-
-#y <- df_mod_ltp$puntos_pos
-
-##Calculo el modelo con la restricción (suma de betas igual a 0)
-
-#C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
-#d <- 0 # resultado de la suma
-
-# Ajuste de coeficientes
-
-#fit <- lsei(A = X, B = y, E = C, F = d)
-
-#beta_hat1 <- fit$X
-
-#beta_hat1 <- setNames(beta_hat1, colnames(X))
-
-#beta_hat1 <- data.frame(
-#  jugador = names(beta_hat1),
-#  coeficiente = as.numeric(beta_hat1)
-#)
-
-#beta_hat1$jugador <- gsub("`", "", beta_hat1$jugador) 
 ```
 1) FIGUEREDO, DIEGO RAFAEL - Riachuelo
 
@@ -779,26 +917,53 @@ También está en el top 10 de jugador con +/- por posesión y +/- estandarizado
 
 El ya mencionado Nakie Sanders, presenta más del doble de +/- que el siguiente de su equipo... mientras que si filtramos por jugadores que hayan jugado más de 500 posesiones: Nakie presenta un +/- de +60 mientras que el segundo mejor de su equipo es WATSON, EARL OVREL con -3!!!!!!!!
 
-También vemos que Nakie Sanders es el 3er mejor jugador de la Liga con +/- estandarizado por equipo.
+También vemos que Nakie Sanders es el mejor jugador de la Liga con +/- estandarizado por equipo.
 
 3) CHACON TIRADO, MARCOS - Gimnasia de Comodoro
 
-Después de Figueredo el segundo mejor con +/- por fuera de los 4 equipos de playoffs (9° en la general), 4to en +/- ajustado por posesiones (mejor por fuera del big four) y 2° en el top de jugadores con mejor +/- estandarizado por equipo.
+Después de Figueredo el segundo mejor con +/- por fuera de los 4 equipos de playoffs (9° en la general), 4to en +/- ajustado por posesiones (mejor por fuera del big four) y 4° en el top de jugadores con mejor +/- estandarizado por equipo.
 
 4) VORHEES, WILLIAM LEONARD-DEUBLER - Oberá
 
 Primer jugador del big four en aparecer en la lista (aunque Oberá es el peor en +/- de los 4 equipos con diferencia) y 6° en la tabla general de +/- , 6° en +/- ajustado por posesiones.
 
 5) Caso Aaliya - Guerra
+
+```{r}
+#La respuesta no es normal así que está bien que de así
+
+res = modelo3$residuals
+pred1 = modelo3$fitted.values
+resp = poss_by_poss_temporada$puntos_pos
+
+#prediccion = data.frame(puntos = resp, prediccion = pred1, predicciones1 = pred, residuo = #res)
+
+#hist(res)
+
+#ggplot(prediccion)+
+#  aes(x=resp, y=pred)+
+#  geom_point()
+
+#Hacer forest plot
+
+```
+
+
 ### -------------------------------------------------
 
 ### Separar el efecto del aporte ofensivo y defensivo
 
+El modelo puede brindar resultados interesantes, pero los errores son grandes, hay mucha multicolinealidad y se está modelando una respuesta que no es normal como si lo fuera.
+
+### Multicolinealidad
+
 ### Calcular Ridge
 
-### Pensar en comparar los errores de los parámetros
+### Modelo de regresión logística multinomial - Métodos de regularización
 
 ### Hacerlo con los segmentos
+
+### Comparación de modelos
 
 ### Anexo
 
