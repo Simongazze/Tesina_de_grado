@@ -4,8 +4,6 @@ author: "Gazze Simón Pedro"
 date: "2026-03-28"
 output:
   html_document:
-    toc: true
-    toc_float: true
     theme: cerulean
     highlight: kate
 ---
@@ -476,7 +474,7 @@ Por lo tanto se realiza una versión más robusta de la estandarización tradici
 
 $$\text{pm_estand_median} = ( \ +/-_{por 100 posesiones} - \ +/- \ mediano \ por \ equipo_{por 100 posesiones} \ ) \ / \ MAD$$
 
-Donde: ${\displaystyle {MAD} =\operatorname {mediana} (|X_{i}-{\tilde {X
+Donde el MAD es la desviación absoluta mediana.
 
 Los resultados obtenidos fueron los siguientes:
 
@@ -699,7 +697,7 @@ minutos_jugad_1 %>%
   style = function(value) {
     list(
       fontWeight = "600",
-      background = ifelse(value > 0, "#f0fff1", "#fff5f5")
+      background = "lightblue3"
     )
   }),
       `+/-` = colDef(format = colFormat(digits = 2)),
@@ -835,11 +833,11 @@ minutos_jugad_3 %>% dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, p
     highlight = TRUE,
     defaultPageSize = 15,
     columns = list(
-      coeficiente = colDef(format = colFormat(digits = 2),
+      coeficiente = colDef(format = colFormat(digits = 4),
   style = function(value) {
     list(
       fontWeight = "600",
-      background = ifelse(value > 0, "#f0fff1", "#fff5f5")
+      background = "lightblue3"
     )
   }),
       `+/-` = colDef(format = colFormat(digits = 2)),
@@ -938,11 +936,11 @@ g1 %>% dplyr::select(c(jugador, Equipos, posesiones, `+/-`, pm_ajust_pos,coefici
     highlight = TRUE,
     defaultPageSize = 15,
     columns = list(
-      coeficiente = colDef(format = colFormat(digits = 2),
+      coeficiente = colDef(format = colFormat(digits = 4),
   style = function(value) {
     list(
       fontWeight = "600",
-      background = ifelse(value > 0, "#f0fff1", "#fff5f5")
+      background = "lightblue3"
     )
   }),
       `+/-` = colDef(format = colFormat(digits = 2)),
@@ -980,7 +978,7 @@ Una mejor forma de solucionar el problema de los jugadores con pocas posesiones 
 
 ### Estimación del modelo omitiendo los LTPs Players
 
-Para abordar el problema de los coeficientes extremos presentados por los jugadores con pocas posesiones jugadas en la temporada se decide excluirlos del modelo. El efecto promedio de estos jugadores excluidos se verá reflejado en el intercepto (revisar).
+Para abordar el problema de los coeficientes extremos presentados por los jugadores con pocas posesiones jugadas en la temporada se decide excluirlos del modelo.
 
 Se filtraran todos los jugadores que hayan participado de menos de 500 posesiones, obteniendo 117 jugadores que cumplen esa condición (31.7% del total).
 
@@ -988,7 +986,7 @@ Al realizar esto también estamos abordando el problema de la dependencia lineal
 
 Los resultados obtenidos fueron los siguientes:
 
-```{r, echo=TRUE}
+```{r}
 cols_ceros_mod = g1 %>% filter(posesiones<500) %>% dplyr::select(jugador)
 
 cols_ceros_mod = cols_ceros_mod$jugador
@@ -1007,7 +1005,28 @@ beta_hat = resultados %>% dplyr::select(c(jugador, estimate, std.error))
 
 beta_hat = beta_hat[-1,]
 
-beta_hat = beta_hat %>% left_join(g1)
+beta_hat = beta_hat %>% left_join(g1) %>% dplyr::select(-c(coeficiente,errores)) %>% rename(coeficiente = estimate, errores = std.error)
+
+beta_hat %>% dplyr::select(c(jugador, Equipos, posesiones, `+/-`, pm_ajust_pos,coeficiente,errores)) %>% mutate(errores = round(errores, 3)) %>%
+  arrange(desc(coeficiente)) %>%
+  reactable(
+    sortable = TRUE,
+    striped = TRUE,
+    highlight = TRUE,
+    defaultPageSize = 15,
+    columns = list(
+      coeficiente = colDef(format = colFormat(digits = 4),
+  style = function(value) {
+    list(
+      fontWeight = "600",
+      background = "lightblue3"
+    )
+  }),
+      `+/-` = colDef(format = colFormat(digits = 2)),
+      pm_ajust_pos = colDef(format = colFormat(digits = 2))
+    )
+  )
+
 
 ```
 
