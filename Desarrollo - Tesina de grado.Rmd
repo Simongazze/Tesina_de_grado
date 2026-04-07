@@ -2,7 +2,12 @@
 title: "Desarrollo - Tesina de grado"
 author: "Gazze Simón Pedro"
 date: "2026-03-28"
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cerulean
+    highlight: kate
 ---
 
 ```{r, echo = FALSE}
@@ -12,7 +17,6 @@ knitr::opts_chunk$set(
   message = FALSE
 )
 ```
-
 
 ```{r}
 library(tidyverse)
@@ -26,8 +30,8 @@ library(patchwork)
 library(htmltools)
 library(broom)
 library(ggrepel)
+library(reactable)
 ```
-
 
 ```{r}
 #Poss-by-poss
@@ -89,14 +93,14 @@ En base al análisis descriptivo posterior pudo identificarse que 4 jugadores fu
 
 La temporada 2024/2025 de la Liga Nacional de Básquet contó con 20 equipos participantes, los cuales disputaron 38 partidos cada uno a lo largo de dicho año de competencia, a excepción de Zarate Basket (36 partidos), Instituto (37 partidos) y Riachuelo (37 partidos) que disputaron una menor cantidad debido a la suspensión de 2 partidos. Contabilizando un total de 378 partidos totales disputados.
 
-Zarate basket vs instituto suspendido por falla en el reloj de 24 segundos del local.
+(Zarate basket vs instituto suspendido por falla en el reloj de 24 segundos del local)
 
-Zarate basket vs Riachuelo suspendido por motivos climáticos
+(Zarate basket vs Riachuelo suspendido por motivos climáticos)
 
 ```{r, echo = FALSE}
-t1 = poss_by_poss_temporada %>% group_by(equipo_accion) %>% summarise(partidos = n_distinct(partido_key))
+#t1 = poss_by_poss_temporada %>% group_by(equipo_accion) %>% summarise(partidos #= n_distinct(partido_key))
 
-t1 %>% gt()
+#t1 %>% gt()
 ```
 
 A su vez, se identificó que 346 jugadores participaron en al menos una posesión ese año, obteniendo un promedio de 17.3 jugadores utilizados en promedio por equipo. Otro dato a tener en cuenta es que un total de 12 jugadores formaron parte de 2 equipos en distintos períodos de la temporada.
@@ -104,7 +108,6 @@ A su vez, se identificó que 346 jugadores participaron en al menos una posesió
 ### Posesiones
 
 Por el lado de las posesiones se identificaron 58625 posesiones finalizadas en nuestro dataset, obteniendo un promedio de 155.09 posesiones en promedio por partido (77.54 posesiones promedio por equipo). Destacandosé La Unión de Formosa y San Lorenzo como los equipos más veritiginosos del torneo con 80.05 y 80.00 posesiones consumidas en promedio respetivamente, mientras que equipos como Gimnasia de Comodoro, Peñarol, Regatas y Boca Juniors (el equipo campeón) jugaron a un ritmo más pausado, todos por debajo de las 76 posesiones promedio por partido.
-
 
 ```{r}
 
@@ -174,7 +177,9 @@ ggplot(g1)+
   )
 ```
 
-Se observa una distribución bimodal de las posesiones por jugador, identificandose 3 subgrupos de jugadores: vemos que un 33.8% participan en menos de 500 posesiones, siendo este grupo integrado por jugadores del fondo de la rotación o jugadores con muy poca cantidad de partidos disputados (ya sea por lesión o por haber sido incorporados al equipo uestando muy avanzada la temporada), por otra parte un 30% de jugadores participó en menos de 2500 posesiones, donde encontramos suplentes con una cantidad de minutos interesante o grandes jugadores que por algún motivo no han disputado gran parte de los partidos de la temporada. Por último tenemos el grupo de los titulares (124 jugadores, 36% del total), los cuales fueron participes de más de 2500 posesiones, y encontramos a los 6/7 jugadores con mayor cantidad de minutos por equipo, presentando generalmente más de 20 minutos por partido y una gran cantidad de partidos jugados en la temporada.
+Se observa una distribución bimodal de las posesiones por jugador, identificandose 3 subgrupos de jugadores: vemos que un 33.8% participan en menos de 500 posesiones, siendo este grupo integrado por jugadores del fondo de la rotación o jugadores con muy poca cantidad de partidos disputados (ya sea por lesión o por haber sido incorporados al equipo uestando muy avanzada la temporada), por otra parte un 30% de jugadores consumió entre 500 y 2500 posesiones, donde encontramos suplentes con una cantidad de minutos interesante o grandes jugadores que por algún motivo no han disputado gran parte de los partidos de la temporada. Por último tenemos el grupo de los titulares (124 jugadores, 36% del total), los cuales fueron participes de más de 2500 posesiones, y encontramos a los 6/7 jugadores con mayor cantidad de minutos por equipo, presentando generalmente más de 20 minutos por partido y una gran cantidad de partidos jugados en la temporada.
+
+...tabla...
 
 ```{r}
 #prop = g1 %>% summarise(
@@ -189,6 +194,8 @@ Se observa una distribución bimodal de las posesiones por jugador, identificand
 
 #ult_grupo = g1 %>% filter(posesiones > 2500) %>% count(Equipos)#contabilizar cuantos jugadores de cada equipo hay en el último grupo
 ```
+
+### Puntos por posesión
 
 Cada una de las posesiones analizadas contabilizaba cierta cantidad de puntos al finalizar, pudiendo observarse un rango de puntos que varió de 0 a 7 puntos. Resultando los casos de 5,6 y 7 puntos situaciones extremadamente atípicas (0.089% de los casos). El resultado más frecuente al finalizar una posesión fue la ausencia de puntos, obteniendose en 31241 posesiones, lo cual representa un 53.2% del total de posesiones.
 
@@ -260,8 +267,7 @@ browsable(
 
 Observando la tabla anterior queda en evidencia que los jugadores con mejor +/- pertenecen a los equipos que mejores resultados obtuvieron a lo largo del año. Dentro de los 11 mejores jugadores en base a esta métrica, 9 pertenecían a uno de los 4 primeros de la temporada (Boca Juniors, Oberá, Instituto y Quimsa), mientras que los casos de Marcos Chacón Tirado y Diego Rafael Figueredo resultaron casos atípicos pertenecientes a equipos de mitad de tabla.
 
-Por otro lado, en esta temporada 2 equipos tuvieron un desempeño mucho peor que el resto de la liga obteniendo un +/- de equipo muy bajo, reflejandosé así en los jugadores. Los 10 jugadores con peor +/- en esta temporada pertencieron a esos equipos (Zarate Basket y Argentino de Junin).
-
+Por otro lado, en esta temporada 2 equipos tuvieron un desempeño mucho peor que el resto de la liga obteniendo un +/- de equipo muy bajo, reflejandosé así en los jugadores. Los 10 jugadores con peor +/- en esta temporada pertencieron a esos equipos (Zarate Basket y Argentino de Junín).
 
 ```{r}
 df <- data.frame(
@@ -354,12 +360,12 @@ tabla_gt
 
 ### Análisis del +/- penalizado por la cantidad de posesiones
 
-Pero está métrica presenta ciertas complicaciones... los valores de la suma del +/- dentro de toda la temporada se ven muy influenciadas por la cantidad de posesiones en los que participa cada jugador. Por ejemplo, 2 jugadores muy importantes de un muy buen equipo (en el cual la mayoría de sus jugadores presenta un +/- positivo dentro de un partido) pueden diferir en esta métrica en caso de que el jugador A haya jugado 10 partidos más que el jugador B.
+Pero está métrica presenta ciertas complicaciones... la suma del +/- a lo largo de toda la temporada se ve muy influenciado por la cantidad de posesiones en las que participa cada jugador. Por ejemplo, 2 jugadores muy importantes de un muy buen equipo (en el cual la mayoría de sus jugadores presenta un +/- positivo dentro de un partido) pueden diferir en esta métrica en caso de que el jugador A haya jugado más partidos que el jugador B.
 
-Por lo tanto se considera que una métrica que podría abordar, al menos inicialmente, esta problemática es un +/- ajustado por la cant de posesiones (pm_ajust_poss = (`+/-` / posesiones)*100).
+Por lo tanto se considera que una métrica que podría abordar, al menos inicialmente, esta problemática es un +/- ajustado por la cant de posesiones (pm_ajust_poss = (`+/-` / posesiones)\*100).
 
 ```{r}
- g1 = g1 %>% mutate(pm_ajust_pos = `+/-`/posesiones)
+ g1 = g1 %>% mutate(pm_ajust_pos = (`+/-`/posesiones)*100)
 
 #Tablas
 
@@ -393,9 +399,9 @@ browsable(
 
 ```
 
-Obervando los resultados, podemos identificar que los valores más extremos del +/- ajustados son percibidos por jugadores con muy poca cantidad de posesiones consumidas durante la temporada. Este error es muy mencionado dentro de esta temática, y da pie a la presentación de los LTPs Players.
+Obervando los resultados, podemos identificar que los valores más extremos del +/- ajustado son percibidos por jugadores con muy poca cantidad de posesiones consumidas durante la temporada. Este error es muy mencionado dentro de esta temática, y da pie a la presentación de los LTPs Players.
 
-A continuación se presenta el top de mejores y peores jugadores según esta métrica aplicando un filtro de >500 posesiones:
+A continuación se presenta el top de mejores y peores jugadores según esta métrica aplicando un filtro de \>500 posesiones:
 
 ```{r}
 
@@ -430,24 +436,23 @@ browsable(
 )
 ```
 
-Dentro de esta lista podemos destacar la incorporación de 2 jugadores de Gimnasia de Comodoro dentro de los 10 mejores jugadores, evidenciando un impacto positivo dentro del equipo a partir de su incorporación a mitad de temporada.
+Dentro de esta lista podemos destacar la incorporación de 2 jugadores de Gimnasia de Comodoro dentro de los 10 mejores jugadores, evidenciando un impacto positivo dentro de este equipo de mitad de tabla.
 
 Mientras que en la parte inferior de la tabla vemos que ya no solo aparecen jugadores de Argentino de Junin o Zarate Basket, sino que se suman jugadores de La Unión de Formosa, Ferro y Olímpico.
 
 ### Análisis del +/- dentro del equipo
 
-Pensando en mitigar el efecto, tanto positivo como negativo, que genera pertenecer a un equipo, se calcula el +/- y se lo evalúa en relación a los valores de dicha métrica que obtienen los propios compañeros de un equipo. Buscando evidenciar los casos en que un jugador perteneciente, por ejemplo, a un "mal" equipo presenta un valor de +/- no muy alto en comparación al resto de la liga, pero si un valor alto en comparación al +/- de sus compañeros.
+Pensando en mitigar el efecto, tanto positivo como negativo, que genera pertenecer a cierto equipo, se calcula el +/- ajustado y se lo evalúa en relación a los valores de dicha métrica presentados por los propios compañeros del equipo. Buscando evidenciar los casos en que un jugador perteneciente, por ejemplo, a un "mal" equipo presente un valor de +/- no muy alto en comparación al resto de la liga, pero si un valor alto en comparación al +/- de sus compañeros.
 
 Se plantean las siguientes alternativas:
 
-1) +/- ajustado: estandarización por la mediana
+1)  +/- estandarización por la mediana
 
-El cálculo de +/- por posesión resulta muy informativo, pero lo es más si se piensa dentro del contexto del equipo. Por lo tanto plantearemos una estandarización de la métrica dentro de cada equipo, para ver los mejor y peores jugadores dentro de cada plantel.
+Como ya mencionamos, el cálculo de +/- por posesión resulta muy informativo, pero lo es más si se piensa dentro del contexto del equipo. Por lo tanto plantearemos una estandarización de la métrica dentro de cada equipo, para ver los mejores y peores jugadores dentro de cada plantel.
 
-Pero antes debemos tener en cuenta lo siguiente: jugadores con pocas posesiones consumidas presentan valores de +/- cada 100 posesiones extremos, lo que nos va a llevar a a conclusiones erroneas al estandarizar por la media. Se presentan 2 posibles soluciones, realizar una estandarización por la mediana y filtrar a los jugadores con menos de 500 posesiones en la temporada.
+Pero antes debemos tener en cuenta lo siguiente: jugadores con pocas posesiones consumidas presentan valores de +/- por posesión extremos, lo que nos va a llevar a a conclusiones erroneas al estandarizar por la media. Por lo que se decide excluir a los jugadores con menos de 500 posesiones de este análisis.
 
-Por lo tanto se calcula: $\text{pm_estand_median} = ( \ +/-_{por 100 posesiones} - \ +/- \ mediano \ por \ equipo_{por 100 posesiones} \ ) \ / \ MAD$
-
+A su vez, aunque se excluyan este tipo de jugadores, las distribuciones de +/- cada 100 posesiones siguen presentando algunos valores extremos.
 
 ```{r}
 
@@ -461,7 +466,19 @@ plus_minus_por_equipo1 = plus_minus_por_equipo1 %>%  left_join(promedio_pm1)
 
 plus_minus_por_equipo1 = plus_minus_por_equipo1 %>% mutate(pm_menos_median = plus_minus_100 - pm_100_mediana , pm_estand_median = (plus_minus_100 - pm_100_mediana)/pm_100_mad, pm_menos_prom =  plus_minus_100 - pm_100_prom, pm_estand_prom = (plus_minus_100 - pm_100_prom)/pm_100_sd, pm_tot_estand_median = (plus_minus_total - pm_mediana)/mad(plus_minus_total)) 
 
+ggplot(plus_minus_por_equipo1)+
+  aes(y= equipo_del_jugador, x= plus_minus_100)+
+  geom_boxplot(fill = "lightblue4")
+
 ```
+
+Por lo tanto se realiza una versión más robusta de la estandarización tradicional, utilizando la mediana y el MAD:
+
+$$\text{pm_estand_median} = ( \ +/-_{por 100 posesiones} - \ +/- \ mediano \ por \ equipo_{por 100 posesiones} \ ) \ / \ MAD$$
+
+Donde: ${\displaystyle {MAD} =\operatorname {mediana} (|X_{i}-{\tilde {X
+
+Los resultados obtenidos fueron los siguientes:
 
 ```{r}
 #Tablas
@@ -495,21 +512,38 @@ browsable(
 )
 ```
 
-Nakie Sanders, la bestia neoyorquina: Por lejos el mejor +/- de atenas en el torneo
+Al analizar el ranking, identificamos que los 3 primeros puestos  estan ocupados por jugadores que no participaron de la temporada completa, sino que llegaron como refuerzos o partieron en cierto momento, cambiando así el andar de estos equipos. Evidenciando el impacto positivo de los refuerzos que llegaron (Sanders y Vicente) o el efecto negativo que tiene la partida de un jugador importante en el desempeño del equipo (Mainoldi).
+
+Nakye Sanders, por lejos el mejor +/- de atenas en el torneo, gran diferencia respecto al 2do de su equipo: record de 9-9 con Sanders y de 9-11 sin Sanders.
 
 Garello Vicente, refuerzo a mitad de temporada de San Martín: record de 15-9. (4-10 antes de su llegada).
 
-Leonardo Mainoldi, No Coco No Party -> Olimpico 8-4 con Mainoldi, 9-17 sin Mainoldi
+Leonardo Mainoldi, el Coco arrancó la temporada muy bien con Olímpico pero se marchó luego de 7 partidos -\> Olímpico 5-2 con Mainoldi, 12-19 desde la partida de Mainoldi.
 
-2) Métrica on/off
+2)  Métrica on/off
 
 En proceso...
 
 ## Métricas basadas en modelos - Adjusted Plus Minus (APM)
 
+-Modelo más básico dentro de la literatura-
+
+Estas métricas mencionadas anteriormente resultan de mucha utilidad a la hora de buscar a los jugadores más influyentes dentro del rendimiento de sus equipos en la temporada analizada, pero siguen presentando ciertos impedimentos.
+
+Como se mencionó en el anteproyecto, el efecto de haber compartido minutos con distintos quintetos dentro del equipo y de enfrentarse a alineaciones titulares o suplentes de los rivales, no está tenido en cuenta por las métricas mencionadas.
+
 Buscando aislar el efecto propio del jugador, teniendo en cuenta compañeros y rivales, se plantea el siguiente modelo de regresión múltiple:
 
-$$$$
+$$\begin{equation}
+\begin{cases}
+y_i \sim N(\mu_i  , \sigma^2) \\
+\mu_i = \beta_0 + \sum_{k=1}^{346} \beta_k x_{ik}
+\end{cases}
+\end{equation}$$
+
+Donde $x_i = (0,-1,1)$, siendo -1 si participó en defensa, 1 si participó en ataque y 0 si no participó de la posesión.
+
+En criollo, el modelo realiza lo siguiente:
 
 puntos en la posesión (+ error) = coeficientes de los jugadores ofensivos - coeficientes de los jugadores defensivos
 
@@ -594,9 +628,9 @@ Vemos que el modelo no puede estimar 4 coeficientes debido a la singularidad.
 
 La singularidad indica que hay dependencia lineal exacta en la matriz de diseño, y esto sucede debido a:
 
-1) Al ser muy pocos datos se cumple que algunos jugadores siempre jueguen juntos (supongamos el jugador 1 y 2), y por este motivo $X_1 - X_2$ = 0.Por lo que se cumple la dependencia lineal.
+1)  Al ser muy pocos datos se cumple que algunos jugadores siempre jueguen juntos (supongamos el jugador 1 y 2), y por este motivo $X_1 - X_2$ = 0.Por lo que se cumple la dependencia lineal.
 
-2) En cada posesión se encuentran simultáneamente cinco jugadores en ataque y cinco en defensa. Dado que las variables indicadoras toman valor 1 si el jugador se encuentra en ataque, −1 si se encuentra en defensa y 0 en caso contrario, se cumple que para toda posesión:
+2)  En cada posesión se encuentran simultáneamente cinco jugadores en ataque y cinco en defensa. Dado que las variables indicadoras toman valor 1 si el jugador se encuentra en ataque, −1 si se encuentra en defensa y 0 en caso contrario, se cumple que para toda posesión:
 
 $$\sum_{j=1}^Jx_{ij}=0 \quad \forall \quad i=1,n$$
 
@@ -606,10 +640,9 @@ Además por ser:
 
 $$\mathbf{1} ′X = \mathbf{0}$$
 
-Entonces al existir un vector no nulo $\mathbf{c}$ tal que $\mathbf{c} ′X = \mathbf{0}$ => X es de rango incompleto => X'X es de rango incompleto => X'X es no invertible
+Entonces al existir un vector no nulo $\mathbf{c}$ tal que $\mathbf{c} ′X = \mathbf{0}$ =\> X es de rango incompleto =\> X'X es de rango incompleto =\> X'X es no invertible
 
 Para estimar todos los coeficientes del modelo haremos uso de la técnica de mínimos cuadrados restrigindos, aplicando la restricción $\sum_{j=1}^J{\beta_j}=0$
-
 
 ```{r, echo=TRUE}
 X <- model.matrix(~ . - 1, data = dfmod_1partido[, -which(names(dfmod_1partido) == "puntos_pos")])
@@ -652,27 +685,43 @@ beta_hat$errores = errores_std
 
 minutos_jugad_1 = minutos_jugad_1 %>% left_join(beta_hat)
 
-minutos_jugad_1 %>% dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, pm_ajust_pos,coeficiente,errores))# agregar otras medidas: On/Off
+minutos_jugad_1 %>%
+  dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, pm_ajust_pos, coeficiente, errores)) %>%
+  mutate(Minutos_por_part = round(Minutos_por_part, 2), errores = round(errores, 3)) %>%
+  arrange(desc(coeficiente)) %>%
+  reactable(
+    sortable = TRUE,
+    striped = TRUE,
+    highlight = TRUE,
+    defaultPageSize = 15,
+    columns = list(
+      coeficiente = colDef( format = colFormat(digits = 2),
+  style = function(value) {
+    list(
+      fontWeight = "600",
+      background = ifelse(value > 0, "#f0fff1", "#fff5f5")
+    )
+  }),
+      `+/-` = colDef(format = colFormat(digits = 2)),
+      pm_ajust_pos = colDef(format = colFormat(digits = 2)),
+      Minutos_por_part = colDef(format = colFormat(digits = 2))
+    )
+  )# agregar otras medidas: On/Off
 ```
 
-¿Tienen sentido?
+¿Tienen sentido los resultados?
 
+a ver...
 
+el mejor +/- cada 100 posesiones fue el que mayor valor en el coeficiente estimado presentó (Sebastian Vega, jugador de Boca), mientras que del lado de Zarate Basket el mejor +/- total también obtuvo el valor más alto en el cooeficiente, lo presentó un jugador que solo participó de 3 posesiones.
 
-Gráficos - Bondad de ajuste
-
-```{r}
-
-```
-
+También podemos ver que los errores son mucho mayores a las estimaciones puntuales de los coeficientes, lo cual nos da indicio de que el modelo muy bien no funciona, pasamos a probar con 3 partidos.
 
 ### Prueba 3 partidos
 
 Aumento el tamaño de la prueba a 3 partidos (2 para cada equipo), y recalculo el modelo.
 
 Los partidos a utilizar seran: `ATENAS (C) vs BOCA (007/10/2024 22:10)`, `BOCA vs ZARATE BASKET (012/10/2024 11:30)` y `ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)`. Obteniendo un dataset con 462 posesiones y 35 jugadores participantes.
-
-
 
 ```{r}
 # Modelo de prueba - pocos partidos - 3 partido
@@ -721,7 +770,6 @@ df_plus_minus_3partido <- plus_minus_3partido %>%
 minutos_jugad_3 = minutos_jugad_3 %>% left_join(df_plus_minus_3partido) %>% mutate(pm_ajust_pos = `+/-`/posesiones)
 ```
 
-
 ```{r}
 # Modelo de regresión lineal múltiple
 
@@ -739,12 +787,11 @@ Tal como sucedió en el primer modelo de prueba, existe dependencia lineal entre
 
 Resultados:
 
-
 ```{r}
 
 X <- model.matrix(~ . - 1, data = dfmod_3partido[, -which(names(dfmod_3partido) == "puntos_pos")])
 
-ncol(X)-qr(X)$rank
+#ncol(X)-qr(X)$rank
 
 #Hay 2 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
 
@@ -780,14 +827,39 @@ beta_hat$errores = errores_std
 
 minutos_jugad_3 = minutos_jugad_3 %>% left_join(beta_hat)
 
-minutos_jugad_3 %>% dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, pm_ajust_pos,coeficiente,errores))# agregar otras medidas: On/Off
+minutos_jugad_3 %>% dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, pm_ajust_pos,coeficiente,errores)) %>% mutate(Minutos_por_part = round(Minutos_por_part, 2), errores = round(errores, 3)) %>%
+  arrange(desc(coeficiente)) %>%
+  reactable(
+    sortable = TRUE,
+    striped = TRUE,
+    highlight = TRUE,
+    defaultPageSize = 15,
+    columns = list(
+      coeficiente = colDef(format = colFormat(digits = 2),
+  style = function(value) {
+    list(
+      fontWeight = "600",
+      background = ifelse(value > 0, "#f0fff1", "#fff5f5")
+    )
+  }),
+      `+/-` = colDef(format = colFormat(digits = 2)),
+      pm_ajust_pos = colDef(format = colFormat(digits = 2)),
+      Minutos_por_part = colDef(format = colFormat(digits = 2))
+    )
+  )
+
+
 ```
+
+Vamos de nuevo... ¿Tienen sentido los resultados?
 
 Empieza a verse que los jugadores con pocos minutos dominan el ranking, en este caso el jugador de Atenas: TOMATIS, TIAGO fue el que presentó mayor valor en el coeficiente, siendo que dicho jugador solo participó de 5 posesiones y fue el mayor `+/-` por posesión de todo el dataset.
 
 A su vez CECI, MATEO de Zarate fue el peor jugador si miramos los coeficientes estimados, y como en el caso anterior participó solo de 3 posesiones en el partido (-1 de plus/minus) y tuvo el peor `+/-` por posesión de la base, con -0.333...
 
 Pareciera haber resultados lógicos.
+
+Vamos ahora si con toda la base.
 
 ### Toda la base
 
@@ -839,6 +911,12 @@ beta_hat <- data.frame(
 
 beta_hat$jugador <- gsub("`", "", beta_hat$jugador)
 
+cov_matriz <- fit$covar
+
+errores_std <- sqrt(diag(cov_matriz))
+
+beta_hat$errores = errores_std
+
 # Con Moore-Penrose
 
 #beta_mp <- ginv(X) %*% y
@@ -852,28 +930,53 @@ g1 = g1 %>% left_join(beta_hat)
 
 #posesiones_jug = posesiones_jug %>% left_join(df_plus_minus)
 
+g1 %>% dplyr::select(c(jugador, Equipos, posesiones, `+/-`, pm_ajust_pos,coeficiente,errores)) %>% mutate(errores = round(errores, 3)) %>%
+  arrange(desc(coeficiente)) %>%
+  reactable(
+    sortable = TRUE,
+    striped = TRUE,
+    highlight = TRUE,
+    defaultPageSize = 15,
+    columns = list(
+      coeficiente = colDef(format = colFormat(digits = 2),
+  style = function(value) {
+    list(
+      fontWeight = "600",
+      background = ifelse(value > 0, "#f0fff1", "#fff5f5")
+    )
+  }),
+      `+/-` = colDef(format = colFormat(digits = 2)),
+      pm_ajust_pos = colDef(format = colFormat(digits = 2))
+    )
+  )
+
 ```
+
 Tal como manda la teoría,los primeros y últimos lugares del ranking se ven dominados por los jugadores con pocos minutos en la temporada, presentando valores extremos de los coeficientes en este modelo. Más precisamente vemos que los primeros 16 jugadores del ranking y los últimos 40, participaron en menos de 500 posesiones.
 
 Esto es algo comentado en todos y cada uno de los artículos relacionados a estos modelos.
 
-Dato de color:
+```{r}
+#Dato de color:
 
-El primer jugador que observamos en el ranking con más de 500 posesiones disputadas es Bryan Carabalí de San Martín de Corrientes. Jugador que fue parte de dicho plantel en el primer tramo de la temporada, marchandosé del plantel el 10 de diciembre luego de haber participado en x de los 38 partidos que participó San Martín en dicha temporada.
+#El primer jugador que observamos en el ranking con más de 500 posesiones #disputadas es Bryan Carabalí de San Martín de Corrientes. Jugador que fue #parte de dicho plantel en el primer tramo de la temporada, marchandosé del #plantel el 10 de diciembre luego de haber participado en x de los 38 partidos #que participó San Martín en dicha temporada.
 
-Temporada 2023/2024:
+#Temporada 2023/2024:
 
-Carabalí fue uno de los mejores defensores de la 23-24 (temporada anterior a la analizada). Cerró con 9.1 ppp, 6.6 rpp y 2.3 bpp (el mejor del torneo) en 42 partidos jugados con +14.7 de valoración y 26 minutos de promedio. Fue un jugador primordial en los tableros, dominando cada juego y pilar dentro de la estructura de San Martín. Éste año venía con 9.0 ppp, 6.0 rpp y 2.2 bpp en 20 minutos. En su primera temporada alcanzó a ser considerado Mejor Defensor de la LNB.
+#Carabalí fue uno de los mejores defensores de la 23-24 (temporada anterior a #la analizada). Cerró con 9.1 ppp, 6.6 rpp y 2.3 bpp (el mejor del torneo) en #42 partidos jugados con +14.7 de valoración y 26 minutos de promedio. Fue un #jugador primordial en los tableros, dominando cada juego y pilar dentro de la #estructura de San Martín. Éste año venía con 9.0 ppp, 6.0 rpp y 2.2 bpp en 20 #minutos. En su primera temporada alcanzó a ser considerado Mejor Defensor de #la LNB.
 
-Temporada 2024/2025:
+#Temporada 2024/2025:
 
-Se fue el 10 de diciembre de 2024 por motivos personales, después de haber disputado x partidos con un record de x-x. Bryan Carabalí se transformó en el segundo jugador que San Martín pierde en pocos días por decisiones personales. Posteriormente en esa temporada el equipo correntino presentó un record de x-x.
+#Se fue el 10 de diciembre de 2024 por motivos personales, después de haber #disputado x partidos con un record de x-x. Bryan Carabalí se transformó en el #segundo jugador que San Martín pierde en pocos días por decisiones #personales. Posteriormente en esa temporada el equipo correntino presentó un #record de x-x.
 
-Actualidad: 
+#Actualidad:
 
-Bryan Carabalí, figura clave en el gran presente de Gimnasia y Esgrima de Comodoro Rivadavia (puntero de la liga). El pivote no solo domina en defensa, sino que se consolida como uno de los jugadores más influyentes del torneo, despertando ilusión en la afición patagónica.
+#Bryan Carabalí, figura clave en el gran presente de Gimnasia y Esgrima de #Comodoro Rivadavia (puntero de la liga). El pivote no solo domina en defensa, #sino que se consolida como uno de los jugadores más influyentes del torneo, #despertando ilusión en la afición patagónica.
 
-Retomando, una mejor forma que simplemente evitar a los jugadores con pocas posesiones del ranking, es quitarlos del modelo y volver a estimar los coeficientes sin los mismos.
+#Retomando, una mejor forma que simplemente evitar a los jugadores con pocas #posesiones del ranking, es quitarlos del modelo y volver a estimar los #coeficientes sin los mismos.
+```
+
+Una mejor forma de solucionar el problema de los jugadores con pocas posesiones dentro del ranking, es quitarlos del modelo y volver a estimar los coeficientes sin los mismos.
 
 ### Estimación del modelo omitiendo los LTPs Players
 
@@ -907,57 +1010,184 @@ beta_hat = beta_hat[-1,]
 beta_hat = beta_hat %>% left_join(g1)
 
 ```
-1) FIGUEREDO, DIEGO RAFAEL - Riachuelo
 
-Diego Figueredo fue el mejor jugador en base al +/- (8° en la general) por fuera de los 4 equipos que clasificaron de forma directa. Se oberva que este jugador obtuvo casí el doble en +/- que el siguiente jugador con mejor +/- de su equipo (es la mayor diferencia en la liga?).
+**¿Los resultados tienen sentido?**
 
-También está en el top 10 de jugador con +/- por posesión y +/- estandarizado por equipo. 
+1)  FIGUEREDO, DIEGO RAFAEL - Riachuelo
 
-2) SANDERS, NAKIE GERALD - Atenas
+Diego Figueredo fue el mejor jugador en base al +/- por fuera de los 4 equipos que clasificaron de forma directa (8° en la general). Se observa que este jugador obtuvo casí el doble en +/- que el siguiente jugador con mejor +/- de su equipo.
 
-El ya mencionado Nakie Sanders, presenta más del doble de +/- que el siguiente de su equipo... mientras que si filtramos por jugadores que hayan jugado más de 500 posesiones: Nakie presenta un +/- de +60 mientras que el segundo mejor de su equipo es WATSON, EARL OVREL con -3!!!!!!!!
+También está en el top 10 de jugador con +/- por posesión y +/- estandarizado por equipo.
 
-También vemos que Nakie Sanders es el mejor jugador de la Liga con +/- estandarizado por equipo.
+2)  SANDERS, NAKIE GERALD - Atenas
 
-3) CHACON TIRADO, MARCOS - Gimnasia de Comodoro
+El ya mencionado Nakye Sanders, presenta más del doble de +/- que el siguiente de su equipo... mientras que si filtramos por jugadores que hayan jugado más de 500 posesiones: Nakie presenta un +/- de +60 mientras que el segundo mejor de su equipo es WATSON, EARL OVREL con -3!!!!!!!!
+
+Nakye Sanders es el mejor jugador de la Liga con +/- estandarizado por equipo.
+
+3)  CHACON TIRADO, MARCOS - Gimnasia de Comodoro
 
 Después de Figueredo el segundo mejor con +/- por fuera de los 4 equipos de playoffs (9° en la general), 4to en +/- ajustado por posesiones (mejor por fuera del big four) y 4° en el top de jugadores con mejor +/- estandarizado por equipo.
 
-4) VORHEES, WILLIAM LEONARD-DEUBLER - Oberá
+4)  VORHEES, WILLIAM LEONARD-DEUBLER - Oberá
 
 Primer jugador del big four en aparecer en la lista (aunque Oberá es el peor en +/- de los 4 equipos con diferencia) y 6° en la tabla general de +/- , 6° en +/- ajustado por posesiones.
 
-5) Caso Aaliya - Guerra
+5)  Caso Aaliya - Guerra
+
+Me faltó un cachito, después lo agrego.
+
+**¿Es adecuado el modelo? ¿Ajusta bien a los datos?**
+
+Yyy teoricamente ya partimos mal, estamos queriendo modelar como normal a una variable respuesta discreta que varía de 0 a 7, y que encima agrupa más del 50% de los datos en el 0. Menos normal imposible. Pero es el primer modelo histórico de esta temática y me parecia interesante por lo menos plantearlo.
+
+Vamos a analizar un poco el modelo:
 
 ```{r}
 #La respuesta no es normal así que está bien que de así
 
 res = modelo3$residuals
-pred1 = modelo3$fitted.values
+pred = modelo3$fitted.values
 resp = poss_by_poss_temporada$puntos_pos
 
-#prediccion = data.frame(puntos = resp, prediccion = pred1, predicciones1 = pred, residuo = #res)
+prediccion = data.frame(puntos = resp, prediccion = pred, residuo = res)
 
-#hist(res)
+graf1 = prediccion %>% group_by(puntos) %>% summarise(media = mean(prediccion))
 
-#ggplot(prediccion)+
-#  aes(x=resp, y=pred)+
-#  geom_point()
+ggplot(prediccion)+
+  aes(x=jitter(resp, amount = 0.35), y=pred)+
+  geom_point(color = "lightblue4", alpha = 0.3, size = 1.5) +
+  scale_x_continuous(breaks = 0:7) +
+  scale_y_continuous(breaks = 0:7) +
+  labs(
+    title = "Y vs. Ŷ",
+    x = "Puntos observados",
+    y = "Puntos estimados"
+  ) +
+  theme_minimal()
 
+cat("R^2 =", summary(modelo3)$adj.r.squared)
 #Hacer forest plot
 
 ```
 
+Bueno un R^2 cercano a 0 y el grafico de observados vs predichos que es cualquier cosa, pero... si el objetivo es estimar un buen ranking de jugadores, la bondad de ajuste es tan importante?
 
-### -------------------------------------------------
+Un modelo puede tener R^2 bajo y aun así producir un ranking de coeficientes razonable? siendo que lo que realmente importa es la inferencia sobre los betas, no la predicción de Y.
+
+En ese caso puede resultar más importante graficar a las estimaciones puntuales de los APM con sus respectivos intervalos de confianza.
+
+Forest Plot: Grafico primero todos los APM para tener una idea visual y luego los 20 APM más altos y los 20 más bajos.
+
+```{r}
+# Extraer coeficientes e IC del modelo
+coefs <- as.data.frame(confint(modelo3)) %>%
+  rename(lower = `2.5 %`, upper = `97.5 %`) %>%
+  mutate(
+    jugador = rownames(.),
+    estimacion = coef(modelo3)
+  ) %>%
+  filter(jugador != "(Intercept)") %>%
+  arrange(desc(estimacion)) %>%
+  mutate(jugador = factor(jugador, levels = jugador),  # respetar orden
+         significativo = ifelse(lower > 0 | upper < 0, "Sí", "No"))
+
+coefs_filtrado <- coefs %>%
+  slice(c(1:20, (n()-19):n()))
+
+
+grafico1 = ggplot(coefs, aes(x = estimacion, y = jugador)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.5) +
+  geom_errorbarh(aes(xmin = lower, xmax = upper),
+                 height = 0.3, linewidth = 0.4, alpha = 0.6, color = "lightblue4") +
+  geom_point(size = 1.5, color = "lightblue4") +
+  labs(
+    title = "APM: coeficientes e intervalos de confianza del 95%",
+    subtitle = "Ordenado de mayor a menor",
+    x = "APM (puntos por posesión)",
+    y = NULL
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, color = "gray40", size = 9),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid.major.y = element_blank()
+  )
+
+
+grafico2 = ggplot(coefs_filtrado, aes(x = estimacion, y = jugador)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.5) +
+  geom_errorbarh(aes(xmin = lower, xmax = upper),
+                 height = 0.3, linewidth = 0.4, alpha = 0.6, color = "lightblue4") +
+  geom_point(size = 1.5, color = "lightblue4") +
+  labs(
+    title = "Top 20 mejores y top 20 peores: coeficientes e intervalos de confianza del 95%",
+    subtitle = "Ordenado de mayor a menor",
+    x = "APM (puntos por posesión)",
+    y = NULL
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, color = "gray40", size = 9),
+    axis.ticks.y = element_blank(),
+    panel.grid.major.y = element_blank()
+  )
+
+grafico1
+grafico2
+
+```
+
+Se solapan en gran medida los IC, es sabido que estos modelos no son muy precisos. La multicolinealidad tampoco ayuda:
+
+```{r}
+X <- model.matrix(modelo3)[, -1]
+cor_matrix <- cor(X)
+
+cor_long <- as.data.frame(as.table(cor_matrix)) %>%
+  rename(jugador1 = Var1, jugador2 = Var2, correlacion = Freq) %>%
+  mutate(jugador1 = as.character(jugador1),
+         jugador2 = as.character(jugador2)) %>%
+  filter(jugador1 != jugador2) %>%
+  filter(jugador1 < jugador2) %>%
+  arrange(desc(abs(correlacion)))
+
+head(cor_long, 20) %>%
+  mutate(correlacion = round(correlacion, 3)) %>%
+  rename(
+    `Jugador 1` = jugador1,
+    `Jugador 2` = jugador2,
+    `Correlación` = correlacion
+  ) %>%
+  gt() %>%
+  tab_header(
+    title = "Pares de jugadores con mayor correlación"
+  ) %>%
+  data_color(
+    columns = `Correlación`,
+    palette = "Reds"
+  ) %>%
+  cols_align(align = "center", columns = `Correlación`) %>%
+  cols_align(align = "left", columns = c(`Jugador 1`, `Jugador 2`)) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) %>%
+  opt_stylize(style = 3)
+```
 
 ### Separar el efecto del aporte ofensivo y defensivo
 
-El modelo puede brindar resultados interesantes, pero los errores son grandes, hay mucha multicolinealidad y se está modelando una respuesta que no es normal como si lo fuera.
+Quede por aquí
+
+### -------------------------------------------------
 
 ### Multicolinealidad
 
-### Calcular Ridge
+### Ridge, Lasso, Elastic Net
 
 ### Modelo de regresión logística multinomial - Métodos de regularización
 
@@ -965,7 +1195,7 @@ El modelo puede brindar resultados interesantes, pero los errores son grandes, h
 
 ### Comparación de modelos
 
-### Anexo
+### Anexo (no leer)
 
 Por qué difiere el orden del modelo lm() y el lsei() con restricción (suma de coeficientes igual a 0)?
 
@@ -977,10 +1207,4 @@ La restricción Σβ = 0 no es una restricción "neutral", sino que modifica la 
 
 Algunas cosas que probablemente se va a querer analizar al momento de comparar:
 
-Estabilidad de los coeficientes entre modelos (correlación de Spearman entre rankings)
-Error de predicción fuera de muestra con validación cruzada
-Sensatez deportiva de los resultados, es decir, si los jugadores que el modelo valora coinciden razonablemente con la percepción experta
-
-
-
-
+Estabilidad de los coeficientes entre modelos (correlación de Spearman entre rankings). Error de predicción fuera de muestra con validación cruzada. Sensatez deportiva de los resultados, es decir, si los jugadores que el modelo valora coinciden razonablemente con la percepción externa.
