@@ -1194,13 +1194,60 @@ head(cor_long, 20) %>%
   tab_style(
     style = cell_text(weight = "bold"),
     locations = cells_column_labels()
-  ) %>%
-  opt_stylize(style = 3)
+  )
 ```
 
 ### Separar el efecto del aporte ofensivo y defensivo
 
-Quede por aquí
+El modelo planteado es el siguiente:
+
+$$ \mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_k x^d_{ik} $$
+Pasando a tener 458 variables indicadores (la ofensiva que toma 1 y 0, y la defensiva que toma -1 y 0)
+
+```{r}
+df_mod_ltp_sep <- df_mod_ltp
+
+jugadores <- names(df_mod_ltp)[2:230]
+
+for (j in jugadores) {
+  
+  df_mod_ltp_sep[[paste0(j, "_off")]] <- ifelse(df_mod_ltp[[j]] == 1, 1, 0)
+  
+  df_mod_ltp_sep[[paste0(j, "_def")]] <- ifelse(df_mod_ltp[[j]] == -1, -1, 0)
+}
+
+df_mod_ltp_sep <- df_mod_ltp_sep %>%
+  dplyr::select(-all_of(jugadores))
+```
+
+```{r}
+modelo4 = lm(puntos_pos ~ . , data = df_mod_ltp_sep)
+
+#summary(modelo4)
+
+resultados <- tidy(modelo4)
+
+resultados$jugador <- gsub("`", "", resultados$term)
+
+beta_hat = resultados %>% dplyr::select(c(jugador, estimate, std.error))
+
+beta_hat = beta_hat[-1,]
+
+beta_hat_off = beta_hat %>% filter(str_detect(jugador,"_off"))
+
+beta_hat_def = beta_hat %>% filter(str_detect(jugador,"_def"))
+```
+
+
+### Comentarios nacho
+
+Hacer X´X y ver que da, intentar identificar la interpretación de los betas, si son el promedio de algo.
+
+hacer coef vs +/- y pintar por puestos de la liga de los equipos (verde, rojo, amarillo, gris).
+
+a nacho le gusto la idea de la variable dicotomica
+
+multinomial ordinal?
 
 ### -------------------------------------------------
 
