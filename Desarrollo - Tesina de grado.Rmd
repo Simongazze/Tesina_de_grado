@@ -1221,6 +1221,38 @@ df_mod_ltp_sep <- df_mod_ltp_sep %>%
 ```
 
 ```{r}
+plus_minus_sep = df_mod_ltp_sep[, 2:459]*df_mod_ltp_sep[[1]]
+
+df_plus_minus_sep <- plus_minus_sep %>%
+  summarise(across(everything(), sum))%>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "jugador",
+    values_to = "+/-"
+  )
+
+df_of = df_plus_minus_sep %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(`+/- off` = `+/-`)
+
+df_def = df_plus_minus_sep %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(`+/- def` = `+/-`)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
 modelo4 = lm(puntos_pos ~ . , data = df_mod_ltp_sep)
 
 #summary(modelo4)
@@ -1233,10 +1265,39 @@ beta_hat = resultados %>% dplyr::select(c(jugador, estimate, std.error))
 
 beta_hat = beta_hat[-1,]
 
-beta_hat_off = beta_hat %>% filter(str_detect(jugador,"_off"))
+beta_hat_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = estimate, std_error_of = std.error)
 
-beta_hat_def = beta_hat %>% filter(str_detect(jugador,"_def"))
+beta_hat_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = estimate, std_error_def = std.error)
+
+beta_hat_ambas = beta_hat_off %>% left_join(beta_hat_def)
+
+
 ```
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+beta_hat_ambas %>% mutate(coef_tot = coef_of + coef_def) %>%  arrange(desc(coef_tot)) %>% 
+  gt() %>%
+  tab_header(
+    title = "APM separado por efecto ofensivo y defensivo"
+  ) %>%
+  data_color(
+    columns = c(coef_of,coef_def, coef_tot),
+    palette = c("#d73027", "#fee08b", "#1a9850")
+  )
+```
+
+
+
 
 
 ### Comentarios nacho
