@@ -129,10 +129,22 @@ library(tidyverse)
 #  summarise(
 #    plus_minus_total = sum(puntos_pos * presencia, na.rm = TRUE),
 #    posesiones_totales = n(),
+    
+    # 🔹 cantidad de posesiones en ataque (presencia == 1)
+#    posesiones_ofensivas = sum(presencia == 1, na.rm = TRUE),
+    
+    # 🔹 cantidad de posesiones en defensa (presencia == -1)
+#    posesiones_defensivas = sum(presencia == -1, na.rm = TRUE),
+    
+    # 🔹 suma de puntos en posesiones ofensivas
+#    puntos_ofensivos = sum(puntos_pos[presencia == 1], na.rm = TRUE),
+    
+    # 🔹 suma de puntos en posesiones defensivas
+#    puntos_defensivos = sum(puntos_pos[presencia == -1], na.rm = TRUE),
 #    .groups = "drop"
 #  ) %>%
   # Opcional: Calcular el +/- cada 100 posesiones para que sea comparable
-#  mutate(plus_minus_100 = (plus_minus_total / posesiones_totales) * 100)
+#  %>% mutate(plus_minus_100 = (plus_minus_total / posesiones_totales) * 100, pts_recib_por_pos = ((-1)*puntos_defensivos)/posesiones_defensivas, pts_realizad_por_pos = puntos_ofensivos/posesiones_ofensivas)
 #
 #plus_minus_por_equipo = plus_minus_por_equipo %>% rename(jugador = jugador_id)
 

@@ -455,7 +455,7 @@ A su vez, aunque se excluyan este tipo de jugadores, las distribuciones de +/- c
 ```{r}
 
 plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS")
-plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales > 500)
+#plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales #> 500)
 
 #OP 2
 promedio_pm1 = plus_minus_por_equipo1 %>% group_by(equipo_del_jugador) %>% summarise( pm_prom = mean(plus_minus_total), pm_mediana = median(plus_minus_total), pm_sd = sd(plus_minus_total), pm_100_prom = mean(plus_minus_100), pm_100_mediana = median(plus_minus_100), pm_100_sd = sd(plus_minus_100), pm_mad = mad(plus_minus_total), pm_100_mad = mad(plus_minus_100))
@@ -1205,6 +1205,25 @@ $$ \mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_
 Pasando a tener 458 variables indicadores (la ofensiva que toma 1 y 0, y la defensiva que toma -1 y 0)
 
 ```{r}
+
+plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS")
+plus_minus_por_equipo = plus_minus_por_equipo %>%  filter(posesiones_totales > 500)
+
+#OP 2
+promedio_pm2 = plus_minus_por_equipo %>% group_by(equipo_del_jugador) %>% summarise( pts_recib_mediana = median(pts_recib_por_pos), pts_recib_sd = sd(pts_recib_por_pos), pts_realiz_mediana = median(pts_realizad_por_pos), pts_realiz_sd = sd(pts_realizad_por_pos), pts_recib_mad = mad(pts_recib_por_pos), pts_realiz_mad = mad(pts_realizad_por_pos))
+
+plus_minus_por_equipo = plus_minus_por_equipo %>%  left_join(promedio_pm2)
+
+plus_minus_por_equipo = plus_minus_por_equipo %>% mutate(pts_recib_estand_median = (pts_recib_por_pos - pts_recib_mediana)/pts_recib_mad, pts_realiz_estand_median = (pts_realizad_por_pos - pts_realiz_mediana)/pts_realiz_mad) 
+
+ggplot(plus_minus_por_equipo1)+
+  aes(y= equipo_del_jugador, x= plus_minus_100)+
+  geom_boxplot(fill = "lightblue4")
+```
+
+
+```{r}
+#Genero la base
 df_mod_ltp_sep <- df_mod_ltp
 
 jugadores <- names(df_mod_ltp)[2:230]
@@ -1218,7 +1237,28 @@ for (j in jugadores) {
 
 df_mod_ltp_sep <- df_mod_ltp_sep %>%
   dplyr::select(-all_of(jugadores))
+
+posesiones_of = df_mod_ltp_sep %>% summarise_each(funs(sum), contains("_off")) %>% pivot_longer(cols = everything(), names_to = "jugador", values_to = "posesiones_of")
+
+posesiones_def = df_mod_ltp_sep %>% summarise_each(funs(sum), contains("_def")) %>% pivot_longer(cols = everything(), names_to = "jugador", values_to = "posesiones_def") %>% mutate(posesiones_def = posesiones_def*(-1))
+
 ```
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r}
 plus_minus_sep = df_mod_ltp_sep[, 2:459]*df_mod_ltp_sep[[1]]
@@ -1231,24 +1271,13 @@ df_plus_minus_sep <- plus_minus_sep %>%
     values_to = "+/-"
   )
 
-df_of = df_plus_minus_sep %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(`+/- off` = `+/-`)
+df_of = df_plus_minus_sep %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(`+/- off` = `+/-`) %>% mutate(posesiones = posesiones_of$posesiones_of, pts_realiz_por_pos = `+/- off`/posesiones) %>% left_join(dplyr::select(g1, c(jugador, Equipos, Minutos_por_part)))
 
-df_def = df_plus_minus_sep %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(`+/- def` = `+/-`)
+df_def = df_plus_minus_sep %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(`+/- def` = `+/-`) %>% mutate(posesiones = posesiones_def$posesiones_def, pts_recib_por_pos = `+/- def`/posesiones) %>% left_join(dplyr::select(g1, c(jugador, Equipos, Minutos_por_part)))
+
 
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1310,6 +1339,7 @@ a nacho le gusto la idea de la variable dicotomica
 
 multinomial ordinal?
 
+no estaria bien tener una base con los jugadores equipos, posesiones, posesiones ofensivas, posesiones defensivas?
 ### -------------------------------------------------
 
 ### Multicolinealidad
