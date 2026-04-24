@@ -1655,16 +1655,74 @@ beta_hat_ambas = beta_hat_off %>% left_join(beta_hat_def)
 df_full <- beta_hat_ambas %>% 
   mutate(coef_tot = coef_of + coef_def)
 
+# Versión base R (viene incluida en glmnet)
+plot(modelo_enet)
+
+# Versión ggplot2 más controlada
+library(ggplot2)
+
+df_cv <- data.frame(
+  log_lambda = log(modelo_enet$lambda),
+  mse        = modelo_enet$cvm,
+  se_upper   = modelo_enet$cvm + modelo_enet$cvsd,
+  se_lower   = modelo_enet$cvm - modelo_enet$cvsd,
+  nzero      = modelo_enet$nzero
+)
+
+log_min  <- log(modelo_enet$lambda.min)
+
+ggplot(df_cv, aes(x = log_lambda)) +
+  geom_ribbon(aes(ymin = se_lower, ymax = se_upper),
+              fill = "steelblue", alpha = 0.15) +
+  geom_line(aes(y = mse), color = "steelblue", linewidth = 0.9) +
+  geom_point(aes(y = mse), color = "steelblue", size = 1.8) +
+  geom_vline(xintercept = log_min,  color = "#E24B4A", linetype = "dashed") +
+  annotate("text", x = log_min,  y = max(df_cv$se_upper),
+           label = "λ.min",  color = "#E24B4A", hjust = -0.15, size = 3.5) +
+  # Cantidad de coeficientes activos arriba del gráfico
+  scale_x_continuous(
+    sec.axis = sec_axis(~ ., breaks = df_cv$log_lambda,
+                        labels = df_cv$nzero,
+                        name   = "Coeficientes ≠ 0")
+  ) +
+  labs(x = "log(λ)", y = "CV-MSE",
+       title = "Elastic Net — selección de λ por validación cruzada") +
+  theme_minimal() +
+theme(axis.text.x.top = element_text(angle = 45, vjust = 0.5, size = 7))
 ```
 
 probar con datos sin filtrar
 
-
 ### Modelo de regresión logística multinomial - Métodos de regularización
 
-### Hacerlo con los segmentos
+se plantea un modelo de regrasión logística multinomial **nominal** en vez de ordinal, ya que, auquen los puntos sí tienen orden natural, el modelo ordinal asume proporcionalidad de odds entre categorías, lo cual puede no cumplirse (el salto de 0 a 1 es muy distinto al de 2 a 3).
+
+```{r}
+y_multi = df_mod_ltp |>
+  mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
+  pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+
+# y debe ser un factor con todos los niveles (0 a 7)
+y_factor <- factor(y_multi)   # "0" queda como referencia automáticamente
+
+modelo_multi <- cv.glmnet(
+  X, y_factor,
+  family      = "multinomial",
+  type.multinomial = "grouped",  # penaliza todos los coeficientes de una variable juntos
+  alpha       = 0.5,             # Elastic Net (o el alpha óptimo que encontraste)
+  nfolds      = 10,
+  standardize = FALSE
+)
+```
+
+
+### EPTS
+
+### wEPTS
 
 ### Comparación de modelos
+
+### Hacerlo con los segmentos
 
 ### Anexo (no leer)
 
