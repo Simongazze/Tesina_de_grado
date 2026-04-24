@@ -1192,7 +1192,11 @@ grafico2
 
 ```
 
-Se solapan en gran medida los IC, es sabido que estos modelos no son muy precisos. La multicolinealidad tampoco ayuda:
+Se solapan en gran medida los IC, es sabido que estos modelos no son muy precisos. En gran parte debido a la multicolinealidad.
+
+### Multicolinealidad
+
+Estos datos presentan una presencia muy importante de multicolinealidad, debido a que hay jugadores que comparten gran parte de los minutos en cancha
 
 ```{r}
 X <- model.matrix(modelo3)[, -1]
@@ -1427,8 +1431,6 @@ no estaria bien tener una base con los jugadores equipos, posesiones, posesiones
 
 ### -------------------------------------------------
 
-### Multicolinealidad
-
 ### Ridge, Lasso, Elastic Net
 
 Buscando solucionar los problemas de la multicolinealidad y los valores extremos de jugador con pocos minutos de juego, se plantearán modelos con estimación de parámetros mediante métodos de regularización.
@@ -1505,7 +1507,7 @@ df_full <- beta_hat_ambas %>%
 ```
 
 
-#Lasso
+#### Lasso
 
 primer modelo
 
@@ -1569,6 +1571,94 @@ df_full <- beta_hat_ambas %>%
 ```
 
 Leandro vildoza:  Como líder defensivo ha llevado a los cordobeses a igualar la final ante Boca.
+
+#### Elastic net
+
+-- formula --
+
+Para cada α en la grilla (0, 0.1, 0.2, …, 1.0), cv.glmnet internamente hace validación cruzada de 10 folds probando muchos valores de λ, y guarda el MSE promedio mínimo (campo $cvm).
+
+```{r}
+alphas   <- seq(0, 1, by = 0.1)   # 0=Ridge, 1=Lasso
+# cv_lista <- list()
+# 
+# set.seed(42)
+# for (a in alphas) {
+#   cv_lista[[as.character(a)]] <- cv.glmnet(
+#     X, y,
+#     alpha       = a,
+#     nfolds      = 10,
+#     standardize = FALSE
+#   )
+# }
+# 
+# saveRDS(cv_lista, file = "cv_lista.RDS")
+
+cv_lista = readRDS("cv_lista.RDS")
+
+# CV-error mínimo para cada alpha
+cv_errors <- sapply(cv_lista, function(m) min(m$cvm))
+
+# Alpha óptimo
+alpha_optimo <- alphas[which.min(cv_errors)]
+cat("Alpha óptimo:", alpha_optimo, "\n")
+
+```
+
+gráfico
+
+```{r}
+cv_errors <- sapply(cv_lista, function(m) min(m$cvm))
+names(cv_errors) <- alphas
+
+df_alpha <- data.frame(alpha = alphas, mse = cv_errors)
+
+ggplot(df_alpha, aes(alpha, mse)) +
+  geom_line(color = "steelblue") +
+  geom_point(aes(color = mse == min(mse)), size = 3, show.legend = FALSE) +
+  scale_color_manual(values = c("steelblue", "orange")) +
+  geom_vline(xintercept = alpha_optimo, linetype = "dashed", color = "orange") +
+  annotate("text", x = alpha_optimo + 0.03, y = max(cv_errors),
+           label = paste0("α* = ", alpha_optimo), color = "orange", hjust = 0) +
+  labs(x = "Alpha (0 = Ridge, 1 = Lasso)", y = "CV-MSE mínimo",
+       title = "Búsqueda del alpha óptimo") +
+  theme_minimal()
+
+```
+
+modelo final con alpha 0.1
+
+```{r}
+
+# Modelo final con alpha óptimo
+modelo_enet <- cv_lista[[as.character(alpha_optimo)]]
+
+modelo_enet$lambda.min
+
+plot(modelo_enet)
+
+betas <- as.matrix(coef(modelo_enet, s = "lambda.min"))
+
+df_betas <- data.frame(
+  jugador = rownames(betas),
+  beta = betas[,1]
+)
+
+beta_hat = df_betas[-c(1,2),]
+
+beta_hat_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = beta)
+
+beta_hat_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = beta)
+
+beta_hat_ambas = beta_hat_off %>% left_join(beta_hat_def)
+
+df_full <- beta_hat_ambas %>% 
+  mutate(coef_tot = coef_of + coef_def)
+
+```
+
+probar con datos sin filtrar
+
 
 ### Modelo de regresión logística multinomial - Métodos de regularización
 
