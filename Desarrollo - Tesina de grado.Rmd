@@ -512,7 +512,7 @@ browsable(
 )
 ```
 
-Al analizar el ranking, identificamos que los 3 primeros puestos  estan ocupados por jugadores que no participaron de la temporada completa, sino que llegaron como refuerzos o partieron en cierto momento, cambiando así el andar de estos equipos. Evidenciando el impacto positivo de los refuerzos que llegaron (Sanders y Vicente) o el efecto negativo que tiene la partida de un jugador importante en el desempeño del equipo (Mainoldi).
+Al analizar el ranking, identificamos que los 3 primeros puestos estan ocupados por jugadores que no participaron de la temporada completa, sino que llegaron como refuerzos o partieron en cierto momento, cambiando así el andar de estos equipos. Evidenciando el impacto positivo de los refuerzos que llegaron (Sanders y Vicente) o el efecto negativo que tiene la partida de un jugador importante en el desempeño del equipo (Mainoldi).
 
 Nakye Sanders, por lejos el mejor +/- de atenas en el torneo, gran diferencia respecto al 2do de su equipo: record de 9-9 con Sanders y de 9-11 sin Sanders.
 
@@ -558,47 +558,47 @@ Se realizó un modelo de prueba para analizar si los resultados son coherentes i
 Está partición de la base cuenta con 159 posesiones y 21 jugadores participantes.
 
 ```{r}
-df_1partido = poss_by_poss_temporada %>% 
-                     filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)")
-
-box_score_1 = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod)) %>% 
-                     filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)")
+#df_1partido = poss_by_poss_temporada %>% 
+#                     filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)")
+#
+#box_score_1 = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod)) %>% 
+#                     filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)")
 
 
 #Tiempo jugado
-minutos_jugad_1 = box_score_1 %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+#minutos_jugad_1 = box_score_1 %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% #summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
 
-minutos_jugad_1 = minutos_jugad_1 %>% rename(jugador = NombreCompleto_limpio) %>%
-  group_by(jugador) %>%
-  summarise(
-    Equipos = paste(unique(equipo_normalizado), collapse = ", "),
-    Segundos = sum(Segundos, na.rm = TRUE),
-    Minutos = sum(Minutos, na.rm = TRUE),
-    Partidos = sum(Partidos, na.rm = TRUE),
-    Minutos_por_part = Minutos/Partidos
-  ) %>%
-  ungroup()
+#minutos_jugad_1 = minutos_jugad_1 %>% rename(jugador = NombreCompleto_limpio) %>%
+#  group_by(jugador) %>%
+#  summarise(
+#    Equipos = paste(unique(equipo_normalizado), collapse = ", "),
+#    Segundos = sum(Segundos, na.rm = TRUE),
+#    Minutos = sum(Minutos, na.rm = TRUE),
+#    Partidos = sum(Partidos, na.rm = TRUE),
+#    Minutos_por_part = Minutos/Partidos
+#  ) %>%
+#  ungroup()
 
-g1_1 = colSums(df_1partido[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
+# g1_1 = colSums(df_1partido[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
 
-minutos_jugad_1 = minutos_jugad_1 %>% left_join(g1_1)
+# minutos_jugad_1 = minutos_jugad_1 %>% left_join(g1_1)
 ```
 
 ```{r, echo=TRUE}
 # Modelo de regresión lineal múltiple
 
-dfmod_1partido = poss_by_poss_temporada %>% 
-  filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)") %>% 
-  dplyr::select(23:369) #Estas son solo las columnas de puntos en la posesión y de jugadores
+# dfmod_1partido = poss_by_poss_temporada %>% 
+#   filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)") %>% 
+#   dplyr::select(23:369) #Estas son solo las columnas de puntos en la posesión y de jugadores
 
 #Identifico los jugadores q no participaron de este partido
-cols_ceros = names(dfmod_1partido[, -1])[colSums(dfmod_1partido[, -1] != 0) == 0 ]
-
-dfmod_1partido = dfmod_1partido %>% dplyr::select(-cols_ceros)
-
-modelo1 = lm(puntos_pos ~ . , data = dfmod_1partido)
-
-summary(modelo1)
+# cols_ceros = names(dfmod_1partido[, -1])[colSums(dfmod_1partido[, -1] != 0) == 0 ]
+# 
+# dfmod_1partido = dfmod_1partido %>% dplyr::select(-cols_ceros)
+# 
+# modelo1 = lm(puntos_pos ~ . , data = dfmod_1partido)
+# 
+# summary(modelo1)
 
 #alias(modelo1)
 ```
@@ -608,20 +608,20 @@ summary(modelo1)
 
 # +/-
 
-plus_minus_1partido = df_1partido[, 24:369]*df_1partido[[23]]
-
-plus_minus_1partido = plus_minus_1partido %>% 
-                        dplyr::select(-cols_ceros)
-
-df_plus_minus_1partido <- plus_minus_1partido %>%
-  summarise(across(everything(), sum))%>%
-  pivot_longer(
-    cols = everything(),
-    names_to = "jugador",
-    values_to = "+/-"
-  )
-
-minutos_jugad_1 = minutos_jugad_1 %>% left_join(df_plus_minus_1partido) %>% mutate(pm_ajust_pos = `+/-`/posesiones)
+# plus_minus_1partido = df_1partido[, 24:369]*df_1partido[[23]]
+# 
+# plus_minus_1partido = plus_minus_1partido %>% 
+#                         dplyr::select(-cols_ceros)
+# 
+# df_plus_minus_1partido <- plus_minus_1partido %>%
+#   summarise(across(everything(), sum))%>%
+#   pivot_longer(
+#     cols = everything(),
+#     names_to = "jugador",
+#     values_to = "+/-"
+#   )
+# 
+# minutos_jugad_1 = minutos_jugad_1 %>% left_join(df_plus_minus_1partido) %>% mutate(pm_ajust_pos = `+/-`/posesiones)
 ```
 
 Vemos que el modelo no puede estimar 4 coeficientes debido a la singularidad.
@@ -645,68 +645,68 @@ Entonces al existir un vector no nulo $\mathbf{c}$ tal que $\mathbf{c} ′X = \m
 Para estimar todos los coeficientes del modelo haremos uso de la técnica de mínimos cuadrados restrigindos, aplicando la restricción $\sum_{j=1}^J{\beta_j}=0$
 
 ```{r, echo=TRUE}
-X <- model.matrix(~ . - 1, data = dfmod_1partido[, -which(names(dfmod_1partido) == "puntos_pos")])
-
-ncol(X)-qr(X)$rank
+# X <- model.matrix(~ . - 1, data = dfmod_1partido[, -which(names(dfmod_1partido) == "puntos_pos")])
+# 
+# ncol(X)-qr(X)$rank
 
 #Hay 4 coeficientes que no se pueden estimar debido a singularidades ya que son pocas filas y muchos jugadores comparten todos los minutos en cancha, lo que genera dependencia lineal en las columnas
 
 #Mínimos cuadrados restringidos
 
-y <- dfmod_1partido$puntos_pos
+# y <- dfmod_1partido$puntos_pos
 
 ##Calculo el modelo con la restricción (suma de betas igual a 0)
 
-C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
-d <- 0 # resultado de la suma
+# C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+# d <- 0 # resultado de la suma
 
 # Ajuste de coeficientes
-
-fit <- lsei(A = X, B = y, E = C, F = d, fulloutput = TRUE)
+# 
+# fit <- lsei(A = X, B = y, E = C, F = d, fulloutput = TRUE)
 ```
 
 Los resultados obtenidos fueron los siguientes:
 
 ```{r}
-beta_hat <- fit$X
-
-beta_hat <- setNames(beta_hat, colnames(X))
-
-beta_hat <- data.frame(
-  jugador = names(beta_hat),
-  coeficiente = as.numeric(beta_hat)
-)
-
-beta_hat$jugador <- gsub("`", "", beta_hat$jugador) #agregar pm/pos, pm/pos - pm/pos(media de equipo), equipo y minutos
-cov_matriz <- fit$covar
-errores_std <- sqrt(diag(cov_matriz))
-
-beta_hat$errores = errores_std
-
-minutos_jugad_1 = minutos_jugad_1 %>% left_join(beta_hat)
-
-minutos_jugad_1 %>%
-  dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, pm_ajust_pos, coeficiente, errores)) %>%
-  mutate(Minutos_por_part = round(Minutos_por_part, 2), errores = round(errores, 3)) %>%
-  arrange(desc(coeficiente)) %>%
-  reactable(
-    sortable = TRUE,
-    striped = TRUE,
-    highlight = TRUE,
-    defaultPageSize = 15,
-    columns = list(
-      coeficiente = colDef( format = colFormat(digits = 2),
-  style = function(value) {
-    list(
-      fontWeight = "600",
-      background = "lightblue3"
-    )
-  }),
-      `+/-` = colDef(format = colFormat(digits = 2)),
-      pm_ajust_pos = colDef(format = colFormat(digits = 2)),
-      Minutos_por_part = colDef(format = colFormat(digits = 2))
-    )
-  )# agregar otras medidas: On/Off
+# beta_hat <- fit$X
+# 
+# beta_hat <- setNames(beta_hat, colnames(X))
+# 
+# beta_hat <- data.frame(
+#   jugador = names(beta_hat),
+#   coeficiente = as.numeric(beta_hat)
+# )
+# 
+# beta_hat$jugador <- gsub("`", "", beta_hat$jugador) #agregar pm/pos, pm/pos - pm/pos(media de equipo), equipo y minutos
+# cov_matriz <- fit$covar
+# errores_std <- sqrt(diag(cov_matriz))
+# 
+# beta_hat$errores = errores_std
+# 
+# minutos_jugad_1 = minutos_jugad_1 %>% left_join(beta_hat)
+# 
+# minutos_jugad_1 %>%
+#   dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, pm_ajust_pos, coeficiente, errores)) %>%
+#   mutate(Minutos_por_part = round(Minutos_por_part, 2), errores = round(errores, 3)) %>%
+#   arrange(desc(coeficiente)) %>%
+#   reactable(
+#     sortable = TRUE,
+#     striped = TRUE,
+#     highlight = TRUE,
+#     defaultPageSize = 15,
+#     columns = list(
+#       coeficiente = colDef( format = colFormat(digits = 2),
+#   style = function(value) {
+#     list(
+#       fontWeight = "600",
+#       background = "lightblue3"
+#     )
+#   }),
+#       `+/-` = colDef(format = colFormat(digits = 2)),
+#       pm_ajust_pos = colDef(format = colFormat(digits = 2)),
+#       Minutos_por_part = colDef(format = colFormat(digits = 2))
+#     )
+#  )# agregar otras medidas: On/Off
 ```
 
 ¿Tienen sentido los resultados?
@@ -726,59 +726,59 @@ Los partidos a utilizar seran: `ATENAS (C) vs BOCA (007/10/2024 22:10)`, `BOCA v
 ```{r}
 # Modelo de prueba - pocos partidos - 3 partido
 
-df_3partido = poss_by_poss_temporada %>% 
-  filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)"))
-
-box_score_3 = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod)) %>% 
-                     filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)"))
+# df_3partido = poss_by_poss_temporada %>% 
+#   filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)"))
+# 
+# box_score_3 = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod)) %>% 
+#                      filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)"))
 
 
 #Tiempo jugado
-minutos_jugad_3 = box_score_3 %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
-
-minutos_jugad_3 = minutos_jugad_3 %>% rename(jugador = NombreCompleto_limpio) %>%
-  group_by(jugador) %>%
-  summarise(
-    Equipos = paste(unique(equipo_normalizado), collapse = ", "),
-    Segundos = sum(Segundos, na.rm = TRUE),
-    Minutos = sum(Minutos, na.rm = TRUE),
-    Partidos = sum(Partidos, na.rm = TRUE),
-    Minutos_por_part = Minutos/Partidos
-  ) %>%
-  ungroup()
-
-g1_3 = colSums(df_3partido[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
-
-minutos_jugad_3 = minutos_jugad_3 %>% left_join(g1_3)
+# minutos_jugad_3 = box_score_3 %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+# 
+# minutos_jugad_3 = minutos_jugad_3 %>% rename(jugador = NombreCompleto_limpio) %>%
+#   group_by(jugador) %>%
+#   summarise(
+#     Equipos = paste(unique(equipo_normalizado), collapse = ", "),
+#     Segundos = sum(Segundos, na.rm = TRUE),
+#     Minutos = sum(Minutos, na.rm = TRUE),
+#     Partidos = sum(Partidos, na.rm = TRUE),
+#     Minutos_por_part = Minutos/Partidos
+#   ) %>%
+#   ungroup()
+# 
+# g1_3 = colSums(df_3partido[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
+# 
+# minutos_jugad_3 = minutos_jugad_3 %>% left_join(g1_3)
 
 # +/-
 
-plus_minus_3partido = df_3partido[, 24:369]*df_3partido[[23]]
-
-cols_ceros_3 = names(df_3partido[, 24:369])[colSums(df_3partido[, 24:369] != 0) == 0 ]
-
-plus_minus_3partido = plus_minus_3partido %>% dplyr::select(-cols_ceros_3)
-
-df_plus_minus_3partido <- plus_minus_3partido %>%
-  summarise(across(everything(), sum))%>%
-  pivot_longer(
-    cols = everything(),
-    names_to = "jugador",
-    values_to = "+/-"
-  )
-
-minutos_jugad_3 = minutos_jugad_3 %>% left_join(df_plus_minus_3partido) %>% mutate(pm_ajust_pos = `+/-`/posesiones)
+# plus_minus_3partido = df_3partido[, 24:369]*df_3partido[[23]]
+# 
+# cols_ceros_3 = names(df_3partido[, 24:369])[colSums(df_3partido[, 24:369] != 0) == 0 ]
+# 
+# plus_minus_3partido = plus_minus_3partido %>% dplyr::select(-cols_ceros_3)
+# 
+# df_plus_minus_3partido <- plus_minus_3partido %>%
+#   summarise(across(everything(), sum))%>%
+#   pivot_longer(
+#     cols = everything(),
+#     names_to = "jugador",
+#     values_to = "+/-"
+#   )
+# 
+# minutos_jugad_3 = minutos_jugad_3 %>% left_join(df_plus_minus_3partido) %>% mutate(pm_ajust_pos = `+/-`/posesiones)
 ```
 
 ```{r}
 # Modelo de regresión lineal múltiple
 
-dfmod_3partido = poss_by_poss_temporada %>% 
-  filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)")) %>% 
-  dplyr::select(23:369)%>% 
-  dplyr::select(-cols_ceros_3)
-
-modelo2 = lm(puntos_pos ~ . , data = dfmod_3partido)
+# dfmod_3partido = poss_by_poss_temporada %>% 
+#   filter(partido_key %in% c("ATENAS (C) vs BOCA (007/10/2024 22:10)", "BOCA vs ZARATE BASKET (012/10/2024 11:30)", "ZARATE BASKET vs ATENAS (C) (010/12/2024 21:00)")) %>% 
+#   dplyr::select(23:369)%>% 
+#   dplyr::select(-cols_ceros_3)
+# 
+# modelo2 = lm(puntos_pos ~ . , data = dfmod_3partido)
 
 #summary(modelo2)
 ```
@@ -789,7 +789,7 @@ Resultados:
 
 ```{r}
 
-X <- model.matrix(~ . - 1, data = dfmod_3partido[, -which(names(dfmod_3partido) == "puntos_pos")])
+# X <- model.matrix(~ . - 1, data = dfmod_3partido[, -which(names(dfmod_3partido) == "puntos_pos")])
 
 #ncol(X)-qr(X)$rank
 
@@ -797,56 +797,56 @@ X <- model.matrix(~ . - 1, data = dfmod_3partido[, -which(names(dfmod_3partido) 
 
 #Mínimos cuadrados restringidos
 
-y <- dfmod_3partido$puntos_pos
+# y <- dfmod_3partido$puntos_pos
 
 ##Calculo el modelo con la restricción (suma de betas igual a 0)
 
-C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
-d <- 0 # resultado de la suma
+# C <- matrix(1, nrow = 1, ncol = ncol(X))  # vector de 1s
+# d <- 0 # resultado de la suma
 
 # Ajuste de coeficientes
 
-fit <- lsei(A = X, B = y, E = C, F = d, fulloutput = TRUE)
-
-beta_hat <- fit$X
-
-beta_hat <- setNames(beta_hat, colnames(X))
-
-beta_hat <- data.frame(
-  jugador = names(beta_hat),
-  coeficiente = as.numeric(beta_hat)
-)
-
-beta_hat$jugador <- gsub("`", "", beta_hat$jugador) 
-
-cov_matriz <- fit$covar
-
-errores_std <- sqrt(diag(cov_matriz))
-
-beta_hat$errores = errores_std
-
-minutos_jugad_3 = minutos_jugad_3 %>% left_join(beta_hat)
-
-minutos_jugad_3 %>% dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, pm_ajust_pos,coeficiente,errores)) %>% mutate(Minutos_por_part = round(Minutos_por_part, 2), errores = round(errores, 3)) %>%
-  arrange(desc(coeficiente)) %>%
-  reactable(
-    sortable = TRUE,
-    striped = TRUE,
-    highlight = TRUE,
-    defaultPageSize = 15,
-    columns = list(
-      coeficiente = colDef(format = colFormat(digits = 4),
-  style = function(value) {
-    list(
-      fontWeight = "600",
-      background = "lightblue3"
-    )
-  }),
-      `+/-` = colDef(format = colFormat(digits = 2)),
-      pm_ajust_pos = colDef(format = colFormat(digits = 2)),
-      Minutos_por_part = colDef(format = colFormat(digits = 2))
-    )
-  )
+# fit <- lsei(A = X, B = y, E = C, F = d, fulloutput = TRUE)
+# 
+# beta_hat <- fit$X
+# 
+# beta_hat <- setNames(beta_hat, colnames(X))
+# 
+# beta_hat <- data.frame(
+#   jugador = names(beta_hat),
+#   coeficiente = as.numeric(beta_hat)
+# )
+# 
+# beta_hat$jugador <- gsub("`", "", beta_hat$jugador) 
+# 
+# cov_matriz <- fit$covar
+# 
+# errores_std <- sqrt(diag(cov_matriz))
+# 
+# beta_hat$errores = errores_std
+# 
+# minutos_jugad_3 = minutos_jugad_3 %>% left_join(beta_hat)
+# 
+# minutos_jugad_3 %>% dplyr::select(c(jugador, Equipos, Minutos_por_part, `+/-`, pm_ajust_pos,coeficiente,errores)) %>% mutate(Minutos_por_part = round(Minutos_por_part, 2), errores = round(errores, 3)) %>%
+#   arrange(desc(coeficiente)) %>%
+#   reactable(
+#     sortable = TRUE,
+#     striped = TRUE,
+#     highlight = TRUE,
+#     defaultPageSize = 15,
+#     columns = list(
+#       coeficiente = colDef(format = colFormat(digits = 4),
+#   style = function(value) {
+#     list(
+#       fontWeight = "600",
+#       background = "lightblue3"
+#     )
+#   }),
+#       `+/-` = colDef(format = colFormat(digits = 2)),
+#       pm_ajust_pos = colDef(format = colFormat(digits = 2)),
+#       Minutos_por_part = colDef(format = colFormat(digits = 2))
+#     )
+#   )
 
 
 ```
@@ -874,13 +874,13 @@ Llegado este punto solo se observa una dependencia lineal (debido a los 5 jugado
 
 dfmod_temporada = poss_by_poss_temporada %>% dplyr::select(23:369)
 
-modelo_temp = lm(puntos_pos ~ . , data = dfmod_temporada)
+# modelo_temp = lm(puntos_pos ~ . , data = dfmod_temporada)
 
 #summary(modelo_temp)
 
 #Solo 1 coeficiente no pudo estimarse por singularidad, y se debe a que la suma de las filas dan siempre 0
 
-Coeficientes = as.data.frame(modelo_temp$coefficients)
+# Coeficientes = as.data.frame(modelo_temp$coefficients)
 
 #Mínimos cuadrados restringidos
 
@@ -1074,7 +1074,6 @@ beta_hat %>%
 #Pintar por posición del equipo
 ```
 
-
 **¿Es adecuado el modelo? ¿Ajusta bien a los datos?**
 
 Yyy teoricamente ya partimos mal, estamos queriendo modelar como normal a una variable respuesta discreta que varía de 0 a 7, y que encima agrupa más del 50% de los datos en el 0. Menos normal imposible. Pero es el primer modelo histórico de esta temática y me parecia interesante por lo menos plantearlo.
@@ -1092,7 +1091,7 @@ prediccion = data.frame(puntos = resp, prediccion = pred, residuo = res)
 
 graf1 = prediccion %>% group_by(puntos) %>% summarise(media = mean(prediccion))
 
-cat("R^2 =", summary(modelo3)$adj.r.squared)
+cat("R^2_adj =", summary(modelo3)$adj.r.squared)
 #Hacer forest plot
 
 ggplot(prediccion)+
@@ -1122,9 +1121,9 @@ ggplot(prediccion)+
   theme_minimal()
 ```
 
-Bueno un R^2 cercano a 0 y el grafico de observados vs predichos que es cualquier cosa, pero... si el objetivo es estimar un buen ranking de jugadores, la bondad de ajuste es tan importante?
+Bueno un R\^2 cercano a 0 y el grafico de observados vs predichos que es cualquier cosa, pero... si el objetivo es estimar un buen ranking de jugadores, la bondad de ajuste es tan importante?
 
-Un modelo puede tener R^2 bajo y aun así producir un ranking de coeficientes razonable? siendo que lo que realmente importa es la inferencia sobre los betas, no la predicción de Y.
+Un modelo puede tener R\^2 bajo y aun así producir un ranking de coeficientes razonable? siendo que lo que realmente importa es la inferencia sobre los betas, no la predicción de Y.
 
 En ese caso puede resultar más importante graficar a las estimaciones puntuales de los APM con sus respectivos intervalos de confianza.
 
@@ -1237,8 +1236,7 @@ head(cor_long, 20) %>%
 
 El modelo planteado es el siguiente:
 
-$$ \mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_k x^d_{ik} $$
-Pasando a tener $229 (jugadores)* 2 = 458$ variables indicadores (la ofensiva que toma 1 y 0, y la defensiva que toma -1 y 0)
+$$ \mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_k x^d_{ik} $$ Pasando a tener $229 (jugadores)* 2 = 458$ variables indicadores (la ofensiva que toma 1 y 0, y la defensiva que toma -1 y 0)
 
 ```{r}
 #Puntos por posesión realizados y recibidos, estandarizados.
@@ -1252,7 +1250,6 @@ plus_minus_por_equipo = plus_minus_por_equipo %>%  left_join(promedio_pm2)
 
 plus_minus_por_equipo = plus_minus_por_equipo %>% mutate(pts_recib_estand_median = (pts_recib_por_pos - pts_recib_mediana)/pts_recib_mad, pts_realiz_estand_median = (pts_realizad_por_pos - pts_realiz_mediana)/pts_realiz_mad)
 ```
-
 
 ```{r}
 #Genero la base
@@ -1276,7 +1273,6 @@ posesiones_def = df_mod_ltp_sep %>% summarise_each(funs(sum), contains("_def")) 
 
 ```
 
-
 ```{r}
 plus_minus_sep = df_mod_ltp_sep[, 2:459]*df_mod_ltp_sep[[1]]
 
@@ -1296,8 +1292,6 @@ df_def = df_plus_minus_sep %>% filter(str_detect(jugador,"_def")) %>% mutate(jug
 
 ```
 
-
-
 ```{r}
 modelo4 = lm(puntos_pos ~ . , data = df_mod_ltp_sep)
 
@@ -1316,6 +1310,12 @@ beta_hat_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugado
 beta_hat_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = estimate, std_error_def = std.error)
 
 beta_hat_ambas = beta_hat_off %>% left_join(beta_hat_def)
+
+resumen <- summary(modelo4)
+
+# 3. Calcular el CME (Residual standard error al cuadrado)
+cme <- resumen$sigma^2
+print(cme)
 
 
 ```
@@ -1376,9 +1376,6 @@ g_of
 cor(df_full$coef_of, df_full$pts_realiz_por_pos, method = "spearman")
 ```
 
-
-
-
 #### Coef def
 
 ```{r}
@@ -1400,7 +1397,6 @@ g_def
 cor(df_full$coef_def, df_full$pts_recib_por_pos, method = "spearman")
 ```
 
-
 **Mejores**
 
 1ro) Nakie Sanders:
@@ -1412,10 +1408,6 @@ cor(df_full$coef_def, df_full$pts_recib_por_pos, method = "spearman")
 **Peores**
 
 El valor más bajo en un coeficiente es obtenido por MAXWELL, DU'VAUGHN ELISHA, jugador que también presenta la mayor cantidad de puntos permitidos por posesión y 2do peor valor en puntos permitidos estandarizados.
-
-
-
-
 
 ### Comentarios nacho
 
@@ -1429,6 +1421,16 @@ multinomial ordinal?
 
 no estaria bien tener una base con los jugadores equipos, posesiones, posesiones ofensivas, posesiones defensivas?
 
+Distribución de residuos
+
+Distribución de betas para ridge (Bootstrap)
+
+Deviance para modelos normales?
+
+Usar caret para validación cruzada
+
+Ver características de jugadores eliminados por lasso
+
 ### -------------------------------------------------
 
 ### Ridge, Lasso, Elastic Net
@@ -1437,7 +1439,7 @@ Buscando solucionar los problemas de la multicolinealidad y los valores extremos
 
 #### Ridge
 
--formula- bla bla bla
+-formula-
 
 los coeficientes tienden a cero cuando lambda es suficientemente grande, pero no decrecen a medida que crece lambda, sino que pueden crecer inicialmente y luego decrecer. La norma l2 decrece siempre a medida que crece lambda.
 
@@ -1448,26 +1450,39 @@ ridge regression works best in situations where the least squares estimates have
 primer modelo
 
 ```{r}
-X <- model.matrix(
-  puntos_pos ~ .,
-  data = df_mod_ltp
-)
+# X <- model.matrix(
+#   puntos_pos ~ .,
+#   data = df_mod_ltp
+# )
+# 
+# y <- df_mod_ltp$puntos_pos
+# 
+# modelo_ridge <- cv.glmnet(
+#   X, y,
+#   alpha = 0,       # ridge
+#   nfolds = 10,
+#   standardize = FALSE
+# )
+# 
+# betas <- as.matrix(coef(modelo_ridge, s = "lambda.min"))
+# 
+# df_betas <- data.frame(
+#   jugador = rownames(betas),
+#   beta = betas[,1]
+# )
+```
 
-y <- df_mod_ltp$puntos_pos
+CME de validación cruzada
 
-modelo_ridge <- cv.glmnet(
-  X, y,
-  alpha = 0,       # ridge
-  nfolds = 10,
-  standardize = FALSE
-)
+```{r}
+# CME de validación cruzada
+# modelo_ridge$cvm[which.min(modelo_ridge$cvm)]
 
-betas <- as.matrix(coef(modelo_ridge, s = "lambda.min"))
-
-df_betas <- data.frame(
-  jugador = rownames(betas),
-  beta = betas[,1]
-)
+# R² sobre muestra completa
+# y_pred <- predict(modelo_ridge, X, s = "lambda.min")
+# ss_res <- sum((y - y_pred)^2)
+# ss_tot <- sum((y - mean(y))^2)
+# r2 <- 1 - ss_res/ss_tot
 ```
 
 modelo separando los efectos ofensivos y defensivos
@@ -1506,32 +1521,62 @@ df_full <- beta_hat_ambas %>%
   mutate(coef_tot = coef_of + coef_def)
 ```
 
+CME cross-validation
+
+```{r}
+# CME de validación cruzada
+modelo_ridge$cvm[which.min(modelo_ridge$cvm)]
+
+# R² sobre muestra completa
+y_pred <- predict(modelo_ridge, X, s = "lambda.min")
+ss_res <- sum((y - y_pred)^2)
+ss_tot <- sum((y - mean(y))^2)
+r2 <- 1 - ss_res/ss_tot
+
+# Deviance
+deviance_normal <- sum((y - predict(modelo_ridge, X, s = "lambda.min"))^2)
+
+plot(modelo_ridge)
+```
 
 #### Lasso
 
 primer modelo
 
 ```{r}
-X <- model.matrix(
-  puntos_pos ~ .,
-  data = df_mod_ltp
-)
+# X <- model.matrix(
+#   puntos_pos ~ .,
+#   data = df_mod_ltp
+# )
+# 
+# y <- df_mod_ltp$puntos_pos
+# 
+# modelo_lasso <- cv.glmnet(
+#   X, y,
+#   alpha = 1,       # lasso
+#   nfolds = 10,
+#   standardize = FALSE
+# )
+# 
+# betas <- as.matrix(coef(modelo_ridge, s = "lambda.min"))
+# 
+# df_betas <- data.frame(
+#   jugador = rownames(betas),
+#   beta = betas[,1]
+# )
+```
 
-y <- df_mod_ltp$puntos_pos
+CME cross validation
 
-modelo_ridge <- cv.glmnet(
-  X, y,
-  alpha = 1,       # ridge
-  nfolds = 10,
-  standardize = FALSE
-)
+```{r}
+# CME de validación cruzada
+# modelo_lasso$cvm[which.min(modelo_lasso$cvm)]
 
-betas <- as.matrix(coef(modelo_ridge, s = "lambda.min"))
-
-df_betas <- data.frame(
-  jugador = rownames(betas),
-  beta = betas[,1]
-)
+# R² sobre muestra completa
+# y_pred <- predict(modelo_lasso, X, s = "lambda.min")
+# ss_res <- sum((y - y_pred)^2)
+# ss_tot <- sum((y - mean(y))^2)
+# r2 <- 1 - ss_res/ss_tot
 ```
 
 modelo separando los efectos ofensivos y defensivos
@@ -1544,7 +1589,7 @@ X <- model.matrix(
 
 y <- df_mod_ltp_sep$puntos_pos
 
-modelo_ridge <- cv.glmnet(
+modelo_lasso <- cv.glmnet(
   X, y,
   alpha = 1,       # ridge
   nfolds = 10,
@@ -1570,13 +1615,28 @@ df_full <- beta_hat_ambas %>%
   mutate(coef_tot = coef_of + coef_def)
 ```
 
-Leandro vildoza:  Como líder defensivo ha llevado a los cordobeses a igualar la final ante Boca.
+Leandro vildoza: Como líder defensivo ha llevado a los cordobeses a igualar la final ante Boca.
+
+CME cross validation
+
+```{r}
+# CME de validación cruzada
+modelo_lasso$cvm[which.min(modelo_lasso$cvm)]
+
+# R² sobre muestra completa
+y_pred <- predict(modelo_lasso, X, s = "lambda.min")
+ss_res <- sum((y - y_pred)^2)
+ss_tot <- sum((y - mean(y))^2)
+r2 <- 1 - ss_res/ss_tot
+
+plot(modelo_lasso)
+```
 
 #### Elastic net
 
 -- formula --
 
-Para cada α en la grilla (0, 0.1, 0.2, …, 1.0), cv.glmnet internamente hace validación cruzada de 10 folds probando muchos valores de λ, y guarda el MSE promedio mínimo (campo $cvm).
+Para cada α en la grilla (0, 0.1, 0.2, …, 1.0), cv.glmnet internamente hace validación cruzada de 10 folds probando muchos valores de λ, y guarda el MSE promedio mínimo (campo \$cvm).
 
 ```{r}
 alphas   <- seq(0, 1, by = 0.1)   # 0=Ridge, 1=Lasso
@@ -1658,9 +1718,6 @@ df_full <- beta_hat_ambas %>%
 # Versión base R (viene incluida en glmnet)
 plot(modelo_enet)
 
-# Versión ggplot2 más controlada
-library(ggplot2)
-
 df_cv <- data.frame(
   log_lambda = log(modelo_enet$lambda),
   mse        = modelo_enet$cvm,
@@ -1691,36 +1748,83 @@ ggplot(df_cv, aes(x = log_lambda)) +
 theme(axis.text.x.top = element_text(angle = 45, vjust = 0.5, size = 7))
 ```
 
-probar con datos sin filtrar
-
 ### Modelo de regresión logística multinomial - Métodos de regularización
 
 se plantea un modelo de regrasión logística multinomial **nominal** en vez de ordinal, ya que, auquen los puntos sí tienen orden natural, el modelo ordinal asume proporcionalidad de odds entre categorías, lo cual puede no cumplirse (el salto de 0 a 1 es muy distinto al de 2 a 3).
 
+A su vez, tenemos que tener en cuenta que a diferencia de vgam() que parametrizan el modelo logit fijando la categoría de referencia, glmnet usa una **parametrización simétrica**: estima coeficientes para todas las categorías incluyendo la referencia, pero aplica una restricción interna para que sean identificables:
+
+#### Modelo simétrico
+
+El modelo logit multinomial simétrico estima coeficientes para \textbf{todas} las categorías $c \in \{0, 1, 2, 3\}$, expresando las probabilidades como:
+
+$$
+P(Y_i = c) = \frac{\exp(\mathbf{x}_i^\top \boldsymbol{\beta}_c)}{\sum_{c=0}^{3} \exp(\mathbf{x}_i^\top \boldsymbol{\beta}_{c})}, \quad c \in \{0, 1, 2, 3\}
+$$
+
+Para garantizar la identificabilidad del modelo (ya que sumar una constante a todos los $\boldsymbol{\beta}_c$ no modifica las probabilidades), se impone la restricción:
+
+$$
+\sum_{c=0}^{3} \beta_{kc} = 0 \quad \forall k
+$$
+
+Esta parametrización es \textbf{simétrica} porque ninguna categoría cumple un rol especial: todas reciben sus propios coeficientes bajo la misma restricción.
+
+##### Igualdad de los coeficientes con el de categoría de referencia
+
+\textbf{Proposición:} Si $\boldsymbol{\beta}_c$ son los coeficientes del modelo simétrico, entonces $\boldsymbol{\beta_{ref_c}} = \boldsymbol{\beta}_c - \boldsymbol{\beta}_0$ corresponde a los coeficientes del modelo de categoría de referencia.
+
+\textbf{Demostración:}
+
+Partiendo de las probabilidades del modelo simétrico:
+
+$$
+P(Y_i = c) = \frac{\exp(\mathbf{x}_i^\top \boldsymbol{\beta}_c)}{\sum_{c=0}^{3} \exp(\mathbf{x}_i^\top \boldsymbol{\beta}_{c})}
+$$
+
+Dividiendo numerador y denominador por $\exp(\mathbf{x}_i^\top \boldsymbol{\beta}_0)$:
+
+$$
+P(Y_i = c) = \frac{\exp(\mathbf{x}_i^\top (\boldsymbol{\beta}_c - \boldsymbol{\beta}_0))}{\sum_{c=0}^{3} \exp(\mathbf{x}_i^\top (\boldsymbol{\beta}_{c} - \boldsymbol{\beta}_0))}
+$$
+
+Definiendo $\boldsymbol{\beta_{ref_c}} = \boldsymbol{\beta}_c - \boldsymbol{\beta}_0$, se tiene que $\boldsymbol{\beta_{ref_0}} = \boldsymbol{\beta}_0 - \boldsymbol{\beta}_0 = \mathbf{0}$, con lo cual el término $c = 0$ del denominador vale $\exp(\mathbf{0}) = 1$, y la expresión se reduce a:
+
+$$
+P(Y_i = c) = \frac{\exp(\mathbf{x}_i^\top \boldsymbol{\beta_{ref_c}})}{1 + \sum_{c=1}^{3} \exp(\mathbf{x}_i^\top \boldsymbol{\beta_{ref_c}})}
+$$
+
+que es exactamente la forma del modelo de categoría de referencia.
+
+Por lo tanto, ambos modelos producen las \textbf{mismas probabilidades predichas} y la misma verosimilitud. La diferencia es únicamente de parametrización.
+
 Ridge
 
 ```{r}
-X <- model.matrix(
-  puntos_pos ~ .,
-  data = df_mod_ltp_sep
-)
 
-y_multi = df_mod_ltp_sep |>
-  mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
-  pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+modelo_multi_ridge = readRDS("modelo_multi_ridge.RDS")
 
-
-y_factor <- factor(y_multi) 
-
-modelo_multi_ridge <- cv.glmnet(
-  X, y_factor,
-  family      = "multinomial",
-  type.multinomial = "grouped",  # penaliza todos los coeficientes de una variable juntos
-  alpha       = 0,             # Elastic Net (o el alpha óptimo que encontraste)
-  nfolds      = 10,
-  standardize = FALSE
-)
-
+# X <- model.matrix(
+#   puntos_pos ~ .,
+#   data = df_mod_ltp_sep
+# )
+# 
+# y_multi = df_mod_ltp_sep |>
+#   mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
+#   pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+# 
+# 
+# y_factor <- factor(y_multi) 
+# 
+# modelo_multi_ridge <- cv.glmnet(
+#   X, y_factor,
+#   family      = "multinomial",
+#   type.multinomial = "grouped",  # penaliza todos los coeficientes de una variable juntos
+#   alpha       = 0,             # Elastic Net (o el alpha óptimo que encontraste)
+#   nfolds      = 10,
+#   standardize = FALSE
+# )
+# 
 coefs <- coef(modelo_multi_ridge, s = "lambda.min")
 
 extraer_multi <- function(modelo, s = "lambda.min") {
@@ -1746,64 +1850,147 @@ extraer_multi <- function(modelo, s = "lambda.min") {
 df_coefs <- extraer_multi(modelo_multi_ridge)
 
 plot(modelo_multi_ridge)
+```
+
+Deviance y accuracy
+
+```{r}
+# Deviance de validación cruzada — equivalente al CME para modelos GLM
+modelo_multi_ridge$cvm[which.min(modelo_multi_ridge$cvm)]
+
+# Accuracy y matriz de confusión
+#y_pred_cat <- predict(modelo_multi_ridge, X, s = "lambda.min", type = "class")
+#mean(y_pred_cat == y_factor)                        # accuracy global
+# table(Predicho = y_pred_cat, Real = y_factor) #Solo predice 0s?
 ```
 
 Lasso
 
 ```{r}
-X <- model.matrix(
-  puntos_pos ~ .,
-  data = df_mod_ltp_sep
-)
+modelo_multi_lasso = readRDS("modelo_multi_lasso.RDS")
 
-y_multi = df_mod_ltp_sep |>
-  mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
-  pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+# X <- model.matrix(
+#   puntos_pos ~ .,
+#   data = df_mod_ltp_sep
+# )
+# 
+# y_multi = df_mod_ltp_sep |>
+#   mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
+#   pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+# 
+# 
+# y_factor <- factor(y_multi) 
+# 
+# modelo_multi_lasso <- cv.glmnet(
+#   X, y_factor,
+#   family      = "multinomial",
+#   type.multinomial = "grouped",  # penaliza todos los coeficientes de una variable juntos
+#   alpha       = 1,            
+#   nfolds      = 10,
+#   standardize = FALSE
+# )
 
+coefs <- coef(modelo_multi_lasso, s = "lambda.min")
 
-y_factor <- factor(y_multi) 
-
-modelo_multi_ridge <- cv.glmnet(
-  X, y_factor,
-  family      = "multinomial",
-  type.multinomial = "grouped",  # penaliza todos los coeficientes de una variable juntos
-  alpha       = 1,             # Elastic Net (o el alpha óptimo que encontraste)
-  nfolds      = 10,
-  standardize = FALSE
-)
-
-coefs <- coef(modelo_multi_ridge, s = "lambda.min")
-
-extraer_multi <- function(modelo, s = "lambda.min") {
-  cf_list <- coef(modelo, s = s)
-  coef_ref <- as.numeric(cf_list[["0"]])   # coeficientes de la categoría base
-
-  purrr::map_dfr(names(cf_list), function(cat) {
-    cf <- cf_list[[cat]]
-    tibble(
-      jugador   = rownames(cf),
-      coef_raw  = as.numeric(cf),
-      coef      = as.numeric(cf) - coef_ref,  # diferencia vs referencia
-      categoria = cat
-    )
-  }) |>
-    filter(
-      jugador   != "(Intercept)",
-      categoria != "0",          # sacás la referencia del df final
-      coef      != 0
-    )
-}
-
-df_coefs <- extraer_multi(modelo_multi_ridge)
-
-readRDS("modelo_multi_lasso.RDS")
+df_coefs <- extraer_multi(modelo_multi_lasso)
 
 plot(modelo_multi_ridge)
 ```
 
+Deviance y accuracy
 
+```{r}
+# Deviance de validación cruzada — equivalente al CME para modelos GLM
+modelo_multi_lasso$cvm[which.min(modelo_multi_lasso$cvm)]
+
+# Accuracy y matriz de confusión
+#y_pred_cat <- predict(modelo_multi_lasso, X, s = "lambda.min", type = "class")
+#mean(y_pred_cat == y_factor)                        # accuracy global
+#table(Predicho = y_pred_cat, Real = y_factor)
+```
+
+Elastic net
+
+```{r}
+#Hacer
+
+# alphas   <- seq(0, 1, by = 0.1)   # 0=Ridge, 1=Lasso
+# cv_lista <- list()
+# 
+# set.seed(42)
+# for (a in alphas) {
+#   cv_lista[[as.character(a)]] <- cv.glmnet(
+#     X, y,
+#     alpha       = a,
+#     nfolds      = 10,
+#     standardize = FALSE
+#   )
+# }
+# 
+# saveRDS(cv_lista, file = "cv_lista.RDS")
+
+# cv_lista = readRDS("cv_lista.RDS")
+
+# CV-error mínimo para cada alpha
+# cv_errors <- sapply(cv_lista, function(m) min(m$cvm))
+
+# Alpha óptimo
+# alpha_optimo <- alphas[which.min(cv_errors)]
+# cat("Alpha óptimo:", alpha_optimo, "\n")
+```
+
+```{r}
+
+readRDS("modelo_multi_enet.RDS")
+# X <- model.matrix(
+#   puntos_pos ~ .,
+#   data = df_mod_ltp_sep
+# )
+# 
+# y_multi = df_mod_ltp_sep |>
+#   mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
+#   pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+# 
+# 
+# y_factor <- factor(y_multi)
+# 
+# modelo_multi_enet <- cv.glmnet(
+#   X, y_factor,
+#   family      = "multinomial",
+#   type.multinomial = "grouped",
+#   alpha       = 0.5,
+#   nfolds      = 10,
+#   standardize = FALSE
+# )
+
+coefs <- coef(modelo_multi_enet, s = "lambda.min")
+
+df_coefs <- extraer_multi(modelo_multi_enet)
+
+plot(modelo_multi_enet)
+```
 
 ### EPTS
+
+En el enfoque mencionado anteriormente los coeficientes {$\beta_1^o$,$\beta_2^o$,$\beta_3^o$} y {$\beta_1^d$,$\beta_2^d$,$\beta_3^d$} representan las contribuciones de cada jugador en los distintos tipos de anotación. Aunque puede resultar interesante y permita realizar distintos análisis, el objetivo final de este estudio es obtener una métrica que unifique la contribución ofensiva y defensiva en una única medida general.
+
+Para la contribución ofensiva, esto puede lograrse calculando la cantidad de puntos esperada en una posesión que anota el equipo de dicho jugador cuando él está incluido en el quinteto y todos los demás jugadores en la alineación pertenecen al grupo de referencia (con RAPM igual a 0).
+
+Mientras que la contribución defensiva de un jugador puede evaluarse mediante la cantidad esperada de puntos (por posesión) concedidos por el equipo de dicho jugador cuando él no está en la alineación y todos los demás jugadores en cancha pertenecen al grupo de referencia.
+
+A esta nueva métrica la denominamos ETPS (*Expected Points per Team possession with the player Scoring contribution*)
+
+$$
+EPTS_k^r= E(PTS_i \mid X_{ik}^r \ne 0,\, \boldsymbol{X}_{i/k}^r = 0,\, \boldsymbol{X}_i^{\overline{r}} = 0), \quad r \in \{o, d\}
+$$
+
+Ridge
+
+```{r}
+#probs <- predict(modelo_multi_ridge, X, s = "lambda.min", type = "response")
+
+#probs[1:100]
+```
 
 ### wEPTS
 
