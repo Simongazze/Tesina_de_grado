@@ -1697,23 +1697,110 @@ probar con datos sin filtrar
 
 se plantea un modelo de regrasión logística multinomial **nominal** en vez de ordinal, ya que, auquen los puntos sí tienen orden natural, el modelo ordinal asume proporcionalidad de odds entre categorías, lo cual puede no cumplirse (el salto de 0 a 1 es muy distinto al de 2 a 3).
 
+Ridge
+
 ```{r}
-y_multi = df_mod_ltp |>
+X <- model.matrix(
+  puntos_pos ~ .,
+  data = df_mod_ltp_sep
+)
+
+y_multi = df_mod_ltp_sep |>
   mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
   pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
 
-# y debe ser un factor con todos los niveles (0 a 7)
-y_factor <- factor(y_multi)   # "0" queda como referencia automáticamente
 
-modelo_multi <- cv.glmnet(
+y_factor <- factor(y_multi) 
+
+modelo_multi_ridge <- cv.glmnet(
   X, y_factor,
   family      = "multinomial",
   type.multinomial = "grouped",  # penaliza todos los coeficientes de una variable juntos
-  alpha       = 0.5,             # Elastic Net (o el alpha óptimo que encontraste)
+  alpha       = 0,             # Elastic Net (o el alpha óptimo que encontraste)
   nfolds      = 10,
   standardize = FALSE
 )
+
+coefs <- coef(modelo_multi_ridge, s = "lambda.min")
+
+extraer_multi <- function(modelo, s = "lambda.min") {
+  cf_list <- coef(modelo, s = s)
+  coef_ref <- as.numeric(cf_list[["0"]])   # coeficientes de la categoría base
+
+  purrr::map_dfr(names(cf_list), function(cat) {
+    cf <- cf_list[[cat]]
+    tibble(
+      jugador   = rownames(cf),
+      coef_raw  = as.numeric(cf),
+      coef      = as.numeric(cf) - coef_ref,  # diferencia vs referencia
+      categoria = cat
+    )
+  }) |>
+    filter(
+      jugador   != "(Intercept)",
+      categoria != "0",          # sacás la referencia del df final
+      coef      != 0
+    )
+}
+
+df_coefs <- extraer_multi(modelo_multi_ridge)
+
+plot(modelo_multi_ridge)
 ```
+
+Lasso
+
+```{r}
+X <- model.matrix(
+  puntos_pos ~ .,
+  data = df_mod_ltp_sep
+)
+
+y_multi = df_mod_ltp_sep |>
+  mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
+  pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+
+
+y_factor <- factor(y_multi) 
+
+modelo_multi_ridge <- cv.glmnet(
+  X, y_factor,
+  family      = "multinomial",
+  type.multinomial = "grouped",  # penaliza todos los coeficientes de una variable juntos
+  alpha       = 1,             # Elastic Net (o el alpha óptimo que encontraste)
+  nfolds      = 10,
+  standardize = FALSE
+)
+
+coefs <- coef(modelo_multi_ridge, s = "lambda.min")
+
+extraer_multi <- function(modelo, s = "lambda.min") {
+  cf_list <- coef(modelo, s = s)
+  coef_ref <- as.numeric(cf_list[["0"]])   # coeficientes de la categoría base
+
+  purrr::map_dfr(names(cf_list), function(cat) {
+    cf <- cf_list[[cat]]
+    tibble(
+      jugador   = rownames(cf),
+      coef_raw  = as.numeric(cf),
+      coef      = as.numeric(cf) - coef_ref,  # diferencia vs referencia
+      categoria = cat
+    )
+  }) |>
+    filter(
+      jugador   != "(Intercept)",
+      categoria != "0",          # sacás la referencia del df final
+      coef      != 0
+    )
+}
+
+df_coefs <- extraer_multi(modelo_multi_ridge)
+
+readRDS("modelo_multi_lasso.RDS")
+
+plot(modelo_multi_ridge)
+```
+
 
 
 ### EPTS
