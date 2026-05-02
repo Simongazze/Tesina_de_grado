@@ -2089,6 +2089,14 @@ Ridge
 
 ### wEPTS
 
+si realizo la penalización que proponen en el artículo, un jugador que llegó a mitad de temporada jugando 35 minutos por partido tendría un Wk ≈ 0.36 (asumiendo ~40% de la temporada y ~90% del tiempo de juego disponible), siendo penalizado de forma similar a uno que estuvo toda la temporada pero jugaba muy pocos minutos. Eso claramente no es deseable.
+
+Una opción es descomponer el peso en dos componentes:
+
+$\hat{W}_k^r = \underbrace{\frac{n_k^r}{n_{t_k,\text{activo}}^r}}_{\text{participación cuando disponible}} \times \underbrace{\frac{n_{t_k,\text{activo}}^r}{n_{t_k}^r}}_{\text{disponibilidad}}$
+
+donde ntk, son las posesiones del equipo solo en los partidos en que el jugador estuvo en el plantel. Podrías argumentar que la penalización debería aplicarse solo sobre el primer factor (participación efectiva), neutralizando el segundo.
+
 ### Comparación de modelos
 
 ### Hacerlo con los segmentos
