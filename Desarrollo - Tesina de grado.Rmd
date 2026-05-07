@@ -61,6 +61,11 @@ poss_by_poss_temporada <- poss_by_poss_temporada %>%
       tipo_equipo_accion == "local",
       equipo_local,
       equipo_visitante
+    ),
+    equipo_limpio_def = if_else(
+      tipo_equipo_accion == "local",
+      equipo_visitante,
+      equipo_local
     )
   ) %>%
   dplyr::select(-equipos)
@@ -458,7 +463,7 @@ A su vez, aunque se excluyan este tipo de jugadores, las distribuciones de +/- c
 
 ```{r}
 
-plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS")
+plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS") #Ya está filtrado
 plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales > 500) %>% rename(jugador = jugador_id)
 
 #OP 2
@@ -1433,6 +1438,8 @@ Usar caret para validación cruzada
 
 Ver características de jugadores eliminados por lasso
 
+12 jugadores participaron de en 2 equipos de la liga en distintos momentos de la temporada
+
 ### -------------------------------------------------
 
 ### Ridge, Lasso, Elastic Net
@@ -2059,7 +2066,7 @@ epts = pi_1 + 2*pi_2 + 3.01*pi_3
 
 df_betas = df_betas %>% mutate(epts = epts)
 
-df_beta_off = df_betas %>% filter(grepl("off",jugador))
+df_beta_off_enet = df_betas %>% filter(grepl("off",jugador))
 
 df_beta_def_enet = df_betas %>% filter(grepl("def",jugador))
 
@@ -2096,6 +2103,37 @@ Una opción es descomponer el peso en dos componentes:
 $\hat{W}_k^r = \underbrace{\frac{n_k^r}{n_{t_k,\text{activo}}^r}}_{\text{participación cuando disponible}} \times \underbrace{\frac{n_{t_k,\text{activo}}^r}{n_{t_k}^r}}_{\text{disponibilidad}}$
 
 donde ntk, son las posesiones del equipo solo en los partidos en que el jugador estuvo en el plantel. Podrías argumentar que la penalización debería aplicarse solo sobre el primer factor (participación efectiva), neutralizando el segundo.
+
+```{r}
+poss_por_jug = readRDS("plus_minus_por_equipo_1.RDS")
+
+poss_por_jug1 = poss_por_jug %>% group_by(jugador_id) %>% summarise( 
+  equipo_del_jugador = equipo_del_jugador[which.max(posesiones_totales)], posesiones_totales = sum(posesiones_totales), posesiones_ofensivas = sum(posesiones_ofensivas), posesiones_defensivas = sum(posesiones_defensivas))
+
+df_poss_eq_def <- poss_by_poss_temporada %>% 
+  group_by(equipo_limpio_def) %>% 
+  summarise(
+    posesiones_totales_def = n(),
+    posesiones_promedio = posesiones_totales_def / n_distinct(partido_key)
+  ) %>% 
+  arrange(desc(posesiones_totales_def)) %>% 
+  arrange(desc(posesiones_promedio)) %>%
+  mutate(equipo_del_jugador = factor(equipo_limpio_def, levels = equipo_limpio_def))
+
+df_poss_eq <- poss_by_poss_temporada %>% 
+  group_by(equipo_limpio) %>% 
+  summarise(
+    posesiones_totales_off = n(),
+    posesiones_promedio = posesiones_totales_off / n_distinct(partido_key)
+  ) %>% 
+  arrange(desc(posesiones_totales_off)) %>% 
+  arrange(desc(posesiones_promedio)) %>%
+  mutate(equipo_del_jugador = factor(equipo_limpio, levels = equipo_limpio))
+
+poss_eq_jug = poss_por_jug1 %>% left_join(df_poss_eq %>% dplyr::select(equipo_del_jugador,posesiones_totales_off)) %>% left_join(df_poss_eq_def %>% dplyr::select(equipo_del_jugador,posesiones_totales_def)) %>% mutate(w_off = posesiones_ofensivas/posesiones_totales_off, w_def = posesiones_defensivas/posesiones_totales_def)
+
+```
+
 
 ### Comparación de modelos
 

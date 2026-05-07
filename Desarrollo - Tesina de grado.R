@@ -107,42 +107,51 @@ df_plus_minus <- plus_minus %>%
 library(tidyverse)
 
 # 1. Definimos el vector con los nombres de los jugadores
-#jugador_cols <- colnames(poss_by_poss_temporada)[24:369]
+# jugador_cols <- colnames(poss_by_poss_temporada)[24:369]
+# 
+ # 2. Transformación y cálculo
+# plus_minus_por_equipo1 <- poss_by_poss_temporada %>%
+#   # Pasamos de 350 columnas de jugadores a 2 columnas: "jugador" y "presencia"
+#   pivot_longer(
+#     cols = all_of(jugador_cols),
+#     names_to = "jugador_id",
+#     values_to = "presencia"
+#   )
+# 
+#   plus_minus_por_equipo_1 = plus_minus_por_equipo1 %>% 
+#   # Nos quedamos solo con las filas donde el jugador participó (1 o -1)
+#   filter(presencia != 0) %>%
+#   # Identificamos en qué equipo estaba jugando en esa posesión
+#   # Si presencia es 1, estaba en el equipo local. Si es -1, en el visitante.
+#   mutate(
+#     equipo_del_jugador = if_else(presencia == 1, equipo_limpio, if_else(equipo_limpio == equipo_local,equipo_visitante,equipo_local))
+#   ) %>%
+#   # Agrupamos por el nombre del jugador Y por el equipo en el que estaba
+#   group_by(jugador_id, equipo_del_jugador) %>%
+#   summarise(
+#     plus_minus_total = sum(puntos_pos * presencia, na.rm = TRUE),
+#     posesiones_totales = n(),
+#     
+#     # 🔹 cantidad de posesiones en ataque (presencia == 1)
+#     posesiones_ofensivas = sum(presencia == 1, na.rm = TRUE),
+#     
+#     # 🔹 cantidad de posesiones en defensa (presencia == -1)
+#     posesiones_defensivas = sum(presencia == -1, na.rm = TRUE),
+#     
+#     # 🔹 suma de puntos en posesiones ofensivas
+#     puntos_ofensivos = sum(puntos_pos[presencia == 1], na.rm = TRUE),
+#     
+#     # 🔹 suma de puntos en posesiones defensivas
+#     puntos_defensivos = sum(puntos_pos[presencia == -1], na.rm = TRUE),
+#     .groups = "drop"
+#   )
+# 
+# a = plus_minus_por_equipo_1 %>% 
+#   group_by(jugador_id) %>%
+#   filter(n() > 1)
+# 
+# saveRDS(plus_minus_por_equipo_1, "plus_minus_por_equipo_1.RDS")
 
-# 2. Transformación y cálculo
-#plus_minus_por_equipo <- poss_by_poss_temporada %>%
-  # Pasamos de 350 columnas de jugadores a 2 columnas: "jugador" y "presencia"
-#  pivot_longer(
-#    cols = all_of(jugador_cols),
-#    names_to = "jugador_id",
-#    values_to = "presencia"
-#  ) %>%
-  # Nos quedamos solo con las filas donde el jugador participó (1 o -1)
-#  filter(presencia != 0) %>%
-  # Identificamos en qué equipo estaba jugando en esa posesión
-  # Si presencia es 1, estaba en el equipo local. Si es -1, en el visitante.
-#  mutate(
-#    equipo_del_jugador = if_else(presencia == 1, equipo_limpio, if_else(equipo_limpio == equipo_local,equipo_visitante,equipo_local))
-#  ) %>%
-  # Agrupamos por el nombre del jugador Y por el equipo en el que estaba
-#  group_by(jugador_id, equipo_del_jugador) %>%
-#  summarise(
-#    plus_minus_total = sum(puntos_pos * presencia, na.rm = TRUE),
-#    posesiones_totales = n(),
-    
-    # 🔹 cantidad de posesiones en ataque (presencia == 1)
-#    posesiones_ofensivas = sum(presencia == 1, na.rm = TRUE),
-    
-    # 🔹 cantidad de posesiones en defensa (presencia == -1)
-#    posesiones_defensivas = sum(presencia == -1, na.rm = TRUE),
-    
-    # 🔹 suma de puntos en posesiones ofensivas
-#    puntos_ofensivos = sum(puntos_pos[presencia == 1], na.rm = TRUE),
-    
-    # 🔹 suma de puntos en posesiones defensivas
-#    puntos_defensivos = sum(puntos_pos[presencia == -1], na.rm = TRUE),
-#    .groups = "drop"
-#  ) %>%
   # Opcional: Calcular el +/- cada 100 posesiones para que sea comparable
 #  %>% mutate(plus_minus_100 = (plus_minus_total / posesiones_totales) * 100, pts_recib_por_pos = ((-1)*puntos_defensivos)/posesiones_defensivas, pts_realizad_por_pos = puntos_ofensivos/posesiones_ofensivas)
 #
