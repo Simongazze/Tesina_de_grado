@@ -1416,7 +1416,7 @@ cor(df_full$coef_def, df_full$pts_recib_por_pos, method = "spearman")
 
 El valor más bajo en un coeficiente es obtenido por MAXWELL, DU'VAUGHN ELISHA, jugador que también presenta la mayor cantidad de puntos permitidos por posesión y 2do peor valor en puntos permitidos estandarizados.
 
-### Comentarios nacho
+### Comentarios
 
 Hacer X´X y ver que da, intentar identificar la interpretación de los betas, si son el promedio de algo.
 
@@ -1442,21 +1442,21 @@ Ver características de jugadores eliminados por lasso
 
 ### -------------------------------------------------
 
-### Ridge, Lasso, Elastic Net
+### Métodos de regularización (Ridge, Lasso, Elastic Net)
 
 Buscando solucionar los problemas de la multicolinealidad y los valores extremos de jugador con pocos minutos de juego, se plantearán modelos con estimación de parámetros mediante métodos de regularización.
 
-#### Ridge
+#### Ridge - Normal
 
--formula-
+\begin{equation}
+S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2
+\end{equation}
 
 los coeficientes tienden a cero cuando lambda es suficientemente grande, pero no decrecen a medida que crece lambda, sino que pueden crecer inicialmente y luego decrecer. La norma l2 decrece siempre a medida que crece lambda.
 
 Existe un trade off entre el sesgo y la variancia en esta clase de método, donde a medida que aumenta lambda disminuye la variancia, pero aumenta el sesgo. Por eso debemos encontrar el valor de lambda óptimo.
 
 ridge regression works best in situations where the least squares estimates have high variance.
-
-primer modelo
 
 ```{r}
 # X <- model.matrix(
@@ -1481,8 +1481,6 @@ primer modelo
 # )
 ```
 
-CME de validación cruzada
-
 ```{r}
 # CME de validación cruzada
 # modelo_ridge$cvm[which.min(modelo_ridge$cvm)]
@@ -1494,7 +1492,7 @@ CME de validación cruzada
 # r2 <- 1 - ss_res/ss_tot
 ```
 
-modelo separando los efectos ofensivos y defensivos
+aplico directamente el modelo separando los efectos ofensivos y defensivos
 
 ```{r}
 X <- model.matrix(
@@ -1548,9 +1546,14 @@ deviance_normal <- sum((y - predict(modelo_ridge, X, s = "lambda.min"))^2)
 plot(modelo_ridge)
 ```
 
-#### Lasso
+#### Lasso - Normal
 
-primer modelo
+A diferencia de la regresión Ridge, en la cual los coeficientes pueden acercarse a 0 pero nunca llegan exactamente a ese valor, la técnica Lasso, tiende a forzar algunos parámetros a ser cero, con lo cual también se realiza una selección de las jugadores más influyentes.
+
+\begin{equation}
+S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{k=1}^p|\beta_k|=S+\lambda \sum_{k=1}^p\ |\beta_k|
+\end{equation}
+
 
 ```{r}
 # X <- model.matrix(
@@ -1575,7 +1578,6 @@ primer modelo
 # )
 ```
 
-CME cross validation
 
 ```{r}
 # CME de validación cruzada
@@ -1605,7 +1607,7 @@ modelo_lasso <- cv.glmnet(
   standardize = FALSE
 )
 
-betas <- as.matrix(coef(modelo_ridge, s = "lambda.min"))
+betas <- as.matrix(coef(modelo_lasso, s = "lambda.min"))
 
 df_betas <- data.frame(
   jugador = rownames(betas),
@@ -1624,8 +1626,6 @@ df_full <- beta_hat_ambas %>%
   mutate(coef_tot = coef_of + coef_def)
 ```
 
-Leandro vildoza: Como líder defensivo ha llevado a los cordobeses a igualar la final ante Boca.
-
 CME cross validation
 
 ```{r}
@@ -1641,11 +1641,25 @@ r2 <- 1 - ss_res/ss_tot
 plot(modelo_lasso)
 ```
 
-#### Elastic net
+De 229*2 = 458 variables, solo 64 presentaron coeficientes distintos de 0.
 
--- formula --
+*dato de color*
 
-Para cada α en la grilla (0, 0.1, 0.2, …, 1.0), cv.glmnet internamente hace validación cruzada de 10 folds probando muchos valores de λ, y guarda el MSE promedio mínimo (campo \$cvm).
+Leandro vildoza: Reconocido base de carácter defensivo, condujo a los cordobeses a jugar la final ante Boca. Presentó el mayor coeficiente defensivo con lasso.
+
+#### Elastic net - Normal
+
+Cuando existen predictores altamente correlacionados, **ridge** reduce la influencia de todos ellos a la vez de forma proporcional, mientras que **lasso** tiende a seleccionar uno de ellos, dándole todo el peso y excluyendo al resto. En presencia de correlaciones fuertes esta selección puede variar mucho ante pequeñas perturbaciones, por lo que las soluciones de lasso pueden ser más inestables.
+
+Para encontrar un equilibrio entre ambos métodos se plantea la penalización **elastic net**
+
+\begin{equation}
+S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=S+\lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+\end{equation}
+
+2 hiperparámetros: α y λ
+
+Para cada α en la grilla (0, 0.1, 0.2, …, 1.0), cv.glmnet internamente hace validación cruzada de 10 folds probando muchos valores de λ, y guarda el CME promedio mínimo.
 
 ```{r}
 alphas   <- seq(0, 1, by = 0.1)   # 0=Ridge, 1=Lasso
@@ -1674,7 +1688,6 @@ cat("Alpha óptimo:", alpha_optimo, "\n")
 
 ```
 
-gráfico
 
 ```{r}
 cv_errors <- sapply(cv_lista, function(m) min(m$cvm))
@@ -1689,7 +1702,7 @@ ggplot(df_alpha, aes(alpha, mse)) +
   geom_vline(xintercept = alpha_optimo, linetype = "dashed", color = "orange") +
   annotate("text", x = alpha_optimo + 0.03, y = max(cv_errors),
            label = paste0("α* = ", alpha_optimo), color = "orange", hjust = 0) +
-  labs(x = "Alpha (0 = Ridge, 1 = Lasso)", y = "CV-MSE mínimo",
+  labs(x = "Alpha (0 = Ridge, 1 = Lasso)", y = "CV-CME mínimo",
        title = "Búsqueda del alpha óptimo") +
   theme_minimal()
 
@@ -1759,7 +1772,7 @@ theme(axis.text.x.top = element_text(angle = 45, vjust = 0.5, size = 7))
 
 ### Modelo de regresión logística multinomial - Métodos de regularización
 
-se plantea un modelo de regrasión logística multinomial **nominal** en vez de ordinal, ya que, auquen los puntos sí tienen orden natural, el modelo ordinal asume proporcionalidad de odds entre categorías, lo cual puede no cumplirse (el salto de 0 a 1 es muy distinto al de 2 a 3).
+se plantea un modelo de regrasión logística multinomial **nominal** en vez de ordinal, ya que, aunque los puntos sí tienen orden natural, el modelo ordinal asume proporcionalidad de odds entre categorías, lo cual puede no cumplirse (el salto de 0 a 1 es muy distinto al de 2 a 3).
 
 A su vez, tenemos que tener en cuenta que a diferencia de vgam() que parametrizan el modelo logit fijando la categoría de referencia, glmnet usa una **parametrización simétrica**: estima coeficientes para todas las categorías incluyendo la referencia, pero aplica una restricción interna para que sean identificables:
 
@@ -1807,7 +1820,11 @@ que es exactamente la forma del modelo de categoría de referencia.
 
 Por lo tanto, ambos modelos producen las \textbf{mismas probabilidades predichas} y la misma verosimilitud. La diferencia es únicamente de parametrización.
 
-Ridge
+#### Ridge - Multinomial
+
+\begin{equation}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+\end{equation}
 
 ```{r}
 
@@ -1829,7 +1846,7 @@ modelo_multi_ridge = readRDS("modelo_multi_ridge.RDS")
 #   X, y_factor,
 #   family      = "multinomial",
 #   type.multinomial = "grouped",  # penaliza todos los coeficientes de una variable juntos
-#   alpha       = 0,             # Elastic Net (o el alpha óptimo que encontraste)
+#   alpha       = 0,             
 #   nfolds      = 10,
 #   standardize = FALSE
 # )
@@ -1842,7 +1859,7 @@ beta_2 <- as.numeric(coefs[["2"]])
 beta_3 <- as.numeric(coefs[["3"]])
 
 df_betas <- data.frame(
-  jugador = rownames(coefs[["0"]]),
+  jugador = gsub("`", "", rownames(coefs[["0"]])),
   beta_0  = beta_0,
   beta_1  = beta_1,
   beta_2  = beta_2,
@@ -1853,33 +1870,33 @@ df_betas <- df_betas |>
   filter(!(jugador == "(Intercept)" & beta_0 == 0 & beta_1 == 0 & 
            beta_2 == 0 & beta_3 == 0))
 
-intercepto <- df_betas |> 
+intercepto_ridge <- df_betas |> 
   filter(jugador == "(Intercept)")
 
 df_betas <- df_betas |>
   filter(jugador != "(Intercept)")
 
 
-pi_1 = exp(intercepto$beta_1 + df_betas$beta_1)/(exp(intercepto$beta_0 + df_betas$beta_0)+exp(intercepto$beta_1 + df_betas$beta_1)+exp(intercepto$beta_2 + df_betas$beta_2)+exp(intercepto$beta_3 + df_betas$beta_3))
+pi_1 = exp(intercepto_ridge$beta_1 + df_betas$beta_1)/(exp(intercepto_ridge$beta_0 + df_betas$beta_0)+exp(intercepto_ridge$beta_1 + df_betas$beta_1)+exp(intercepto_ridge$beta_2 + df_betas$beta_2)+exp(intercepto_ridge$beta_3 + df_betas$beta_3))
 
-pi_2 = exp(intercepto$beta_2 + df_betas$beta_2)/(exp(intercepto$beta_0 + df_betas$beta_0)+exp(intercepto$beta_1 + df_betas$beta_1)+exp(intercepto$beta_2 + df_betas$beta_2)+exp(intercepto$beta_3 + df_betas$beta_3))
+pi_2 = exp(intercepto_ridge$beta_2 + df_betas$beta_2)/(exp(intercepto_ridge$beta_0 + df_betas$beta_0)+exp(intercepto_ridge$beta_1 + df_betas$beta_1)+exp(intercepto_ridge$beta_2 + df_betas$beta_2)+exp(intercepto_ridge$beta_3 + df_betas$beta_3))
 
-pi_3 = exp(intercepto$beta_3 + df_betas$beta_3)/(exp(intercepto$beta_0 + df_betas$beta_0)+exp(intercepto$beta_1 + df_betas$beta_1)+exp(intercepto$beta_2 + df_betas$beta_2)+exp(intercepto$beta_3 + df_betas$beta_3))
+pi_3 = exp(intercepto_ridge$beta_3 + df_betas$beta_3)/(exp(intercepto_ridge$beta_0 + df_betas$beta_0)+exp(intercepto_ridge$beta_1 + df_betas$beta_1)+exp(intercepto_ridge$beta_2 + df_betas$beta_2)+exp(intercepto_ridge$beta_3 + df_betas$beta_3))
 
 df_betas = df_betas %>% mutate(pi_1 = pi_1, pi_2 = pi_2, pi_3 = pi_3)
 
 epts = pi_1 + 2*pi_2 + 3.01*pi_3
 
-df_betas = df_betas %>% mutate(epts = epts)
+df_betas_ridge = df_betas %>% mutate(epts = epts)
 
-df_beta_off = df_betas %>% filter(grepl("off",jugador))
+df_beta_off_ridge = df_betas_ridge %>% filter(grepl("off",jugador))
 
-df_beta_def = df_betas %>% filter(grepl("def",jugador))
+df_beta_def_ridge = df_betas_ridge %>% filter(grepl("def",jugador))
 
 plot(modelo_multi_ridge)
 ```
 
-Deviance y accuracy
+Como medida de bondad de ajuste en los modelos logísticos utilizamos la Deviance
 
 ```{r}
 # Deviance de validación cruzada — equivalente al CME para modelos GLM
@@ -1891,7 +1908,11 @@ modelo_multi_ridge$cvm[which.min(modelo_multi_ridge$cvm)]
 # table(Predicho = y_pred_cat, Real = y_factor) #Solo predice 0s?
 ```
 
-Lasso
+Lasso - multinomial
+
+\begin{equation}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p\beta_k^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p\beta_k^2
+\end{equation}
 
 ```{r}
 modelo_multi_lasso = readRDS("modelo_multi_lasso.RDS")
@@ -1925,7 +1946,7 @@ beta_2 <- as.numeric(coefs[["2"]])
 beta_3 <- as.numeric(coefs[["3"]])
 
 df_betas <- data.frame(
-  jugador = rownames(coefs[["0"]]),
+  jugador = gsub("`", "", rownames(coefs[["0"]])),
   beta_0  = beta_0,
   beta_1  = beta_1,
   beta_2  = beta_2,
@@ -1936,33 +1957,37 @@ df_betas <- df_betas |>
   filter(!(jugador == "(Intercept)" & beta_0 == 0 & beta_1 == 0 & 
            beta_2 == 0 & beta_3 == 0))
 
-intercepto <- df_betas |> 
+intercepto_lasso <- df_betas |> 
   filter(jugador == "(Intercept)")
 
 df_betas <- df_betas |>
   filter(jugador != "(Intercept)")
 
 
-pi_1 = exp(intercepto$beta_1 + df_betas$beta_1)/(exp(intercepto$beta_0 + df_betas$beta_0)+exp(intercepto$beta_1 + df_betas$beta_1)+exp(intercepto$beta_2 + df_betas$beta_2)+exp(intercepto$beta_3 + df_betas$beta_3))
+pi_1 = exp(intercepto_lasso$beta_1 + df_betas$beta_1)/(exp(intercepto_lasso$beta_0 + df_betas$beta_0)+exp(intercepto_lasso$beta_1 + df_betas$beta_1)+exp(intercepto_lasso$beta_2 + df_betas$beta_2)+exp(intercepto_lasso$beta_3 + df_betas$beta_3))
 
-pi_2 = exp(intercepto$beta_2 + df_betas$beta_2)/(exp(intercepto$beta_0 + df_betas$beta_0)+exp(intercepto$beta_1 + df_betas$beta_1)+exp(intercepto$beta_2 + df_betas$beta_2)+exp(intercepto$beta_3 + df_betas$beta_3))
+pi_2 = exp(intercepto_lasso$beta_2 + df_betas$beta_2)/(exp(intercepto_lasso$beta_0 + df_betas$beta_0)+exp(intercepto_lasso$beta_1 + df_betas$beta_1)+exp(intercepto_lasso$beta_2 + df_betas$beta_2)+exp(intercepto_lasso$beta_3 + df_betas$beta_3))
 
-pi_3 = exp(intercepto$beta_3 + df_betas$beta_3)/(exp(intercepto$beta_0 + df_betas$beta_0)+exp(intercepto$beta_1 + df_betas$beta_1)+exp(intercepto$beta_2 + df_betas$beta_2)+exp(intercepto$beta_3 + df_betas$beta_3))
+pi_3 = exp(intercepto_lasso$beta_3 + df_betas$beta_3)/(exp(intercepto_lasso$beta_0 + df_betas$beta_0)+exp(intercepto_lasso$beta_1 + df_betas$beta_1)+exp(intercepto_lasso$beta_2 + df_betas$beta_2)+exp(intercepto_lasso$beta_3 + df_betas$beta_3))
 
 df_betas = df_betas %>% mutate(pi_1 = pi_1, pi_2 = pi_2, pi_3 = pi_3)
 
-epts = pi_1 + 2*pi_2 + 3.01*pi_3
+epts_lasso = pi_1 + 2*pi_2 + 3.01*pi_3
 
-df_betas = df_betas %>% mutate(epts = epts)
+df_betas_lasso = df_betas %>% mutate(epts_lasso = epts_lasso)
 
-df_beta_off = df_betas %>% filter(grepl("off",jugador))
+df_beta_off_lasso = df_betas_lasso %>% filter(grepl("off",jugador))
 
-df_beta_def = df_betas %>% filter(grepl("def",jugador))
+df_beta_def_lasso = df_betas_lasso %>% filter(grepl("def",jugador))
 
-plot(modelo_multi_ridge)
+plot(modelo_multi_lasso)
 ```
 
-Deviance y accuracy
+Se utiliza la función type.multinomial = "grouped" la cual aplica una penalización grupal (group lasso): los coeficientes de un mismo predictor(coef off o def) en todas las categorías se tratan como un grupo. El predictor entra o sale del modelo para todas las categorías al mismo tiempo.
+
+199 categorías distintas de 0
+
+Deviance
 
 ```{r}
 # Deviance de validación cruzada — equivalente al CME para modelos GLM
@@ -1974,7 +1999,11 @@ modelo_multi_lasso$cvm[which.min(modelo_multi_lasso$cvm)]
 #table(Predicho = y_pred_cat, Real = y_factor)
 ```
 
-Elastic net
+Elastic net - multinomial
+
+\begin{equation}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+\end{equation}
 
 ```{r}
 #Hacer
@@ -2133,6 +2162,57 @@ df_poss_eq <- poss_by_poss_temporada %>%
 poss_eq_jug = poss_por_jug1 %>% left_join(df_poss_eq %>% dplyr::select(equipo_del_jugador,posesiones_totales_off)) %>% left_join(df_poss_eq_def %>% dplyr::select(equipo_del_jugador,posesiones_totales_def)) %>% mutate(w_off = posesiones_ofensivas/posesiones_totales_off, w_def = posesiones_defensivas/posesiones_totales_def)
 
 ```
+
+Ridge
+
+```{r}
+pi_1 = exp(intercepto_ridge$beta_1)/(exp(intercepto_ridge$beta_0)+exp(intercepto_ridge$beta_1)+exp(intercepto_ridge$beta_2)+exp(intercepto_ridge$beta_3))
+
+pi_2 = exp(intercepto_ridge$beta_2)/(exp(intercepto_ridge$beta_0)+exp(intercepto_ridge$beta_1)+exp(intercepto_ridge$beta_2)+exp(intercepto_ridge$beta_3))
+
+pi_3 = exp(intercepto_ridge$beta_3)/(exp(intercepto_ridge$beta_0)+exp(intercepto_ridge$beta_1)+exp(intercepto_ridge$beta_2)+exp(intercepto_ridge$beta_3))
+
+epts_0_ridge = pi_1 + 2*pi_2 + 3.01*pi_3
+
+poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(df_beta_off_ridge %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_ridge = epts)
+
+poss_eq_jug = poss_eq_jug %>% left_join(df_beta_def_ridge %>% mutate(jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_ridge = epts)
+
+w_epts_off = poss_eq_jug$w_off*poss_eq_jug$epts_off_ridge + (1-(poss_eq_jug$w_off))*epts_0_ridge
+
+w_epts_def = poss_eq_jug$w_def*poss_eq_jug$epts_def_ridge + (1-(poss_eq_jug$w_def))*epts_0_ridge
+
+poss_eq_jug = poss_eq_jug %>% mutate(w_epts_off_ridge = w_epts_off, w_epts_def_ridge = w_epts_def)
+
+```
+
+
+Lasso
+
+```{r}
+pi_1 = exp(intercepto_lasso$beta_1)/(exp(intercepto_lasso$beta_0)+exp(intercepto_lasso$beta_1)+exp(intercepto_lasso$beta_2)+exp(intercepto_lasso$beta_3))
+
+pi_2 = exp(intercepto_lasso$beta_2)/(exp(intercepto_lasso$beta_0)+exp(intercepto_lasso$beta_1)+exp(intercepto_lasso$beta_2)+exp(intercepto_lasso$beta_3))
+
+pi_3 = exp(intercepto_lasso$beta_3)/(exp(intercepto_lasso$beta_0)+exp(intercepto_lasso$beta_1)+exp(intercepto_lasso$beta_2)+exp(intercepto_lasso$beta_3))
+
+epts_0_lasso = pi_1 + 2*pi_2 + 3.01*pi_3
+
+poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(df_beta_off_lasso %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts_lasso))) %>% rename(epts_off_lasso = epts_lasso)
+
+poss_eq_jug = poss_eq_jug %>% left_join(df_beta_def_lasso %>% mutate(jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts_lasso))) %>% rename(epts_def_lasso = epts_lasso)
+
+w_epts_off = poss_eq_jug$w_off*poss_eq_jug$epts_off_lasso + (1-(poss_eq_jug$w_off))*epts_0_lasso
+
+w_epts_def = poss_eq_jug$w_def*poss_eq_jug$epts_def_lasso + (1-(poss_eq_jug$w_def))*epts_0_lasso
+
+poss_eq_jug = poss_eq_jug %>% mutate(w_epts_off_lasso = w_epts_off, w_epts_def_lasso = w_epts_def)
+```
+
+
+
+
+
 
 
 ### Comparación de modelos
