@@ -1420,6 +1420,10 @@ El valor más bajo en un coeficiente es obtenido por MAXWELL, DU'VAUGHN ELISHA, 
 
 Hacer X´X y ver que da, intentar identificar la interpretación de los betas, si son el promedio de algo.
 
+cómo repartir mérito entre jugadores altamente correlacionados.
+
+No hay una fórmula explícita para cada beta
+
 hacer coef vs +/- y pintar por puestos de la liga de los equipos (verde, rojo, amarillo, gris).
 
 a nacho le gusto la idea de la variable dicotomica

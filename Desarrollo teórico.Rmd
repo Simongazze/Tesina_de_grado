@@ -1,0 +1,32 @@
+---
+title: "comentarios"
+author: "Gazze Simón Pedro"
+date: "2026-05-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+$X'X$
+
+```{r}
+df_1partido_1cuarto = poss_by_poss_temporada %>%
+   filter(partido_key == "BOCA vs ZARATE BASKET (012/10/2024 11:30)" & cuarto == 2) %>%
+   dplyr::select(23:369) #Estas son solo las columnas de puntos en la posesión y de jugadores
+
+#Identifico los jugadores q no participaron de este partido
+cols_ceros = names(df_1partido_1cuarto[, -1])[colSums(df_1partido_1cuarto[, -1] != 0) == 0 ]
+
+df_1partido_1cuarto = df_1partido_1cuarto %>% dplyr::select(-cols_ceros)
+```
+
+```{r}
+X <- model.matrix(~ . - 1, data = df_1partido_1cuarto[, -which(names(df_1partido_1cuarto) == "puntos_pos")])
+
+X_transp = t(X)
+
+mult = X_transp%*%X
+```
+
