@@ -1426,8 +1426,6 @@ No hay una fórmula explícita para cada beta
 
 hacer coef vs +/- y pintar por puestos de la liga de los equipos (verde, rojo, amarillo, gris).
 
-a nacho le gusto la idea de la variable dicotomica
-
 multinomial ordinal?
 
 no estaria bien tener una base con los jugadores equipos, posesiones, posesiones ofensivas, posesiones defensivas?
@@ -1500,7 +1498,7 @@ aplico directamente el modelo separando los efectos ofensivos y defensivos
 
 ```{r}
 X <- model.matrix(
-  puntos_pos ~ .,
+  puntos_pos ~ . -1,
   data = df_mod_ltp_sep
 )
 
@@ -1598,7 +1596,7 @@ modelo separando los efectos ofensivos y defensivos
 
 ```{r}
 X <- model.matrix(
-  puntos_pos ~ .,
+  puntos_pos ~ . -1,
   data = df_mod_ltp_sep
 )
 
@@ -1606,7 +1604,7 @@ y <- df_mod_ltp_sep$puntos_pos
 
 modelo_lasso <- cv.glmnet(
   X, y,
-  alpha = 1,       # ridge
+  alpha = 1,      
   nfolds = 10,
   standardize = FALSE
 )
@@ -1647,9 +1645,47 @@ plot(modelo_lasso)
 
 De 229*2 = 458 variables, solo 64 presentaron coeficientes distintos de 0.
 
+```{r}
+coefs <- coef(modelo_lasso, s = "lambda.min") |> as.matrix() |> as.data.frame()
+colnames(coefs) <- "coeficiente"
+
+eliminados <- coefs |> filter(coeficiente == 0)
+activos    <- coefs |> filter(coeficiente != 0)
+
+rownames(eliminados)
+rownames(activos)
+
+
+
+```
+
+
 *dato de color*
 
 Leandro vildoza: Reconocido base de carácter defensivo, condujo a los cordobeses a jugar la final ante Boca. Presentó el mayor coeficiente defensivo con lasso.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #### Elastic net - Normal
 
@@ -1834,6 +1870,10 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 
 modelo_multi_ridge = readRDS("modelo_multi_ridge.RDS")
 
+modelo_multi_ridge$lambda.min
+
+length(modelo_multi_ridge$lambda)
+
 # X <- model.matrix(
 #   puntos_pos ~ .,
 #   data = df_mod_ltp_sep
@@ -1912,7 +1952,7 @@ modelo_multi_ridge$cvm[which.min(modelo_multi_ridge$cvm)]
 # table(Predicho = y_pred_cat, Real = y_factor) #Solo predice 0s?
 ```
 
-Lasso - multinomial
+#### Lasso - multinomial
 
 \begin{equation}
 L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p\beta_k^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p\beta_k^2
@@ -1931,7 +1971,7 @@ modelo_multi_lasso = readRDS("modelo_multi_lasso.RDS")
 #   pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
 # 
 # 
-# y_factor <- factor(y_multi) 
+# y_factor <- factor(y_multi)
 # 
 # modelo_multi_lasso <- cv.glmnet(
 #   X, y_factor,
@@ -1941,6 +1981,8 @@ modelo_multi_lasso = readRDS("modelo_multi_lasso.RDS")
 #   nfolds      = 10,
 #   standardize = FALSE
 # )
+
+min(modelo_multi_lasso$cvm)
 
 coefs <- coef(modelo_multi_lasso, s = "lambda.min")
 
@@ -2003,7 +2045,7 @@ modelo_multi_lasso$cvm[which.min(modelo_multi_lasso$cvm)]
 #table(Predicho = y_pred_cat, Real = y_factor)
 ```
 
-Elastic net - multinomial
+#### Elastic net - multinomial
 
 \begin{equation}
 L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
@@ -2011,55 +2053,51 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 
 ```{r}
 #Hacer
+X <- model.matrix(
+  puntos_pos ~ .,
+  data = df_mod_ltp_sep
+)
 
-# alphas   <- seq(0, 1, by = 0.1)   # 0=Ridge, 1=Lasso
-# cv_lista <- list()
-# 
-# set.seed(42)
-# for (a in alphas) {
-#   cv_lista[[as.character(a)]] <- cv.glmnet(
-#     X, y,
-#     alpha       = a,
-#     nfolds      = 10,
-#     standardize = FALSE
-#   )
-# }
-# 
-# saveRDS(cv_lista, file = "cv_lista.RDS")
+y_multi = df_mod_ltp_sep |>
+  mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
+  pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
 
-# cv_lista = readRDS("cv_lista.RDS")
 
-# CV-error mínimo para cada alpha
-# cv_errors <- sapply(cv_lista, function(m) min(m$cvm))
+y_factor <- factor(y_multi)
 
-# Alpha óptimo
-# alpha_optimo <- alphas[which.min(cv_errors)]
-# cat("Alpha óptimo:", alpha_optimo, "\n")
+alphas <- seq(0, 1, by = 0.1)
+resultados <- data.frame(alpha = numeric(), lambda_min = numeric(), cvm_min = numeric())
+
+set.seed(42)
+for (a in alphas) {
+  cv_tmp <- cv.glmnet(X, y_factor, family = "multinomial",
+                      alpha = a, nfolds = 10,
+                      type.multinomial = "grouped")
+  
+  resultados <- rbind(resultados, data.frame(
+    alpha      = a,
+    lambda_min = cv_tmp$lambda.min,
+    cvm_min    = min(cv_tmp$cvm)   # error de CV en lambda.min
+  ))
+}
+
+# Mejor combinación
+resultados[which.min(resultados$cvm_min), ]
 ```
 
 ```{r}
+modelo_multi_enet <- cv.glmnet(X, y_factor,
+                       family = "multinomial",
+                       type.multinomial = "grouped",
+                       alpha  = 0,
+                       lambda = modelo_multi_ridge$lambda,  # mismo grid
+                       nfolds = 10,
+                       standardize = FALSE)
 
-modelo_multi_enet = readRDS("modelo_multi_enet.RDS") #está hecho con 0.5 cambiar
-# X <- model.matrix(
-#   puntos_pos ~ .,
-#   data = df_mod_ltp_sep
-# )
-# 
-# y_multi = df_mod_ltp_sep |>
-#   mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
-#   pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
-# 
-# 
-# y_factor <- factor(y_multi)
-# 
-# modelo_multi_enet <- cv.glmnet(
-#   X, y_factor,
-#   family      = "multinomial",
-#   type.multinomial = "grouped",
-#   alpha       = 0.5,
-#   nfolds      = 10,
-#   standardize = FALSE
-# )
+min(modelo_multi_enet$cvm)
+
+modelo_multi_enet = readRDS("modelo_multi_enet.RDS") 
+
 
 coefs <- coef(modelo_multi_enet, s = "lambda.min")
 
@@ -2214,12 +2252,24 @@ poss_eq_jug = poss_eq_jug %>% mutate(w_epts_off_lasso = w_epts_off, w_epts_def_l
 ```
 
 
-
-
-
-
-
 ### Comparación de modelos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### Hacerlo con los segmentos
 

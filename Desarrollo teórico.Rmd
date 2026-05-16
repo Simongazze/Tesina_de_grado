@@ -28,5 +28,75 @@ X <- model.matrix(~ . - 1, data = df_1partido_1cuarto[, -which(names(df_1partido
 X_transp = t(X)
 
 mult = X_transp%*%X
+
+mult
+
+eigenvalues = eigen(mult)$values
+
+max(eigenvalues) / min(eigenvalues)
+
+plot(sort(eigenvalues, decreasing = TRUE))
+```
+
+Podemos ver que la diagonal de la matriz X'X contiene a la cantidad de posesiones en las que participó el jugador, los elementos no diagonales de la matriz indican la participación conjunta de 2 jugadores (cantidad de posesiones compartidas con compañeros o rivales) y X'y presenta al +/- puro de cada jugador.
+
+Por otro lados los betas se calculan de la siguiente manera:
+
+$\beta = [X'X]^{-1}X'y$
+
+donde finalmente $[X'X]^{-1}$ resulta ser una especie de mecanismo de asignación de créditos.
+
+No hay una fórmula explícita para cada beta
+
+Podemos explorar algo más de esto?
+
+
+
+
+base completa sin los jugadores con pocas posesiones
+
+```{r}
+g1 = colSums(poss_by_poss_temporada[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
+
+cols_ceros_mod = g1 %>% filter(posesiones<500) %>% dplyr::select(jugador)
+
+cols_ceros_mod = cols_ceros_mod$jugador
+
+df_mod_ltp = poss_by_poss_temporada %>% dplyr::select(c(23:369)) %>% dplyr::select(-cols_ceros_mod)
+
+df_mod_ltp_sep <- df_mod_ltp
+
+jugadores <- names(df_mod_ltp)[2:230]
+
+for (j in jugadores) {
+  
+  df_mod_ltp_sep[[paste0(j, "_off")]] <- ifelse(df_mod_ltp[[j]] == 1, 1, 0)
+  
+  df_mod_ltp_sep[[paste0(j, "_def")]] <- ifelse(df_mod_ltp[[j]] == -1, -1, 0)
+}
+
+df_mod_ltp_sep <- df_mod_ltp_sep %>%
+  dplyr::select(-all_of(jugadores))
+
+X <- model.matrix(
+  puntos_pos ~ . -1,
+  data = df_mod_ltp_sep
+)
+
+y <- df_mod_ltp_sep$puntos_pos
+
+X_transp = t(X)
+
+mult = X_transp%*%X
+
+m1 = X_transp%*%y
+
+mult
+
+eigenvalues = eigen(mult)$values
+
+max(eigenvalues) / min(eigenvalues)
+
+plot(sort(eigenvalues, decreasing = TRUE))
 ```
 
