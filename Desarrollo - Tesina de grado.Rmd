@@ -72,9 +72,34 @@ poss_by_poss_temporada <- poss_by_poss_temporada %>%
 
 #Box score
 
+#Por partido
+
 box_score <- read_excel("data/Box score - temporada - sin minutos igual a 0.xlsx")
 
-box_score = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod)) 
+box_score = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod), jugador = recode(NombreCompleto_limpio, "GRUN, FEDERICO JOSE" = "GRÜN, FEDERICO JOSE", "MAINOLDI , LEONARDO ANDRES" = "MAINOLDI, LEONARDO ANDRES"))
+
+#Temporada
+
+box_sc_temp = box_score %>%
+  group_by(jugador) %>%
+  summarise(
+    # 1. Variables de control
+    Equipos = paste(unique(equipo), collapse = ", "),
+    
+    # 2. Un único across que calcula Totales y Promedios a la vez
+    across(
+      where(is.numeric) & !c(IdJugador, IdClub, IdEquipo),
+      list(
+        total = \(x) sum(x, na.rm = TRUE),
+        prom  = \(x) mean(x, na.rm = TRUE)
+      ),
+      .names = "{.fn}_{.col}" # Aplica el prefijo 'total_' o 'prom_'
+    ),
+    
+    Partidos = n(),
+    
+    .groups = "drop"
+  )
 
 
 #Tiempo jugado
@@ -90,7 +115,68 @@ minutos_jugad = minutos_jugad %>% mutate(jugador = recode(NombreCompleto_limpio,
     Minutos_por_part = Minutos/Partidos
   ) %>%
   ungroup()
+
+#Posesiones
+
+g1 = colSums(poss_by_poss_temporada[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
+
+# +/-
+
+plus_minus = poss_by_poss_temporada[, 24:369]*poss_by_poss_temporada[[23]]
+
+df_plus_minus <- plus_minus %>%
+  summarise(across(everything(), sum))%>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "jugador",
+    values_to = "+/-"
+  )
+
+# +/- por posesión
+
+
+
+# +/- por posesión estandarizado por equipo
+
+plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS") #Ya está filtrado
+plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales > 500) %>% rename(jugador = jugador_id)
+
+#OP 2
+promedio_pm1 = plus_minus_por_equipo1 %>% group_by(equipo_del_jugador) %>% summarise( pm_prom = mean(plus_minus_total), pm_mediana = median(plus_minus_total), pm_sd = sd(plus_minus_total), pm_100_prom = mean(plus_minus_100), pm_100_mediana = median(plus_minus_100), pm_100_sd = sd(plus_minus_100), pm_mad = mad(plus_minus_total), pm_100_mad = mad(plus_minus_100))
+
+plus_minus_por_equipo1 = plus_minus_por_equipo1 %>%  left_join(promedio_pm1)
+
+plus_minus_por_equipo1 = plus_minus_por_equipo1 %>% mutate(pm_menos_median = plus_minus_100 - pm_100_mediana , pm_estand_median = (plus_minus_100 - pm_100_mediana)/pm_100_mad, pm_menos_prom =  plus_minus_100 - pm_100_prom, pm_estand_prom = (plus_minus_100 - pm_100_prom)/pm_100_sd, pm_tot_estand_median = (plus_minus_total - pm_mediana)/mad(plus_minus_total))
+
+#Unificado para tener un +/- estandarizado por equipo
+
+# “Como el jugador dividió su temporada en dos contextos distintos, se estimó un indicador compuesto ponderado por el tiempo de exposición (partidos/minutos) en cada estructura, asumiendo que el impacto relativo del jugador se manifiesta proporcionalmente a su volumen de juego en cada equipo”.
+
+pm_por_equipo = plus_minus_por_equipo1 %>%
+    group_by(jugador) %>%
+   summarise(
+    # Ponderamos el plus-minus estandarizado por los partidos jugados en cada equipo
+    pm_estandarizado = sum(pm_estand_median * posesiones_totales) / sum(posesiones_totales),
+    .groups = "drop"
+  )
+
 ```
+
+Base de datos unificada - box plot + minutos + plus minus
+
+```{r}
+
+df_estadisticas = box_sc_temp %>% left_join(minutos_jugad %>% dplyr::select(-c(Equipos, Partidos)))
+
+df_estadisticas = df_estadisticas %>% left_join(g1)
+
+df_estadisticas = df_estadisticas %>% left_join(df_plus_minus) %>% mutate(pm_ajust_pos = (`+/-`/posesiones))
+
+df_estadisticas = df_estadisticas %>% left_join(pm_por_equipo)
+
+
+```
+
 
 ### Detección de errores en la base
 
@@ -169,8 +255,6 @@ ggplot(df_plot, aes(x = equipo_limpio, group = 1)) +
 La distribución de posesiones por jugador es muy dispersa, encontrando jugadores que participaron de solo 1 o 2 posesiones en toda la temporada, mientras que los jugadores titulares indiscultibles de algunos equipos participaron en más de 4000 posesiones.
 
 ```{r}
-g1 = colSums(poss_by_poss_temporada[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
-
 g1 = g1 %>% left_join(minutos_jugad)
 
 ggplot(g1)+
@@ -226,16 +310,6 @@ La métrica +/- nos da un indicio de cuan eficiente fue el jugador en el tiempo 
 Los lideres en +/- para la temporada 2024/2025 de la LNB fueron los siguientes:
 
 ```{r}
-plus_minus = poss_by_poss_temporada[, 24:369]*poss_by_poss_temporada[[23]]
-
-df_plus_minus <- plus_minus %>%
-  summarise(across(everything(), sum))%>%
-  pivot_longer(
-    cols = everything(),
-    names_to = "jugador",
-    values_to = "+/-"
-  )
-
 minutos_jugad = minutos_jugad %>% left_join(df_plus_minus)
 
 g1 = g1 %>% left_join(df_plus_minus)
@@ -462,17 +536,6 @@ Pero antes debemos tener en cuenta lo siguiente: jugadores con pocas posesiones 
 A su vez, aunque se excluyan este tipo de jugadores, las distribuciones de +/- cada 100 posesiones siguen presentando algunos valores extremos.
 
 ```{r}
-
-plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS") #Ya está filtrado
-plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales > 500) %>% rename(jugador = jugador_id)
-
-#OP 2
-promedio_pm1 = plus_minus_por_equipo1 %>% group_by(equipo_del_jugador) %>% summarise( pm_prom = mean(plus_minus_total), pm_mediana = median(plus_minus_total), pm_sd = sd(plus_minus_total), pm_100_prom = mean(plus_minus_100), pm_100_mediana = median(plus_minus_100), pm_100_sd = sd(plus_minus_100), pm_mad = mad(plus_minus_total), pm_100_mad = mad(plus_minus_100))
-
-plus_minus_por_equipo1 = plus_minus_por_equipo1 %>%  left_join(promedio_pm1)
-
-plus_minus_por_equipo1 = plus_minus_por_equipo1 %>% mutate(pm_menos_median = plus_minus_100 - pm_100_mediana , pm_estand_median = (plus_minus_100 - pm_100_mediana)/pm_100_mad, pm_menos_prom =  plus_minus_100 - pm_100_prom, pm_estand_prom = (plus_minus_100 - pm_100_prom)/pm_100_sd, pm_tot_estand_median = (plus_minus_total - pm_mediana)/mad(plus_minus_total)) 
-
 ggplot(plus_minus_por_equipo1)+
   aes(y= equipo_del_jugador, x= plus_minus_100)+
   geom_boxplot(fill = "lightblue4")
@@ -1423,6 +1486,10 @@ Hacer X´X y ver que da, intentar identificar la interpretación de los betas, s
 cómo repartir mérito entre jugadores altamente correlacionados.
 
 No hay una fórmula explícita para cada beta
+
+Los autovalores pequeños de X
+′
+X representan combinaciones lineales de jugadores pobremente identificadas por el diseño observacional, generando alta sensibilidad de los estimadores OLS.
 
 hacer coef vs +/- y pintar por puestos de la liga de los equipos (verde, rojo, amarillo, gris).
 
