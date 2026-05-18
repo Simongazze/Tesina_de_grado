@@ -275,17 +275,17 @@ Se observa una distribución bimodal de las posesiones por jugador, identificand
 ...tabla...
 
 ```{r}
-#prop = g1 %>% summarise(
-#    total_jugadores = n(),
-#    cantidad1 = sum(posesiones < 500, na.rm = TRUE),
-#    proporcion1 = cantidad1 / total_jugadores,
-#    cantidad2 = sum(posesiones < 2500, na.rm = TRUE) - cantidad1,
-#    proporcion2 = cantidad2/total_jugadores,
-#    cantidad3 = sum(posesiones > 2500, na.rm = TRUE),
-#    proporcion3 = cantidad3/ total_jugadores
-#  )
+prop = g1 %>% summarise(
+   total_jugadores = n(),
+   cantidad1 = sum(posesiones < 500, na.rm = TRUE),
+   proporcion1 = cantidad1 / total_jugadores,
+   cantidad2 = sum(posesiones < 2500, na.rm = TRUE) - cantidad1,
+   proporcion2 = cantidad2/total_jugadores,
+   cantidad3 = sum(posesiones > 2500, na.rm = TRUE),
+   proporcion3 = cantidad3/ total_jugadores
+ )
 
-#ult_grupo = g1 %>% filter(posesiones > 2500) %>% count(Equipos)#contabilizar cuantos jugadores de cada equipo hay en el último grupo
+ult_grupo = g1 %>% filter(posesiones > 2500) %>% count(Equipos)#contabilizar cuantos jugadores de cada equipo hay en el último grupo
 ```
 
 ### Puntos por posesión
@@ -2519,6 +2519,69 @@ poss_eq_jug = poss_eq_jug %>% mutate(w_epts_off_lasso = w_epts_off, w_epts_def_l
 
 Para evaluar los distintos rankings, se procederá a compararlos en base a distintos criterios de validación externa. Estos criterios son "objetivos" y se definen con información no utilizada en los modelos.
 
+```{r}
+#Pocos minutos
+df_pocos_minutos = df_estadisticas %>% arrange(Minutos) %>% head(50)
+
+#Titulares
+titulares = box_score %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+
+titulares = titulares %>% group_by(equipo_normalizado) %>% slice_max(Minutos, n = 6) %>% ungroup()
+
+# Top 50 Box score
+
+top_rapm_off <- df_beta_off_ridge %>%
+  arrange(desc(epts)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "_off", ""))
+
+evaluar_variable <- function(df, variable, top_rapm){
+
+  top_box <- df %>%
+    arrange(desc(.data[[variable]])) %>%
+    slice(1:50)
+
+  coincidencias <- intersect(
+    top_box$jugador,
+    top_rapm$jugador
+  )
+
+  data.frame(
+    variable = variable,
+    coincidencias = length(coincidencias),
+    porcentaje = length(coincidencias) / 50 * 100
+  )
+}
+
+evaluar_variable(df_estadisticas, "total_Puntos" ,top_rapm_off )
+
+variables_off <- c(
+  "total_Puntos",
+  "total_Asistencias",
+  "total_ReboteOfensivo"
+)
+
+resultados_off <- purrr::map_dfr(
+  variables_off,
+  evaluar_variable,
+  df = df_estadisticas,
+  top_rapm = top_rapm_off
+)
+
+variables_def <- c(
+  "total_ReboteDefensivo",
+  "total_Robos",
+  "total_Tapas"
+)
+
+resultados_def <- purrr::map_dfr(
+  variables_def,
+  evaluar_variable,
+  df = df_estadisticas,
+  top_rapm = top_rapm_def
+)
+
+```
 
 
 
