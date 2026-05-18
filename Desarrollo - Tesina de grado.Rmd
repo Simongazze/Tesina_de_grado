@@ -33,6 +33,8 @@ library(ggrepel)
 library(reactable)
 library(scales)
 library(glmnet)
+
+set.seed(452)
 ```
 
 ```{r}
@@ -1509,6 +1511,10 @@ Ver características de jugadores eliminados por lasso
 
 12 jugadores participaron de en 2 equipos de la liga en distintos momentos de la temporada
 
+ver por ejemplo en lasso que pares de jugadores importantes deja un coeficiente y el otro no, y ver como se comporta ridge
+
+cuantos jugadores con coeficientes cercanos a 0 deja ridge
+
 ### -------------------------------------------------
 
 ### Métodos de regularización (Ridge, Lasso, Elastic Net)
@@ -1564,19 +1570,29 @@ ridge regression works best in situations where the least squares estimates have
 aplico directamente el modelo separando los efectos ofensivos y defensivos
 
 ```{r}
-X <- model.matrix(
-  puntos_pos ~ . -1,
-  data = df_mod_ltp_sep
-)
-
-y <- df_mod_ltp_sep$puntos_pos
-
-modelo_ridge <- cv.glmnet(
-  X, y,
-  alpha = 0,       # ridge
-  nfolds = 10,
-  standardize = FALSE
-)
+# X <- model.matrix(
+#   puntos_pos ~ . -1,
+#   data = df_mod_ltp_sep
+# )
+# 
+# y <- df_mod_ltp_sep$puntos_pos
+# 
+# mi_grilla_lambda <- 10^seq(3.5, -4.3, length = 200)
+# 
+# modelo_ridge <- cv.glmnet(
+#   X, y,
+#   alpha = 0,
+#   lambda = mi_grilla_lambda,# ridge
+#   nfolds = 10
+# )
+# 
+# plot(modelo_ridge)
+# 
+# print(modelo_ridge$lambda.min)
+# 
+# min(modelo_ridge$cvm)
+#saveRDS(modelo_ridge, "modelo_ridge.RDS")
+modelo_ridge = readRDS("modelo_ridge.RDS")
 
 betas <- as.matrix(coef(modelo_ridge, s = "lambda.min"))
 
@@ -1662,19 +1678,31 @@ S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{k=1}^p|\beta_k|=S+\lambda \su
 modelo separando los efectos ofensivos y defensivos
 
 ```{r}
-X <- model.matrix(
-  puntos_pos ~ . -1,
-  data = df_mod_ltp_sep
-)
+# grilla_lasso <- 10^seq(1, -5, length = 200)
+# 
+# X <- model.matrix(
+#   puntos_pos ~ . -1,
+#   data = df_mod_ltp_sep
+# )
+# 
+# y <- df_mod_ltp_sep$puntos_pos
+# 
+# modelo_lasso <- cv.glmnet(
+#   X, y,
+#   alpha = 1,      
+#   nfolds = 10,
+#   lambda = grilla_lasso
+# )
+# 
+# modelo_lasso$lambda.min
+# 
+# min(modelo_lasso$cvm)
+# 
+# plot(modelo_lasso)
 
-y <- df_mod_ltp_sep$puntos_pos
+#saveRDS(modelo_lasso, "modelo_lasso.RDS")
 
-modelo_lasso <- cv.glmnet(
-  X, y,
-  alpha = 1,      
-  nfolds = 10,
-  standardize = FALSE
-)
+modelo_lasso = readRDS("modelo_lasso.RDS")
 
 betas <- as.matrix(coef(modelo_lasso, s = "lambda.min"))
 
@@ -1710,19 +1738,100 @@ r2 <- 1 - ss_res/ss_tot
 plot(modelo_lasso)
 ```
 
-De 229*2 = 458 variables, solo 64 presentaron coeficientes distintos de 0.
+De 229*2 = 458 variables, solo 108 presentaron coeficientes distintos de 0.
 
 ```{r}
 coefs <- coef(modelo_lasso, s = "lambda.min") |> as.matrix() |> as.data.frame()
 colnames(coefs) <- "coeficiente"
+coefs$jugador <- rownames(coefs)
 
-eliminados <- coefs |> filter(coeficiente == 0)
-activos    <- coefs |> filter(coeficiente != 0)
+coefs <- coefs |>
+  mutate(
+    jugador = str_remove(jugador, "_off$|_def$"), # elimina sufijo
+    jugador = str_remove_all(jugador, "`")        # elimina `
+  )
 
-rownames(eliminados)
-rownames(activos)
+eliminados <- coefs |>
+  filter(coeficiente == 0) |>
+  distinct(jugador)
 
+activos <- coefs |>
+  filter(coeficiente != 0) |>
+  distinct(jugador)
 
+```
+
+```{r}
+df1 = df_estadisticas %>%  mutate(lasso = if_else(jugador %in% activos$jugador, "Activo", "Eliminado")) %>% filter(!is.na(pm_estandarizado))
+
+library(patchwork)
+# Paleta
+colores <- c(
+  "Activo" = "#1f77b4",
+  "Eliminado" = "#d62728"
+)
+
+# ---------- PM ESTANDARIZADO ----------
+g1 <- ggplot(df1, aes(x = pm_estandarizado,
+                      fill = lasso,
+                      color = lasso)) +
+  geom_histogram(alpha = 0.35, linewidth = 1.1) +
+  scale_fill_manual(values = colores) +
+  scale_color_manual(values = colores) +
+  labs(
+    title = "Distribución de PM estandarizado",
+    x = "PM estandarizado",
+    y = "Densidad",
+    fill = "",
+    color = ""
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
+
+# ---------- PLUS/MINUS ----------
+g2 <- ggplot(df1, aes(x = `+/-`,
+                      fill = lasso,
+                      color = lasso)) +
+  geom_histogram(alpha = 0.35) +
+  scale_fill_manual(values = colores) +
+  scale_color_manual(values = colores) +
+  labs(
+    title = "Distribución de +/-",
+    x = "+/-",
+    y = "Densidad",
+    fill = "",
+    color = ""
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
+
+# ---------- PM AJUSTADO ----------
+g3 <- ggplot(df1, aes(x = pm_ajust_pos,
+                      fill = lasso,
+                      color = lasso)) +
+  geom_histogram(alpha = 0.35) +
+  scale_fill_manual(values = colores) +
+  scale_color_manual(values = colores) +
+  labs(
+    title = "Distribución de PM ajustado por posesión",
+    x = "PM ajustado",
+    y = "Densidad",
+    fill = "",
+    color = ""
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
+
+(g1 / g2 / g3)
 
 ```
 
@@ -1937,10 +2046,6 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 
 modelo_multi_ridge = readRDS("modelo_multi_ridge.RDS")
 
-modelo_multi_ridge$lambda.min
-
-length(modelo_multi_ridge$lambda)
-
 # X <- model.matrix(
 #   puntos_pos ~ .,
 #   data = df_mod_ltp_sep
@@ -1951,17 +2056,22 @@ length(modelo_multi_ridge$lambda)
 #   pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
 # 
 # 
-# y_factor <- factor(y_multi) 
+# y_factor <- factor(y_multi)
 # 
 # modelo_multi_ridge <- cv.glmnet(
 #   X, y_factor,
 #   family      = "multinomial",
 #   type.multinomial = "grouped",  # penaliza todos los coeficientes de una variable juntos
-#   alpha       = 0,             
+#   alpha       = 0,
 #   nfolds      = 10,
+#   lambda = mi_grilla_lambda,
 #   standardize = FALSE
 # )
 # 
+# plot(modelo_multi_ridge)
+
+#modelo_multi_ridge$lambda
+
 coefs <- coef(modelo_multi_ridge, s = "lambda.min")
 
 beta_0 <- as.numeric(coefs[["0"]])
@@ -2028,6 +2138,8 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 ```{r}
 modelo_multi_lasso = readRDS("modelo_multi_lasso.RDS")
 
+# grilla_lasso_1 <- 10^seq(0.25, -7, length = 100)
+# 
 # X <- model.matrix(
 #   puntos_pos ~ .,
 #   data = df_mod_ltp_sep
@@ -2044,12 +2156,11 @@ modelo_multi_lasso = readRDS("modelo_multi_lasso.RDS")
 #   X, y_factor,
 #   family      = "multinomial",
 #   type.multinomial = "grouped",  # penaliza todos los coeficientes de una variable juntos
-#   alpha       = 1,            
+#   alpha       = 1,
 #   nfolds      = 10,
+#   lambda = grilla_lasso_1,
 #   standardize = FALSE
 # )
-
-min(modelo_multi_lasso$cvm)
 
 coefs <- coef(modelo_multi_lasso, s = "lambda.min")
 
@@ -2067,7 +2178,7 @@ df_betas <- data.frame(
 )
 
 df_betas <- df_betas |>
-  filter(!(jugador == "(Intercept)" & beta_0 == 0 & beta_1 == 0 & 
+  filter(!(beta_0 == 0 & beta_1 == 0 & 
            beta_2 == 0 & beta_3 == 0))
 
 intercepto_lasso <- df_betas |> 
@@ -2112,6 +2223,91 @@ modelo_multi_lasso$cvm[which.min(modelo_multi_lasso$cvm)]
 #table(Predicho = y_pred_cat, Real = y_factor)
 ```
 
+caracteristicas jugadores eliminados de no eliminados
+
+```{r}
+
+coefs_lasso <- df_betas %>%  dplyr::select(jugador) %>% 
+  mutate(
+    jugador = str_remove(jugador, "_off$|_def$"), # elimina sufijo
+    jugador = str_remove_all(jugador, "`")        # elimina `
+  )
+
+activos <- coefs_lasso |>
+  distinct(jugador)
+
+df1 = df_estadisticas %>%  mutate(lasso = if_else(jugador %in% activos$jugador, "Activo", "Eliminado")) %>% filter(!is.na(pm_estandarizado))
+
+# Paleta
+colores <- c(
+  "Activo" = "#1f77b4",
+  "Eliminado" = "#d62728"
+)
+
+# ---------- PM ESTANDARIZADO ----------
+g1 <- ggplot(df1, aes(x = pm_estandarizado,
+                      fill = lasso,
+                      color = lasso)) +
+  geom_histogram(alpha = 0.35, linewidth = 1.1) +
+  scale_fill_manual(values = colores) +
+  scale_color_manual(values = colores) +
+  labs(
+    title = "Distribución de PM estandarizado",
+    x = "PM estandarizado",
+    y = "Densidad",
+    fill = "",
+    color = ""
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
+
+# ---------- PLUS/MINUS ----------
+g2 <- ggplot(df1, aes(x = `+/-`,
+                      fill = lasso,
+                      color = lasso)) +
+  geom_histogram(alpha = 0.35) +
+  scale_fill_manual(values = colores) +
+  scale_color_manual(values = colores) +
+  labs(
+    title = "Distribución de +/-",
+    x = "+/-",
+    y = "Densidad",
+    fill = "",
+    color = ""
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
+
+# ---------- PM AJUSTADO ----------
+g3 <- ggplot(df1, aes(x = pm_ajust_pos,
+                      fill = lasso,
+                      color = lasso)) +
+  geom_histogram(alpha = 0.35) +
+  scale_fill_manual(values = colores) +
+  scale_color_manual(values = colores) +
+  labs(
+    title = "Distribución de PM ajustado por posesión",
+    x = "PM ajustado",
+    y = "Densidad",
+    fill = "",
+    color = ""
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
+
+(g1 / g2 / g3)
+
+```
+
 #### Elastic net - multinomial
 
 \begin{equation}
@@ -2120,36 +2316,36 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 
 ```{r}
 #Hacer
-X <- model.matrix(
-  puntos_pos ~ .,
-  data = df_mod_ltp_sep
-)
-
-y_multi = df_mod_ltp_sep |>
-  mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
-  pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
-
-
-y_factor <- factor(y_multi)
-
-alphas <- seq(0, 1, by = 0.1)
-resultados <- data.frame(alpha = numeric(), lambda_min = numeric(), cvm_min = numeric())
-
-set.seed(42)
-for (a in alphas) {
-  cv_tmp <- cv.glmnet(X, y_factor, family = "multinomial",
-                      alpha = a, nfolds = 10,
-                      type.multinomial = "grouped")
-  
-  resultados <- rbind(resultados, data.frame(
-    alpha      = a,
-    lambda_min = cv_tmp$lambda.min,
-    cvm_min    = min(cv_tmp$cvm)   # error de CV en lambda.min
-  ))
-}
+# X <- model.matrix(
+#   puntos_pos ~ .,
+#   data = df_mod_ltp_sep
+# )
+# 
+# y_multi = df_mod_ltp_sep |>
+#   mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
+#   pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+# 
+# 
+# y_factor <- factor(y_multi)
+# 
+# alphas <- seq(0, 1, by = 0.1)
+# resultados <- data.frame(alpha = numeric(), lambda_min = numeric(), cvm_min = numeric())
+# 
+# set.seed(42)
+# for (a in alphas) {
+#   cv_tmp <- cv.glmnet(X, y_factor, family = "multinomial",
+#                       alpha = a, nfolds = 10,
+#                       type.multinomial = "grouped")
+#   
+#   resultados <- rbind(resultados, data.frame(
+#     alpha      = a,
+#     lambda_min = cv_tmp$lambda.min,
+#     cvm_min    = min(cv_tmp$cvm)   # error de CV en lambda.min
+#   ))
+# }
 
 # Mejor combinación
-resultados[which.min(resultados$cvm_min), ]
+# resultados[which.min(resultados$cvm_min), ]
 ```
 
 ```{r}
