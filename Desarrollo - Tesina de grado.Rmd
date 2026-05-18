@@ -2517,6 +2517,7 @@ poss_eq_jug = poss_eq_jug %>% mutate(w_epts_off_lasso = w_epts_off, w_epts_def_l
 
 ### Comparación de modelos
 
+Para evaluar los distintos rankings, se procederá a compararlos en base a distintos criterios de validación externa. Estos criterios son "objetivos" y se definen con información no utilizada en los modelos.
 
 
 
