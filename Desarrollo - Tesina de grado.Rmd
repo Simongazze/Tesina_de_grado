@@ -2198,7 +2198,7 @@ df_betas = df_betas %>% mutate(pi_1 = pi_1, pi_2 = pi_2, pi_3 = pi_3)
 
 epts_lasso = pi_1 + 2*pi_2 + 3.01*pi_3
 
-df_betas_lasso = df_betas %>% mutate(epts_lasso = epts_lasso)
+df_betas_lasso = df_betas %>% mutate(epts = epts_lasso)
 
 df_beta_off_lasso = df_betas_lasso %>% filter(grepl("off",jugador))
 
@@ -2503,9 +2503,9 @@ pi_3 = exp(intercepto_lasso$beta_3)/(exp(intercepto_lasso$beta_0)+exp(intercepto
 
 epts_0_lasso = pi_1 + 2*pi_2 + 3.01*pi_3
 
-poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(df_beta_off_lasso %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts_lasso))) %>% rename(epts_off_lasso = epts_lasso)
+poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(df_beta_off_lasso %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_lasso = epts)
 
-poss_eq_jug = poss_eq_jug %>% left_join(df_beta_def_lasso %>% mutate(jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts_lasso))) %>% rename(epts_def_lasso = epts_lasso)
+poss_eq_jug = poss_eq_jug %>% left_join(df_beta_def_lasso %>% mutate(jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_lasso = epts)
 
 w_epts_off = poss_eq_jug$w_off*poss_eq_jug$epts_off_lasso + (1-(poss_eq_jug$w_off))*epts_0_lasso
 
@@ -2584,8 +2584,80 @@ resultados_def <- purrr::map_dfr(
 ```
 
 
+Box score - top 50
 
+```{r}
+top_wepts_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_ridge)) %>% rename(jugador = jugador_id, epts = w_epts_off_ridge) %>% arrange(desc(epts)) %>% slice(1:50)
 
+top_wepts_lasso = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_lasso)) %>% rename(jugador = jugador_id, epts = w_epts_off_lasso) %>% arrange(desc(epts)) %>% slice(1:50)
+
+top_rapm_off_ridge <- df_beta_off_ridge %>%
+  arrange(desc(epts)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "_off", ""))
+
+top_rapm_off_lasso <- df_beta_off_lasso %>%
+  arrange(desc(epts)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "_off", ""))
+
+rankings <- list(
+  `EPTS - Ridge` = top_rapm_off_ridge,
+  `EPTS - Lasso` = top_rapm_off_lasso,
+  `wEPTS - Ridge` = top_wepts_ridge,
+  `wEPTS - Lasso` = top_wepts_lasso
+)
+
+variables <- c(
+  "total_Puntos",
+  "total_Asistencias",
+  "total_ReboteOfensivo"
+)
+
+evaluar_modelo <- function(df_stats, variable, ranking, nombre_modelo){
+
+  top_box <- df_stats %>%
+    arrange(desc(.data[[variable]])) %>%
+    slice(1:50)
+
+  top_rapm <- ranking %>%
+    arrange(desc(epts)) %>%
+    slice(1:50)
+
+  coincidencias <- intersect(
+    top_box$jugador,
+    top_rapm$jugador
+  )
+
+  data.frame(
+    modelo = nombre_modelo,
+    variable = variable,
+    coincidencias = length(coincidencias),
+    porcentaje = length(coincidencias)/50 * 100
+  )
+}
+
+resultados <- purrr::imap_dfr(
+  rankings,
+  \(ranking, nombre_modelo){
+
+    purrr::map_dfr(
+      variables,
+      \(var){
+
+        evaluar_modelo(
+          df_stats = df_estadisticas,
+          variable = var,
+          ranking = ranking,
+          nombre_modelo = nombre_modelo
+        )
+
+      }
+    )
+
+  }
+)
+```
 
 
 
