@@ -118,6 +118,10 @@ minutos_jugad = minutos_jugad %>% mutate(jugador = recode(NombreCompleto_limpio,
   ) %>%
   ungroup()
 
+# Galardones
+
+galardones = read_excel("data/Galardones.xlsx")
+
 #Posesiones
 
 g1 = colSums(poss_by_poss_temporada[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
@@ -1603,11 +1607,11 @@ df_betas <- data.frame(
 
 beta_hat = df_betas[-c(1,2),]
 
-beta_hat_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = beta)
+beta_hat_ridge_normal_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = beta)
 
-beta_hat_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = beta)
+beta_hat_ridge_normal_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = beta)
 
-beta_hat_ambas = beta_hat_off %>% left_join(beta_hat_def)
+beta_hat_ambas = beta_hat_ridge_normal_off %>% left_join(beta_hat_ridge_normal_def)
 
 df_full <- beta_hat_ambas %>% 
   mutate(coef_tot = coef_of + coef_def)
@@ -1620,13 +1624,13 @@ CME cross-validation
 modelo_ridge$cvm[which.min(modelo_ridge$cvm)]
 
 # R² sobre muestra completa
-y_pred <- predict(modelo_ridge, X, s = "lambda.min")
-ss_res <- sum((y - y_pred)^2)
-ss_tot <- sum((y - mean(y))^2)
-r2 <- 1 - ss_res/ss_tot
-
-# Deviance
-deviance_normal <- sum((y - predict(modelo_ridge, X, s = "lambda.min"))^2)
+# y_pred <- predict(modelo_ridge, X, s = "lambda.min")
+# ss_res <- sum((y - y_pred)^2)
+# ss_tot <- sum((y - mean(y))^2)
+# r2 <- 1 - ss_res/ss_tot
+# 
+# # Deviance
+# deviance_normal <- sum((y - predict(modelo_ridge, X, s = "lambda.min"))^2)
 
 plot(modelo_ridge)
 ```
@@ -1713,11 +1717,11 @@ df_betas <- data.frame(
 
 beta_hat = df_betas[-c(1,2),]
 
-beta_hat_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = beta)
+beta_hat_lasso_normal_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = beta)
 
-beta_hat_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = beta)
+beta_hat_lasso_normal_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = beta)
 
-beta_hat_ambas = beta_hat_off %>% left_join(beta_hat_def)
+beta_hat_ambas = beta_hat_lasso_normal_off %>% left_join(beta_hat_lasso_normal_def)
 
 df_full <- beta_hat_ambas %>% 
   mutate(coef_tot = coef_of + coef_def)
@@ -1730,10 +1734,10 @@ CME cross validation
 modelo_lasso$cvm[which.min(modelo_lasso$cvm)]
 
 # R² sobre muestra completa
-y_pred <- predict(modelo_lasso, X, s = "lambda.min")
-ss_res <- sum((y - y_pred)^2)
-ss_tot <- sum((y - mean(y))^2)
-r2 <- 1 - ss_res/ss_tot
+# y_pred <- predict(modelo_lasso, X, s = "lambda.min")
+# ss_res <- sum((y - y_pred)^2)
+# ss_tot <- sum((y - mean(y))^2)
+# r2 <- 1 - ss_res/ss_tot
 
 plot(modelo_lasso)
 ```
@@ -1944,11 +1948,11 @@ df_betas <- data.frame(
 
 beta_hat = df_betas[-c(1,2),]
 
-beta_hat_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = beta)
+beta_hat_enet_normal_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = beta)
 
-beta_hat_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = beta)
+beta_hat_enet_normal_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = beta)
 
-beta_hat_ambas = beta_hat_off %>% left_join(beta_hat_def)
+beta_hat_ambas = beta_hat_enet_normal_off %>% left_join(beta_hat_enet_normal_def)
 
 df_full <- beta_hat_ambas %>% 
   mutate(coef_tot = coef_of + coef_def)
@@ -2110,9 +2114,9 @@ epts = pi_1 + 2*pi_2 + 3.01*pi_3
 
 df_betas_ridge = df_betas %>% mutate(epts = epts)
 
-df_beta_off_ridge = df_betas_ridge %>% filter(grepl("off",jugador))
+beta_hat_ridge_multi_off = df_betas_ridge %>% filter(grepl("off",jugador))
 
-df_beta_def_ridge = df_betas_ridge %>% filter(grepl("def",jugador))
+beta_hat_ridge_multi_def = df_betas_ridge %>% filter(grepl("def",jugador))
 
 plot(modelo_multi_ridge)
 ```
@@ -2200,9 +2204,9 @@ epts_lasso = pi_1 + 2*pi_2 + 3.01*pi_3
 
 df_betas_lasso = df_betas %>% mutate(epts = epts_lasso)
 
-df_beta_off_lasso = df_betas_lasso %>% filter(grepl("off",jugador))
+beta_hat_lasso_multi_off = df_betas_lasso %>% filter(grepl("off",jugador))
 
-df_beta_def_lasso = df_betas_lasso %>% filter(grepl("def",jugador))
+beta_hat_lasso_multi_def = df_betas_lasso %>% filter(grepl("def",jugador))
 
 plot(modelo_multi_lasso)
 ```
@@ -2349,17 +2353,17 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 ```
 
 ```{r}
-modelo_multi_enet <- cv.glmnet(X, y_factor,
-                       family = "multinomial",
-                       type.multinomial = "grouped",
-                       alpha  = 0,
-                       lambda = modelo_multi_ridge$lambda,  # mismo grid
-                       nfolds = 10,
-                       standardize = FALSE)
+# modelo_multi_enet <- cv.glmnet(X, y_factor,
+#                        family = "multinomial",
+#                        type.multinomial = "grouped",
+#                        alpha  = 0,
+#                        lambda = modelo_multi_ridge$lambda,  # mismo grid
+#                        nfolds = 10,
+#                        standardize = FALSE)
+# 
+# min(modelo_multi_enet$cvm)
 
-min(modelo_multi_enet$cvm)
-
-modelo_multi_enet = readRDS("modelo_multi_enet.RDS") 
+modelo_multi_enet = readRDS("modelo_multi_enet.RDS")
 
 
 coefs <- coef(modelo_multi_enet, s = "lambda.min")
@@ -2381,18 +2385,18 @@ df_betas <- df_betas |>
   filter(!(jugador == "(Intercept)" & beta_0 == 0 & beta_1 == 0 & 
            beta_2 == 0 & beta_3 == 0))
 
-intercepto <- df_betas |> 
+intercepto_enet <- df_betas |> 
   filter(jugador == "(Intercept)")
 
 df_betas <- df_betas |>
   filter(jugador != "(Intercept)")
 
 
-pi_1 = exp(intercepto$beta_1 + df_betas$beta_1)/(exp(intercepto$beta_0 + df_betas$beta_0)+exp(intercepto$beta_1 + df_betas$beta_1)+exp(intercepto$beta_2 + df_betas$beta_2)+exp(intercepto$beta_3 + df_betas$beta_3))
+pi_1 = exp(intercepto_enet$beta_1 + df_betas$beta_1)/(exp(intercepto_enet$beta_0 + df_betas$beta_0)+exp(intercepto_enet$beta_1 + df_betas$beta_1)+exp(intercepto_enet$beta_2 + df_betas$beta_2)+exp(intercepto_enet$beta_3 + df_betas$beta_3))
 
-pi_2 = exp(intercepto$beta_2 + df_betas$beta_2)/(exp(intercepto$beta_0 + df_betas$beta_0)+exp(intercepto$beta_1 + df_betas$beta_1)+exp(intercepto$beta_2 + df_betas$beta_2)+exp(intercepto$beta_3 + df_betas$beta_3))
+pi_2 = exp(intercepto_enet$beta_2 + df_betas$beta_2)/(exp(intercepto_enet$beta_0 + df_betas$beta_0)+exp(intercepto_enet$beta_1 + df_betas$beta_1)+exp(intercepto_enet$beta_2 + df_betas$beta_2)+exp(intercepto_enet$beta_3 + df_betas$beta_3))
 
-pi_3 = exp(intercepto$beta_3 + df_betas$beta_3)/(exp(intercepto$beta_0 + df_betas$beta_0)+exp(intercepto$beta_1 + df_betas$beta_1)+exp(intercepto$beta_2 + df_betas$beta_2)+exp(intercepto$beta_3 + df_betas$beta_3))
+pi_3 = exp(intercepto_enet$beta_3 + df_betas$beta_3)/(exp(intercepto_enet$beta_0 + df_betas$beta_0)+exp(intercepto_enet$beta_1 + df_betas$beta_1)+exp(intercepto_enet$beta_2 + df_betas$beta_2)+exp(intercepto_enet$beta_3 + df_betas$beta_3))
 
 df_betas = df_betas %>% mutate(pi_1 = pi_1, pi_2 = pi_2, pi_3 = pi_3)
 
@@ -2400,9 +2404,9 @@ epts = pi_1 + 2*pi_2 + 3.01*pi_3
 
 df_betas = df_betas %>% mutate(epts = epts)
 
-df_beta_off_enet = df_betas %>% filter(grepl("off",jugador))
+beta_hat_enet_multi_off = df_betas %>% filter(grepl("off",jugador))
 
-df_beta_def_enet = df_betas %>% filter(grepl("def",jugador))
+beta_hat_enet_multi_def = df_betas %>% filter(grepl("def",jugador))
 
 ```
 
@@ -2479,9 +2483,9 @@ pi_3 = exp(intercepto_ridge$beta_3)/(exp(intercepto_ridge$beta_0)+exp(intercepto
 
 epts_0_ridge = pi_1 + 2*pi_2 + 3.01*pi_3
 
-poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(df_beta_off_ridge %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_ridge = epts)
+poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(beta_hat_ridge_multi_off %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_ridge = epts)
 
-poss_eq_jug = poss_eq_jug %>% left_join(df_beta_def_ridge %>% mutate(jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_ridge = epts)
+poss_eq_jug = poss_eq_jug %>% left_join(beta_hat_ridge_multi_def %>% mutate(jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_ridge = epts)
 
 w_epts_off = poss_eq_jug$w_off*poss_eq_jug$epts_off_ridge + (1-(poss_eq_jug$w_off))*epts_0_ridge
 
@@ -2503,9 +2507,9 @@ pi_3 = exp(intercepto_lasso$beta_3)/(exp(intercepto_lasso$beta_0)+exp(intercepto
 
 epts_0_lasso = pi_1 + 2*pi_2 + 3.01*pi_3
 
-poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(df_beta_off_lasso %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_lasso = epts)
+poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(beta_hat_lasso_multi_off %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_lasso = epts)
 
-poss_eq_jug = poss_eq_jug %>% left_join(df_beta_def_lasso %>% mutate(jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_lasso = epts)
+poss_eq_jug = poss_eq_jug %>% left_join(beta_hat_lasso_multi_def %>% mutate(jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_lasso = epts)
 
 w_epts_off = poss_eq_jug$w_off*poss_eq_jug$epts_off_lasso + (1-(poss_eq_jug$w_off))*epts_0_lasso
 
@@ -2514,8 +2518,130 @@ w_epts_def = poss_eq_jug$w_def*poss_eq_jug$epts_def_lasso + (1-(poss_eq_jug$w_de
 poss_eq_jug = poss_eq_jug %>% mutate(w_epts_off_lasso = w_epts_off, w_epts_def_lasso = w_epts_def)
 ```
 
+Elastic Net
+
+```{r}
+pi_1 = exp(intercepto_enet$beta_1)/(exp(intercepto_enet$beta_0)+exp(intercepto_enet$beta_1)+exp(intercepto_enet$beta_2)+exp(intercepto_enet$beta_3))
+
+pi_2 = exp(intercepto_enet$beta_2)/(exp(intercepto_enet$beta_0)+exp(intercepto_enet$beta_1)+exp(intercepto_enet$beta_2)+exp(intercepto_enet$beta_3))
+
+pi_3 = exp(intercepto_enet$beta_3)/(exp(intercepto_enet$beta_0)+exp(intercepto_enet$beta_1)+exp(intercepto_enet$beta_2)+exp(intercepto_enet$beta_3))
+
+epts_0_enet = pi_1 + 2*pi_2 + 3.01*pi_3
+
+poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(beta_hat_enet_multi_off %>% mutate(jugador = str_remove_all(jugador, "`"), jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_enet = epts)
+
+poss_eq_jug = poss_eq_jug %>% left_join(beta_hat_enet_multi_def %>% mutate(jugador = str_remove_all(jugador, "`"), jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_enet = epts)
+
+w_epts_off = poss_eq_jug$w_off*poss_eq_jug$epts_off_enet + (1-(poss_eq_jug$w_off))*epts_0_enet
+
+w_epts_def = poss_eq_jug$w_def*poss_eq_jug$epts_def_enet + (1-(poss_eq_jug$w_def))*epts_0_enet
+
+poss_eq_jug = poss_eq_jug %>% mutate(w_epts_off_enet = w_epts_off, w_epts_def_enet = w_epts_def)
+```
+
 
 ### Comparación de modelos
+
+#### Modelo Normal vs Modelo Multinomial
+
+\subsection{Comparación entre el modelo normal y el modelo multinomial}
+
+Con el objetivo de evaluar el desempeño predictivo de los modelos considerados, se comparó el modelo de regresión normal tradicional con el modelo multinomial propuesto utilizando como criterio principal el error cuadrático medio (\textit{Root Mean Squared Error}, RMSE).
+
+En el enfoque clásico basado en regresión normal, la variable respuesta corresponde a los puntos anotados en cada posesión y se modela como una variable continua:
+
+\[
+Y_i \sim N(\mu_i,\sigma^2),
+\]
+
+donde \(Y_i\) representa los puntos anotados en la posesión \(i\), mientras que \(\mu_i\) corresponde al valor esperado estimado por el modelo.
+
+Por otro lado, el modelo multinomial considera explícitamente la naturaleza discreta de la variable respuesta. En este caso, para cada posesión \(i\), el modelo estima las probabilidades:
+
+\[
+P(Y_i = k)=\pi_{ik},
+\]
+
+con
+
+\[
+k \in \{0,1,2,3\},
+\]
+
+donde \(\pi_{ik}\) representa la probabilidad estimada de anotar \(k\) puntos en la posesión \(i\).
+
+A partir de dichas probabilidades, es posible obtener el valor esperado de puntos por posesión mediante:
+
+\[
+E(Y_i)=
+0\pi_{i0}
++1\pi_{i1}
++2\pi_{i2}
++3\pi_{i3}.
+\]
+
+De esta forma, tanto el modelo normal como el multinomial producen una predicción continua del número esperado de puntos por posesión, permitiendo comparar ambos enfoques mediante el RMSE:
+
+\[
+RMSE=
+\sqrt{
+\frac{1}{n}
+\sum_{i=1}^{n}
+(y_i-\hat y_i)^2
+},
+\]
+
+donde \(y_i\) representa el valor observado y \(\hat y_i\) el valor predicho por el modelo.
+
+Un menor valor de RMSE indica una mejor capacidad predictiva. En el trabajo de referencia, el modelo multinomial obtuvo un RMSE menor que el modelo normal, sugiriendo un mejor ajuste a los datos observados. Este resultado es consistente con la naturaleza discreta y altamente asimétrica de los puntos anotados por posesión, donde las categorías \(0\) y \(2\) puntos concentran gran parte de las observaciones.
+
+\vspace{0.5cm}
+
+\subsection{Simulación de posesiones a partir del modelo multinomial}
+
+Además de comparar los modelos mediante RMSE, se realizó una validación adicional utilizando simulaciones generadas a partir del modelo multinomial ajustado.
+
+Para cada posesión \(i\), el modelo estima un vector de probabilidades:
+
+\[
+(\pi_{i0},\pi_{i1},\pi_{i2},\pi_{i3}),
+\]
+
+que representa las probabilidades de anotar \(0\), \(1\), \(2\) o \(3\) puntos, respectivamente.
+
+Posteriormente, para cada posesión se genera aleatoriamente un resultado según dichas probabilidades. Por ejemplo, si para una posesión determinada el modelo estima:
+
+\[
+(0.58,0.03,0.27,0.12),
+\]
+
+entonces el valor simulado para dicha posesión será:
+
+\[
+Y_i^{sim}=
+\begin{cases}
+0 & \text{con probabilidad } 0.58, \\
+1 & \text{con probabilidad } 0.03, \\
+2 & \text{con probabilidad } 0.27, \\
+3 & \text{con probabilidad } 0.12.
+\end{cases}
+\]
+
+Este procedimiento se repite para todas las posesiones del conjunto de datos, obteniendo así un conjunto completo de posesiones simuladas. Luego, el proceso completo se replica múltiples veces (por ejemplo, 1000 simulaciones independientes).
+
+El objetivo de esta metodología es evaluar si el modelo multinomial es capaz de reproducir adecuadamente la distribución observada de puntos por posesión. Para ello, se comparan las frecuencias relativas simuladas y observadas de cada categoría de anotación.
+
+Finalmente, mediante un test chi-cuadrado bootstrap se evalúa la hipótesis:
+
+\[
+H_0:
+\text{las frecuencias simuladas y observadas son equivalentes}.
+\]
+
+Un valor-p elevado indica que no existen diferencias estadísticamente significativas entre ambas distribuciones, sugiriendo que el modelo multinomial reproduce adecuadamente el mecanismo generador de datos observado en la realidad.
+
+#### Criterios de validación externa
 
 Para evaluar los distintos rankings, se procederá a compararlos en base a distintos criterios de validación externa. Estos criterios son "objetivos" y se definen con información no utilizada en los modelos.
 
@@ -2529,11 +2655,6 @@ titulares = box_score %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>
 titulares = titulares %>% group_by(equipo_normalizado) %>% slice_max(Minutos, n = 6) %>% ungroup()
 
 # Top 50 Box score
-
-top_rapm_off <- df_beta_off_ridge %>%
-  arrange(desc(epts)) %>%
-  slice(1:50) %>% 
-  mutate(jugador = str_replace_all(jugador, "_off", ""))
 
 evaluar_variable <- function(df, variable, top_rapm){
 
@@ -2584,30 +2705,277 @@ resultados_def <- purrr::map_dfr(
 ```
 
 
-Box score - top 50
+
+Top 50
 
 ```{r}
-top_wepts_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_ridge)) %>% rename(jugador = jugador_id, epts = w_epts_off_ridge) %>% arrange(desc(epts)) %>% slice(1:50)
 
-top_wepts_lasso = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_lasso)) %>% rename(jugador = jugador_id, epts = w_epts_off_lasso) %>% arrange(desc(epts)) %>% slice(1:50)
+#Coeficientes ofensivos
 
-top_rapm_off_ridge <- df_beta_off_ridge %>%
+top_wepts_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_ridge)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_ridge) %>% arrange(desc(coef_of)) %>% slice(1:50)
+
+top_wepts_lasso = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_lasso)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_lasso) %>% arrange(desc(coef_of)) %>% slice(1:50)
+
+top_wepts_enet = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_enet)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_enet) %>% arrange(desc(coef_of)) %>% slice(1:50)
+
+top_rapm_off_ridge <- beta_hat_ridge_multi_off %>%
   arrange(desc(epts)) %>%
   slice(1:50) %>% 
-  mutate(jugador = str_replace_all(jugador, "_off", ""))
+  mutate(jugador = str_replace_all(jugador, "_off", "")) %>% 
+  rename(coef_of = epts)
 
-top_rapm_off_lasso <- df_beta_off_lasso %>%
+top_rapm_off_lasso <- beta_hat_lasso_multi_off %>%
   arrange(desc(epts)) %>%
   slice(1:50) %>% 
-  mutate(jugador = str_replace_all(jugador, "_off", ""))
+  mutate(jugador = str_replace_all(jugador, "_off", "")) %>% 
+  rename(coef_of = epts)
+
+top_rapm_off_enet <- beta_hat_enet_multi_off %>%
+  arrange(desc(epts)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_off", "")) %>% 
+  rename(coef_of = epts)
+
+top_rapm_off_ridge_normal <- beta_hat_ridge_normal_off %>%
+  arrange(desc(coef_of)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "`", ""))
+
+top_rapm_off_lasso_normal <- beta_hat_lasso_normal_off %>%
+  arrange(desc(coef_of)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "`", ""))
+
+top_rapm_off_enet_normal <- beta_hat_enet_normal_off %>%
+  arrange(desc(coef_of)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "`", ""))
 
 rankings <- list(
+  `RAPM - Ridge` = top_rapm_off_ridge_normal,
+  `RAPM - Lasso` = top_rapm_off_lasso_normal,
+  `RAPM - Elastic Net` = top_rapm_off_enet_normal,
   `EPTS - Ridge` = top_rapm_off_ridge,
   `EPTS - Lasso` = top_rapm_off_lasso,
+  `EPTS - Elastic Net` = top_rapm_off_enet,
   `wEPTS - Ridge` = top_wepts_ridge,
-  `wEPTS - Lasso` = top_wepts_lasso
+  `wEPTS - Lasso` = top_wepts_lasso,
+  `wEPTS - Elastic Net` = top_wepts_enet
 )
 
+#Coeficientes defensivos
+
+top_wepts_def_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_ridge)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_ridge) %>% arrange(desc(coef_def)) %>% slice(1:50)
+
+top_wepts_def_lasso = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_lasso)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_lasso) %>% arrange(desc(coef_def)) %>% slice(1:50)
+
+top_wepts_def_enet = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_enet)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_enet) %>% arrange(desc(coef_def)) %>% slice(1:50)
+
+top_rapm_def_ridge <- beta_hat_ridge_multi_def %>%
+  arrange(desc(epts)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "_def", "")) %>% 
+  rename(coef_def = epts)
+
+top_rapm_def_lasso <- beta_hat_lasso_multi_def %>%
+  arrange(desc(epts)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "_def", "")) %>% 
+  rename(coef_def = epts)
+
+top_rapm_def_enet <- beta_hat_enet_multi_def %>%
+  arrange(desc(epts)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_def", "")) %>% 
+  rename(coef_def = epts)
+
+top_rapm_def_ridge_normal <- beta_hat_ridge_normal_def %>%
+  arrange(desc(coef_def)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "`", ""))
+
+top_rapm_def_lasso_normal <- beta_hat_lasso_normal_def %>%
+  arrange(desc(coef_def)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "`", ""))
+
+top_rapm_def_enet_normal <- beta_hat_enet_normal_def %>%
+  arrange(desc(coef_def)) %>%
+  slice(1:50) %>% 
+  mutate(jugador = str_replace_all(jugador, "`", ""))
+
+rankings_def <- list(
+  `RAPM - Ridge` = top_rapm_def_ridge_normal,
+  `RAPM - Lasso` = top_rapm_def_lasso_normal,
+  `RAPM - Elastic Net` = top_rapm_def_enet_normal,
+  `EPTS - Ridge` = top_rapm_def_ridge,
+  `EPTS - Lasso` = top_rapm_def_lasso,
+  `EPTS - Elastic Net` = top_rapm_def_enet,
+  `wEPTS - Ridge` = top_wepts_def_ridge,
+  `wEPTS - Lasso` = top_wepts_def_lasso,
+  `wEPTS - Elastic Net` = top_wepts_def_enet
+)
+```
+
+Pocos minutos
+
+Variables ofensivas
+
+```{r}
+df_pocos_minutos = df_estadisticas %>% arrange(Minutos) %>% head(50)
+
+df_ltps <- purrr::imap_dfr(
+  rankings,
+  \(ranking, nombre_modelo){
+
+    coincidencias <- intersect(
+      df_pocos_minutos$jugador,
+      ranking$jugador
+    )
+
+    data.frame(
+      modelo = nombre_modelo,
+      coincidencias = length(coincidencias),
+      porcentaje = length(coincidencias) / 50 * 100
+    )
+
+  }
+)
+
+  
+
+```
+
+Variables defensivas
+
+```{r}
+df_pocos_minutos = df_estadisticas %>% arrange(Minutos) %>% head(50)
+
+df_ltps_def <- purrr::imap_dfr(
+  rankings_def,
+  \(ranking, nombre_modelo){
+
+    coincidencias <- intersect(
+      df_pocos_minutos$jugador,
+      ranking$jugador
+    )
+
+    data.frame(
+      modelo = nombre_modelo,
+      coincidencias = length(coincidencias),
+      porcentaje = length(coincidencias) / 50 * 100
+    )
+
+  }
+)
+```
+
+Titulares
+
+Variables ofensivos
+
+```{r}
+titulares = box_score %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+
+titulares = titulares %>% group_by(equipo_normalizado) %>% slice_max(Minutos, n = 6) %>% ungroup()
+
+df_titulares <- purrr::imap_dfr(
+  rankings,
+  \(ranking, nombre_modelo){
+
+    coincidencias <- intersect(
+      titulares$NombreCompleto_limpio,
+      ranking$jugador
+    )
+
+    data.frame(
+      modelo = nombre_modelo,
+      coincidencias = length(coincidencias),
+      porcentaje = length(coincidencias) / 50 * 100
+    )
+
+  }
+)
+```
+Variables defensivas
+
+```{r}
+
+titulares = box_score %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+
+titulares = titulares %>% group_by(equipo_normalizado) %>% slice_max(Minutos, n = 6) %>% ungroup()
+
+df_titulares_def <- purrr::imap_dfr(
+  rankings_def,
+  \(ranking, nombre_modelo){
+
+    coincidencias <- intersect(
+      titulares$NombreCompleto_limpio,
+      ranking$jugador
+    )
+
+    data.frame(
+      modelo = nombre_modelo,
+      coincidencias = length(coincidencias),
+      porcentaje = length(coincidencias) / 50 * 100
+    )
+
+  }
+)
+```
+
+Galardones
+
+Variables ofensivas
+
+```{r}
+
+df_galardones_off <- purrr::imap_dfr(
+  rankings,
+  \(ranking, nombre_modelo){
+
+    coincidencias <- intersect(
+      galardones$jugador,
+      ranking$jugador
+    )
+
+    data.frame(
+      modelo = nombre_modelo,
+      coincidencias = length(coincidencias),
+      porcentaje = length(coincidencias) / 50 * 100
+    )
+
+  }
+)
+```
+
+Variables defensivas
+
+```{r}
+df_galardones_def <- purrr::imap_dfr(
+  rankings_def,
+  \(ranking, nombre_modelo){
+
+    coincidencias <- intersect(
+      galardones$jugador,
+      ranking$jugador
+    )
+
+    data.frame(
+      modelo = nombre_modelo,
+      coincidencias = length(coincidencias),
+      porcentaje = length(coincidencias) / 50 * 100
+    )
+
+  }
+)
+```
+
+Box score - top 50
+
+Variables ofensivas
+
+```{r}
 variables <- c(
   "total_Puntos",
   "total_Asistencias",
@@ -2621,7 +2989,7 @@ evaluar_modelo <- function(df_stats, variable, ranking, nombre_modelo){
     slice(1:50)
 
   top_rapm <- ranking %>%
-    arrange(desc(epts)) %>%
+    arrange(desc(coef_of)) %>%
     slice(1:50)
 
   coincidencias <- intersect(
@@ -2659,6 +3027,72 @@ resultados <- purrr::imap_dfr(
 )
 ```
 
+Variables defensivas
+
+```{r}
+rankings <- list(
+  `RAPM - Ridge` = top_rapm_def_ridge_normal,
+  `RAPM - Lasso` = top_rapm_def_lasso_normal,
+  `RAPM - Elastic Net` = top_rapm_def_enet_normal,
+  `EPTS - Ridge` = top_rapm_def_ridge,
+  `EPTS - Lasso` = top_rapm_def_lasso,
+  `EPTS - Elastic Net` = top_rapm_def_enet,
+  `wEPTS - Ridge` = top_wepts_ridge,
+  `wEPTS - Lasso` = top_wepts_lasso,
+  `wEPTS - Elastic Net` = top_wepts_enet
+)
+
+variables <- c(
+  "total_ReboteDefensivo",
+  "total_Recuperaciones",
+  "total_TaponCometido"
+)
+
+evaluar_modelo <- function(df_stats, variable, ranking, nombre_modelo){
+
+  top_box <- df_stats %>%
+    arrange(desc(.data[[variable]])) %>%
+    slice(1:50)
+
+  top_rapm <- ranking %>%
+    arrange(desc(coef_def)) %>%
+    slice(1:50)
+
+  coincidencias <- intersect(
+    top_box$jugador,
+    top_rapm$jugador
+  )
+
+  data.frame(
+    modelo = nombre_modelo,
+    variable = variable,
+    coincidencias = length(coincidencias),
+    porcentaje = length(coincidencias)/50 * 100
+  )
+}
+
+resultados_def <- purrr::imap_dfr(
+  rankings,
+  \(ranking, nombre_modelo){
+
+    purrr::map_dfr(
+      variables,
+      \(var){
+
+        evaluar_modelo(
+          df_stats = df_estadisticas,
+          variable = var,
+          ranking = ranking,
+          nombre_modelo = nombre_modelo
+        )
+
+      }
+    )
+
+  }
+)
+
+```
 
 
 

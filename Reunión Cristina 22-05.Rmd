@@ -1,0 +1,102 @@
+---
+title: "Reunión Cristina 22/05"
+author: "Gazze Simón Pedro"
+date: "2026-05-21"
+output: html_document
+---
+
+\subsection{Comparación entre el modelo normal y el modelo multinomial}
+
+Con el objetivo de evaluar el desempeño predictivo de los modelos considerados, se comparó el modelo de regresión normal tradicional con el modelo multinomial propuesto utilizando como criterio principal el error cuadrático medio (\textit{Root Mean Squared Error}, RMSE).
+
+En el enfoque clásico basado en regresión normal, la variable respuesta corresponde a los puntos anotados en cada posesión y se modela como una variable continua:
+
+\[
+Y_i \sim N(\mu_i,\sigma^2),
+\]
+
+donde \(Y_i\) representa los puntos anotados en la posesión \(i\), mientras que \(\mu_i\) corresponde al valor esperado estimado por el modelo.
+
+Por otro lado, el modelo multinomial considera explícitamente la naturaleza discreta de la variable respuesta. En este caso, para cada posesión \(i\), el modelo estima las probabilidades:
+
+\[
+P(Y_i = k)=\pi_{ik},
+\]
+
+con
+
+\[
+k \in \{0,1,2,3\},
+\]
+
+donde \(\pi_{ik}\) representa la probabilidad estimada de anotar \(k\) puntos en la posesión \(i\).
+
+A partir de dichas probabilidades, es posible obtener el valor esperado de puntos por posesión mediante:
+
+\[
+E(Y_i)=
+0\pi_{i0}
++1\pi_{i1}
++2\pi_{i2}
++3\pi_{i3}.
+\]
+
+De esta forma, tanto el modelo normal como el multinomial producen una predicción continua del número esperado de puntos por posesión, permitiendo comparar ambos enfoques mediante el RMSE:
+
+\[
+RMSE=
+\sqrt{
+\frac{1}{n}
+\sum_{i=1}^{n}
+(y_i-\hat y_i)^2
+},
+\]
+
+donde \(y_i\) representa el valor observado y \(\hat y_i\) el valor predicho por el modelo.
+
+Un menor valor de RMSE indica una mejor capacidad predictiva. En el trabajo de referencia, el modelo multinomial obtuvo un RMSE menor que el modelo normal, sugiriendo un mejor ajuste a los datos observados. Este resultado es consistente con la naturaleza discreta y altamente asimétrica de los puntos anotados por posesión, donde las categorías \(0\) y \(2\) puntos concentran gran parte de las observaciones.
+
+\vspace{0.5cm}
+
+\subsection{Simulación de posesiones a partir del modelo multinomial}
+
+Además de comparar los modelos mediante RMSE, se realizó una validación adicional utilizando simulaciones generadas a partir del modelo multinomial ajustado.
+
+Para cada posesión \(i\), el modelo estima un vector de probabilidades:
+
+\[
+(\pi_{i0},\pi_{i1},\pi_{i2},\pi_{i3}),
+\]
+
+que representa las probabilidades de anotar \(0\), \(1\), \(2\) o \(3\) puntos, respectivamente.
+
+Posteriormente, para cada posesión se genera aleatoriamente un resultado según dichas probabilidades. Por ejemplo, si para una posesión determinada el modelo estima:
+
+\[
+(0.58,0.03,0.27,0.12),
+\]
+
+entonces el valor simulado para dicha posesión será:
+
+\[
+Y_i^{sim}=
+\begin{cases}
+0 & \text{con probabilidad } 0.58, \\
+1 & \text{con probabilidad } 0.03, \\
+2 & \text{con probabilidad } 0.27, \\
+3 & \text{con probabilidad } 0.12.
+\end{cases}
+\]
+
+Este procedimiento se repite para todas las posesiones del conjunto de datos, obteniendo así un conjunto completo de posesiones simuladas. Luego, el proceso completo se replica múltiples veces (por ejemplo, 1000 simulaciones independientes).
+
+El objetivo de esta metodología es evaluar si el modelo multinomial es capaz de reproducir adecuadamente la distribución observada de puntos por posesión. Para ello, se comparan las frecuencias relativas simuladas y observadas de cada categoría de anotación.
+
+Finalmente, mediante un test chi-cuadrado bootstrap se evalúa la hipótesis:
+
+\[
+H_0:
+\text{las frecuencias simuladas y observadas son equivalentes}.
+\]
+
+Un valor-p elevado indica que no existen diferencias estadísticamente significativas entre ambas distribuciones, sugiriendo que el modelo multinomial reproduce adecuadamente el mecanismo generador de datos observado en la realidad.
