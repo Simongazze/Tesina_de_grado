@@ -5,6 +5,277 @@ date: "2026-05-21"
 output: html_document
 ---
 
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+
+options(scipen = 999)
+```
+
+```{r, echo=FALSE}
+library(tidyverse)
+library(limSolve)
+library(MASS)
+library(readxl)
+library(hms)
+library(kableExtra)
+library(gt)
+library(patchwork)
+library(htmltools)
+library(broom)
+library(ggrepel)
+library(reactable)
+library(scales)
+library(glmnet)
+
+set.seed(452)
+```
+
+```{r, echo=FALSE}
+#Poss-by-poss
+
+poss_by_poss_temporada <- read_csv("data/poss_by_poss_temporada.csv")
+poss_by_poss_temporada <- poss_by_poss_temporada[,-1]
+poss_by_poss_temporada = poss_by_poss_temporada %>% 
+  dplyr::select(- c(`ARN BUSTAMANTE, LUCAS  MARTIN`,`COSTA,  ALBANO NAHUEL` ))
+
+poss_by_poss_temporada = poss_by_poss_temporada %>% 
+  mutate(`GRÜN, FEDERICO JOSE` = `GRÜN, FEDERICO JOSE` + `GRUN, FEDERICO JOSE`, `MAINOLDI, LEONARDO ANDRES` = `MAINOLDI, LEONARDO ANDRES` + `MAINOLDI , LEONARDO ANDRES`) %>%
+  dplyr::select(- c(`GRUN, FEDERICO JOSE`,`MAINOLDI , LEONARDO ANDRES`))
+
+poss_by_poss_temporada <- poss_by_poss_temporada %>%
+  mutate(
+    equipos = str_split(partido_key, " vs "),
+    equipo_local = str_trim(sapply(equipos, `[`, 1)),
+    equipo_visitante = str_trim(sapply(equipos, `[`, 2)),
+    
+    # opcional: limpiar lo que venga después del nombre (paréntesis, fecha, etc.)
+    equipo_local = str_remove(equipo_local, " \\(.*"),
+    equipo_visitante = str_remove(equipo_visitante, " \\(.*"),
+    
+    equipo_limpio = if_else(
+      tipo_equipo_accion == "local",
+      equipo_local,
+      equipo_visitante
+    ),
+    equipo_limpio_def = if_else(
+      tipo_equipo_accion == "local",
+      equipo_visitante,
+      equipo_local
+    )
+  ) %>%
+  dplyr::select(-equipos)
+
+#Box score
+
+#Por partido
+
+box_score <- read_excel("data/Box score - temporada - sin minutos igual a 0.xlsx")
+
+box_score = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod), jugador = recode(NombreCompleto_limpio, "GRUN, FEDERICO JOSE" = "GRÜN, FEDERICO JOSE", "MAINOLDI , LEONARDO ANDRES" = "MAINOLDI, LEONARDO ANDRES"))
+
+#Temporada
+
+box_sc_temp = box_score %>%
+  group_by(jugador) %>%
+  summarise(
+    # 1. Variables de control
+    Equipos = paste(unique(equipo), collapse = ", "),
+    
+    # 2. Un único across que calcula Totales y Promedios a la vez
+    across(
+      where(is.numeric) & !c(IdJugador, IdClub, IdEquipo),
+      list(
+        total = \(x) sum(x, na.rm = TRUE),
+        prom  = \(x) mean(x, na.rm = TRUE)
+      ),
+      .names = "{.fn}_{.col}" # Aplica el prefijo 'total_' o 'prom_'
+    ),
+    
+    Partidos = n(),
+    
+    .groups = "drop"
+  )
+
+
+#Tiempo jugado
+minutos_jugad = box_score %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
+
+minutos_jugad = minutos_jugad %>% mutate(jugador = recode(NombreCompleto_limpio, "GRUN, FEDERICO JOSE" = "GRÜN, FEDERICO JOSE", "MAINOLDI , LEONARDO ANDRES" = "MAINOLDI, LEONARDO ANDRES")) %>%
+  group_by(jugador) %>%
+  summarise(
+    Equipos = paste(unique(equipo_normalizado), collapse = ", "),
+    Segundos = sum(Segundos, na.rm = TRUE),
+    Minutos = sum(Minutos, na.rm = TRUE),
+    Partidos = sum(Partidos, na.rm = TRUE),
+    Minutos_por_part = Minutos/Partidos
+  ) %>%
+  ungroup()
+
+# Galardones
+
+galardones = read_excel("data/Galardones.xlsx")
+
+#Posesiones
+
+g1 = colSums(poss_by_poss_temporada[, 24:369] != 0) %>% enframe(name = "jugador", value = "posesiones")
+
+# +/-
+
+plus_minus = poss_by_poss_temporada[, 24:369]*poss_by_poss_temporada[[23]]
+
+df_plus_minus <- plus_minus %>%
+  summarise(across(everything(), sum))%>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "jugador",
+    values_to = "+/-"
+  )
+
+# +/- por posesión
+
+
+
+# +/- por posesión estandarizado por equipo
+
+plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS") #Ya está filtrado
+plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales > 500) %>% rename(jugador = jugador_id)
+
+#OP 2
+promedio_pm1 = plus_minus_por_equipo1 %>% group_by(equipo_del_jugador) %>% summarise( pm_prom = mean(plus_minus_total), pm_mediana = median(plus_minus_total), pm_sd = sd(plus_minus_total), pm_100_prom = mean(plus_minus_100), pm_100_mediana = median(plus_minus_100), pm_100_sd = sd(plus_minus_100), pm_mad = mad(plus_minus_total), pm_100_mad = mad(plus_minus_100))
+
+plus_minus_por_equipo1 = plus_minus_por_equipo1 %>%  left_join(promedio_pm1)
+
+plus_minus_por_equipo1 = plus_minus_por_equipo1 %>% mutate(pm_menos_median = plus_minus_100 - pm_100_mediana , pm_estand_median = (plus_minus_100 - pm_100_mediana)/pm_100_mad, pm_menos_prom =  plus_minus_100 - pm_100_prom, pm_estand_prom = (plus_minus_100 - pm_100_prom)/pm_100_sd, pm_tot_estand_median = (plus_minus_total - pm_mediana)/mad(plus_minus_total))
+
+#Unificado para tener un +/- estandarizado por equipo
+
+# “Como el jugador dividió su temporada en dos contextos distintos, se estimó un indicador compuesto ponderado por el tiempo de exposición (partidos/minutos) en cada estructura, asumiendo que el impacto relativo del jugador se manifiesta proporcionalmente a su volumen de juego en cada equipo”.
+
+pm_por_equipo = plus_minus_por_equipo1 %>%
+    group_by(jugador) %>%
+   summarise(
+    # Ponderamos el plus-minus estandarizado por los partidos jugados en cada equipo
+    pm_estandarizado = sum(pm_estand_median * posesiones_totales) / sum(posesiones_totales),
+    .groups = "drop"
+  )
+
+```
+
+```{r, echo=FALSE}
+
+df_estadisticas = box_sc_temp %>% left_join(minutos_jugad %>% dplyr::select(-c(Equipos, Partidos)))
+
+df_estadisticas = df_estadisticas %>% left_join(g1)
+
+df_estadisticas = df_estadisticas %>% left_join(df_plus_minus) %>% mutate(pm_ajust_pos = (`+/-`/posesiones))
+
+df_estadisticas = df_estadisticas %>% left_join(pm_por_equipo)
+
+
+```
+
+```{r, echo =FALSE}
+cols_ceros_mod = g1 %>% filter(posesiones<500) %>% dplyr::select(jugador)
+
+cols_ceros_mod = cols_ceros_mod$jugador
+
+df_mod_ltp = poss_by_poss_temporada %>% dplyr::select(c(23:369)) %>% dplyr::select(-cols_ceros_mod)
+
+df_mod_ltp_sep <- df_mod_ltp
+
+jugadores <- names(df_mod_ltp)[2:230]
+
+for (j in jugadores) {
+  
+  df_mod_ltp_sep[[paste0(j, "_off")]] <- ifelse(df_mod_ltp[[j]] == 1, 1, 0)
+  
+  df_mod_ltp_sep[[paste0(j, "_def")]] <- ifelse(df_mod_ltp[[j]] == -1, -1, 0)
+}
+
+df_mod_ltp_sep <- df_mod_ltp_sep %>%
+  dplyr::select(-all_of(jugadores))
+
+modelo_ridge = readRDS("modelo_ridge.RDS")
+modelo_multi_ridge = readRDS("modelo_multi_ridge.RDS")
+modelo_lasso = readRDS("modelo_lasso.RDS")
+modelo_multi_lasso = readRDS("modelo_multi_lasso.RDS")
+```
+
+
+## Resúmen
+
+Intentar identificar los aportes de los jugadores en el rendimientos de sus equipos.
+
+$y$ = puntos por posesión
+
+$\textbf{X}_{off}$ = Variables indicadores que reflejan la presencia ofensiva de los jugadores (1 si estaba en la cancha, 0 si no estaba)
+
+$\textbf{X}_{def}$ = Variables indicadores que reflejan la presencia defensiva de los jugadores (-1 si estaba en la cancha, 0 si no estaba)
+
+**Modelos normales**
+
+$$y_i  = \beta_0 + \sum_{j=1}^{K} \beta^o_j x^o_{ji} + \sum_{j=1}^{K} \beta^d_j x^d_{ji} + e_i$$
+
+Estimación de los parámetros mediante técnicas de regularización:
+
+Ridge:$S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2$
+
+Lasso:$S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{j=1}^p|\beta_j|=S+\lambda \sum_{j=1}^p\ |\beta_j|$
+
+Elastic Net:$S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda [\alpha\sum_{j=1}^p|\beta_j|+(1-\alpha)\sum_{j=1}^p\beta_j^2]$
+
+Los coeficientes que acompañan a las variables explicativas son las métricas RAPM, las cuales dan indicios del aporte que realiza cada jugador
+
+
+**Modelos multinomiales**:
+
+Se toman como categorías nominales a 0,1,2 y 3 o más puntos en la posesión:
+
+$$logit(\pi_{ic}) = log(\frac{\pi_{ic}}{\pi_{i0}})=\beta_{0c} + \sum_{j=1}^{K} \beta^o_{jc} x^o_{ji} + \sum_{j=1}^{K} \beta^d_{jc} x^d_{ji}\quad \text{con } c= \{1,2, 3+\} $$
+
+Esimación por Máxima Verosimilitud y técnicas de regularización:
+
+Ridge:$S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2$
+
+Lasso:$S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{j=1}^p|\beta_j|=S+\lambda \sum_{j=1}^p\ |\beta_j|$
+
+Elastic Net:$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p[\alpha\sum_{j=1}^p|\beta_j|+(1-\alpha)\sum_{j=1}^p\beta_j^2]$
+
+Como en este tipo de modelos no tenemos una métrica que sintetice el aporte de los jugadores a la cantidad de puntos esperados, pero si podemos calcular las probabilidades de anotar para cada categoría, se obtiene la siguiente métrica:
+
+$$EPTS_k^r= \pi^r_{k1}+2\pi_{k2}^r+3,03\pi_{k3}^r, \quad r \in \{o,d\}$$
+
+Luego en Lasso multinomial performance indicators for in‑play basketball data proponen una métrica "superadora" que tiene en cuenta participación del jugador a lo largo de la temporada, si juega muy poco lleva su coeficiente a un valor "promedio".
+
+Para combatir a los jugadores con pocos minutos que presentan coeficientes extremos.
+
+$$
+\begin{aligned}
+wEPTS_k^{r} &= E(Pts_i \mid \boldsymbol{X}_{i\setminus{k}}^{r} = \boldsymbol{0},\, \boldsymbol{X}_i^{\,\bar{r}} = \boldsymbol{0},\, T_i = t_k) \\[6pt]
+&= P(X_{ik}^{r} \ne 0 \mid T_i = t_k) \, E(Pts_i \mid X_{ik}^{r} \ne 0,\boldsymbol{X}_{i\setminus{k}}^{r} = \boldsymbol{0},\, \boldsymbol{X}_i^{\,\bar{r}} = \boldsymbol{0}) \\[6pt]
+&\quad + P(X_{ik}^{r} = 0 \mid T_i = t_k) \, E(Pts_i \mid X_{ik}^{r} \ne 0,\boldsymbol{X}_{i\setminus{k}}^{r} = \boldsymbol{0},\, \boldsymbol{X}_i^{\,\bar{r}} = \boldsymbol{0}) \\[6pt]
+&= W_k^{r} \, EPTS_k^{r} + (1 - W_k^{r}) \, EPTS_0
+\end{aligned}
+$$
+Donde $W_k$ es la proporción de posesiones en las que participó el jugador dentro de su equipo
+
+$$
+\hat{W}_k^{r} = 
+\frac{n_k^{r}}{n_{t_k}^{r}} 
+= 
+\frac{\sum_{i=1}^{n} \mathcal{I}(X_{ik}^{r} \ne 0)}
+     {\sum_{i=1}^{n} \mathcal{I}(T_i^{r} = t_k)}.
+$$
+
+
+## Comparación de modelos
+
+### Modelo Normal vs Modelo Multinomial
+
 \subsection{Comparación entre el modelo normal y el modelo multinomial}
 
 Con el objetivo de evaluar el desempeño predictivo de los modelos considerados, se comparó el modelo de regresión normal tradicional con el modelo multinomial propuesto utilizando como criterio principal el error cuadrático medio (\textit{Root Mean Squared Error}, RMSE).
@@ -54,7 +325,60 @@ RMSE=
 
 donde \(y_i\) representa el valor observado y \(\hat y_i\) el valor predicho por el modelo.
 
-Un menor valor de RMSE indica una mejor capacidad predictiva. En el trabajo de referencia, el modelo multinomial obtuvo un RMSE menor que el modelo normal, sugiriendo un mejor ajuste a los datos observados. Este resultado es consistente con la naturaleza discreta y altamente asimétrica de los puntos anotados por posesión, donde las categorías \(0\) y \(2\) puntos concentran gran parte de las observaciones.
+```{r}
+X <- model.matrix(
+  puntos_pos ~ . -1 ,
+  data = df_mod_ltp_sep
+)
+
+y <- df_mod_ltp_sep$puntos_pos
+
+#Ridge
+y_pred_ridge <- predict(modelo_ridge, newx = X, s = "lambda.min")
+rmse_ridge <- sqrt(mean((y - y_pred_ridge)^2))
+cat("RMSE (train):", rmse_ridge, "\n")
+cat("RMSE:", min(modelo_ridge$cvm), "\n")
+
+#Lasso
+
+y_pred_lasso <- predict(modelo_lasso, newx = X, s = "lambda.min")
+rmse_train_lasso <- sqrt(mean((y - y_pred_lasso)^2))
+cat("RMSE (train):", rmse_train_lasso, "\n")
+cat("RMSE:", min(modelo_lasso$cvm), "\n")
+
+X_multi <- model.matrix(
+  puntos_pos ~ . ,
+  data = df_mod_ltp_sep
+)
+
+# Multi Ridge
+pi_pred_ridge <- predict(modelo_multi_ridge, newx = X_multi, s = "lambda.min", type = "response" )
+
+probs_mat <- pi_pred_ridge[, , 1]
+colnames(probs_mat)
+valores <- c(0, 1, 2, 3.03)
+y_pred_ridge <- probs_mat %*% valores
+
+rmse_ridge_multi <- sqrt(mean((y - y_pred_ridge)^2))
+cat("RMSE Ridge Multinomial:", rmse_ridge, "\n")
+
+# Multi Lasso
+
+pi_pred_lasso <- predict(modelo_multi_lasso, newx = X_multi, s = "lambda.min", type = "response" )
+
+probs_mat_lasso <- pi_pred_lasso[, , 1]
+colnames(probs_mat_lasso)
+valores <- c(0, 1, 2, 3.03)
+y_pred_lasso <- probs_mat_lasso %*% valores
+
+rmse_lasso_multi <- sqrt(mean((y - y_pred_lasso)^2))
+cat("RMSE Lasso Multinomial:", rmse_lasso_multi, "\n")
+
+```
+
+En el trabajo de referencia, el modelo multinomial obtuvo un RMSE (=1.62) menor que el modelo normal (1.86), sugiriendo un mejor ajuste a los datos observados. Este resultado se mantiene en nuestro trabajo aunque la diferencia es menor (RMSE Normal = `r rmse_ridge` vs RMSE multinomial = `r rmse_ridge_multi`).
+
+### Bondad de ajuste del modelo multinomial
 
 \vspace{0.5cm}
 
@@ -92,11 +416,323 @@ Este procedimiento se repite para todas las posesiones del conjunto de datos, ob
 
 El objetivo de esta metodología es evaluar si el modelo multinomial es capaz de reproducir adecuadamente la distribución observada de puntos por posesión. Para ello, se comparan las frecuencias relativas simuladas y observadas de cada categoría de anotación.
 
-Finalmente, mediante un test chi-cuadrado bootstrap se evalúa la hipótesis:
+```{r}
+# simulaciones <- replicate(
+#   1000,
+#   apply(
+#     probs_mat,
+#     1,
+#     function(p){
+#       sample(
+#         x = valores,
+#         size = 1,
+#         prob = p
+#       )
+#     }
+#   )
+# )
+# 
+# freq_sim <- apply(
+#   simulaciones,
+#   2,
+#   function(x){
+#     prop.table(table(factor(x, levels = valores)))
+#   }
+# )
+# 
+# freq_sim = rowMeans(freq_sim)
 
-\[
-H_0:
-\text{las frecuencias simuladas y observadas son equivalentes}.
-\]
+freq_sim = readRDS("freq_sim.RDS")
 
-Un valor-p elevado indica que no existen diferencias estadísticamente significativas entre ambas distribuciones, sugiriendo que el modelo multinomial reproduce adecuadamente el mecanismo generador de datos observado en la realidad.
+y_multi = df_mod_ltp_sep |>
+  mutate(puntos_pos = if_else(puntos_pos >= 3, 3.03, puntos_pos)) |>
+  pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+
+freq_empirica <- as.numeric(prop.table(table(factor(y_multi, levels = valores))))
+
+print(freq_sim)
+print(freq_empirica)
+
+```
+
+gráfico
+
+```{r}
+df_plot <- tibble(
+  puntos = factor(c(0, 1, 2, 3.03),
+                  levels = c(0, 1, 2, 3.03),
+                  labels = c("0", "1", "2", "3+")),
+  
+  Empirica = freq_empirica,
+  Simulada = freq_sim
+) |>
+  pivot_longer(
+    cols = c(Empirica, Simulada),
+    names_to = "Distribucion",
+    values_to = "Frecuencia"
+  )
+
+# Gráfico
+ggplot(df_plot,
+       aes(x = puntos,
+           y = Frecuencia,
+           fill = Distribucion)) +
+  
+  geom_col(
+    position = "dodge",
+    width = 0.7
+  ) +
+  
+  scale_y_continuous(
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_fill_manual(
+  values = c(
+    "Empirica" = "steelblue",
+    "Simulada" = "skyblue2"
+  )
+)+
+  labs(
+    title = "Comparación entre distribución empírica y simulada",
+    subtitle = "Frecuencias relativas de puntos por posesión",
+    x = "Puntos anotados",
+    y = "Frecuencia relativa",
+    fill = NULL
+  ) +
+  
+  theme_minimal(base_size = 14) +
+  
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
+```
+
+Distribuciones prácticamente iguales
+
+### Criterios de validación externa
+
+Para evaluar los distintos rankings, se procederá a compararlos en base a distintos criterios de validación externa. Estos criterios son "objetivos" y se definen con información no utilizada en los modelos. Los criterios son:
+
+1. **Pocos minutos**: porcentaje de jugadores top-50 del ranking que pertenecen al grupo de los 50 jugadores con menos minutos jugados. Un buen modelo debería penalizar a estos jugadores.
+2. **Titulares**: porcentaje de jugadores top-50 del ranking que son titulares (los 6 con más minutos por equipo).
+3. **Galardones**: porcentaje de jugadores top-50 del ranking que recibieron al menos un galardón o estuvieron ternados durante la temporada.
+4. **Box score - Top 50**: porcentaje de jugadores top-50 en distintas estadísticas de box score que aparecen en el top-50 del ranking.
+
+
+```{r setup-validacion, message=FALSE, warning=FALSE}
+
+# # ── Jugadores con pocos minutos ────────────────────────────────────────────────
+# df_pocos_minutos <- df_estadisticas %>%
+#   filter(!is.na(pm_estandarizado)) %>%
+#   arrange(Minutos) %>%
+#   slice(1:50)
+# 
+# # ── Titulares (top 6 por minutos por equipo) ───────────────────────────────────
+# titulares <- box_score %>%
+#   group_by(NombreCompleto_limpio, equipo_normalizado) %>%
+#   summarise(
+#     Segundos = sum(Tiempo_mod),
+#     Minutos  = sum(Tiempo_mod) / 60,
+#     Partidos = n(),
+#     .groups  = "drop"
+#   ) %>%
+#   group_by(equipo_normalizado) %>%
+#   slice_max(Minutos, n = 6) %>%
+#   ungroup()
+# 
+# # ── Rankings (top 50 por modelo) ─────────────────────────────────────
+# 
+# #Coeficientes ofensivos
+# 
+# top_wepts_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_ridge)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_ridge) %>% arrange(desc(coef_of)) %>% slice(1:50)
+# 
+# top_wepts_lasso = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_lasso)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_lasso) %>% arrange(desc(coef_of)) %>% slice(1:50)
+# 
+# top_wepts_enet = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_enet)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_enet) %>% arrange(desc(coef_of)) %>% slice(1:50)
+# 
+# top_rapm_off_ridge <- beta_hat_ridge_multi_off %>%
+#   arrange(desc(epts)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_replace_all(jugador, "_off", "")) %>% 
+#   rename(coef_of = epts)
+# 
+# top_rapm_off_lasso <- beta_hat_lasso_multi_off %>%
+#   arrange(desc(epts)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_replace_all(jugador, "_off", "")) %>% 
+#   rename(coef_of = epts)
+# 
+# top_rapm_off_enet <- beta_hat_enet_multi_off %>%
+#   arrange(desc(epts)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_off", "")) %>% 
+#   rename(coef_of = epts)
+# 
+# top_rapm_off_ridge_normal <- beta_hat_ridge_normal_off %>%
+#   arrange(desc(coef_of)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_replace_all(jugador, "`", ""))
+# 
+# top_rapm_off_lasso_normal <- beta_hat_lasso_normal_off %>%
+#   arrange(desc(coef_of)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_replace_all(jugador, "`", ""))
+# 
+# top_rapm_off_enet_normal <- beta_hat_enet_normal_off %>%
+#   arrange(desc(coef_of)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_replace_all(jugador, "`", ""))
+# 
+# rankings_off <- list(
+#   `RAPM - Ridge` = top_rapm_off_ridge_normal,
+#   `RAPM - Lasso` = top_rapm_off_lasso_normal,
+#   `RAPM - Elastic Net` = top_rapm_off_enet_normal,
+#   `EPTS - Ridge` = top_rapm_off_ridge,
+#   `EPTS - Lasso` = top_rapm_off_lasso,
+#   `EPTS - Elastic Net` = top_rapm_off_enet,
+#   `wEPTS - Ridge` = top_wepts_ridge,
+#   `wEPTS - Lasso` = top_wepts_lasso,
+#   `wEPTS - Elastic Net` = top_wepts_enet
+# )
+# 
+# #Coeficientes defensivos
+# 
+# top_wepts_def_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_ridge)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_ridge) %>% arrange(desc(coef_def)) %>% slice(1:50)
+# 
+# top_wepts_def_lasso = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_lasso)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_lasso) %>% arrange(desc(coef_def)) %>% slice(1:50)
+# 
+# top_wepts_def_enet = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_enet)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_enet) %>% arrange(desc(coef_def)) %>% slice(1:50)
+# 
+# top_rapm_def_ridge <- beta_hat_ridge_multi_def %>%
+#   arrange(desc(epts)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_replace_all(jugador, "_def", "")) %>% 
+#   rename(coef_def = epts)
+# 
+# top_rapm_def_lasso <- beta_hat_lasso_multi_def %>%
+#   arrange(desc(epts)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_replace_all(jugador, "_def", "")) %>% 
+#   rename(coef_def = epts)
+# 
+# top_rapm_def_enet <- beta_hat_enet_multi_def %>%
+#   arrange(desc(epts)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_def", "")) %>% 
+#   rename(coef_def = epts)
+# 
+# top_rapm_def_ridge_normal <- beta_hat_ridge_normal_def %>%
+#   arrange(desc(coef_def)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_replace_all(jugador, "`", ""))
+# 
+# top_rapm_def_lasso_normal <- beta_hat_lasso_normal_def %>%
+#   arrange(desc(coef_def)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_replace_all(jugador, "`", ""))
+# 
+# top_rapm_def_enet_normal <- beta_hat_enet_normal_def %>%
+#   arrange(desc(coef_def)) %>%
+#   slice(1:50) %>% 
+#   mutate(jugador = str_replace_all(jugador, "`", ""))
+# 
+# rankings_def <- list(
+#   `RAPM - Ridge` = top_rapm_def_ridge_normal,
+#   `RAPM - Lasso` = top_rapm_def_lasso_normal,
+#   `RAPM - Elastic Net` = top_rapm_def_enet_normal,
+#   `EPTS - Ridge` = top_rapm_def_ridge,
+#   `EPTS - Lasso` = top_rapm_def_lasso,
+#   `EPTS - Elastic Net` = top_rapm_def_enet,
+#   `wEPTS - Ridge` = top_wepts_def_ridge,
+#   `wEPTS - Lasso` = top_wepts_def_lasso,
+#   `wEPTS - Elastic Net` = top_wepts_def_enet
+# )
+# 
+# # ── Funciones auxiliares de evaluación ────────────────────────────────────────
+# 
+# # Criterios simples (pocos minutos, titulares, galardones)
+# evaluar_coincidencias <- function(rankings, grupo, col_grupo) {
+#   purrr::imap_dfr(rankings, \(ranking, nombre_modelo) {
+#     coincidencias <- intersect(grupo[[col_grupo]], ranking$jugador)
+#     data.frame(
+#       modelo        = nombre_modelo,
+#       coincidencias = length(coincidencias),
+#       porcentaje    = length(coincidencias) / 50 * 100
+#     )
+#   })
+# }
+# 
+# # Criterio box score
+# evaluar_boxscore <- function(rankings, variables, col_coef) {
+#   purrr::imap_dfr(rankings, \(ranking, nombre_modelo) {
+#     purrr::map_dfr(variables, \(var) {
+#       top_box  <- df_estadisticas %>% arrange(desc(.data[[var]])) %>% slice(1:50)
+#       top_rank <- ranking %>% arrange(desc(.data[[col_coef]])) %>% slice(1:50)
+#       coincidencias <- intersect(top_box$jugador, top_rank$jugador)
+#       data.frame(
+#         modelo        = nombre_modelo,
+#         variable      = var,
+#         coincidencias = length(coincidencias),
+#         porcentaje    = length(coincidencias) / 50 * 100
+#       )
+#     })
+#   })
+# }
+
+# save(
+#   df_ltps, df_ltps_def,
+#   df_titulares, df_titulares_def,
+#   df_galardones_off, df_galardones_def,
+#   resultados_boxscore_off, resultados_boxscore_def,
+#   file = "resultados_validacion.RData"
+# )
+
+load("resultados_validacion.RData")
+```
+
+
+
+##### Criterio 1: Jugadores con pocos minutos
+
+```{r criterio-pocos-minutos, message=FALSE, warning=FALSE}
+# df_ltps     <- evaluar_coincidencias(rankings_off, df_pocos_minutos, "jugador")
+# df_ltps_def <- evaluar_coincidencias(rankings_def, df_pocos_minutos, "jugador")
+
+knitr::kable(df_ltps,     caption = "Pocos minutos — rankings ofensivos")
+knitr::kable(df_ltps_def, caption = "Pocos minutos — rankings defensivos")
+```
+
+##### Criterio 2: Titulares
+
+```{r criterio-titulares, message=FALSE, warning=FALSE}
+# df_titulares     <- evaluar_coincidencias(rankings_off, titulares, "NombreCompleto_limpio")
+# df_titulares_def <- evaluar_coincidencias(rankings_def, titulares, "NombreCompleto_limpio")
+
+knitr::kable(df_titulares,     caption = "Titulares — rankings ofensivos")
+knitr::kable(df_titulares_def, caption = "Titulares — rankings defensivos")
+```
+
+##### Criterio 3: Galardones
+
+```{r criterio-galardones, message=FALSE, warning=FALSE}
+# df_galardones_off <- evaluar_coincidencias(rankings_off, galardones, "jugador")
+# df_galardones_def <- evaluar_coincidencias(rankings_def, galardones, "jugador")
+
+knitr::kable(df_galardones_off, caption = "Galardones — rankings ofensivos")
+knitr::kable(df_galardones_def, caption = "Galardones — rankings defensivos")
+```
+
+##### Criterio 4: Box Score — Top 50
+
+```{r criterio-boxscore, message=FALSE, warning=FALSE}
+# variables_off <- c("total_Puntos", "total_Asistencias", "total_ReboteOfensivo")
+# variables_def <- c("total_ReboteDefensivo", "total_Recuperaciones", "total_TaponCometido")
+# 
+# resultados_boxscore_off <- evaluar_boxscore(rankings_off, variables_off, "coef_of") %>% arrange(variable)
+# resultados_boxscore_def <- evaluar_boxscore(rankings_def, variables_def, "coef_def") %>% arrange(variable)
+
+knitr::kable(resultados_boxscore_off, caption = "Box score — rankings ofensivos")
+knitr::kable(resultados_boxscore_def, caption = "Box score — rankings defensivos")
+```
+

@@ -1519,6 +1519,8 @@ ver por ejemplo en lasso que pares de jugadores importantes deja un coeficiente 
 
 cuantos jugadores con coeficientes cercanos a 0 deja ridge
 
+Quitar el intercepto en todos los modelos
+
 ### -------------------------------------------------
 
 ### Métodos de regularización (Ridge, Lasso, Elastic Net)
@@ -2594,11 +2596,62 @@ RMSE=
 
 donde \(y_i\) representa el valor observado y \(\hat y_i\) el valor predicho por el modelo.
 
-Un menor valor de RMSE indica una mejor capacidad predictiva. En el trabajo de referencia, el modelo multinomial obtuvo un RMSE menor que el modelo normal, sugiriendo un mejor ajuste a los datos observados. Este resultado es consistente con la naturaleza discreta y altamente asimétrica de los puntos anotados por posesión, donde las categorías \(0\) y \(2\) puntos concentran gran parte de las observaciones.
+
+```{r}
+X <- model.matrix(
+  puntos_pos ~ . ,
+  data = df_mod_ltp_sep
+)
+
+y <- df_mod_ltp_sep$puntos_pos
+
+#Ridge
+y_pred_ridge <- predict(modelo_ridge, newx = X, s = "lambda.min")
+rmse_ridge <- sqrt(mean((y - y_pred)^2))
+cat("RMSE (train):", rmse_train, "\n")
+cat("RMSE:", min(modelo_ridge$cvm), "\n")
+
+#Lasso
+
+y_pred_lasso <- predict(modelo_lasso, newx = X, s = "lambda.min")
+rmse_train_lasso <- sqrt(mean((y - y_pred_lasso)^2))
+cat("RMSE (train):", rmse_train_lasso, "\n")
+cat("RMSE:", min(modelo_lasso$cvm), "\n")
+
+# Multi Ridge
+pi_pred_ridge <- predict(modelo_multi_ridge, newx = X, s = "lambda.min", type = "response" )
+
+probs_mat <- pi_pred_ridge[, , 1]
+colnames(probs_mat)
+valores <- c(0, 1, 2, 3.03)
+y_pred_ridge <- probs_mat %*% valores
+
+rmse_ridge_multi <- sqrt(mean((y - y_pred_ridge)^2))
+cat("RMSE Ridge Multinomial:", rmse_ridge, "\n")
+
+# Multi Lasso
+
+pi_pred_lasso <- predict(modelo_multi_lasso, newx = X, s = "lambda.min", type = "response" )
+
+probs_mat_lasso <- pi_pred_lasso[, , 1]
+colnames(probs_mat_lasso)
+valores <- c(0, 1, 2, 3.03)
+y_pred_lasso <- probs_mat_lasso %*% valores
+
+rmse_lasso_multi <- sqrt(mean((y - y_pred_lasso)^2))
+cat("RMSE Lasso Multinomial:", rmse_lasso_multi, "\n")
+
+```
+
+
+
+En el trabajo de referencia, el modelo multinomial obtuvo un RMSE (=1.62) menor que el modelo normal (1.86), sugiriendo un mejor ajuste a los datos observados. Este resultado se mantiene en nuestro trabajo aunque la diferencia es menor (RMSE Normal = `r rmse_ridge` vs RMSE multinomial = `r rmse_ridge_multi`).
 
 \vspace{0.5cm}
 
 \subsection{Simulación de posesiones a partir del modelo multinomial}
+
+#### Bondad de ajuste del modelo multinomial
 
 Además de comparar los modelos mediante RMSE, se realizó una validación adicional utilizando simulaciones generadas a partir del modelo multinomial ajustado.
 
@@ -2632,6 +2685,93 @@ Este procedimiento se repite para todas las posesiones del conjunto de datos, ob
 
 El objetivo de esta metodología es evaluar si el modelo multinomial es capaz de reproducir adecuadamente la distribución observada de puntos por posesión. Para ello, se comparan las frecuencias relativas simuladas y observadas de cada categoría de anotación.
 
+```{r}
+simulaciones <- replicate(
+  1000,
+  apply(
+    probs_mat,
+    1,
+    function(p){
+      sample(
+        x = valores,
+        size = 1,
+        prob = p
+      )
+    }
+  )
+)
+
+freq_sim <- apply(
+  simulaciones,
+  2,
+  function(x){
+    prop.table(table(factor(x, levels = valores)))
+  }
+)
+
+freq_sim = rowMeans(freq_sim)
+
+y_multi = df_mod_ltp_sep |>
+  mutate(puntos_pos = if_else(puntos_pos >= 3, 3.03, puntos_pos)) |>
+  pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+
+freq_empirica <- as.numeric(prop.table(table(factor(y_multi, levels = valores))))
+
+
+```
+```{r}
+
+df_plot <- tibble(
+  puntos = factor(c(0, 1, 2, 3.03),
+                  levels = c(0, 1, 2, 3.03),
+                  labels = c("0", "1", "2", "3+")),
+  
+  Empirica = freq_empirica,
+  Simulada = freq_sim
+) |>
+  pivot_longer(
+    cols = c(Empirica, Simulada),
+    names_to = "Distribucion",
+    values_to = "Frecuencia"
+  )
+
+# Gráfico
+ggplot(df_plot,
+       aes(x = puntos,
+           y = Frecuencia,
+           fill = Distribucion)) +
+  
+  geom_col(
+    position = "dodge",
+    width = 0.7
+  ) +
+  
+  scale_y_continuous(
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_fill_manual(
+  values = c(
+    "Empirica" = "steelblue",
+    "Simulada" = "skyblue2"
+  )
+)+
+  labs(
+    title = "Comparación entre distribución empírica y simulada",
+    subtitle = "Frecuencias relativas de puntos por posesión",
+    x = "Puntos anotados",
+    y = "Frecuencia relativa",
+    fill = NULL
+  ) +
+  
+  theme_minimal(base_size = 14) +
+  
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
+```
+
+
 Finalmente, mediante un test chi-cuadrado bootstrap se evalúa la hipótesis:
 
 \[
@@ -2645,68 +2785,7 @@ Un valor-p elevado indica que no existen diferencias estadísticamente significa
 
 Para evaluar los distintos rankings, se procederá a compararlos en base a distintos criterios de validación externa. Estos criterios son "objetivos" y se definen con información no utilizada en los modelos.
 
-```{r}
-#Pocos minutos
-df_pocos_minutos = df_estadisticas %>% arrange(Minutos) %>% head(50)
-
-#Titulares
-titulares = box_score %>% group_by(NombreCompleto_limpio, equipo_normalizado) %>% summarise(Segundos = sum(Tiempo_mod), Minutos = sum(Tiempo_mod)/60, Partidos = n())
-
-titulares = titulares %>% group_by(equipo_normalizado) %>% slice_max(Minutos, n = 6) %>% ungroup()
-
-# Top 50 Box score
-
-evaluar_variable <- function(df, variable, top_rapm){
-
-  top_box <- df %>%
-    arrange(desc(.data[[variable]])) %>%
-    slice(1:50)
-
-  coincidencias <- intersect(
-    top_box$jugador,
-    top_rapm$jugador
-  )
-
-  data.frame(
-    variable = variable,
-    coincidencias = length(coincidencias),
-    porcentaje = length(coincidencias) / 50 * 100
-  )
-}
-
-evaluar_variable(df_estadisticas, "total_Puntos" ,top_rapm_off )
-
-variables_off <- c(
-  "total_Puntos",
-  "total_Asistencias",
-  "total_ReboteOfensivo"
-)
-
-resultados_off <- purrr::map_dfr(
-  variables_off,
-  evaluar_variable,
-  df = df_estadisticas,
-  top_rapm = top_rapm_off
-)
-
-variables_def <- c(
-  "total_ReboteDefensivo",
-  "total_Robos",
-  "total_Tapas"
-)
-
-resultados_def <- purrr::map_dfr(
-  variables_def,
-  evaluar_variable,
-  df = df_estadisticas,
-  top_rapm = top_rapm_def
-)
-
-```
-
-
-
-Top 50
+RAPM/EPTS/wEPTS - Top 50
 
 ```{r}
 
@@ -2822,7 +2901,7 @@ Pocos minutos
 Variables ofensivas
 
 ```{r}
-df_pocos_minutos = df_estadisticas %>% arrange(Minutos) %>% head(50)
+df_pocos_minutos = df_estadisticas %>% filter(!is.na(pm_estandarizado)) %>% arrange(Minutos) %>% head(50)
 
 df_ltps <- purrr::imap_dfr(
   rankings,
@@ -2842,7 +2921,8 @@ df_ltps <- purrr::imap_dfr(
   }
 )
 
-  
+knitr::kable(df_ltps,     caption = "Pocos minutos — rankings ofensivos")
+knitr::kable(df_ltps_def, caption = "Pocos minutos — rankings defensivos")
 
 ```
 
@@ -3030,7 +3110,7 @@ resultados <- purrr::imap_dfr(
 Variables defensivas
 
 ```{r}
-rankings <- list(
+rankings_def <- list(
   `RAPM - Ridge` = top_rapm_def_ridge_normal,
   `RAPM - Lasso` = top_rapm_def_lasso_normal,
   `RAPM - Elastic Net` = top_rapm_def_enet_normal,
@@ -3072,7 +3152,7 @@ evaluar_modelo <- function(df_stats, variable, ranking, nombre_modelo){
 }
 
 resultados_def <- purrr::imap_dfr(
-  rankings,
+  rankings_def,
   \(ranking, nombre_modelo){
 
     purrr::map_dfr(
