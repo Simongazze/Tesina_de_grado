@@ -239,9 +239,9 @@ $$logit(\pi_{ic}) = log(\frac{\pi_{ic}}{\pi_{i0}})=\beta_{0c} + \sum_{j=1}^{K} \
 
 Esimación por Máxima Verosimilitud y técnicas de regularización:
 
-Ridge:$S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2$
+Ridge:$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2$
 
-Lasso:$S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{j=1}^p|\beta_j|=S+\lambda \sum_{j=1}^p\ |\beta_j|$
+Lasso:$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p|\beta_j|=S+\lambda \sum_{j=1}^p\ |\beta_j|$
 
 Elastic Net:$L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p[\alpha\sum_{j=1}^p|\beta_j|+(1-\alpha)\sum_{j=1}^p\beta_j^2]$
 
@@ -272,7 +272,18 @@ $$
 $$
 
 
+
+
+
 ## Comparación de modelos
+
+Basados en este enfoque realizado por Damoulaki en *Lasso multinomial performance indicators for in‑play basketball data*:
+
+```{r, out.width = "80%", fig.align = "center"}
+knitr::include_graphics("img/Validación_modelo_multinomial.png")
+```
+
+Se proponen ambas estrategias de evaluación.
 
 ### Modelo Normal vs Modelo Multinomial
 
@@ -302,17 +313,17 @@ k \in \{0,1,2,3\},
 
 donde \(\pi_{ik}\) representa la probabilidad estimada de anotar \(k\) puntos en la posesión \(i\).
 
-A partir de dichas probabilidades, es posible obtener el valor esperado de puntos por posesión mediante:
+Como no contamos con un valor de $y$ predicho para calcular el RMSE es posible, a partir de sendas probabilidades estimadas, obtener el valor esperado de puntos por posesión:
 
 \[
-E(Y_i)=
+EPTS = E(Y_i)=
 0\pi_{i0}
 +1\pi_{i1}
 +2\pi_{i2}
-+3\pi_{i3}.
++3.03\pi_{i3}.
 \]
 
-De esta forma, tanto el modelo normal como el multinomial producen una predicción continua del número esperado de puntos por posesión, permitiendo comparar ambos enfoques mediante el RMSE:
+De esta forma, tanto el modelo normal como el multinomial producen una **predicción continua** del número esperado de puntos por posesión, permitiendo comparar ambos enfoques mediante el RMSE:
 
 \[
 RMSE=
@@ -336,15 +347,15 @@ y <- df_mod_ltp_sep$puntos_pos
 #Ridge
 y_pred_ridge <- predict(modelo_ridge, newx = X, s = "lambda.min")
 rmse_ridge <- sqrt(mean((y - y_pred_ridge)^2))
-cat("RMSE (train):", rmse_ridge, "\n")
-cat("RMSE:", min(modelo_ridge$cvm), "\n")
+cat("RMSE Ridge Normal (Con todos los datos):", rmse_ridge, "\n")
+cat("RMSE Ridge Normal (Cross-Validation):", min(modelo_ridge$cvm), "\n")
 
 #Lasso
 
 y_pred_lasso <- predict(modelo_lasso, newx = X, s = "lambda.min")
 rmse_train_lasso <- sqrt(mean((y - y_pred_lasso)^2))
-cat("RMSE (train):", rmse_train_lasso, "\n")
-cat("RMSE:", min(modelo_lasso$cvm), "\n")
+cat("RMSE Lasso Normal (Con todos los datos):", rmse_train_lasso, "\n")
+cat("RMSE Lasso Normal (Cross-Validation):", min(modelo_lasso$cvm), "\n")
 
 X_multi <- model.matrix(
   puntos_pos ~ . ,
@@ -355,19 +366,19 @@ X_multi <- model.matrix(
 pi_pred_ridge <- predict(modelo_multi_ridge, newx = X_multi, s = "lambda.min", type = "response" )
 
 probs_mat <- pi_pred_ridge[, , 1]
-colnames(probs_mat)
+
 valores <- c(0, 1, 2, 3.03)
 y_pred_ridge <- probs_mat %*% valores
 
 rmse_ridge_multi <- sqrt(mean((y - y_pred_ridge)^2))
-cat("RMSE Ridge Multinomial:", rmse_ridge, "\n")
+cat("RMSE Ridge Multinomial:", rmse_ridge_multi, "\n")
 
 # Multi Lasso
 
 pi_pred_lasso <- predict(modelo_multi_lasso, newx = X_multi, s = "lambda.min", type = "response" )
 
 probs_mat_lasso <- pi_pred_lasso[, , 1]
-colnames(probs_mat_lasso)
+
 valores <- c(0, 1, 2, 3.03)
 y_pred_lasso <- probs_mat_lasso %*% valores
 
@@ -376,7 +387,12 @@ cat("RMSE Lasso Multinomial:", rmse_lasso_multi, "\n")
 
 ```
 
-En el trabajo de referencia, el modelo multinomial obtuvo un RMSE (=1.62) menor que el modelo normal (1.86), sugiriendo un mejor ajuste a los datos observados. Este resultado se mantiene en nuestro trabajo aunque la diferencia es menor (RMSE Normal = `r rmse_ridge` vs RMSE multinomial = `r rmse_ridge_multi`).
+En el trabajo de referencia, el modelo multinomial obtuvo un RMSE (=1.62) menor que el modelo normal (1.86), sugiriendo un mejor ajuste a los datos observados. 
+
+
+En nuestro trabajo la diferencia es mucho menor, presentandose valores prácticamente igual (RMSE Normal = `r rmse_ridge` vs RMSE multinomial = `r rmse_ridge_multi`). Igualmente ambos modelos multinomiales presentan valores levemente menores.
+
+Tener en cuenta que este valor de RMSE no es el obtenido con los datos de test (obtenidos al realizar validación cruzada), ya que no contamos con esta info en el modelo multinomial (utiliza la Deviance para cv).
 
 ### Bondad de ajuste del modelo multinomial
 
@@ -412,36 +428,48 @@ Y_i^{sim}=
 \end{cases}
 \]
 
-Este procedimiento se repite para todas las posesiones del conjunto de datos, obteniendo así un conjunto completo de posesiones simuladas. Luego, el proceso completo se replica múltiples veces (por ejemplo, 1000 simulaciones independientes).
+Este procedimiento se repite para todas las posesiones del conjunto de datos, obteniendo así un conjunto completo de posesiones simuladas. Luego, el proceso completo se replica múltiples veces (en este caso, 1000 simulaciones independientes).
 
 El objetivo de esta metodología es evaluar si el modelo multinomial es capaz de reproducir adecuadamente la distribución observada de puntos por posesión. Para ello, se comparan las frecuencias relativas simuladas y observadas de cada categoría de anotación.
 
-```{r}
-# simulaciones <- replicate(
-#   1000,
-#   apply(
-#     probs_mat,
-#     1,
-#     function(p){
-#       sample(
-#         x = valores,
-#         size = 1,
-#         prob = p
-#       )
-#     }
-#   )
-# )
-# 
-# freq_sim <- apply(
-#   simulaciones,
-#   2,
-#   function(x){
-#     prop.table(table(factor(x, levels = valores)))
-#   }
-# )
-# 
-# freq_sim = rowMeans(freq_sim)
+Usaremos el modelo de regresión logística multinomial ajustado con Ridge, ya que brindó el menor RMSE entre los 2 modelos:
 
+```{r, eval=FALSE, echo=TRUE}
+#Genero 1000 simulaciones de toda la temporada para mi variable respuesta
+simulaciones <- replicate(
+  1000,
+  apply(
+    probs_mat, #probs_mat tiene las probabilidades estimadas con ridge de cada una de las posesiones (filas) de toda la temporada
+    1,
+    function(p){
+      sample( #generamos las simulaciones
+        x = valores,
+        size = 1,
+        prob = p
+      )
+    }
+  )
+)
+
+#Una vez terminadas las simulaciones, obtenemos una base con la cantidad de posesiones en la temporada como filas y 1000 columnas que representan a cada simulación. Las celdas contienen a la respuesta estimada en base a las probabilidades.
+
+# A continuación, calculo las proporciones de 0, 1, 2 y 3+ en la temporada para cada columna.
+
+freq_sim <- apply(
+  simulaciones,
+  2,
+  function(x){
+    prop.table(table(factor(x, levels = valores)))
+  }
+)
+
+#Calculo la proporción total de 0, 1, 2 y 3+ para todas las simulaciones
+
+freq_sim = rowMeans(freq_sim)
+```
+
+
+```{r}
 freq_sim = readRDS("freq_sim.RDS")
 
 y_multi = df_mod_ltp_sep |>
@@ -450,12 +478,12 @@ y_multi = df_mod_ltp_sep |>
 
 freq_empirica <- as.numeric(prop.table(table(factor(y_multi, levels = valores))))
 
-print(freq_sim)
-print(freq_empirica)
+print(paste("Proporciones simuladas",freq_sim[1],freq_sim[2],freq_sim[3],freq_sim[4]))
+print(paste("Proporciones empíricas",freq_empirica[1], freq_empirica[2], freq_empirica[3], freq_empirica[4]))
 
 ```
 
-gráfico
+Una vez obtenidas las 1000 simulaciones, mostramos la proporción de 0, 1, 2 y 3+ obtenidas en dichas muestras:
 
 ```{r}
 df_plot <- tibble(
@@ -508,15 +536,18 @@ ggplot(df_plot,
   )
 ```
 
-Distribuciones prácticamente iguales
+Distribuciones prácticamente iguales (sospechosamente iguales).
 
 ### Criterios de validación externa
 
 Para evaluar los distintos rankings, se procederá a compararlos en base a distintos criterios de validación externa. Estos criterios son "objetivos" y se definen con información no utilizada en los modelos. Los criterios son:
 
 1. **Pocos minutos**: porcentaje de jugadores top-50 del ranking que pertenecen al grupo de los 50 jugadores con menos minutos jugados. Un buen modelo debería penalizar a estos jugadores.
+
 2. **Titulares**: porcentaje de jugadores top-50 del ranking que son titulares (los 6 con más minutos por equipo).
-3. **Galardones**: porcentaje de jugadores top-50 del ranking que recibieron al menos un galardón o estuvieron ternados durante la temporada.
+
+3. **Galardones**: porcentaje de jugadores top-50 del ranking que recibieron al menos un galardón o estuvieron ternados durante la temporada. Contamos como jugadores galardonados a los que estuvieron presentes en las ternas (3 por terna) de MVP, Mejor jugador Nacional, Mejor jugador extranjero, Mejor jugador defensivo, Mejor sexto hombre y Jugador con mayor progresión. También se incluyeron a todos los jugadores que fueron incluidos en al menos 1 equipo de la semana a lo largo de la temporada.
+
 4. **Box score - Top 50**: porcentaje de jugadores top-50 en distintas estadísticas de box score que aparecen en el top-50 del ranking.
 
 
@@ -699,8 +730,19 @@ load("resultados_validacion.RData")
 # df_ltps     <- evaluar_coincidencias(rankings_off, df_pocos_minutos, "jugador")
 # df_ltps_def <- evaluar_coincidencias(rankings_def, df_pocos_minutos, "jugador")
 
-knitr::kable(df_ltps,     caption = "Pocos minutos — rankings ofensivos")
-knitr::kable(df_ltps_def, caption = "Pocos minutos — rankings defensivos")
+# 1. Tabla de rankings ofensivos
+fila_max_off <- which.min(df_ltps$porcentaje)
+
+kable(df_ltps, caption = "Pocos minutos — rankings ofensivos") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(fila_max_off, bold = TRUE) # Pone en negrita la fila con el porcentaje máximo
+
+# 2. Tabla de rankings defensivos
+fila_max_def <- which.min(df_ltps_def$porcentaje)
+
+kable(df_ltps_def, caption = "Pocos minutos — rankings defensivos") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(fila_max_def, bold = TRUE)
 ```
 
 ##### Criterio 2: Titulares
@@ -709,8 +751,19 @@ knitr::kable(df_ltps_def, caption = "Pocos minutos — rankings defensivos")
 # df_titulares     <- evaluar_coincidencias(rankings_off, titulares, "NombreCompleto_limpio")
 # df_titulares_def <- evaluar_coincidencias(rankings_def, titulares, "NombreCompleto_limpio")
 
-knitr::kable(df_titulares,     caption = "Titulares — rankings ofensivos")
-knitr::kable(df_titulares_def, caption = "Titulares — rankings defensivos")
+# 1. Tabla de rankings ofensivos
+fila_max_off <- which.max(df_titulares$porcentaje)
+
+kable(df_titulares, caption = "Titulares — rankings ofensivos") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(fila_max_off, bold = TRUE) # Pone en negrita la fila con el porcentaje máximo
+
+# 2. Tabla de rankings defensivos
+fila_max_def <- which.max(df_titulares_def$porcentaje)
+
+kable(df_titulares_def, caption = "Titulares — rankings defensivos") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(fila_max_def, bold = TRUE)
 ```
 
 ##### Criterio 3: Galardones
@@ -719,8 +772,19 @@ knitr::kable(df_titulares_def, caption = "Titulares — rankings defensivos")
 # df_galardones_off <- evaluar_coincidencias(rankings_off, galardones, "jugador")
 # df_galardones_def <- evaluar_coincidencias(rankings_def, galardones, "jugador")
 
-knitr::kable(df_galardones_off, caption = "Galardones — rankings ofensivos")
-knitr::kable(df_galardones_def, caption = "Galardones — rankings defensivos")
+# 1. Tabla de rankings ofensivos
+fila_max_off <- which.max(df_galardones_off$porcentaje)
+
+kable(df_galardones_off, caption = "Galardones — rankings ofensivos") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(fila_max_off, bold = TRUE) # Pone en negrita la fila con el porcentaje máximo
+
+# 2. Tabla de rankings defensivos
+fila_max_def <- which.max(df_galardones_def$porcentaje)
+
+kable(df_galardones_def, caption = "Galardones — rankings defensivos") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(fila_max_def, bold = TRUE)
 ```
 
 ##### Criterio 4: Box Score — Top 50
@@ -732,7 +796,27 @@ knitr::kable(df_galardones_def, caption = "Galardones — rankings defensivos")
 # resultados_boxscore_off <- evaluar_boxscore(rankings_off, variables_off, "coef_of") %>% arrange(variable)
 # resultados_boxscore_def <- evaluar_boxscore(rankings_def, variables_def, "coef_def") %>% arrange(variable)
 
-knitr::kable(resultados_boxscore_off, caption = "Box score — rankings ofensivos")
-knitr::kable(resultados_boxscore_def, caption = "Box score — rankings defensivos")
+filas_max_off <- resultados_boxscore_off %>% 
+  mutate(fila_id = row_number()) %>%   # Crea un ID de fila global
+  group_by(variable) %>% 
+  filter(porcentaje == max(porcentaje)) %>% 
+  pull(fila_id)                        # Extrae el vector de números de fila
+
+# Armamos la tabla ofensiva
+kable(resultados_boxscore_off, caption = "Box score — rankings ofensivos") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(filas_max_off, bold = TRUE) # Pone en negrita todas las filas máximas por grupo
+
+filas_max_def <- resultados_boxscore_def %>% 
+  mutate(fila_id = row_number()) %>% 
+  group_by(variable) %>% 
+  filter(porcentaje == max(porcentaje)) %>% 
+  pull(fila_id)
+
+# Armamos la tabla defensiva
+kable(resultados_boxscore_def, caption = "Box score — rankings defensivos") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(filas_max_def, bold = TRUE)
 ```
 
+La métrica EPTS ponderada por cantidad de posesiones y estimada con Ridge fue la que presentó mejores valores en la mayoría de estos criterios.
