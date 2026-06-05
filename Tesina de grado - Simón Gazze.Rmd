@@ -38,7 +38,7 @@ output:
 \vfill
 
 % --- Logo centrado ---
-\includegraphics[height=2.8cm]{logo-UNR.jpg}  % Cambiá por unr.png si corresponde
+\includegraphics[height=2.8cm]{Logo-unr.jpg}
 
 \end{titlepage}
 
@@ -47,6 +47,19 @@ output:
 \renewcommand{\contentsname}{Contenido}
 \tableofcontents
 \newpage
+
+# Resumen
+
+El crecimiento de la analítica deportiva ha impulsado el desarrollo de métricas destinadas a evaluar con mayor precisión la contribución de los jugadores al rendimiento de sus equipos. Particularmente en el básquetbol, las estadísticas individuales derivadas del box score presentan limitaciones para capturar el impacto real de los jugadores sobre el resultado del juego. Una de las medidas desarrolladas con este propósito es el plus-minus, que registra la diferencia de puntos generada mientras un jugador permanece en cancha. Sin embargo, esta métrica presenta dificultades para aislar el efecto propio de cada jugador respecto del contexto en el que participa. En respuesta a esta problemática surge el Regularized Adjusted Plus Minus (RAPM), una medida basada en modelos estadísticos que estima el impacto ofensivo y defensivo de cada jugador controlando simultáneamente por la presencia de compañeros y rivales en cancha.
+
+El objetivo de este trabajo es estimar el impacto individual de los jugadores de la Liga Nacional de Básquetbol de Argentina durante la temporada 2024/2025 mediante modelos RAPM, construyendo rankings que permitan identificar y comparar sus contribuciones ofensivas y defensivas. Asimismo, se analizan distintas alternativas metodológicas para abordar problemas recurrentes en este tipo de modelos, particularmente la multicolinealidad entre jugadores y la presencia de coeficientes extremos asociados a jugadores con escasa participación en cancha.
+
+Para esto, se construyó una base de datos play-by-play a partir de información obtenida mediante técnicas de web scraping sobre los partidos de la temporada regular. Posteriormente, las acciones registradas fueron agrupadas en posesiones, que constituyen la unidad de análisis utilizada para la estimación de las métricas propuestas. Inicialmente, se ajustaron modelos de regresión lineal múltiple, tal como se realiza en la bibliografía relevante sobre el tema, incorporando distintas técnicas de regularización. Posteriormente, se implementaron modelos de regresión logística multinomial que representan de manera más adecuada la naturaleza discreta de la variable respuesta. A partir de las probabilidades estimadas por estos modelos se construyeron métricas basadas en puntos esperados por posesión (Expected Points per Team Possession with the Player Scoring Contribution, EPTS), buscando sintetizar el aporte ofensivo y defensivo de los jugadores.
+
+Finalmente, se propuso una nueva métrica denominada weighted Expected Points per Team Possession with the Player Scoring Contribution (wEPTS), que incorpora la participación de cada jugador relativa a las posesiones de su equipo con el objetivo de penalizar a los jugadores con poco tiempo de juego. Los resultados obtenidos muestran que esta métrica presentó un desempeño superior al de las alternativas consideradas, de acuerdo con los distintos criterios de validación empleados.
+
+Este estudio constituye la primera aplicación sistemática de métricas RAPM en la Liga Nacional de Básquetbol de Argentina y aporta una metodología reproducible para la evaluación objetiva del rendimiento individual de los jugadores, contribuyendo al desarrollo de herramientas de analítica deportiva en el contexto del básquetbol argentino.
+
 
 # Introducción
 
