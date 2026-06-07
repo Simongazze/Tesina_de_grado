@@ -1,0 +1,786 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\renewcommand{\contentsname}{Contenido}
+
+\usepackage{float}
+\usepackage{caption}
+\usepackage{xcolor}
+
+\captionsetup{
+  font={bf,small},
+  labelfont={bf},
+  justification=centering,
+  position=top,
+  singlelinecheck=false
+}
+
+\captionsetup[table]{
+  position=top,
+  skip=5pt
+}
+
+\captionsetup[figure]{
+  position=above,
+  skip=5pt
+}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+
+\vspace*{1.5cm}
+
+% --- Título del proyecto ---
+{\Huge \textbf{Métrica RAPM: Evaluación del impacto ofensivo y defensivo de los jugadores de la Liga Nacional de Básquetbol en Argentina}\par}
+
+\vspace{1.5cm}
+
+% --- Subtítulo ---
+{\LARGE \textbf{Tesina de grado}\par}
+
+\vspace{2cm}
+
+% --- Datos del autor y directores ---
+{\Large Estudiante: Simón Pedro Gazze\par}
+{\Large Director/a: Andrés Sosa\par}
+{\Large Co-director/a: Cristina Cuesta\par}
+
+\vspace{2cm}
+
+% --- Fecha ---
+{\Large Fecha: 2 de noviembre de 2025\par}
+
+\vfill
+
+% --- Logo centrado ---
+\includegraphics[height=2.8cm]{Logo-unr.jpg}
+
+\end{titlepage}
+
+\newpage
+
+\renewcommand{\contentsname}{Contenido}
+\tableofcontents
+\newpage
+
+\section{Resumen}\label{resumen}
+
+El crecimiento de la analítica deportiva ha impulsado el desarrollo de
+métricas destinadas a evaluar con mayor precisión la contribución de los
+jugadores al rendimiento de sus equipos. Particularmente en el
+básquetbol, las estadísticas individuales derivadas del box score
+presentan limitaciones para capturar el impacto real de los jugadores
+sobre el resultado del juego. Una de las medidas desarrolladas con este
+propósito es el \emph{plus-minus}, que registra la diferencia de puntos
+generada mientras un jugador permanece en cancha. Sin embargo, esta
+métrica presenta dificultades para aislar el efecto propio de cada
+jugador respecto del contexto en el que participa. En respuesta a esta
+problemática surge el \emph{Regularized Adjusted Plus Minus}
+(\emph{RAPM}), una medida basada en modelos estadísticos que estima el
+impacto ofensivo y defensivo de cada jugador controlando simultáneamente
+la presencia de compañeros y rivales en cancha.
+
+El objetivo de este trabajo es estimar el impacto individual de los
+jugadores de la Liga Nacional de Básquetbol de Argentina durante la
+temporada 2024/2025 mediante modelos RAPM, construyendo rankings que
+permitan identificar y comparar sus contribuciones ofensivas y
+defensivas. Asimismo, se analizan distintas alternativas metodológicas
+para abordar problemas recurrentes en este tipo de modelos,
+particularmente la multicolinealidad entre jugadores y la presencia de
+coeficientes extremos asociados a jugadores con escasa participación en
+cancha.
+
+Para esto, se construyó una base de datos \emph{play-by-play} a partir
+de información obtenida mediante técnicas de \emph{web scraping} sobre
+los partidos de la temporada regular. Posteriormente, las acciones
+registradas fueron agrupadas en posesiones, que constituyen la unidad de
+análisis utilizada para la estimación de las métricas propuestas.
+Inicialmente, se ajustaron modelos de regresión lineal múltiple,
+incorporando distintas técnicas de regularización. Posteriormente, se
+implementaron modelos de regresión logística multinomial que representan
+de manera más adecuada la naturaleza discreta de la variable respuesta.
+A partir de las probabilidades estimadas por estos modelos se
+construyeron métricas basadas en puntos esperados por posesión
+(\emph{EPTS}). Finalmente, se propuso una ponderación a dicha métrica
+denominada \emph{wEPTS}, que incorpora la participación de cada jugador
+relativa a las posesiones de su equipo con el objetivo de penalizar a
+los jugadores con poco tiempo de juego. Los resultados obtenidos
+muestran que esta métrica presentó un desempeño superior al de las
+alternativas propuestas, de acuerdo con los distintos criterios de
+validación utilizados.
+
+Este estudio constituye la primera aplicación de métricas \emph{RAPM} en
+la Liga Nacional de Básquetbol de Argentina y aporta una metodología
+reproducible para la evaluación objetiva del rendimiento individual de
+los jugadores, contribuyendo al desarrollo de herramientas de analítica
+deportiva en el contexto del básquetbol argentino.
+
+\newpage
+
+\section{Introducción}\label{introducciuxf3n}
+
+\subsection{Sports Analytics}\label{sports-analytics}
+
+\emph{Sports Analytics} o analítica en el deporte es un término que
+refiere a la aplicación de métodos estadísticos para describir, explicar
+y/o predecir fenómenos vinculados al rendimiento deportivo, tanto a
+nivel individual como colectivo con el objetivo de facilitar la toma de
+decisiones de entrenadores o \emph{staff} técnico antes, durante y
+después de los partidos.
+
+A pesar de que las primeras aplicaciones al análisis de datos al deporte
+se remontan a mediados del siglo XX, el impulso más significativo
+ocurrió a partir del año 2000, en particular en el béisbol, con la
+popularización del enfoque conocido como \emph{sabermetrics}\footnote{Término
+  acuñado por Bill James (1980) para referirse al análisis estadístico
+  del béisbol, basado en la recopilación y estudio sistemático de datos
+  con el fin de comprender y cuantificar el desempeño de los jugadores y
+  equipos. El nombre proviene de SABR (\emph{Society for American
+  Baseball Research}).}. Desde entonces, la práctica se extendió a otros
+deportes como el básquetbol, el fútbol o el tenis; dando lugar a una
+nueva cultura de toma de decisiones basada en evidencia. Hoy en día, los
+equipos profesionales, las ligas y las federaciones emplean
+departamentos especializados en análisis de datos para optimizar
+estrategias de juego, evaluar el rendimiento de jugadores, prevenir
+lesiones y gestionar recursos económicos de manera más eficiente.
+
+El \textbf{básquetbol} es uno de los deportes que más ha incorporado el
+análisis estadístico en su evolución reciente. Desde las primeras
+métricas derivadas del \emph{box score} (resumen estructurado de los
+resultados de un partido), el desarrollo de bases de datos
+\emph{play-by-play} (registro de cada una de las acciones del partido) a
+partir de la década del 2000 hasta la incorporación más reciente de
+tecnologías de \emph{player tracking}\footnote{El \emph{player tracking}
+  es un sistema tecnológico que utiliza cámaras y software de visión
+  artificial en los estadios para registrar los movimientos de jugadores
+  y pelotas en tiempo real en la cancha, produciendo datos detallados
+  sobre su rendimiento.}. A partir de esta información, se han
+desarrollado distintas herramientas estadísticas para poder estudiar la
+eficiencia de los jugadores, la eficiencia de los tiros al aro, el
+desempeño de los equipos, la importancia en la creación de espacios,
+entre otras cosas.
+
+\subsection{Medidas de desempeño para jugadores de
+básquetbol}\label{medidas-de-desempeuxf1o-para-jugadores-de-buxe1squetbol}
+
+Desde la consolidación del \emph{box-score} en el básquetbol
+profesional, durante la década de 1950, empezaron a calcularse las
+primeras medidas de desempeño para los jugadores, como pueden ser los
+puntos, rebotes, asistencias, etc. Durante mucho tiempo estas métricas
+constituyeron una de las formas más tradicionales de evaluar el
+rendimiento individual en el básquetbol. Su amplia disponibilidad y
+fácil interpretación las convirtieron en el principal insumo para
+comparar jugadores, otorgar premios o negociar contratos. Estas medidas
+suelen agruparse en un conjunto de estadísticas denominadas
+\emph{bottom-up}, las cuales se calculan en función de las acciones
+individuales de los jugadores, es decir, si un jugador realiza una
+acción que se asocia con un resultado positivo para el equipo, la
+calificación de ese jugador aumenta, mientras que la calificación de los
+demás jugadores, que no participaron en la jugada, permanece sin
+cambios. Pero estas medidas presentan algunas limitaciones importantes,
+ya que, sólo capturan una parte de los eventos relevantes del partido
+(acciones como una defensa asfixiante, buenas rotaciones defensivas o
+pases rápidos para iniciar una posesión no están contempladas) y no
+necesariamente reflejan el impacto real de un jugador en las victorias
+de su equipo, que es lo que importa a fin de cuentas.
+
+Por otra parte, las medidas \emph{top-down} se basan en el rendimiento
+del equipo en su conjunto, y el crédito por dicho rendimiento se
+distribuye entre los jugadores que estuvieron involucrados en el
+partido, sin importar qué acciones puntuales hayan realizado.
+
+Con la idea de que lo más importante en un partido es \textbf{ganar}, y
+entendiendo que las estadísticas tradicionales son solo una medida
+imperfecta de muchas de las contribuciones que realizan los jugadores a
+la victoria, en este trabajo buscaremos ``pensar más allá del \emph{box
+score}'' y nos centraremos en estadísticas \emph{top-down}, más
+precisamente en la medida \emph{Plus/Minus}. Esta estadística registra
+los cambios que se producen en el marcador durante los minutos en que el
+jugador de interés está en cancha, partiendo de la idea de que los
+equipos deberían rendir mejor (reflejado en un \emph{Plus/Minus} más
+alto) cuando sus buenos jugadores están en cancha que cuando no lo
+están. Sin embargo esta métrica posee una deficiencia clave: \textbf{la
+calificación de cada jugador va a depender en gran medida de la calidad
+de sus compañeros en el campo}. Por ejemplo: un jugador de rol dentro de
+un gran equipo va a tener un mayor \emph{Plus/Minus} que una
+superestrella en un equipo con mal desempeño.
+
+\subsection{RAPM (Regularized Adjusted Plus
+Minus)}\label{rapm-regularized-adjusted-plus-minus}
+
+La deficiencia anteriormente mencionada se ha intentado solucionar
+implementando \textbf{modelos matemáticos} que incorporen los efectos
+tanto de los compañeros presentes en cancha como de los rivales en ese
+momento, buscando aislar el efecto real de los jugadores en la cancha.
+El primero en realizar una publicación sobre el tema fue Dan Rosenbaum
+(2004), el cual planteó un \textbf{modelo de regresión lineal múltiple}
+en base a observaciones provenientes de partidos de las temporadas
+2002-2003 y 2003-2004 de la National Basketball Association o
+\emph{NBA}. Como unidad de análisis se utilizaron segmentos de partidos
+donde no ocurrian sustituciones, la variable respuesta fue la diferencia
+en el marcador entre el equipo local y el visitante en ese segmento; y
+como variables explicativas se postularon variables dicotómicas para
+cada uno de los jugadores que hayan jugado al menos un partido en esas
+temporadas. Finalmente las métricas de desempeño se correspondían con
+los coeficientes estimados que acompañaban a las ``Dummies'' de cada
+jugador, dichas estimaciones se realizaron mediante la técnica de
+Mínimos Cuadrados Ordinarios. Estas estadísticas se conocen como
+\emph{Adjusted Plus Minus} (APM).
+
+A pesar de que estas métricas presentaban una solución innovadora a la
+problematica inicial, Rosenbaum señaló que las estimaciones obtenidas no
+resultaron muy precisas. El modelo propuesto presentaba estimaciones con
+mucho error, debido a un claro problema de \textbf{multicolinealidad} ya
+que muchos de los jugadores compartían una gran cantidad de minutos
+juntos en cancha, y se necesitaba de una gran cantidad observaciones de
+varias temporadas para que el modelo pudiera separar el efecto propio de
+cada jugador.
+
+Para solucionar está problemática, se plantea la métrica RAPM
+introducida por Sill (2010) en la cual se aborda el problema de la
+Multicolinealidad mediante estimaciones de los parametros realizadas con
+Métodos de Regularización, particularmente utilizando la
+\textbf{Regresión Ridge}. Esté método de regularización es el más
+abordado a lo largo de toda la literatura relevante sobre RAPM hasta la
+fecha.
+
+Otro de los problemas recurrentes en estos modelos esta relacionado con
+la inclusión de jugadores que participan muy pocos minutos en cancha
+(\emph{LTPs Players}). Cuando un jugador juega muy poco, el modelo solo
+tiene unas pocas observaciones (segmentos) para evaluarlo, y si
+particularmente en esas observaciones el equipo tiene un muy buen
+desempeño (probablemente por casualidad); entonces el modelo no puede
+diferenciar si el efecto es propio del jugador y estima coeficientes
+extremos. Para solucionar estos casos se han contemplado las siguientes
+alternativas: 1)excluir a los jugadores con pocos minutos dentro de las
+temporadas (por ejemplo: Rosembaum (2004) excluye a lo jugadores con
+menos de 250 minutos, Ilardi (2007) excluyen a lo jugadores con menos de
+400 minutos, etc), 2) utilizar una gran cantidad de observaciones
+(Ilardi \& Barzilai (2008) incorpora información de 5 temporadas), 3)
+plantear métodos de estimación de los parámetros que penalicen a este
+tipo de jugadores.
+
+En los últimos años, muchos investigadores han publicado trabajos
+orientados a mejorar los resultados de las métricas RAPM.
+Particularmente en este trabajo usaremos como referencia central al
+artículo titulado: \textbf{Lasso multinomial performance indicators for
+in‑play basketball data (Damoulaki et.al , 2025)}, el cual presenta
+diferencias importantes respecto de los estudios previos. Dicho artículo
+utiliza \textbf{posesiones}\footnote{Una posesión comienza (Kubatko et
+  al., 2007) cuando un equipo obtiene el control de la pelota y termina
+  cuando ese equipo cede el control de la misma al equipo rival.} como
+unidad de análisis, \textbf{puntos} en esas posesiones como variable
+respuesta y emplea \textbf{modelos logísticos multinomiales} que
+representan de manera más adecuada la naturaleza de la respuesta.
+
+\section{Motivación}\label{motivaciuxf3n}
+
+El creciente interés por la analítica deportiva que se ha evidenciado en
+los últimos años en distintos paises del mundo, ha empezado a captar la
+atención de las entidades deportivas en Argentina. Particularmente este
+año la Confederación Argentina de Básquetbol (CABB) y la Asociación de
+Clubes (AdC) anunciaron en octubre la ampliación de su alianza con
+Catapult (empresa australiana de tecnología deportiva), integrando
+equipamiento de \emph{wearables} (GPS) y software de videoanálisis para
+las 19 franquicias de la Liga Nacional, las 34 de la Liga Argentina y
+las selecciones nacionales en todas las ramas. Mientras que en el ámbito
+educativo, el Instituto CAB (creado en 2023) realizó un convenio con
+Sports Data Campus (España) para ofrecer, en agosto de este año, el
+primer curso de \emph{Big Data aplicado al básquetbol} en Argentina, con
+el objetivo de que entrenadores y \emph{staff} técnico colaboren en
+proyectos reales de la CABB, aportando soluciones basadas en datos sobre
+rendimiento, \emph{scouting} y optimización de procesos\footnote{Confederación
+  Argentina de Básquetbol (2025). \emph{La Confederación Argentina de
+  Básquet y Sports Data Campus firman un acuerdo de colaboración}.
+  \href{https://www.argentina.basketball/ver/noticia/la-confederacion-argentina-de-basquet-y-sports-data-campus-firman-un-acuerdo-de-colaboracion}{Link
+  al artículo}.}.
+
+Estas cuestiones previamente mencionadas dan indicio de que estamos ante
+un momento ideal para profundizar en el estudio y la aplicación del
+análisis de datos en el básquetbol. Se trata de un área que comienza a
+reconocerse como un componente fundamental tanto para mejorar el
+rendimiento deportivo de los equipos como para impulsar el desarrollo
+del negocio en torno al deporte. Sin embargo, el potencial de la
+analítica aplicada al básquetbol en Argentina aún pareciera encontrarse
+lejos de estar plenamente aprovechado.
+
+En este marco, y con el fin de caracterizar el estado de situación del
+análisis de datos en el básquet argentino, se relevaron los proyectos e
+iniciativas actualmente activos en el país vinculados a la estadística y
+la tecnología aplicada al deporte.
+
+\begin{itemize}
+\item
+  \emph{CHAS All Stats}, dirigido por Facundo Salas y Sebastián Fiol,
+  ambos entrenadores de básquetbol Nivel 3 Eneba, especialistas en
+  estadísticas avanzadas y analistas de datos en equipos profesionales.
+  Ofrecen servicios de análisis táctico y brindan cursos de estadísticas
+  avanzadas.
+\item
+  \emph{Básquet Advance}, dirigido por el entrenador Cristian Sánchez,
+  ofrece informes pre/post partido con estadísticas avanzadas y
+  tendencias clave para entrenadores y scouts.
+\end{itemize}
+
+Ambos proyectos ofrecen herramientas muy importantes y de gran valor
+tanto para los equipos como para el desarrollo del análisis de datos en
+el deporte. Pero particularmente en ambos casos, los que llevan adelante
+estos proyectos son entrenadores de básquetbol, los cuales a pesar de
+que pueden contar con una sólida formación técnica, no son profesionales
+de ciencias estadística o matemática.
+
+Por este motivo, resulta fundamental la incorporación de profesionales
+en carreras de ciencias exactas, que trabajen en conjunto con los
+entrenadores y cuerpos técnicos, para de esta manera poder ofrecer
+nuevos análisis más rigurosos y profundos, así como mejorar las
+herramientas actualmente disponibles. Esta correspondencia entre el
+conocimiento técnico-deportivo y el enfoque estadístico permitiría
+potenciar el desarrollo del básquet argentino y contribuir a elevar su
+nivel competitivo en un futuro.
+
+\newpage
+
+\section{Objetivos}\label{objetivos}
+
+\subsection{Objetivo general}\label{objetivo-general}
+
+El objetivo general de esta tesina es estimar el aporte individual de
+los jugadores de la Liga Nacional de Básquetbol de Argentina durante la
+temporada 2024/2025 mediante modelos RAPM, con el fin de construir un
+ranking que refleje su impacto en el desempeño de sus equipos.
+
+\subsection{Objetivos específicos}\label{objetivos-especuxedficos}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
+\item
+  Generar una base de datos del tipo \emph{play-by-play} para la
+  temporada 2024/2025 de la Liga Nacional de Básquetbol de Argentina,
+  mediante técnicas de \emph{web scraping}.
+\item
+  Diferenciar el aporte ofensivo y defensivo de cada uno de los
+  jugadores de la liga, obteniendo finalmente rankings que identifiquen
+  a los mejores jugadores en cada rubro.
+\item
+  Desarrollar una metodología adecuada que permita solucionar el
+  problema de los coeficientes extremos asociados a los jugadores con
+  pocos minutos de juego (\emph{LTPs Players}) durante la temporada.
+\item
+  Comparar modelos en base a distintos criterios de evaluación, para
+  poder determinar cual de ellos proporciona mejores métricas, debiendo
+  resumir de manera consistente y precisa el aporte ofensivo y defensivo
+  de cada jugador en relación al desempeño de su equipo.
+\end{enumerate}
+
+El objetivo general de esta tesina es estimar de manera adecuada el
+aporte individual de los jugadores de la Liga Nacional de Básquetbol de
+Argentina durante la temporada 2024/2025, comparando enfoques
+tradicionales basados en modelos de regresión lineal múltiple con
+modelos logísticos multinomiales que se ajusten mejor a la naturaleza
+discreta de la variable respuesta, evaluando en cada caso el uso de
+distintas técnicas de regularización para la estimación de los
+coeficientes.
+
+Comparar los resultados provistos por los distintos modelos en base a
+criterios externos de evaluación, para poder determinar cual de ellos
+proporciona mejores métricas.
+
+El objetivo general de esta tesina es evaluar y comparar diferentes
+enfoques de estimación de modelos RAPM para cuantificar el impacto
+individual de los jugadores de la Liga Nacional de Básquetbol de
+Argentina durante la temporada 2024/2025, mediante el contraste de
+modelos lineales y logísticos multinomiales, y el uso de distintas
+técnicas de regularización para la estimación de los coeficientes.
+
+Generar rankings definitivos de la Liga Nacional como el resultado final
+obtenido mediante el modelo óptimo, identificando a los mejores
+jugadores de cada rubro para la temporada en estudio.
+
+\section{Materiales}\label{materiales}
+
+Una parte central de esta tesina estará dedicada a la construcción de
+una base de datos \emph{play-by-play} correspondiente a la temporada
+2024/2025 de la Liga Nacional de Básquetbol de Argentina (LNB). Este
+tipo de base registra de manera secuencial todas las acciones ocurridas
+dentro de un partido. Dado que no existe una fuente oficial que provea
+los datos en formato estructurado y descargable para su análisis
+estadístico, fue necesario diseñar y ejecutar un proceso de \emph{web
+scraping} que permita recolectar, integrar y depurar la información de
+manera sistemática y reproducible. Los datos necesarios se extrajeron
+del \href{https://www.laliganacional.com.ar/laliga/}{Sitio Oficial de la
+Liga Nacional de Básquet} , utilizando librerías de Python como
+\texttt{Selenium} y \texttt{BeautifulSoup}.
+
+Posteriormente, se realizó un preprocesamiento orientado a transformar
+los eventos crudos en un \emph{dataset} apto para la aplicación de los
+modelos mencionados anteriormente. Como resultado, se obtuvo una tabla
+ordenada cronológicamente en la cual cada fila corresponde a una
+posesión del partido, contabilizando los puntos anotados durante esa
+posesión y los jugadores que formaron parte de la misma, diferenciando
+sus roles ofensivos y defensivos. Debido a que bajo está metodología se
+registran cada una de las posesiones del partido de manera secuencial,
+se denominó a esta estructura final como: base de datos
+\emph{poss-by-poss}.
+
+\subsubsection{Generación de la base de datos a partir de técnicas de
+Web
+Scraping}\label{generaciuxf3n-de-la-base-de-datos-a-partir-de-tuxe9cnicas-de-web-scraping}
+
+\paragraph{Listado de links de los
+partidos}\label{listado-de-links-de-los-partidos}
+
+El primer paso consistió en la identificación y recopilación de los
+enlaces a las páginas webs que contienen las estadísticas individuales
+de todos los partidos incluidos en el período de estudio (378 partidos
+de temporada regular). Para ello, se accedió a la página de la Liga
+Nacional,
+\href{https://www.laliganacional.com.ar/laliga/fixture}{sección
+Fixture}, la cual presenta una tabla dinámica con los encuentros
+disputados y permite acceder a la información detallada de cada partido.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.7\linewidth]{img/imagen links partidos} 
+
+}
+
+\caption{Fixture dentro de la página web de la LNB.}\label{fig:unnamed-chunk-1}
+\end{figure}
+
+En la Figura 1 se muestra la interfaz del sitio web, donde se visualiza
+el listado completo de partidos de la temporada para el rango de fechas
+seleccionadas. Dado que no pudo automatizarse la obtención de cada uno
+de estos links, se procedió a copiar manualmente el \emph{DOM}
+(\emph{Document Object Model}) de la página y a pegarlo en un archivo de
+texto.
+
+--figura2--
+
+A partir de dicho archivo de texto, se utiliza la biblioteca
+BeautifulSoup de Python para recorrer la estructura del DOM,
+identificando previamente los elementos que contienen los enlaces de
+cada partido. Se observa en la Figura 2 que la información de cada
+partido se encuentra dentro de las clases ``fila-tabla-calendarios
+datos-estadisticos'', por lo cual se recorren estas clases obteniendo
+los respectivos enlaces a las páginas de estadísticas de cada partido,
+los nombres de los equipos participantes y el resultado del encuentro,
+para cada uno de los 378 partidos disputados en la temporada regular.
+Obteniendo finalmente un diccionario que contenga toda esta información.
+
+Dicho diccionario constituyó el insumo básico para el proceso posterior
+de scraping masivo, sobre los cuales se iterará para obtener así la
+información correspondiente a cada una de las acciones registradas en
+cada partido. Esta estrategia permitió, además, asegurar la
+reproducibilidad del proceso, ya que el listado de partidos es eliminado
+de la página web una vez terminada la temporada, quedando fijado y
+documentado de manera explícita para su uso, en caso de ser requerido.
+
+\paragraph{\texorpdfstring{Base de datos
+\emph{play-by-play}}{Base de datos play-by-play}}\label{base-de-datos-play-by-play}
+
+Una vez obtenido el listado completo de enlaces correspondientes a cada
+uno de los partidos en el período de estudio, se procedió a la
+extracción del registro de acciones del partido (\emph{play-by-play}).
+Para esto, se accedió individualmente a la página de estadísticas de
+cada encuentro, particularmente a la pestaña denominada ``en vivo'',
+donde se presenta el detalle secuencial de los eventos.
+
+Esta sección del sitio web contiene una tabla que se genera
+dinámicamente y que registra, en orden cronológico, todas las acciones
+ocurridas durante el partido.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.7\linewidth]{img/imagen play by play_1} 
+
+}
+
+\caption{Pestaña en vivo dentro de la página web de estadísticas de un partido}\label{fig:unnamed-chunk-2}
+\end{figure}
+
+En dicha tabla, cada acción del partido se encuentra representada como
+un elemento que incluye información textual sobre el tipo de acción (por
+ejemplo, lanzamiento convertido, falta, pérdida, etc), el jugador que
+realiza dicha acción, el cuarto de juego, el tiempo restante en el
+cuarto y , en caso de ser una acción donde se generan puntos, el
+marcador parcial en ese momento del partido. Esta información fue
+sistemáticamente extraída y almacenada en una estructura tabular,
+conservando el orden temporal de las acciones.
+
+Este procedimiento se aplicó de forma idéntica a todos los partidos de
+la temporada analizada, utilizando como insumo los enlaces previamente
+identificados. Finalmente, los registros de acciones obtenidos para cada
+encuentro fueron concatenados en una única base de datos de
+\emph{play-by-play}, incorporando un identificador de partido que
+permite distinguir y vincular las acciones correspondientes a cada
+juego.
+
+Cabe destacar que el \emph{play-by-play} resultante constituye una
+secuencia detallada de eventos, pero en su forma original no incluye una
+identificación explícita del equipo asociado a cada acción, lo cual
+resulta indispensable a la hora de poder determinar a todos los
+jugadores presentes, tanto de manera ofensiva como defensiva, en cada
+una de las acciones del partido.
+
+\paragraph{Tabla de jugadores-equipos}\label{tabla-de-jugadores-equipos}
+
+Para resolver este problema, se obtuvo dicha información a partir de los
+datos provenientes del \emph{Box Score}, localizados en la pestaña
+``Estadísticas'' de la página web del partido. Aquí encontraremos
+información referida a cada uno de los jugadores anotados en la planilla
+de ambos equipos.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.7\linewidth]{img/imagen box score} 
+
+}
+
+\caption{Ejemplo del Box Score de un partido}\label{fig:unnamed-chunk-3}
+\end{figure}
+
+En esta pestaña, la información se organiza en dos tablas con
+estadísticas individuales de los jugadores, una correspondiente al
+equipo local y otra al equipo visitante, las cuales aparecen en el mismo
+orden en que se muestran los nombres de los equipos en la interfaz del
+sitio web. A partir de esta estructura, se extrajo para cada jugador su
+nombre completo ,el equipo al que pertenece y la cantidad de minutos
+disputados en dicho partido, generándose así una tabla de
+correspondencia jugador--equipo.
+
+Esta tabla constituye un diccionario que permite asociar a cada jugador
+con su respectivo equipo, y es utilizada posteriormente como insumo para
+realizar dicha correspondencia en cada acción de la base
+\emph{play-by-play}. A su vez, mediante la adición de la cantidad de
+minutos en el partido se podrá realizar un filtrado de jugadores que
+hayan participado menos de cierto umbral requerido de tiempo durante la
+temporada, cuestión fundamental a tratar posteriormente en este trabajo.
+
+\subsubsection{Preprocesamiento de los
+datos}\label{preprocesamiento-de-los-datos}
+
+\paragraph{Integración del box score con el
+play-by-play}\label{integraciuxf3n-del-box-score-con-el-play-by-play}
+
+Una vez construida la tabla jugadores-equipos, se procedió a integrar
+dicha información con la base de datos play-by-play. Para ello, los
+nombres de los jugadores fueron previamente normalizados con el objetivo
+de reducir posibles inconsistencias de formato (espacios adicionales,
+diferencias menores de escritura), y luego se utilizó la correspondencia
+jugador--equipo para asignar a cada acción del \emph{play-by-play} el
+equipo del jugador involucrado.
+
+De este modo, cada acción queda asociada explícitamente a uno de los dos
+equipos del partido, aun cuando dicha información no se encuentre
+disponible de forma directa en el registro original del
+\emph{play-by-play}. Este procedimiento permite identificar que
+jugadores estarán en cancha para cada uno de los equipos, permitiendo
+construir los quintetos en cada momento del partido.
+
+\paragraph{Identificación de los quintetos en cancha al momento de la
+acción}\label{identificaciuxf3n-de-los-quintetos-en-cancha-al-momento-de-la-acciuxf3n}
+
+A partir de la nueva tabla generada, se procedió a construir la
+presencia de los jugadores en cancha a lo largo del partido. Para ello,
+se identificaron las acciones asociadas a sustituciones, distinguiendo
+entre entradas (acción = ENTRA A PISTA) y salidas de jugadores (acción =
+ABANDONA LA PISTA).
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.4\linewidth]{img/imagen sustitucion} 
+
+}
+
+\caption{Ejemplo de secuencia de acciones con sustitución}\label{fig:unnamed-chunk-4}
+\end{figure}
+
+\newpage
+
+El conjunto de jugadores en cancha se actualiza a medida que se recorren
+las acciones del partido, reiniciándose al comienzo de cada cuarto. De
+este modo, para cada instante del juego se obtiene el conjunto de
+jugadores activos en cancha.
+
+Utilizando la tabla jugadores-equipos construida previamente, cada
+jugador en cancha fue asignado al equipo local o visitante, permitiendo
+reconstruir los quintetos de ambos equipos en cada acción del partido.
+Este paso resulta esencial para caracterizar el contexto en el que
+ocurre cada acción, ya que al conocer el equipo al que pertenece el
+jugador que realiza la acción podemos inferir simultáneamente los
+jugadores ofensivos y defensivos presentes en cancha en cada momento.
+
+Una vez reconstruidos los quintetos en cancha para cada acción, se
+incorporó un control de consistencia basado en la cantidad total de
+jugadores activos. Dado que una situación de juego regular involucra
+diez jugadores (cinco por equipo), se podrán identificar aquellas
+acciones en las que la cantidad total de jugadores en cancha fuera
+superior o inferior a dicho umbral.
+
+\paragraph{Detección de errores en la carga de los
+datos}\label{detecciuxf3n-de-errores-en-la-carga-de-los-datos}
+
+Un factor importante a tener en cuenta es que los datos que se
+encuentran en el \emph{play-by-play} son cargados de manera manual por
+las mesas de control a medida que se desarrolla el partido. Esta tarea
+se realiza en el contexto altamente dinámico de un partido, donde las
+acciones se suceden con rapidez, lo que puede dar lugar a ciertos
+errores en la registración de eventos. En consecuencia, el conjunto de
+datos original puede contener inconsistencias que deben ser
+identificadas y corregidas antes de su utilización en este trabajo.
+
+Para intentar detectar posibles errores en la conformación de los
+quintetos en cancha, se construyó , tal como se menciono anteriormente,
+una variable que contabiliza la cantidad de jugadores presentes en cada
+quinteto en cada una de las acciones del partido. Dicha variable debería
+contabilizar sistemáticamente el valor cinco (5) para ambos equipos en
+todas las acciones registradas.
+
+De esta manera se detectó un caso puntual en el partido de ZARATE BASKET
+vs ATENAS (C), donde el quinteto local registraba 6 jugadores en cancha.
+Esta inconsistencia se observó desde el inicio del segundo cuarto (con
+10:00 minutos restantes) hasta el minuto 4:42 del mismo período.
+
+Para subsanar este inconveniente, se realizó una revisión manual del
+play-by-play original disponible en la página web y se pudo identificar
+que al comienzo del segundo cuarto se había registrado incorrectamente
+el ingreso de seis jugadores en lugar de cinco, lo cual constituye un
+error atribuible a la mesa de control. Una vez identificada esta
+problemática, se reviso el contexto de las siguientes jugadas y pudo
+determinarse que el jugador MERCHANT, EDGAR HENRY no se encontraba
+realmente en cancha durante ese tramo del partido.
+
+En consecuencia, se procedió a corregir el error eliminando al jugador
+mencionado de la variable correspondiente al quinteto local en las
+acciones afectadas, así como ajustando el conteo de jugadores en cancha.
+De esta manera, se restauró la consistencia lógica de los quintetos y se
+garantizó la validez de la información utilizada en las etapas
+posteriores del análisis.
+
+\section{Metodología}\label{metodologuxeda}
+
+\section{Resultados}\label{resultados}
+
+\section{Conclusión}\label{conclusiuxf3n}
+
+\section{Discusión}\label{discusiuxf3n}
+
+\newpage
+
+\section{Bibliografía}\label{bibliografuxeda}
+
+Agresti, A. (2013). \emph{Categorical Data Analysis} (3rd ed.). Wiley
+Series in Probability and Statistics. Wiley, New York.
+
+Damoulaki, A., Ntzoufras, I. \& Pelechrinis, K. (2025). \emph{Lasso
+multinomial performance indicators for in-play basketball data.} Comput
+Stat 40, 2157--2181.
+
+Dunn, P. K., \& Smyth, G. K. (2018). \emph{Generalized linear models
+with examples in R. Springer.}
+
+Hvattum, L. M. (2019). \emph{A comprehensive review of plus--minus
+ratings for evaluating individual players in team sports.} International
+Journal of Computer Science in Sport, 18, 1--23.
+
+Ilardi, S. (2007). \emph{Adjusted Plus-Minus: An idea whose time has
+come.} Blog: 82games. \url{http://www.82games.com/ilardi1.htm}
+
+Ilardi, S., \& Barzilai, A. (2008). \emph{Adjusted Plus-Minus ratings:
+New and improved for 2007--2008.} Blog: 82games.
+\url{http://www.82games.com/ilardi2.htm}
+
+James, G., Witten, D., Hastie, T., \& Tibshirani, R. (2021). \emph{An
+Introduction to Statistical Learning with Applications in R} (ISLR2).
+
+Kubatko, J., Oliver, D., Pelton, K., \& Rosenbaum, D. (2007). \emph{A
+starting point for analyzing basketball statistics.} Journal of
+Quantitative Analysis in Sports, 3, Article 1.
+
+Rosenbaum, D. (2004). \emph{Measuring how NBA players help their teams
+win.} Blog: 82games. \url{http://www.82games.com/comm30.htm}
+
+Sæbø, O., \& Hvattum, L. (2019). \emph{Modelling the financial
+contribution of soccer players to their clubs.} Journal of Sports
+Analytics, 5, 23--34.
+
+Sill, J. (2010). \emph{Improved NBA adjusted +/-- using regularization
+and out-of-sample testing.} Proceedings of the 2010 MIT Sloan Sports
+Analytics Conference.
+
+Tibshirani, R. (1996). \emph{Regression shrinkage and selection via the
+lasso.} Journal of the Royal Statistical Society: Series B
+(Methodological), 58(1), 267--288.
+
+Zou, H., \& Hastie, T. (2005). \emph{Regularization and Variable
+Selection via the Elastic Net.} Journal of the Royal Statistical
+Society: Series B, 67(2), 301--320.
+
+\end{document}

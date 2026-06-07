@@ -9,7 +9,7 @@ header-includes:
   - \usepackage{xcolor}
   - \captionsetup{font={bf, small}, labelfont={bf}, justification=centering, position=top, singlelinecheck=false}
   - \captionsetup[table]{position=top, skip=5pt}
-  - \captionsetup[figure]{position=bottom, skip=5pt}
+  - \captionsetup[figure]{position=above, skip=5pt}
 ---
 
 ## Generación y preprocesamiento de la base de datos
@@ -244,7 +244,7 @@ datos_posesion <- data.frame(
   Accion = c("TIRO DE 3 FALLADO", "TIRO DE 3 FALLADO", "ASISTENCIA", "TIRO DE 2 FALLADO"),
   Jugador = c("STENTA, NICOLAS", "BUEMO, CARLOS EMANUEL", "VILDOZA, JOSE IGNACIO", "OBERTO, JUAN CRUZ MATEO"),
   Equipo = c("BOCA", "ATENAS", "BOCA", "ATENAS"),
-  Tipo = c("visitante", "local", "visitante", "local"),
+  Condicion = c("visitante", "local", "visitante", "local"),
   Posesion = c(4, 3, 2, 1),
   Puntos = c(0, 0, 3, 0)
 )
@@ -255,7 +255,7 @@ datos_posesion %>%
     format = "latex",
     booktabs = TRUE, # Líneas académicas formales
     caption = "Ejemplo de estructura con una fila por posesión",
-    col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Equipo", "Tipo", "Posesión", "Puntos")
+    col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Equipo", "Condición", "Posesión", "Puntos")
   ) %>%
   kable_styling(
     latex_options = c("hold_position", "scale_down"),
