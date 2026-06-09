@@ -54,6 +54,15 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{5}
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{spanish}
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
 \renewcommand{\contentsname}{Contenido}
 
 \usepackage{float}
@@ -98,6 +107,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
+  pdflang={es},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 
@@ -453,25 +463,33 @@ ranking que refleje su impacto en el desempeño de sus equipos.
   de cada jugador en relación al desempeño de su equipo.
 \end{enumerate}
 
-El objetivo general de esta tesina es estimar de manera adecuada el
-aporte individual de los jugadores de la Liga Nacional de Básquetbol de
-Argentina durante la temporada 2024/2025, comparando enfoques
-tradicionales basados en modelos de regresión lineal múltiple con
-modelos logísticos multinomiales que se ajusten mejor a la naturaleza
-discreta de la variable respuesta, evaluando en cada caso el uso de
-distintas técnicas de regularización para la estimación de los
-coeficientes.
+----- Modificación del objetivo ------
 
-Comparar los resultados provistos por los distintos modelos en base a
-criterios externos de evaluación, para poder determinar cual de ellos
-proporciona mejores métricas.
+Recibí el siguiente comentario de parte de los jurados en la corrección
+del anteproyecto:
+
+``Actualmente el objetivo enfatiza la construcción de un ranking. Te
+sugiero reformularlo poniendo mayor énfasis en la evaluación y
+comparación metodológica de los distintos enfoques de estimación (modelo
+lineal vs.~multinomial, distintas penalizaciones, etc.). El ranking
+debería presentarse como un resultado del análisis, no como el eje
+central del trabajo.''
+
+A pesar de que mi idea era centrar la tesis en encontrar un ranking
+óptimo (objetivo general) y para esto comparar distintos modelos
+(objetivo específico 4), pienso que tiene razón de ser este comentario
+al ser una tesina de estadística más que una tesina vinculada al
+deporte. Mis objetivos modificados serían los siguientes, quedó atento a
+su opinión al respecto.
+
+Objetivo general:
 
 El objetivo general de esta tesina es evaluar y comparar diferentes
 enfoques de estimación de modelos RAPM para cuantificar el impacto
 individual de los jugadores de la Liga Nacional de Básquetbol de
-Argentina durante la temporada 2024/2025, mediante el contraste de
-modelos lineales y logísticos multinomiales, y el uso de distintas
-técnicas de regularización para la estimación de los coeficientes.
+Argentina durante la temporada 2024/2025.
+
+Objetivo específico 4:
 
 Generar rankings definitivos de la Liga Nacional como el resultado final
 obtenido mediante el modelo óptimo, identificando a los mejores
@@ -520,7 +538,7 @@ disputados y permite acceder a la información detallada de cada partido.
 
 \begin{figure}[H]
 
-{\centering \includegraphics[width=0.7\linewidth]{img/imagen links partidos} 
+{\centering \includegraphics[width=0.8\linewidth]{img/imagen links partidos} 
 
 }
 
@@ -536,7 +554,7 @@ texto.
 
 \begin{figure}[H]
 
-{\centering \includegraphics[width=0.7\linewidth]{img/Captura DOM} 
+{\centering \includegraphics[width=1\linewidth]{img/Captura DOM} 
 
 }
 
@@ -572,9 +590,9 @@ Para esto, se accedió individualmente a la página de estadísticas de
 cada encuentro, particularmente a la pestaña denominada ``en vivo'',
 donde se presenta el detalle secuencial de los eventos.
 
-Esta sección del sitio web contiene una tabla que se genera
-dinámicamente y que registra, en orden cronológico, todas las acciones
-ocurridas durante el partido.
+Como se observa en la Figura 3, esta sección del sitio web contiene una
+tabla que se genera dinámicamente y que registra, en orden cronológico,
+todas las acciones ocurridas durante el partido.
 
 \begin{figure}[H]
 
@@ -594,38 +612,18 @@ marcador parcial en ese momento del partido. Esta información fue
 sistemáticamente extraída y almacenada en una estructura tabular,
 conservando el orden temporal de las acciones.
 
-\begin{table}[!h]
-\centering
-\caption{\label{tab:unnamed-chunk-6}últimas 10 observaciones de la base de datos play-by-play.}
-\centering
-\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{8}{10}\selectfont
-\begin{tabular}[t]{llllll}
-\toprule
-Cuarto & Tiempo & Acción & Jugador & Puntos local & Puntos visitante\\
-\midrule
- &  & FINAL DEL PERIODO &  & Nan & Nan\\
-4 & 00:00:16 & ASISTENCIA & LARRAZA, JUAN IGNACIO & Nan & Nan\\
-4 & 00:00:16 & CANASTA DE 2 PUNTOS & FRANCHELA, TOBIAS & 109 & 70\\
-4 & 00:00:20 & REBOTE DEFENSIVO \#44 & ALEXANDER, QUINTIN IMMANUEL & Nan & Nan\\
-4 & 00:00:21 & TIRO DE 2 FALLADO & AYALA, VALENTINO & Nan & Nan\\
-\addlinespace
-4 & 00:00:35 & ASISTENCIA & FRANCHELA, TOBIAS & Nan & Nan\\
-4 & 00:00:35 & CANASTA DE 2 PUNTOS & ALEXANDER, QUINTIN IMMANUEL & 109 & 68\\
-4 & 00:00:48 & CANASTA DE 2 PUNTOS & WHITFIELD III, ROBERT JAMARCUS & 109 & 66\\
-4 & 00:01:16 & TIRO LIBRE ANOTADO & ALEXANDER, QUINTIN IMMANUEL & 107 & 66\\
-4 & 00:01:16 & TIRO LIBRE ANOTADO & ALEXANDER, QUINTIN IMMANUEL & 107 & 65\\
-\bottomrule
-\end{tabular}}
-\end{table}
-
 Este procedimiento se aplicó de forma idéntica a todos los partidos de
 la temporada analizada, utilizando como insumo los enlaces previamente
 identificados. Finalmente, los registros de acciones obtenidos para cada
 encuentro fueron concatenados en una única base de datos de
 \emph{play-by-play}, incorporando un identificador de partido que
 permite distinguir y vincular las acciones correspondientes a cada
-juego.
+juego. Asimismo, a partir de esta clave única asociada al encuentro (por
+ejemplo, GIMNASIA (CR) vs REGATAS (C) (03/05/2025 20:30)), fue posible
+identificar e incorporar a la base el equipo local y visitante
+correspondiente a cada partido. Esta información resultó útil en etapas
+posteriores del procesamiento donde al conocer el equipo asociado a cada
+acción, puede inferirse la condición del mismo (local o visitante).
 
 Es importante destacar que el \emph{dataset} resultante constituye una
 secuencia detallada de eventos, pero en su forma original no incluye una
@@ -637,9 +635,9 @@ jugadores-equipos}\label{tabla-de-jugadores-equipos}
 
 Para resolver este problema, se obtuvo dicha información a partir de los
 datos provenientes del \emph{Box Score}, localizados en la pestaña
-``Estadísticas'' de la página web del partido. Aquí encontraremos
-información referida a cada uno de los jugadores anotados en la planilla
-de ambos equipos.
+``Estadísticas'' de la página web del partido (Figura 4). Aquí
+encontraremos información referida a cada uno de los jugadores anotados
+en la planilla de ambos equipos.
 
 \begin{figure}[H]
 
@@ -696,11 +694,11 @@ A partir de la nueva tabla generada, se procedió a construir la
 presencia de los jugadores en cancha a lo largo del partido. Para ello,
 se identificaron las acciones asociadas a sustituciones, distinguiendo
 entre entradas (acción = ENTRA A PISTA) y salidas de jugadores (acción =
-ABANDONA LA PISTA).
+ABANDONA LA PISTA), tal como se observa en la Figura 5.
 
 \begin{figure}[H]
 
-{\centering \includegraphics[width=0.35\linewidth]{img/imagen sustitucion} 
+{\centering \includegraphics[width=0.5\linewidth]{img/imagen sustitucion} 
 
 }
 
@@ -769,11 +767,6 @@ De esta manera, se restauró la consistencia lógica de los quintetos y se
 garantizó la validez de la información utilizada en las etapas
 posteriores del análisis.
 
-\subsubsection{Detección de errores: Nombres de
-jugadores}\label{detecciuxf3n-de-errores-nombres-de-jugadores}
-
-\ldots{}
-
 \subsection{\texorpdfstring{Generación de la base de datos
 \emph{poss-by-poss}}{Generación de la base de datos poss-by-poss}}\label{generaciuxf3n-de-la-base-de-datos-poss-by-poss}
 
@@ -790,7 +783,7 @@ control de la pelota.
 
 Para llevar a cabo este proceso fue necesario definir una metodología
 adecuada que permita diferenciar qué acciones pertenecían a una misma
-posesión, y en que momento comenzaba una distinta.
+posesión, y en qué momento comenzaba una distinta.
 
 \subsubsection{Eliminación de acciones no relevantes para la
 posesión}\label{eliminaciuxf3n-de-acciones-no-relevantes-para-la-posesiuxf3n}
@@ -801,7 +794,9 @@ cada acción, no todo cambio en el equipo asociado a una acción implica
 necesariamente un cambio de posesión del balón. Existen situaciones en
 las que se registran acciones del equipo defensor dentro de una posesión
 del equipo atacante. A los cuales se ha decidido por llamar como
-``acciones intrusas''.
+``acciones intrusas''. Un ejemplo de la contabilización correcta e
+incorrecta de las posesiones a partir de la secuencia de acciones se
+presenta en la Figura 6.
 
 \begin{figure}[H]
 
@@ -813,10 +808,11 @@ del equipo atacante. A los cuales se ha decidido por llamar como
 \end{figure}
 
 Luego de hacer una revisión manual en un conjunto limitado de partidos,
-se llegó a la definición de que el siguiente conjunto de acciones suelen
-ser siempre acciones intrusas o nunca resultan informativas para la
-delimitación de las posesiones. En consecuencia se ha decidido eliminar
-las filas en las que ocurren estas acciones en la base de datos.
+se llegó a la definición de que el conjunto de acciones presentes en el
+Cuadro 1 suelen ser siempre acciones intrusas o nunca resultan
+informativas para la delimitación de las posesiones. En consecuencia se
+ha decidido eliminar las filas en las que ocurren estas acciones en la
+base de datos.
 
 Estas acciones son:
 
@@ -898,8 +894,8 @@ de definir las posesiones. Por un lado, las faltas defensivas
 corresponden a una ``acción intrusa'' y deben ser eliminadas de la base,
 mientras que las faltas ofensivas siempre implican un cambio inmediato
 de posesión y, en ocasiones, pueden ser la única acción que realice un
-equipo dentro de una posesión, por lo que en esos casos puntuales dicha
-acción debe conservarse.
+equipo dentro de una posesión, como se observa en la Figura 7. Por lo
+que en esos casos puntuales dicha acción debe conservarse.
 
 En consecuencia, se desarrolló un conjunto de reglas basadas en el
 contexto de la acción previa para decidir si una falta debe ser
@@ -939,7 +935,8 @@ Una vez realizada está tarea de preprocesamiento anteriormente
 mencionada, se incorporó un identificador preliminar de posesión, basado
 en dos criterios fundamentales: el cambio de equipo en control del balón
 y el cambio de cuarto. De manera que cada vez que ocurre alguno de estos
-eventos, se identifica como el inicio una nueva posesión.
+eventos, se identifica como el inicio de una nueva posesión. Esto se
+encuentra ejemplificado en el Cuadro 2.
 
 \begin{table}[!h]
 \centering
@@ -949,17 +946,17 @@ eventos, se identifica como el inicio una nueva posesión.
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{rlllllr}
 \toprule
-Cuarto & Tiempo & Acción & Jugador & Equipo & Condición & Posesión\\
+Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión\\
 \midrule
-1 & 00:08:54 & TIRO DE 3 FALLADO & STENTA, NICOLAS & BOCA & visitante & 4\\
-1 & 00:09:12 & REBOTE DEFENSIVO \#11 & VILDOZA, JOSE IGNACIO & BOCA & visitante & 4\\
-1 & 00:09:13 & TIRO DE 3 FALLADO & BUEMO, CARLOS EMANUEL & ATENAS & local & 3\\
-1 & 00:09:18 & FALTA RECIBIDA & BUENDIA, CARLOS MANUEL & ATENAS & local & 3\\
-1 & 00:09:31 & ASISTENCIA & VILDOZA, JOSE IGNACIO & BOCA & visitante & 2\\
+1 & 00:08:54 & TIRO DE 3 FALLADO & STENTA, NICOLAS & BOCA &  & 4\\
+1 & 00:09:12 & REBOTE DEFENSIVO \#11 & VILDOZA, JOSE IGNACIO & BOCA &  & 4\\
+1 & 00:09:13 & TIRO DE 3 FALLADO & BUEMO, CARLOS EMANUEL & ATENAS &  & 3\\
+1 & 00:09:18 & FALTA RECIBIDA & BUENDIA, CARLOS MANUEL & ATENAS &  & 3\\
+1 & 00:09:31 & ASISTENCIA & VILDOZA, JOSE IGNACIO & BOCA &  & 2\\
 \addlinespace
-1 & 00:09:32 & TRIPLE & PIÑERO, FACUNDO & BOCA & visitante & 2\\
-1 & 00:09:42 & REBOTE DEFENSIVO \#11 & VILDOZA, JOSE IGNACIO & BOCA & visitante & 2\\
-1 & 00:09:43 & TIRO DE 2 FALLADO & OBERTO, JUAN CRUZ MATEO & ATENAS & local & 1\\
+1 & 00:09:32 & TRIPLE & PIÑERO, FACUNDO & BOCA &  & 2\\
+1 & 00:09:42 & REBOTE DEFENSIVO \#11 & VILDOZA, JOSE IGNACIO & BOCA &  & 2\\
+1 & 00:09:43 & TIRO DE 2 FALLADO & OBERTO, JUAN CRUZ MATEO & ATENAS &  & 1\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -976,7 +973,8 @@ calculó la diferencia entre el puntaje acumulado del equipo atacante al
 final de la posesión y el puntaje acumulado registrado al cierre de la
 posesión inmediatamente anterior. De esta manera, cada posesión queda
 caracterizada por una variable discreta que representa su resultado
-ofensivo en términos de puntos anotados.
+ofensivo en términos de puntos anotados. Tal como se presenta en el
+Cuadro 3.
 
 \begin{table}[!h]
 \centering
@@ -986,12 +984,12 @@ ofensivo en términos de puntos anotados.
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{rlllllrr}
 \toprule
-Cuarto & Tiempo & Acción & Jugador & Equipo & Condición & Posesión & Puntos\\
+Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión & Puntos\\
 \midrule
-1 & 00:08:54 & TIRO DE 3 FALLADO & STENTA, NICOLAS & BOCA & visitante & 4 & 0\\
-1 & 00:09:13 & TIRO DE 3 FALLADO & BUEMO, CARLOS EMANUEL & ATENAS & local & 3 & 0\\
-1 & 00:09:31 & ASISTENCIA & VILDOZA, JOSE IGNACIO & BOCA & visitante & 2 & 3\\
-1 & 00:09:43 & TIRO DE 2 FALLADO & OBERTO, JUAN CRUZ MATEO & ATENAS & local & 1 & 0\\
+1 & 00:08:54 & TIRO DE 3 FALLADO & STENTA, NICOLAS & BOCA &  & 4 & 0\\
+1 & 00:09:13 & TIRO DE 3 FALLADO & BUEMO, CARLOS EMANUEL & ATENAS &  & 3 & 0\\
+1 & 00:09:31 & ASISTENCIA & VILDOZA, JOSE IGNACIO & BOCA &  & 2 & 3\\
+1 & 00:09:43 & TIRO DE 2 FALLADO & OBERTO, JUAN CRUZ MATEO & ATENAS &  & 1 & 0\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1042,7 +1040,8 @@ en la posesión.
 Y se cuenta con variables indicadoras referentes a las presencias
 ofensivas y defensivas al momento de la posesión para cada uno de los
 jugadores que hayan completado al menos una posesión a lo largo de la
-temporada, contabilizando de esta manera otras 692 (346 indicadoras
+temporada. Se encontraron 346 jugadores que cumplían esa condición en
+esta temporada, contabilizando de esta manera otras 692 (346 indicadoras
 ofensivas y 346 indicadoras defensivas) variables adicionales dentro del
 dataset.
 

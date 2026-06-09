@@ -9,6 +9,7 @@ output:
     number_sections: true
     includes:
       in_header: header.tex
+lang: es
 ---
 
 \begin{titlepage}
@@ -152,12 +153,20 @@ El objetivo general de esta tesina es estimar el aporte individual de los jugado
 
 
 
-El objetivo general de esta tesina es estimar de manera adecuada el aporte individual de los jugadores de la Liga Nacional de Básquetbol de Argentina durante la temporada 2024/2025, comparando enfoques tradicionales basados en modelos de regresión lineal múltiple con modelos logísticos multinomiales que se ajusten mejor a la naturaleza discreta de la variable respuesta, evaluando en cada caso el uso de distintas técnicas de regularización para la estimación de los coeficientes.
+----- Modificación del objetivo ------
 
-Comparar los resultados provistos por los distintos modelos en base a criterios externos de evaluación, para poder determinar cual de ellos proporciona mejores métricas.
+Recibí el siguiente comentario de parte de los jurados en la corrección del anteproyecto: 
 
+"Actualmente el objetivo enfatiza la construcción de un ranking. Te sugiero reformularlo poniendo mayor énfasis en la evaluación y comparación metodológica de los distintos enfoques de estimación (modelo lineal vs. multinomial, distintas penalizaciones, etc.).
+El ranking debería presentarse como un resultado del análisis, no como el eje central del trabajo."
 
-El objetivo general de esta tesina es evaluar y comparar diferentes enfoques de estimación de modelos RAPM para cuantificar el impacto individual de los jugadores de la Liga Nacional de Básquetbol de Argentina durante la temporada 2024/2025, mediante el contraste de modelos lineales y logísticos multinomiales, y el uso de distintas técnicas de regularización para la estimación de los coeficientes.
+A pesar de que mi idea era centrar la tesis en encontrar un ranking óptimo (objetivo general) y para esto comparar distintos modelos (objetivo específico 4), pienso que tiene razón de ser este comentario al ser una tesina de estadística más que una tesina vinculada al deporte. Mis objetivos modificados serían los siguientes, quedó atento a su opinión al respecto.
+
+Objetivo general:
+
+El objetivo general de esta tesina es evaluar y comparar diferentes enfoques de estimación de modelos RAPM para cuantificar el impacto individual de los jugadores de la Liga Nacional de Básquetbol de Argentina durante la temporada 2024/2025.
+
+Objetivo específico 4:
 
 Generar rankings definitivos de la Liga Nacional como el resultado final obtenido mediante el modelo óptimo, identificando a los mejores jugadores de cada rubro para la temporada en estudio.
 
@@ -173,14 +182,14 @@ Posteriormente, se realizó un preprocesamiento orientado a transformar los even
 
 El primer paso consistió en la identificación y recopilación de los enlaces a las páginas webs que contienen las estadísticas individuales de todos los partidos incluidos en el período de estudio (378 partidos de temporada regular). Para ello, se accedió a la página de la Liga Nacional, [sección Fixture](https://www.laliganacional.com.ar/laliga/fixture), la cual presenta una tabla dinámica con los encuentros disputados y permite acceder a la información detallada de cada partido.
 
-```{r, echo=FALSE, fig.cap="Fixture dentro de la página web de la LNB.", out.width="70%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Fixture dentro de la página web de la LNB.", out.width="80%", fig.align="center"}
 knitr::include_graphics("img/imagen links partidos.png")
 ```
 
 En la Figura 1 se muestra la interfaz del sitio web, donde se visualiza el listado completo de partidos de la temporada para el rango de fechas seleccionadas. Dado que no pudo automatizarse la obtención de cada uno de estos links, se procedió
 a copiar manualmente el *DOM* (*Document Object Model*) de la página y a pegarlo en un archivo de texto.
 
-```{r, echo=FALSE, fig.cap="Inspección de la página web.", out.width="70%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Inspección de la página web.", out.width="100%", fig.align="center"}
 knitr::include_graphics("img/Captura DOM.png")
 ```
 
@@ -192,7 +201,7 @@ Dicho diccionario constituyó el insumo básico para el proceso posterior de scr
 
 Una vez obtenido el listado completo de enlaces correspondientes a cada uno de los partidos en el período de estudio, se procedió a la extracción del registro de acciones del partido (*play-by-play*). Para esto, se accedió individualmente a la página de estadísticas de cada encuentro, particularmente a la pestaña denominada “en vivo”, donde se presenta el detalle secuencial de los eventos.
 
-Esta sección del sitio web contiene una tabla que se genera dinámicamente y que registra, en orden cronológico, todas las acciones ocurridas durante el partido.
+Como se observa en la Figura 3, esta sección del sitio web contiene una tabla que se genera dinámicamente y que registra, en orden cronológico, todas las acciones ocurridas durante el partido.
 
 ```{r, echo=FALSE, fig.cap="Pestaña en vivo dentro de la página web de estadísticas de un partido", out.width="70%", fig.align="center"}
 knitr::include_graphics("img/imagen play by play_1.png")
@@ -200,7 +209,7 @@ knitr::include_graphics("img/imagen play by play_1.png")
 
 En dicha tabla, cada acción del partido se encuentra representada como un elemento que incluye información textual sobre el tipo de acción (por ejemplo, lanzamiento convertido, falta, pérdida, etc), el jugador que realiza dicha acción, el cuarto de juego, el tiempo restante en el cuarto y , en caso de ser una acción donde se generan puntos, el marcador parcial en ese momento del partido. Esta información fue sistemáticamente extraída y almacenada en una estructura tabular, conservando el orden temporal de las acciones.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 
 datos_acciones <- data.frame(
   Cuarto = c("", 4, 4, 4, 4, 4, 4, 4, 4, 4),
@@ -253,13 +262,13 @@ datos_acciones %>%
 ```
 
 
-Este procedimiento se aplicó de forma idéntica a todos los partidos de la temporada analizada, utilizando como insumo los enlaces previamente identificados. Finalmente, los registros de acciones obtenidos para cada encuentro fueron concatenados en una única base de datos de *play-by-play*, incorporando un identificador de partido que permite distinguir y vincular las acciones correspondientes a cada juego.
+Este procedimiento se aplicó de forma idéntica a todos los partidos de la temporada analizada, utilizando como insumo los enlaces previamente identificados. Finalmente, los registros de acciones obtenidos para cada encuentro fueron concatenados en una única base de datos de *play-by-play*, incorporando un identificador de partido que permite distinguir y vincular las acciones correspondientes a cada juego. Asimismo, a partir de esta clave única asociada al encuentro (por ejemplo, GIMNASIA (CR) vs REGATAS (C) (03/05/2025 20:30)), fue posible identificar e incorporar a la base el equipo local y visitante correspondiente a cada partido. Esta información resultó útil en etapas posteriores del procesamiento donde al conocer el equipo asociado a cada acción, puede inferirse la condición del mismo (local o visitante).
 
 Es importante destacar que el *dataset* resultante constituye una secuencia detallada de eventos, pero en su forma original no incluye una identificación explícita del equipo asociado a cada acción, lo cual resulta indispensable a la hora de realizar los análisis posteriores.
 
 ### Tabla de jugadores-equipos
 
-Para resolver este problema, se obtuvo dicha información a partir de los datos provenientes del *Box Score*, localizados en la pestaña "Estadísticas" de la página web del partido. Aquí encontraremos información referida a cada uno de los jugadores anotados en la planilla de ambos equipos.
+Para resolver este problema, se obtuvo dicha información a partir de los datos provenientes del *Box Score*, localizados en la pestaña "Estadísticas" de la página web del partido (Figura 4). Aquí encontraremos información referida a cada uno de los jugadores anotados en la planilla de ambos equipos.
 
 ```{r, echo=FALSE, fig.cap="Ejemplo del Box Score de un partido", out.width="70%", fig.align="center"}
 knitr::include_graphics("img/imagen box score.png")
@@ -279,9 +288,9 @@ De este modo, cada acción queda asociada explícitamente a uno de los dos equip
 
 ### Identificación de los quintetos en cancha al momento de la acción
 
-A partir de la nueva tabla generada, se procedió a construir la presencia de los jugadores en cancha a lo largo del partido. Para ello, se identificaron las acciones asociadas a sustituciones, distinguiendo entre entradas (acción = ENTRA A PISTA) y salidas de jugadores (acción = ABANDONA LA PISTA).
+A partir de la nueva tabla generada, se procedió a construir la presencia de los jugadores en cancha a lo largo del partido. Para ello, se identificaron las acciones asociadas a sustituciones, distinguiendo entre entradas (acción = ENTRA A PISTA) y salidas de jugadores (acción = ABANDONA LA PISTA), tal como se observa en la Figura 5.
 
-```{r, echo=FALSE, fig.cap="Ejemplo de secuencia de acciones con sustitución", out.width="35%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Ejemplo de secuencia de acciones con sustitución", out.width="50%", fig.align="center"}
 knitr::include_graphics("img/imagen sustitucion.png")
 ```
 
@@ -305,25 +314,21 @@ Para subsanar este inconveniente, se realizó una revisión manual del play-by-p
 
 En consecuencia, se procedió a corregir el error eliminando al jugador mencionado de la variable correspondiente al quinteto local en las acciones afectadas, así como ajustando el conteo de jugadores en cancha. De esta manera, se restauró la consistencia lógica de los quintetos y se garantizó la validez de la información utilizada en las etapas posteriores del análisis.
 
-### Detección de errores: Nombres de jugadores
-
-...
-
 ## Generación de la base de datos *poss-by-poss*
 
 Como resultado de las etapas anteriores, pudimos obtener una base de datos unificada donde cada fila se corresponde con cada una de las jugadas o acciones que suceden dentro del partido, incluyendo información relevante para este trabajo como lo es el marcador del partido al momento de la acción, la composición de los quintetos en cancha y la condición de local o visitante. Sin embargo, para poder aplicar los modelos estadísticos mencionados en esta tesina de grado, resulta necesario agrupar estas acciones en **posesiones**, entendidas como el conjunto de acciones ocurridas antes de que cambie el control de la pelota.
 
-Para llevar a cabo este proceso fue necesario definir una metodología adecuada que permita diferenciar qué acciones pertenecían a una misma posesión, y en que momento comenzaba una distinta.
+Para llevar a cabo este proceso fue necesario definir una metodología adecuada que permita diferenciar qué acciones pertenecían a una misma posesión, y en qué momento comenzaba una distinta.
 
 ### Eliminación de acciones no relevantes para la posesión
 
-Este procedimiento no pudo realizarse de manera directa, ya que, a pesar de contar con la información secuencial sobre el que equipo realizaba cada acción, no todo cambio en el equipo asociado a una acción implica necesariamente un cambio de posesión del balón. Existen situaciones en las que se registran acciones del equipo defensor dentro de una posesión del equipo atacante. A los cuales se ha decidido por llamar como "acciones intrusas".
+Este procedimiento no pudo realizarse de manera directa, ya que, a pesar de contar con la información secuencial sobre el que equipo realizaba cada acción, no todo cambio en el equipo asociado a una acción implica necesariamente un cambio de posesión del balón. Existen situaciones en las que se registran acciones del equipo defensor dentro de una posesión del equipo atacante. A los cuales se ha decidido por llamar como "acciones intrusas". Un ejemplo de la contabilización correcta e incorrecta de las posesiones a partir de la secuencia de acciones se presenta en la Figura 6.
 
 ```{r, echo=FALSE, fig.cap="Comparación entre distintas formas de contabilizar las posesiones", out.width="70%", fig.align="center"}
 knitr::include_graphics("img/acciones intrusas.png")
 ```
 
-Luego de hacer una revisión manual en un conjunto limitado de partidos, se llegó a la definición de que el siguiente conjunto de acciones suelen ser siempre acciones intrusas o nunca resultan informativas para la delimitación de las posesiones. En consecuencia se ha decidido eliminar las filas en las que ocurren estas acciones en la base de datos.
+Luego de hacer una revisión manual en un conjunto limitado de partidos, se llegó a la definición de que el conjunto de acciones presentes en el Cuadro 1 suelen ser siempre acciones intrusas o nunca resultan informativas para la delimitación de las posesiones. En consecuencia se ha decidido eliminar las filas en las que ocurren estas acciones en la base de datos.
 
 Estas acciones son:
 
@@ -381,7 +386,7 @@ Se detectó que, en algunos casos, el *play-by-play* registra un rebote defensiv
 
 3)  Reglas específicas para el tratamiento de faltas ofensivas
 
-Las faltas ofensivas representan un caso particular dentro del play-by-play, ya que no son diferenciadas de las faltas defensivas en la descripción de la acción, y tienen una diferencia fundamental a la hora de definir las posesiones. Por un lado, las faltas defensivas corresponden a una "acción intrusa" y deben ser eliminadas de la base, mientras que las faltas ofensivas siempre implican un cambio inmediato de posesión y, en ocasiones, pueden ser la única acción que realice un equipo dentro de una posesión, por lo que en esos casos puntuales dicha acción debe conservarse.
+Las faltas ofensivas representan un caso particular dentro del play-by-play, ya que no son diferenciadas de las faltas defensivas en la descripción de la acción, y tienen una diferencia fundamental a la hora de definir las posesiones. Por un lado, las faltas defensivas corresponden a una "acción intrusa" y deben ser eliminadas de la base, mientras que las faltas ofensivas siempre implican un cambio inmediato de posesión y, en ocasiones, pueden ser la única acción que realice un equipo dentro de una posesión, como se observa en la Figura 7. Por lo que en esos casos puntuales dicha acción debe conservarse.
 
 En consecuencia, se desarrolló un conjunto de reglas basadas en el contexto de la acción previa para decidir si una falta debe ser conservada o eliminada del registro. Particularmente, se definió que: una falta debe conservarse si el equipo que la comete es distinto al equipo que realizó la acción inmediata anterior, siempre que dicha acción previa sea:
 
@@ -397,7 +402,7 @@ knitr::include_graphics("img/falta ofensiva.png")
 
 ### Identificación de la finalización de las posesiones
 
-Una vez realizada está tarea de preprocesamiento anteriormente mencionada, se incorporó un identificador preliminar de posesión, basado en dos criterios fundamentales: el cambio de equipo en control del balón y el cambio de cuarto. De manera que cada vez que ocurre alguno de estos eventos, se identifica como el inicio una nueva posesión.
+Una vez realizada está tarea de preprocesamiento anteriormente mencionada, se incorporó un identificador preliminar de posesión, basado en dos criterios fundamentales: el cambio de equipo en control del balón y el cambio de cuarto. De manera que cada vez que ocurre alguno de estos eventos, se identifica como el inicio de una nueva posesión. Esto se encuentra ejemplificado en el Cuadro 2.
 
 ```{r,echo=FALSE}
 
@@ -408,7 +413,7 @@ datos_secuencia <- data.frame(
   Accion = c("TIRO DE 3 FALLADO", "REBOTE DEFENSIVO #11", "TIRO DE 3 FALLADO", "FALTA RECIBIDA", "ASISTENCIA", "TRIPLE", "REBOTE DEFENSIVO #11", "TIRO DE 2 FALLADO"),
   Jugador = c("STENTA, NICOLAS", "VILDOZA, JOSE IGNACIO", "BUEMO, CARLOS EMANUEL", "BUENDIA, CARLOS MANUEL", "VILDOZA, JOSE IGNACIO", "PIÑERO, FACUNDO", "VILDOZA, JOSE IGNACIO", "OBERTO, JUAN CRUZ MATEO"),
   Equipo = c("BOCA", "BOCA", "ATENAS", "ATENAS", "BOCA", "BOCA", "BOCA", "ATENAS"),
-  Tipo = c("visitante", "visitante", "local", "local", "visitante", "visitante", "visitante", "local"),
+  Tipo = c("", "", "", "", "", "", "", ""),
   Posesion = c(4, 4, 3, 3, 2, 2, 2, 1)
 )
 
@@ -418,7 +423,7 @@ datos_secuencia %>%
     format = "latex",
     booktabs = TRUE,
     caption = "Ejemplo de secuencia de acciones diferenciando cada posesión",
-    col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Equipo", "Condición", "Posesión")
+    col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Equipo", "...", "Posesión")
   ) %>%
   kable_styling(
     latex_options = c("hold_position", "scale_down"), 
@@ -434,7 +439,7 @@ De este modo, se seleccionaron las filas correspondientes a los eventos finales 
 
 ### Cálculo de puntos por posesión
 
-Para obtener la cantidad de puntos obtenidos en cada posesión, se calculó la diferencia entre el puntaje acumulado del equipo atacante al final de la posesión y el puntaje acumulado registrado al cierre de la posesión inmediatamente anterior. De esta manera, cada posesión queda caracterizada por una variable discreta que representa su resultado ofensivo en términos de puntos anotados.
+Para obtener la cantidad de puntos obtenidos en cada posesión, se calculó la diferencia entre el puntaje acumulado del equipo atacante al final de la posesión y el puntaje acumulado registrado al cierre de la posesión inmediatamente anterior. De esta manera, cada posesión queda caracterizada por una variable discreta que representa su resultado ofensivo en términos de puntos anotados. Tal como se presenta en el Cuadro 3.
 
 ```{r, echo=FALSE}
 
@@ -445,7 +450,7 @@ datos_posesion <- data.frame(
   Accion = c("TIRO DE 3 FALLADO", "TIRO DE 3 FALLADO", "ASISTENCIA", "TIRO DE 2 FALLADO"),
   Jugador = c("STENTA, NICOLAS", "BUEMO, CARLOS EMANUEL", "VILDOZA, JOSE IGNACIO", "OBERTO, JUAN CRUZ MATEO"),
   Equipo = c("BOCA", "ATENAS", "BOCA", "ATENAS"),
-  Condicion = c("visitante", "local", "visitante", "local"),
+  Condicion = c("", "", "", ""),
   Posesion = c(4, 3, 2, 1),
   Puntos = c(0, 0, 3, 0)
 )
@@ -456,7 +461,7 @@ datos_posesion %>%
     format = "latex",
     booktabs = TRUE, # Líneas académicas formales
     caption = "Ejemplo de estructura con una fila por posesión",
-    col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Equipo", "Condición", "Posesión", "Puntos")
+    col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Equipo", "...", "Posesión", "Puntos")
   ) %>%
   kable_styling(
     latex_options = c("hold_position", "scale_down"),
