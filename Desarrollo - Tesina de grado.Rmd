@@ -272,6 +272,67 @@ ggplot(g1)+
     x = "Posesiones",
     y = "Densidad"
   )
+
+g2 = ggplot(g1, aes(x = posesiones)) +
+
+  # Región sombreada (< 500 posesiones)
+  annotate(
+    "rect",
+    xmin = -Inf,
+    xmax = 500,
+    ymin = -Inf,
+    ymax = Inf,
+    fill = "firebrick",
+    alpha = 0.12
+  ) +
+
+  # Histograma de frecuencias
+  geom_histogram(
+    bins = 35,
+    fill = "steelblue3",
+    color = "white",
+    linewidth = 0.3
+  ) +
+
+  # Umbral
+  geom_vline(
+    xintercept = 500,
+    linetype = "dashed",
+    color = "firebrick4",
+    linewidth = 0.8
+  ) +
+
+  # Etiqueta del umbral
+  annotate(
+    "text",
+    x = 520,
+    y = Inf,
+    label = "Criterio de exclusión: 117 jugadores (33,8%)",
+    hjust = 0,
+    vjust = 1.5,
+    color = "firebrick4",
+    fontface = "bold",
+    size = 4
+  ) +
+
+  labs(
+    x = "Posesiones disputadas",
+    y = "Cantidad de jugadores"
+  ) +
+
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(face = "bold")
+  )
+
+# ggsave(
+#   "img/distribucion_posesiones.pdf",
+#   g2,
+#   width = 7,
+#   height = 5
+# )
+
 ```
 
 Se observa una distribución bimodal de las posesiones por jugador, identificandose 3 subgrupos de jugadores: vemos que un 33.8% participan en menos de 500 posesiones, siendo este grupo integrado por jugadores del fondo de la rotación o jugadores con muy poca cantidad de partidos disputados (ya sea por lesión o por haber sido incorporados al equipo uestando muy avanzada la temporada), por otra parte un 30% de jugadores consumió entre 500 y 2500 posesiones, donde encontramos suplentes con una cantidad de minutos interesante o grandes jugadores que por algún motivo no han disputado gran parte de los partidos de la temporada. Por último tenemos el grupo de los titulares (124 jugadores, 36% del total), los cuales fueron participes de más de 2500 posesiones, y encontramos a los 6/7 jugadores con mayor cantidad de minutos por equipo, presentando generalmente más de 20 minutos por partido y una gran cantidad de partidos jugados en la temporada.
@@ -305,6 +366,8 @@ kable(t1)%>%
   kable_styling(full_width = FALSE, position = "center", font_size = 15)
 
 posesiones_prom = sum(poss_by_poss_temporada$puntos_pos)/nrow(poss_by_poss_temporada)
+
+#saveRDS(t1, "puntos_por_pos.rds")
 ```
 
 ### Análisis del +/-
@@ -331,7 +394,7 @@ tabla_mej <- mej_pm %>%
   tab_header(title = "Mejores +/-") %>%
   data_color(
     columns = `+/-`,
-    colors = scales::col_numeric(c("white", "green2"), domain = NULL)
+    colors = scales::col_numeric(c("lightgreen", "green2"), domain = NULL)
   )
 
 tabla_peor <- peor_pm %>%
@@ -342,13 +405,17 @@ tabla_peor <- peor_pm %>%
     colors = scales::col_numeric(c("red", "pink2"), domain = NULL)
   )
 
-browsable(
+tabla_plus_minus = browsable(
   div(
     style = "display: flex; gap: 30px;",
     div(tabla_mej, style = "width: 50%;"),
     div(tabla_peor, style = "width: 50%;")
   )
 )
+
+tabla_plus_minus
+
+#saveRDS(tabla_plus_minus, "tabla_plus_minus.rds")
 
 ```
 
@@ -443,6 +510,8 @@ tabla_gt <- tabla_gt %>%
   tab_header(title = "Tabla de posiciones LNB - Temporada 24/25")
 
 tabla_gt
+
+#saveRDS(tabla_gt, "tabla_posiciones.rds")
 ```
 
 ### Análisis del +/- penalizado por la cantidad de posesiones
@@ -1058,7 +1127,9 @@ Una mejor forma de solucionar el problema de los jugadores con pocas posesiones 
 
 Para abordar el problema de los coeficientes extremos presentados por los jugadores con pocas posesiones jugadas en la temporada se decide excluirlos del modelo.
 
-Se filtraran todos los jugadores que hayan participado de menos de 500 posesiones, obteniendo 117 jugadores que cumplen esa condición (31.7% del total).
+Se filtraran todos los jugadores que hayan participado de menos de 500 posesiones, obteniendo 117 jugadores que cumplen esa condición (33.8% del total).
+
+Se utilizan 229 jugadores.
 
 Al realizar esto también estamos abordando el problema de la dependencia lineal de nuestras variables, por lo que podemos aplicar el modeo lm() sin restricciones.
 
@@ -1308,6 +1379,7 @@ head(cor_long, 20) %>%
   )
 ```
 
+
 ### Separar el efecto del aporte ofensivo y defensivo
 
 El modelo planteado es el siguiente:
@@ -1348,6 +1420,110 @@ posesiones_of = df_mod_ltp_sep %>% summarise_each(funs(sum), contains("_off")) %
 posesiones_def = df_mod_ltp_sep %>% summarise_each(funs(sum), contains("_def")) %>% pivot_longer(cols = everything(), names_to = "jugador", values_to = "posesiones_def") %>% mutate(posesiones_def = posesiones_def*(-1))
 
 ```
+
+<!-- Cantidad de posesiones compartidas y, tabla para el informe% -->
+
+<!-- ```{r} -->
+<!-- library(dplyr) -->
+<!-- library(stringr) -->
+<!-- library(purrr) -->
+
+<!-- # Nombres de los jugadores (sin _off ni _def) -->
+<!-- jugadores <- unique( -->
+<!--   str_remove( -->
+<!--     names(df_mod_ltp_sep)[-1], -->
+<!--     "_(off|def)$" -->
+<!--   ) -->
+<!-- ) -->
+
+<!-- # Matriz de presencia (1 = jugador en cancha) -->
+<!-- X_presencia <- sapply(jugadores, function(j){ -->
+
+<!--   off <- paste0(j, "_off") -->
+<!--   def <- paste0(j, "_def") -->
+
+<!--   as.integer(df_mod_ltp_sep[[off]] != 0 | df_mod_ltp_sep[[def]] != 0) -->
+
+<!-- }) -->
+
+<!-- colnames(X_presencia) <- jugadores -->
+
+<!-- # Matriz de posesiones compartidas -->
+<!-- M_comp <- t(X_presencia) %*% X_presencia -->
+
+<!-- # Posesiones totales de cada jugador -->
+<!-- posesiones <- diag(M_comp) -->
+
+<!-- tabla_pares <- expand.grid( -->
+<!--   JugadorA = jugadores, -->
+<!--   JugadorB = jugadores, -->
+<!--   stringsAsFactors = FALSE -->
+<!-- ) |> -->
+<!--   dplyr::filter(JugadorA < JugadorB) |> -->
+<!--   rowwise() |> -->
+<!--   mutate( -->
+
+<!--     posesiones_juntos = -->
+<!--       M_comp[JugadorA, JugadorB], -->
+
+<!--     posesiones_A = -->
+<!--       posesiones[JugadorA], -->
+
+<!--     posesiones_B = -->
+<!--       posesiones[JugadorB], -->
+
+<!--     pct_A_con_B = -->
+<!--       100 * posesiones_juntos / posesiones_A, -->
+
+<!--     pct_B_con_A = -->
+<!--       100 * posesiones_juntos / posesiones_B -->
+
+<!--   ) |> -->
+<!--   ungroup() -->
+
+<!-- tabla_top10 <- tabla_pares |> -->
+<!--   mutate( -->
+<!--     pct_compartido = pmin(pct_A_con_B, pct_B_con_A) -->
+<!--   ) |> -->
+<!--   arrange(desc(pct_compartido)) |> -->
+<!--   slice_head(n = 10) -->
+<!-- ``` -->
+
+
+<!-- correlaciones -->
+
+<!-- ```{r} -->
+<!-- X_off <- df_mod_ltp_sep |> -->
+<!--   dplyr::select(ends_with("_off")) -->
+
+<!-- cor_off <- cor(X_off) -->
+
+<!-- tabla_top10 <- tabla_top10 |> -->
+<!--   mutate( -->
+<!--     correlacion = -->
+<!--       map2_dbl(JugadorA, JugadorB, -->
+<!--                ~cor_off[paste0(.x, "_off"), -->
+<!--                         paste0(.y, "_off")]) -->
+<!--   ) -->
+<!-- ``` -->
+
+<!-- correlaciones defensivas -->
+<!-- ```{r} -->
+<!-- X_def <- df_mod_ltp_sep |> -->
+<!--   dplyr::select(ends_with("_def")) -->
+
+<!-- cor_def <- cor(X_def) -->
+
+<!-- tabla_top10 <- tabla_top10 |> -->
+<!--   mutate( -->
+<!--     correlacion_def = -->
+<!--       map2_dbl(JugadorA, JugadorB, -->
+<!--                ~cor_def[paste0(.x, "_def"), -->
+<!--                         paste0(.y, "_def")]) -->
+<!--   ) -->
+
+<!-- #saveRDS(tabla_top10, "tabla_top10.rds") -->
+<!-- ``` -->
 
 ```{r}
 plus_minus_sep = df_mod_ltp_sep[, 2:459]*df_mod_ltp_sep[[1]]

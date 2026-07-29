@@ -188,7 +188,7 @@ particularmente la multicolinealidad entre jugadores y la presencia de
 coeficientes extremos asociados a jugadores con escasa participación en
 cancha.
 
-, las acciones registradas fueron agrupadas en posesiones, que
+Las acciones de juego registradas fueron agrupadas en posesiones, que
 constituyen la unidad de análisis utilizada para la estimación de las
 métricas propuestas. Inicialmente, se ajustaron modelos de regresión
 lineal múltiple, incorporando distintas técnicas de regularización.
@@ -666,10 +666,7 @@ correspondencia jugador--equipo.
 Esta tabla constituye un diccionario que permite asociar a cada jugador
 con su respectivo equipo, y es utilizada posteriormente como insumo para
 realizar dicha correspondencia en cada acción de la base
-\emph{play-by-play}. A su vez, mediante la adición de la cantidad de
-minutos en el partido se realiza un filtrado de jugadores que hayan
-participado menos de cierto umbral requerido de tiempo durante la
-temporada, cuestión fundamental a tratar posteriormente en este trabajo.
+\emph{play-by-play}.
 
 \subsection{Preprocesamiento de los
 datos}\label{preprocesamiento-de-los-datos}
@@ -749,8 +746,8 @@ Para intentar detectar posibles errores en la conformación de los
 quintetos en cancha, se construyó , tal como se menciono anteriormente,
 una variable que contabiliza la cantidad de jugadores presentes en cada
 quinteto en cada una de las acciones del partido. Dicha variable debería
-contabilizar un valor menor a cinco para ambos equipos en todas las
-acciones registradas.
+contabilizar un valor menor o igual a cinco para ambos equipos en todas
+las acciones registradas.
 
 De esta manera se detectó un caso puntual en el partido de ZARATE BASKET
 vs ATENAS (C), donde el quinteto local registraba 6 jugadores en cancha.
@@ -776,7 +773,7 @@ posteriores del análisis.
 \subsection{\texorpdfstring{Generación de la base de datos
 \emph{poss-by-poss}}{Generación de la base de datos poss-by-poss}}\label{generaciuxf3n-de-la-base-de-datos-poss-by-poss}
 
-Como resultado de las etapas anteriores, pudimos obtener una base de
+Como resultado de las etapas anteriores, se pudo obtener una base de
 datos unificada donde cada fila se corresponde con cada una de las
 jugadas o acciones que suceden dentro del partido, incluyendo
 información relevante para este trabajo como lo es el marcador del
@@ -794,8 +791,8 @@ posesión, y en qué momento comenzaba una distinta.
 posesión}\label{eliminaciuxf3n-de-acciones-no-relevantes-para-la-posesiuxf3n}
 
 Este procedimiento no pudo realizarse de manera directa, ya que, a pesar
-de contar con la información secuencial sobre el que equipo realizaba
-cada acción, no todo cambio en el equipo asociado a una acción implica
+de contar con información secuencial sobre el equipo responsable de cada
+acción, no todo cambio en el equipo asociado a una acción implica
 necesariamente un cambio de posesión del balón. Existen situaciones en
 las que se registran acciones del equipo defensor dentro de una posesión
 del equipo atacante. A los cuales se ha decidido por llamar como
@@ -821,7 +818,7 @@ base de datos.
 
 Estas acciones son:
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:unnamed-chunk-10}Acciones eliminadas por no ser informativas para la delimitación de las posesiones}
 \centering
@@ -882,7 +879,7 @@ Se detectó que, en algunos casos, el \emph{play-by-play} registra un
 rebote defensivo como última acción de un cuarto. Ya que esta situación
 sucede quedando unos pocos segundos para terminar el cuarto, no debe ser
 contabilizada como una posesión real, y para evitar dichas situaciones
-se eliminó dichas acciones de la base de datos.
+se eliminaron dichas acciones de la base de datos.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi})}
@@ -917,8 +914,10 @@ acción previa sea:
 \item
   una pérdida de balón.
 \item
-  Una anotación con una separación temporal suficiente que indique el
-  transcurso de una nueva posesión.
+  Una anotación con una separación temporal suficiente\footnote{Si a una
+    anotación le sigue una falta inmediata del rival, resulta ser la
+    denominada ``falta y conversión'' la cual forma parte de la misma
+    posesión.} que indique el transcurso de una nueva posesión.
 \end{enumerate}
 
 Todas las faltas que no cumplían esta condición fueron eliminadas para
@@ -970,16 +969,16 @@ De este modo, se seleccionaron las filas correspondientes a los eventos
 finales de cada posesión, descartando las acciones intermedias que no
 determinan su conclusión.
 
-\subsubsection{Cálculo de puntos por
-posesión}\label{cuxe1lculo-de-puntos-por-posesiuxf3n}
+\subsubsection{Cálculo y validación de los puntos por
+posesión}\label{cuxe1lculo-y-validaciuxf3n-de-los-puntos-por-posesiuxf3n}
 
-Para obtener la cantidad de puntos obtenidos en cada posesión, se
-calculó la diferencia entre el puntaje acumulado del equipo atacante al
-final de la posesión y el puntaje acumulado registrado al cierre de la
-posesión inmediatamente anterior. De esta manera, cada posesión queda
-caracterizada por una variable discreta que representa su resultado
-ofensivo en términos de puntos anotados. Tal como se presenta en el
-Cuadro 3.
+En primera instancia, para obtener la cantidad de puntos generados en
+cada posesión, se calculó la diferencia entre el puntaje acumulado del
+equipo atacante al final de la posesión y el puntaje acumulado
+registrado al cierre de la posesión inmediatamente anterior. De esta
+manera, cada posesión queda caracterizada por una variable discreta que
+representa su resultado ofensivo en términos de puntos anotados. Tal
+como se presenta en el Cuadro 3.
 
 \begin{table}[!h]
 \centering
@@ -998,6 +997,102 @@ Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión & Puntos\\
 \bottomrule
 \end{tabular}}
 \end{table}
+
+Sin embargo, durante el análisis descriptivo de esta variable, se
+detectaron valores incompatibles con la lógica del juego, observándose
+posesiones con puntos por posesión ``negativos'' como -4 y -2 puntos,
+así como también posesiones con resultados muy elevados (6,7 y 8
+puntos). Estos últimos, a pesar de ser factibles, son muy poco comunes.
+Por este motivo se realizó una revisión manual de los partidos
+involucrados con el objetivo de identificar el origen del problema.
+
+La inspección de los registros permitió comprobar que, en cinco
+partidos, el marcador acumulado informado en el código HTML presentaba
+errores de actualización. Como consecuencia, el cálculo inicial de los
+puntos anotados en cada posesión, basado en la diferencia entre los
+marcadores al inicio y al final de la posesión, producía valores
+incorrectos.
+
+Ejemplo: \emph{QUIMSA vs BOCA (019/10/2024 11:30)}
+
+Al revisar uno de los partidos con presencia de puntos incompatibles, se
+detectó que, hacia el minuto 02:27 del tercer cuarto, el marcador
+parcial reflejaba correctamente el resultado del partido (64 - 42 a
+favor de QUIMSA). Sin embargo, la acción de anotación siguiente, el TIRO
+LIBRE ANOTADO del jugador de BOCA, PIÑERO, FACUNDO, en el minuto 02:21
+del tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43.
+Se observa entonces que el marcador parcial aumentó en tres puntos para
+el equipo local (QUIMSA) entre una acción y la siguiente, sin que
+existiera ninguna anotación registrada en el \emph{play-by-play} que
+justificara dicha variación (Figura 8).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.5\linewidth]{img/error_puntos_1_2_} 
+
+}
+
+\caption{Comienzo de secuencia de acciones con errores en la carga del marcador}\label{fig:unnamed-chunk-14}
+\end{figure}
+
+Estos errores siguieron presentandose en las siguientes acciones de
+anotación hasta el minuto 00:40, donde, con el TRIPLE del jugador de
+BOCA, CUELLO, MARTIN NICOLAS, el marcador parcial se reestablece a su
+valor real en ese momento (70 - 50), esta secuencia queda reflejada en
+la Figura 9.
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.5\linewidth]{img/error_puntos_2_2_} 
+
+}
+
+\caption{Fin de secuencia de acciones con errores en la carga del marcador}\label{fig:unnamed-chunk-15}
+\end{figure}
+
+Al presentarse errores en el marcador parcial de cada uno de los
+equipos, los puntos por posesión calculados como la diferencia del
+marcador de cada equipo con respecto al marcador parcial de la posesión
+anterior presentaban errores.
+
+Para subsanar estos inconvenientes, se redefinió el procedimiento de
+cálculo de los puntos por posesión. En lugar de utilizar el marcador
+acumulado informado por el sitio web, se reconstruyó el marcador de
+manera independiente a partir de las acciones registradas en el
+\emph{play-by-play}. Para ello se consideraron únicamente las tres
+acciones capaces de modificar el tanteador: TIRO LIBRE ANOTADO (+1
+punto), CANASTA DE 2 PUNTOS (+2 puntos) y TRIPLE (+3 puntos). A partir
+de estas acciones se calcularon de forma acumulativa los puntos
+convertidos por cada equipo a lo largo del partido, obteniéndose un
+marcador reconstruido que reemplazó al obtenido originalmente en el
+proceso de \emph{scrapping}.
+
+Como resultado de esta corrección, la variable puntos por posesión pasó
+a tomar únicamente valores comprendidos entre 0 y 7 puntos, eliminándose
+los valores imposibles detectados inicialmente.
+
+Cabe destacar que las posesiones obtenidas seguían presentando puntos
+inusualmente altos en algunas posesiones, por lo que posteriormente
+también se revisaron los partidos donde esas situaciones sucedían.
+Durante esta revisión se identificaron inconsistencias en la secuencia
+cronológica de algunas acciones registradas en el \emph{play-by-play}.
+En particular, se observaron situaciones en las que dos acciones de
+anotación del mismo equipo aparecían de manera consecutiva sin que
+existiera una acción intermedia del equipo rival que justificara la
+continuidad de la posesión. Estas inconsistencias pueden deberse a
+errores en la carga manual de la información realizada durante el
+partido y constituyen una limitación inherente a la calidad de los datos
+disponibles. Si bien estos casos fueron poco frecuentes, generan
+incertidumbre principalmente en las posesiones con cinco, seis o siete
+puntos, cuya ocurrencia es excepcional en condiciones normales de
+juego.En este sentido, mientras que en la base de datos utilizada por
+Damoulaki et al.~(2025) las posesiones con más de 3 puntos representan
+aproximadamente el 0,1 \% del total, en la base construida para este
+trabajo dicha proporción asciende al 0,3 \%, lo que resulta consistente
+con la presencia de errores de carga no detectados en la totalidad de
+los partidos. Por los alcances de esta tesina, estas observaciones
+fueron conservadas en la base de datos; esta limitación será retomada en
+el capítulo de Discusión.
 
 \subsubsection{Identificación de jugadores ofensivos y defensivos en
 cancha}\label{identificaciuxf3n-de-jugadores-ofensivos-y-defensivos-en-cancha}
@@ -1102,14 +1197,115 @@ la distribución de estos parámetros es conocida. Tenemos que:
 Este modelo es de sencilla aplicación y ha sido ampliamente utilizado
 por distintos analistas que trabajan con este tipo de métricas. Sin
 embargo, la variable respuesta en este caso es discreta, tomando valores
-enteros entre 0 y 6, lo que sugiere que el supuesto de normalidad del
+enteros entre 0 y 7, lo que sugiere que el supuesto de normalidad del
 modelo de regresión lineal múltiple no resulta apropiado para
 representar adecuadamente la naturaleza de la variable de interés.
 
 \paragraph{Interpretación de los
 coeficientes}\label{interpretaciuxf3n-de-los-coeficientes}
 
-\ldots{}
+Las medidas de eficiencia ofensiva (\emph{ORAPM}) y defensiva
+(\emph{DRAPM}) están representadas por los coeficientes asociados a las
+variables indicadoras ofensivas y defensivas de cada jugador, denotados
+por \(\beta_j^O\) y \(\beta_j^D\), respectivamente. Estos coeficientes
+cuantifican el aporte marginal esperado de cada jugador sobre la
+cantidad de puntos anotados por posesión.
+
+Donde un mayor valor en el coeficiente \emph{ORAPM} está asociado a una
+mayor cantidad de puntos anotados esperados en una posesión. Por otra
+parte, debido a que las variables defensivas fueron codificadas con
+valores 0 y -1, un valor mayor del \emph{DRAPM} está asociado a una
+menor cantidad de puntos recibida esperada en una posesión. Resultando
+ambas medidas de impacto positivo en el rendimiento de su equipo.
+
+La comparación entre dos jugadores resulta muy útil e intuitiva a la
+hora de querer dilucidar esta interpretación. En particular, la
+diferencia entre dos coeficientes representa el cambio esperado en la
+cantidad de puntos anotados por posesión cuando un jugador reemplaza a
+otro, manteniendo constantes todos los demás jugadores presentes en
+cancha. Esta interpretación puede ilustrarse mediante el siguiente
+ejemplo.
+
+Sean 2 quintetos: el quinteto ofensivo A (\(x_{a1}\), \(x_{a2}\),
+\(x_{a3}\), \(x_{a4}\), \(x_{a5}\)) y el quinteto defensivo B
+(\(x_{b1}\), \(x_{b2}\), \(x_{b3}\), \(x_{b4}\), \(x_{b5}\)). Donde la
+cantidad esperada de puntos anotados por el equipo atacante viene dada
+por
+
+\[
+\begin{aligned}
+\mu_1 =\;&
+\beta_0
++\beta_{a_1}^{O}
++\beta_{a_2}^{O}
++\beta_{a_3}^{O}
++\beta_{a_4}^{O}
++\beta_{a_5}^{O}
+-\beta_{b_1}^{D}
+-\beta_{b_2}^{D}
+-\beta_{b_3}^{D}
+-\beta_{b_4}^{D}
+-\beta_{b_5}^{D}
+\end{aligned}
+\]
+
+Supongamos que el jugador \(x_{a6}\) reemplaza al jugador \(x_{a1}\),
+manteniéndose sin modificaciones los restantes nueve jugadores. En ese
+caso, la cantidad esperada de puntos pasa a ser:
+
+\[
+\begin{aligned}
+\mu_2 =\;&
+\beta_0
++\beta_{a_6}^{O}
++\beta_{a_2}^{O}
++\beta_{a_3}^{O}
++\beta_{a_4}^{O}
++\beta_{a_5}^{O}
+-\beta_{b_1}^{D}
+-\beta_{b_2}^{D}
+-\beta_{b_3}^{D}
+-\beta_{b_4}^{D}
+-\beta_{b_5}^{D}.
+\end{aligned}
+\]
+
+Entonces \(\mu_2-\mu_1= \beta_{a_6}^{O}-\beta_{a_1}^{O}\) representa la
+diferencia de puntos esperados anotados por el equipo A cuando el
+jugador \(x_{a6}\) reemplaza al jugador \(x_{a1}\), y todos los demás
+jugadores se mantienen constantes. De esta manera, si
+\(\beta_{a6} > \beta_{a1}\) se espera que el equipo atacante anote una
+mayor cantidad de puntos por posesión con el jugador \(x_{a6}\) en
+cancha, por lo que su contribución ofensiva resulta mayor.
+
+De manera análoga, para la interpretación de los coeficientes
+defensivos, si \(x_{b1}\) sería reemplazado por \(x_{b6}\) la cantidad
+esperada de puntos anotados por el equipo atacante pasa a ser
+
+\[
+\begin{aligned}
+\mu_3 =\;&
+\beta_0
++\beta_{a_1}^{O}
++\beta_{a_2}^{O}
++\beta_{a_3}^{O}
++\beta_{a_4}^{O}
++\beta_{a_5}^{O}
+-\beta_{b_6}^{D}
+-\beta_{b_2}^{D}
+-\beta_{b_3}^{D}
+-\beta_{b_4}^{D}
+-\beta_{b_5}^{D}.
+\end{aligned}
+\]
+
+entonces \(\mu_3-\mu_1= -\beta_{b_6}^{O}+\beta_{b_1}^{O}\) representa la
+diferencia de puntos esperados recibidos por el equipo B cuando el
+jugador \(x_{b6}\) reemplaza al jugador \(x_{b1}\), y todos los demás
+jugadores se mantienen constantes. De esta manera, si \(\beta_{b6}\) es
+mayor a \(\beta_{b1}\), la cantidad esperada de puntos recibidos será
+menor y la contribución defensiva de \(x_{b6}\) será mayor que la de
+\(x_{b1}\).
 
 \subsubsection{Modelo logístico
 multinomial}\label{modelo-loguxedstico-multinomial}
@@ -1154,7 +1350,18 @@ ecuaciones:
 \paragraph{Interpretación de los
 coeficientes}\label{interpretaciuxf3n-de-los-coeficientes-1}
 
-\ldots{}
+Un mayor valor en los coeficientes ofensivos
+(\(\beta_1^o\),\(\beta_2^o\),\(\beta_3^o\)) se encuentra asociado a un
+mayor valor en la razón de \emph{odds} de anotar 1, 2 o 3 puntos o más,
+respecto de no anotar. Mientras que a valores más grandes en los
+coeficientes defensivos (\(\beta_1^d\),\(\beta_2^d\),\(\beta_3^d\)),
+menor será cada una de las respectivas razones de odds mencionadas.
+
+Como el objetivo de esta tesina está centrado en obtener una medida
+única que resuma la contribución de un jugador en el desempeño ofensivo
+y defensivo de su equipo, estos coeficientes no serán interpretados de
+manera individual, sino que servirán como base para la construcción de
+una métrica unificada.
 
 \subsection{EPTS y wEPTS}\label{epts-y-wepts}
 
@@ -1168,25 +1375,37 @@ Aunque puede resultar interesante y permita realizar distintos análisis,
 el objetivo final de este estudio es obtener una métrica que unifique la
 contribución ofensiva y defensiva en una única medida general.
 
-Para la contribución ofensiva, esto puede lograrse calculando la
-cantidad de puntos esperada en una posesión que anota el equipo de dicho
-jugador cuando el está incluido en el quinteto y todos los demás
-jugadores en la alineación pertenecen al grupo de referencia (con RAPM
-igual a 0).
+A diferencia del modelo de regresión multinomial, el cambio en la
+cantidad esperada de puntos al sustituir un jugador por otro no sólo
+está determinada por los coeficientes de ambos jugadores, sino también
+por los coeficientes de sus cuatro compañeros y de los cinco jugadores
+rivales (podría agregar en el anexo la demostración de esto). Por lo
+tanto, siguiendo la estrategia propuesta por \emph{Damoulaki et al.}
+(2025), se evalúa a cada jugador bajo un escenario simplificado. En este
+escenario, el único jugador con coeficiente distinto de cero es el
+jugador de interés, mientras que todos los demás jugadores presentes en
+cancha pertenecen al grupo de referencia, es decir, poseen coeficientes
+iguales a cero. De este modo, la cantidad esperada de puntos por
+posesión refleja exclusivamente la contribución ofensiva o defensiva del
+jugador evaluado.
 
-Para la contribución defensiva de un jugador puede evaluarse mediante la
-cantidad esperada de puntos (por posesión) concedidos por el equipo de
-dicho jugador cuando él no está en la alineación y todos los demás
-jugadores en cancha pertenecen al grupo de referencia.
+La contribución ofensiva se obtiene calculando la cantidad de puntos
+esperada en una posesión que anota el equipo de dicho jugador cuando el
+está incluido ofensivamente, bajo el escenario simplificado.
 
-A esta nueva métrica la denominamos ETPS (\emph{Expected Points per Team
+De manera similar, la contribución defensiva de un jugador se obtiene
+mediante la cantidad esperada de puntos (por posesión) concedidos por el
+equipo de dicho jugador cuando él está en la alineación y todos los
+demás jugadores en cancha pertenecen al grupo de referencia.
+
+A esta nueva métrica la denominamos EPTS (\emph{Expected Points per Team
 possession with the player Scoring contribution})
 
 \[
 EPTS_k^r= E(PTS_i \mid X_{ik}^r \ne 0,\, \boldsymbol{X}_{i/k}^r = 0,\, \boldsymbol{X}_i^{\overline{r}} = 0), \quad r \in \{o, d\}
 \]
 
-Estas dos medidas, \(ETPS^o\) y \(ETPS^d\), serán funciones de los
+Estas dos medidas, \(EPTS^o\) y \(EPTS^d\), serán funciones de los
 coeficientes ofensivos y defensivos del modelo multinomial ajustado. Se
 obtienen mediante:
 
@@ -1202,12 +1421,19 @@ cero).
 
 De manera similar, \(\pi_{kc}^d\) son las probabilidades de anotar uno,
 dos o tres puntos o más, respectivamente, por posesión por parte del
-equipo oponente del jugador k cuando dicho jugador no está incluido en
-la alineación, bajo el mismo escenario.
+equipo oponente del jugador k cuando dicho jugador está incluido en la
+alineación, bajo el mismo escenario.
 
 Estas probabilidades vienen dadas por:
 
-\[\pi_{kc}^r=\frac{exp(\mu_{kc}^r)}{1+exp(\mu_{k1}^r)+exp(\mu_{k2}^r)+exp(\mu_{k3}^r)} \quad \text{con } \mu_{kc}^r=\beta_{0c}+\beta_{kc}^r\]
+\[\pi_{kc}^r=\frac{exp(\mu_{kc}^r)}{1+exp(\mu_{k1}^r)+exp(\mu_{k2}^r)+exp(\mu_{k3}^r)} \quad \text{con } \mu_{kc}^o=\beta_{0c}+\beta_{kc}^o \quad \text{y } \mu_{kc}^d=\beta_{0c}-\beta_{kc}^d\]
+
+Finalmente se obtiene una medida de desempeño ofensivo y defensivo para
+cada jugador, donde un mayor valor de \(EPTS^o\) indica una mayor
+cantidad esperada de puntos anotados por posesión cuando el jugador
+participa ofensivamente, mientras que un menor valor de \(EPTS^d\)
+representa una menor cantidad esperada de puntos concedidos por posesión
+cuando el jugador integra el equipo defensor.
 
 \subsubsection{wEPTS}\label{wepts}
 
@@ -1244,38 +1470,32 @@ ataque o defensa en la temporada y \(n_{t_k}^r\) es el número de
 posesiones en las que el equipo del jugador \(k\) está en ataque o
 defensa en la temporada.
 
-\subsection{Multicolinealidad}\label{multicolinealidad}
-
-\ldots{}
-
-\subsection{\texorpdfstring{Tratamiento de los jugadores con poco tiempo
-de juego (\emph{Low time players -
-LTP})}{Tratamiento de los jugadores con poco tiempo de juego (Low time players - LTP)}}\label{tratamiento-de-los-jugadores-con-poco-tiempo-de-juego-low-time-players---ltp}
-
-\ldots{}
-
 \subsection{Estimación de los RAPMs}\label{estimaciuxf3n-de-los-rapms}
 
 \subsubsection{Método de mínimos
 cuadrados}\label{muxe9todo-de-muxednimos-cuadrados}
 
-En el modelo de regresión lineal múltiple, vamos a estimar los
-parámetros buscando minimizar las diferencias entre las observaciones de
-nuestro dataset y las estimaciones del modelo,
+En el modelo de regresión lineal múltiple, se van a estimar los
+parámetros por mínimos cuadrados ponderados, siendo la función a
+minimizar:
 
-Función a minimizar: \(S = \sum_{i=1}^n w_i(y_i-\mu_i)^2\)
+\begin{equation}
+S = \sum_{i=1}^n w_i(y_i-\mu_i)^2
+\end{equation}
 
-Los estimadores de mínimos cuadrados de \(beta_j\) se definen como
-aquellos valores de \(beta_j\) que minimizan la suma de cuadrados \(S\),
-y se denotan como \(\hat{\beta}_0, \ldots, \hat{\beta}_p\).
+Los estimadores de \(\beta_j\) se definen como aquellos que minimizan la
+suma de cuadrados \(S\), y se denotan como
+\(\hat{\beta}_0, \ldots, \hat{\beta}_p\).
 
 Obteniendo de esta manera los siguientes coeficientes estimados:
-\(\hat{\beta_j} = \frac{\sum_{i=1}^n w_ix_{ij}^*y_{i}}{\sum_{i=1}^n w_i(x_{ij}^*)^2}\),
+\begin{equation}
+\hat{\beta_k} = \frac{\sum_{i=1}^n x_{ik}^*y_{i}}{\sum_{i=1}^n w_i(x_{ik}^*)^2}
+\end{equation},
 
-para \(j= 0,...,p\), donde \(x_{ij}^*\) da los valores de la j-ésima
-variable explicativa \(x_j\) después de haber sido ajustada por todas
-las demás variables explicativas \(x_0,...,x_p\) excepto \(x_j\). La
-variable explicativa ajustada \(x_{j}^*\) es aquella parte de \(x_j\)
+para \(j= 0,...,p\), donde \(x_{ik}^*\) son los valores de la k-ésima
+variable explicativa \(x_k\) después de haber sido ajustada por todas
+las demás variables explicativas \(x_0,...,x_p\) excepto \(x_k\). La
+variable explicativa ajustada \(x_{k}^*\) es aquella parte de \(x_k\)
 que no puede ser explicada mediante una regresión sobre las otras
 variables explicativas (Dunn y Smyth, 2018).
 
@@ -1287,12 +1507,139 @@ En el modelo logístico multinomial, los parámetros
 simultáneamente las (c-1) ecuaciones logit, de manera que se maximice la
 log-verosimilitud:
 
-Función a maximizar:
-\(L_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}),\)
+Función a maximizar: \begin{equation}
+L_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^n\sum_{j=1}^cy_{ij}log(\pi_{ij})
+\end{equation},
 
 Como esto no tiene una solución cerrada, debe recurrirse a algoritmos
 iterativos como \emph{Newthon-Rapshon} o \emph{Fisher-Scoring} para
 obtener los resultados.
+
+\subsection{Multicolinealidad}\label{multicolinealidad}
+
+En los modelos de regresión múltiple, la multicolinealidad hace
+referencia a la existencia de dependencias lineales o casi lineales
+entre las columnas de la matriz de diseño. Cuando estas dependencias son
+exactas, la matriz \(X'X\) resulta singular y los parámetros no pueden
+estimarse mediante mínimos cuadrados ordinarios. Cuando las dependencias
+son aproximadas, las estimaciones pueden calculares, pero presentando
+variancias grandes, dando lugar a coeficientes muy inestables y
+sensibles a cambios relativamente pequeños en los datos.
+
+En los modelos RAPM la multicolinealidad aparece de manera natural
+debido a la estructura propia del juego. Donde, al tener muchos
+jugadores que comparten una gran proporción de sus minutos en cancha con
+los mismos compañeros, se genera una fuerte dependencia entre las
+columnas correspondientes a la matriz de diseño, como puede
+identificarse en el cuadro X. Como resultado, el modelo dispone de poca
+información para distinguir cuál de los jugadores es realmente
+responsable del rendimiento observado durante esas posesiones.
+
+Este problema resulta especialmente relevante en la Liga Nacional de
+Básquetbol de Argentina, donde la cantidad de observaciones disponibles
+es considerablemente menor que en competencias como la NBA, donde la
+cantidad de partidos disputados por cada equipo y la duración de los
+mismos es mayor.
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:unnamed-chunk-16}Pares de jugadores que compartieron la mayor proporción de posesiones durante la temporada regular.}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{llrrrr}
+\toprule
+Jugador A & Jugador B & Posesiones juntos & \% de posesiones de A con B & \% de posesiones de B con A & Correlación ofensiva\\
+\midrule
+BARREIRO, AGUSTIN & BROCAL, AGUSTIN ANDRES & 3.893 & 80.9 & 84.1 & 0.819\\
+BRUSSINO, JUAN IGNACIO & MILLER, TAVARIO EARNEST PTRISTIAN & 2.753 & 81.2 & 79.9 & 0.800\\
+ANDUJAR, LUCAS & THORNTON, WILLIE ALFORD & 3.302 & 77.9 & 81.2 & 0.788\\
+LUGARINI, BAUTISTA & VILDOZA, LEANDRO & 2.629 & 77.3 & 79.6 & 0.779\\
+THOMAS JR, MARCUS WILEY & THORNTON, WILLIE ALFORD & 3.132 & 78.4 & 77.0 & 0.769\\
+\addlinespace
+POMOLI LARRABURU, NICOLA & VILDOZA, LEANDRO & 2.507 & 77.3 & 75.9 & 0.759\\
+DEFELIPPO, JOSE & SHRIVER, DAVID RANDALL & 3.084 & 76.6 & 75.7 & 0.755\\
+BARRAL, PEDRO & MATA, MARCOS DANIEL & 2.874 & 75.7 & 75.3 & 0.747\\
+LUGARINI, BAUTISTA & POMOLI LARRABURU, NICOLA & 2.533 & 74.5 & 78.1 & 0.757\\
+CABRERA, MARTIN ANDRES & VALLEJOS, ROLANDO EXEQUIEL & 3.038 & 78.9 & 74.1 & 0.757\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Para abordar este problema, tal como se mencionó en la Sección 2.3, los
+distintos autores que trabajaron con este tipo de modelos recurrieron a
+estimaciones basadas en \textbf{métodos de regularización} mediante los
+cuales se introduce deliberadamente un pequeño sesgo en las estimaciones
+con el objetivo de reducir su varianza. Este compromiso entre sesgo y
+varianza suele traducirse en una disminución del error de predicción y
+en estimaciones considerablemente más estables. Por otra parte, diversos
+autores destacaron las ventajas de disponer de una mayor cantidad de
+datos, incorporando en muchos casos información de varias temporadas.
+Sin embargo, esta estrategia no pudo implementarse en el presente
+trabajo, ya que, una vez finalizada cada temporada de la Liga Nacional
+de Básquetbol de Argentina, los enlaces a los partidos dejan de estar
+disponibles, imposibilitando el acceso a la información histórica
+necesaria para reconstruir las bases de datos.
+
+\subsection{\texorpdfstring{Tratamiento de los jugadores con poco tiempo
+de juego (\emph{Low time players -
+LTP})}{Tratamiento de los jugadores con poco tiempo de juego (Low time players - LTP)}}\label{tratamiento-de-los-jugadores-con-poco-tiempo-de-juego-low-time-players---ltp}
+
+En el presente trabajo se identificaron 346 jugadores que participaron
+en al menos una posesión a lo largo de la temporada, lo que representa
+un promedio de 17,3 jugadores utilizados por equipo. La distribución de
+posesiones presenta una marcada asimetría, tal como se observa en la
+figura 11, observándose jugadores que participaron en apenas una o dos
+posesiones, mientras que otros, titulares indiscultibles, participaron
+en más de 4000 posesiones.
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.8\linewidth]{img/distribucion_posesiones} 
+
+}
+
+\caption{Distribución de posesiones disputadas por jugador}\label{fig:unnamed-chunk-17}
+\end{figure}
+
+Como se mencionó en la sección 2.3, las estimaciones de los coeficientes
+de jugadores que juegan muy poco, y por lo tanto, cuentan con muy pocas
+observaciones en la base, se ven fuertemente afectadas y presentan
+coeficientes extremos. Por este motivo, dentro de la literatura se han
+definido distintos criterios de exclusión de jugadores en base a la
+cantidad de minutos que disputaron en las temporadas analizadas.
+
+Como referencia, se observa que la literatura no presenta un criterio
+uniforme para definir el umbral de exclusión de los jugadores con poco
+tiempo de juego. Rosenbaum (2004) propone excluir a los jugadores con
+menos de 250 minutos disputados, mientras que Ilardi (2007) e Ilardi y
+Barzilai (2008) utilizan un umbral de 400 minutos. Sill (2010) evalúa
+distintos puntos de corte, comprendidos entre 800 y 1200 minutos,
+seleccionando el más adecuado mediante validación cruzada. En un enfoque
+diferente, Gong y Chen (2024) no eliminan a estos jugadores, sino que
+agrupan a aquellos con menos de 10 minutos por partido en una categoría
+específica, representando al 20\% del total de jugadores, y les asignan
+un prior particular dentro de su modelo bayesiano. Mientras que en el
+artículo de referencia de este trabajo, Damoulaki et al.~(2025) excluye
+a los jugadores con menos de 200 minutos, lo que representa el 32\% de
+los jugadores de su base de datos.
+
+Considerando los antecedentes presentados y dado que la posesión
+constituye la unidad de análisis utilizada en los modelos RAPM
+desarrollados en este trabajo, se decidió definir el criterio de
+exclusión en función de la cantidad de posesiones disputadas por cada
+jugador, en lugar de los minutos jugados. En particular, se excluyeron
+aquellos jugadores que participaron en menos de 500 posesiones durante
+la temporada, lo que representa 117 jugadores (33,8 \% del total).
+
+Cabe destacar que la exclusión de jugadores con poco tiempo de juego no
+elimina completamente este problema de sobreestimación de coeficientes,
+ya que continúan existiendo diferencias importantes en la cantidad de
+observaciones disponibles para cada jugador. Por este motivo, además del
+criterio de exclusión adoptado, en los modelos propuestos se emplean
+\textbf{métodos de regularización}, los cuales penalizan la magnitud de
+los coeficientes estimados cuando la información disponible resulta
+insuficiente.
 
 \subsection{Métodos de
 regularización}\label{muxe9todos-de-regularizaciuxf3n}
@@ -1305,8 +1652,8 @@ se torna inestable. Con el objetivo de solucionar este problema se
 realizaran estimaciones mediante métodos de regularización (o
 \emph{shrinkage}), los cuales agregan un término de penalización a la
 función de pérdida para de esta manera controlar la magnitud de los
-coeficientes estimados. Esta técnica va a provocar que las estimaciones
-sean sesgadas, pero a cambio de una notable reducción en la variancia.
+coeficientes estimados. Esta técnica provoca que las estimaciones sean
+sesgadas, pero a cambio de una notable reducción en la variancia.
 
 Las técnicas que se utilizarán en esta investigación son las siguientes:
 
@@ -1320,10 +1667,12 @@ Para el \textbf{modelo de regresión lineal múltiple} los coficientes
 estimados \(\hat{\boldsymbol{\beta}}\) se obtienen minimizando la
 función de perdida (\(S\)) modificada de la siguiente manera:
 
-\[S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2\]
+\begin{equation}
+S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2
+\end{equation}
 
-Donde \(\lambda \geq 0\) es un \emph{hiperparámetro} que controla la
-intensidad de la penalización.
+Donde \(\lambda \geq 0\) es un hiperparámetro que controla la intensidad
+de la penalización.
 
 Cuando \(\lambda = 0\) no hay penalización y la estimación será igual a
 la obtenida por mínimos cuadrados; y a medida que \(\lambda\) aumenta la
@@ -1335,8 +1684,11 @@ Mientras que en el caso del \textbf{modelo logístico multinomial}, se
 agrega un parámetro de penalización a la función de log-verosimilitud,
 de manera tal que la log-verosimilitud penalizada a maximizar resulta:
 
-\[L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p\beta_j^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{j=1}^p\beta_j^2\]
-Y el \emph{hiperparámetro} \(\lambda\) se selecciona nuevamente mediante
+\begin{equation}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p\beta_k^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p\beta_k^2
+\end{equation}
+
+Y el hiperparámetro \(\lambda\) se selecciona nuevamente mediante
 validación cruzada.
 
 \subsubsection{Lasso o Regularización
@@ -1360,10 +1712,16 @@ de los coeficientes.
 
 Para el \textbf{modelo de regresión lineal múltiple} resulta:
 
-\[S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{j=1}^p|\beta_j|=S+\lambda \sum_{j=1}^p\ |\beta_j|\]
+\begin{equation}
+S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{k=1}^p|\beta_k|=S+\lambda \sum_{k=1}^p\ |\beta_k|
+\end{equation}
+
 Para el \textbf{modelo logístico multinomial} resulta:
 
-\[L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p|\beta_j|=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{j=1}^p|\beta_j|\]
+\begin{equation}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p|\beta_k|=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p|\beta_k|
+\end{equation}
+
 En este caso valores grandes de \(\lambda\) incrementan la penalización,
 llevando a que un mayor número de coeficientes se reduzcan exactamente a
 cero.
@@ -1374,7 +1732,7 @@ Cuando existen predictores altamente correlacionados, \textbf{ridge}
 reduce la influencia de todos ellos a la vez de forma proporcional,
 mientras que \textbf{lasso} tiende a seleccionar uno de ellos, dándole
 todo el peso y excluyendo al resto. En presencia de correlaciones
-fuertes esta selección puede variar mucho ante pequeñas perturbaciones ,
+fuertes esta selección puede variar mucho ante pequeñas perturbaciones,
 por lo que las soluciones de lasso pueden ser más inestables.
 
 Para encontrar un equilibrio entre ambos métodos se plantea la
@@ -1384,20 +1742,41 @@ Hastie (2005), la cual combina las penalizaciones L1 (Lasso) y L2
 
 Para el \textbf{modelo de regresión lineal múltiple} resulta:
 
-\[S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda [\alpha\sum_{j=1}^p|\beta_j|+\frac{(1-\alpha)}{2}\sum_{j=1}^p\beta_j^2]=S+\lambda \sum_{j=1}^p[\alpha\sum_{j=1}^p|\beta_j|+\frac{(1-\alpha)}{2}\sum_{j=1}^p\beta_j^2]\]
+\begin{equation}
+S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=S+\lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+\end{equation}
 
 Para el \textbf{modelo logístico multinomial} resulta:
 
-\[L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{j=1}^p[\alpha\sum_{j=1}^p|\beta_j|+\frac{(1-\alpha)}{2}\sum_{j=1}^p\beta_j^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{j=1}^p[\alpha\sum_{j=1}^p|\beta_j|+\frac{(1-\alpha)}{2}\sum_{j=1}^p\beta_j^2]\]
+\begin{equation}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+\end{equation}
+
 Donde, \(\lambda \geq 0\) sigue siendo el parámetro de regularización
 que controla la fuerza de la penalización, y se agrega un nuevo
 hiperparámetro \(\alpha \in [0,1]\) que controla la combinación entre
 lasso y ridge. Si \(\alpha = 1\) se obtiene lasso y si \(\alpha = 0\) se
 obtiene ridge.
 
-\subsection{Tuneo de hiperparámetros}\label{tuneo-de-hiperparuxe1metros}
+\subsection{Selección de hiperparámetros
+óptimos}\label{selecciuxf3n-de-hiperparuxe1metros-uxf3ptimos}
 
-\ldots{}
+Los modelos que incorporan técnicas de regularización (\emph{Ridge},
+\emph{Lasso} y \emph{Elastic Net}) requieren la selección de uno o más
+hiperparámetros que controlan la intensidad de la penalización. En
+particular, \emph{Ridge} y \emph{Lasso} dependen únicamente del
+parámetro de regularización \(\lambda\), mientras que Elastic Net
+incorpora además el parámetro \(\alpha\), que determina la combinación
+entre las penalizaciones L1 y L2.
+
+La selección de estos hiperparámetros se realizó mediante una búsqueda
+exhaustiva (\emph{Grid Search}) sobre un conjunto predefinido de valores
+candidatos. Para cada combinación de hiperparámetros se ajustó el modelo
+utilizando validación cruzada de 10 particiones (\emph{10-Fold
+Cross-Validation}), seleccionándose aquella que minimizó el error
+cuadrático medio en la regresión lineal múltiple y el \emph{deviance} en
+la regresión logística multinomial, calculados como el promedio de
+dichas métricas sobre los conjuntos de validación.
 
 \subsection{Comparación de modelos}\label{comparaciuxf3n-de-modelos}
 
@@ -1405,6 +1784,19 @@ Una vez que se obtengan los ratings de jugadores a través de las
 distintas técnicas mencionadas, resulta sumamente importante definir un
 método para evaluarlos, y de esta manera poder identificar cual es el
 que ofrece mejores resultados.
+
+En primera instancia, se evalúa la bondad de ajuste de los distintos
+modelos planteados en base a medidas de error y comprobación de
+supuestos (o En primera instancia, se evalúa la bondad de ajuste de los
+distintos modelos mediante medidas de error predictivo y procedimientos
+de validación basados en simulación.).quizas sea una primer apartado de
+análisis de supuestos/comprobación de supuestos/ comprobación de
+utilidad del modelo o algo así para mostrar que el modelo de regresión
+lineal múltiple no es adecuado.
+
+Por otro lado, se realizan comparaciones a través de estrategias
+propuestas por otros autores en artículos relevantes dentro de la
+literatura de RAPM.
 
 En el ámbito del fútbol el profesor Lars Magnus Hvattum plantea una
 solución muy interesante para esta problemática, la cual no parece haber
@@ -1414,11 +1806,132 @@ clubs} (Sæbø \& Hvattum, 2019) y en videos de su página de youtube
 \href{https://www.youtube.com/@footballplayerratings}{Football Player
 Rating}s se definen 2 criterios diferentes para medir los distintos
 sistemas de rankings, buscando evaluar la \textbf{consistencia} y la
-\textbf{validez} de los mismos.
+\textbf{validez} de los mismos. En este trabajo se replica esta
+metodología para medir la consistencia de nuestros modelos, mientras que
+para medir la validez del mismo se recurre a criterios de validación
+externa, tomando la idea de \emph{Damoulaki et.al} (2025) pero ajustado
+a la información disponible en la Liga Nacional de Básquet Argentino.
+
+\subsubsection{Diagnóstico del modelo
+normal}\label{diagnuxf3stico-del-modelo-normal}
+
+\ldots{}
 
 \subsubsection{Bondad de ajuste}\label{bondad-de-ajuste}
 
-\ldots{}
+\paragraph{RMSE}\label{rmse}
+
+Con el objetivo de evaluar el desempeño predictivo, se compararón los
+distintos modelos utilizando como criterio principal a la raíz del error
+cuadrático medio (\textit{Root Mean Squared Error}, RMSE).
+
+\[
+RMSE=
+\sqrt{
+\frac{1}{n}
+\sum_{i=1}^{n}
+(y_i-\hat y_i)^2
+},
+\]
+
+donde \(y_i\) representa el valor observado y \(\hat y_i\) el valor
+predicho por el modelo.
+
+En el enfoque clásico basado en regresión normal, la variable respuesta
+corresponde a los puntos anotados en cada posesión y se modela como una
+variable continua:
+
+\[
+Y_i \sim N(\mu_i,\sigma^2),
+\]
+
+donde \(Y_i\) representa los puntos anotados en la posesión \(i\),
+mientras que \(\mu_i\) corresponde al valor esperado estimado por el
+modelo.
+
+Por otro lado, el modelo multinomial considera explícitamente la
+naturaleza discreta de la variable respuesta. En este caso, para cada
+posesión \(i\), el modelo estima las probabilidades:
+
+\[
+P(Y_i = k)=\pi_{ik}, \qquad \text{con } k \in \{0,1,2,3\},
+\]
+
+donde \(\pi_{ik}\) representa la probabilidad estimada de anotar \(k\)
+puntos en la posesión \(i\).
+
+En este caso como no se cuenta con un valor de \(y\) predicho para
+calcular el RMSE, es posible, a partir de sendas probabilidades
+estimadas, obtener el valor esperado de puntos por posesión de la
+siguiente manera:
+
+\[
+EPTS = E(Y_i)=
+0\pi_{i0}
++1\pi_{i1}
++2\pi_{i2}
++3.03\pi_{i3}.
+\]
+
+Y por lo tanto,
+
+\[
+\hat{y_i} = \hat{E(Y_i)}=
+0\hat{\pi_{i0}}
++1\hat{\pi_{i1}}
++2\hat{\pi_{i2}}
++3.03\hat{\pi_{i3}}.\]
+
+De esta forma, tanto el modelo normal como el multinomial producen una
+\textbf{predicción continua} del número esperado de puntos por posesión,
+permitiendo comparar ambos enfoques mediante el RMSE.
+
+\paragraph{Simulación del modelo
+multinomial}\label{simulaciuxf3n-del-modelo-multinomial}
+
+Además de evaluar el desempeño predictivo mediante el RMSE, se realizó
+una validación adicional basada en simulaciones del modelo multinomial.
+El objetivo de este procedimiento es verificar si el modelo reproduce
+adecuadamente la distribución empírica de puntos por posesión.
+
+Para cada posesión \(i\), el modelo estima un vector de probabilidades:
+
+\[
+\boldsymbol{\pi}_i = (\pi_{i0},\pi_{i1},\pi_{i2},\pi_{i3}),
+\]
+
+que representa las probabilidades de anotar \(0\), \(1\), \(2\) o \(3\)
+o más puntos, respectivamente.
+
+Posteriormente, para cada posesión se genera aleatoriamente un resultado
+según dichas probabilidades. Por ejemplo, si para una posesión
+determinada el modelo estima:
+
+\[
+\boldsymbol{\hat{\pi}}_i = (0.58,0.03,0.27,0.12),
+\]
+
+entonces el valor simulado para dicha posesión será:
+
+\[
+Y_i^{sim}=
+\begin{cases}
+0 & \text{con probabilidad } 0.58, \\
+1 & \text{con probabilidad } 0.03, \\
+2 & \text{con probabilidad } 0.27, \\
+3 & \text{con probabilidad } 0.12.
+\end{cases}
+\]
+
+Este procedimiento se repite para todas las posesiones del conjunto de
+datos, obteniendo así un conjunto completo de posesiones simuladas.
+Luego, el proceso completo se replica múltiples veces (en este caso,
+1000 simulaciones independientes).
+
+El objetivo de esta metodología es evaluar si el modelo multinomial es
+capaz de reproducir adecuadamente la distribución observada de puntos
+por posesión. Para ello, se comparan las frecuencias relativas simuladas
+y observadas de cada categoría de anotación.
 
 \subsubsection{Evaluación de la consistencia de los
 resultados}\label{evaluaciuxf3n-de-la-consistencia-de-los-resultados}
@@ -1447,11 +1960,76 @@ Fuente: Hvattum (2023), \emph{How to evaluate football player ratings?}
 \subsubsection{Criterios de validación
 externa}\label{criterios-de-validaciuxf3n-externa}
 
-\ldots{}
+Con el objetivo de evaluar la validez de los rankings obtenidos mediante
+los distintos modelos, se utilizaron una serie de criterios de
+validación externa. Estos criterios se consideran externos y
+``objetivos'' debido a que se construyen a partir de información
+independiente de la utilizada para el ajuste de los modelos, por lo que
+permiten evaluar la capacidad de las métricas para identificar a
+jugadores reconocidos por su buen desempeño.
+
+El conjunto de criterios elegidos fue el siguiente:
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Criterio de jugadores galardonados}: A lo largo de la temporada
+  la LNB premia a los integrantes del quinteto ideal de la semana
+  (durante las 28 semanas de temporada regular), así como también a los
+  mejores quintetos de las distintas instancias de post-temporada. Por
+  otro lado, al finalizar la temporada regular, se otorgan los
+  \textbf{principales} premios individuales de desempeño (Jugador Más
+  Valioso, Mejor Jugador Nacional, Mejor Jugador Extranjero, Mejor
+  Defensor, Jugador Revelación, Sexto Hombre y Jugador de Mayor
+  Progresión), donde para cada uno de estos premios se selecciona
+  previamente una terna de tres jugadores. Dentro de esta ceremonia se
+  premia también al quinteto ideal de toda la temporada.
+\end{itemize}
+
+En total, se identificaron 81 jugadores que recibieron al menos un
+galardón o que integraron alguna terna durante la temporada en estudio,
+de los cuales 14 obtuvieron alguno de los premios de mayor relevancia.
+
+Como medida de validación se calculó el porcentaje de jugadores ubicados
+en el top 50 de cada ranking RAPM que recibieron al menos un galardón o
+integraron alguna terna. Adicionalmente, se analizaron mediante
+distintas visualizaciones las posiciones alcanzadas por los jugadores
+más distinguidos de la temporada.
+
+\begin{itemize}
+\item
+  \emph{Criterio de jugadores con poco tiempo de juego}: Se
+  identificaron los 50 jugadores con menor cantidad de minutos
+  disputados durante la temporada y se calculó la proporción de ellos
+  que aparecían entre los 50 mejores jugadores según cada ranking
+  ofensivo (ORAPM) y defensivo (DRAPM). Dado que la escasa participación
+  suele generar estimaciones inestables, se espera que un modelo con
+  mejor desempeño ubique a una menor cantidad de estos jugadores en las
+  primeras posiciones del ranking.
+\item
+  \emph{Criterio de jugadores titulares}: Se calculó la proporción de
+  jugadores ubicados en el top 50 de cada ranking RAPM que formaban
+  parte del grupo de titulares de sus respectivos equipos, definidos
+  como los seis jugadores con mayor cantidad de minutos disputados
+  durante la temporada.
+\item
+  \emph{Criterio del box score}: Se identificaron los 50 mejores
+  jugadores según distintas estadísticas tradicionales del box score.
+  Para la evaluación ofensiva se consideraron los puntos, las
+  asistencias y los rebotes ofensivos, mientras que para la evaluación
+  defensiva se utilizaron los rebotes defensivos, los recuperos y las
+  tapas. Posteriormente, se calculó la proporción de coincidencia entre
+  estos grupos de jugadores y el top 50 de los rankings ORAPM y DRAPM,
+  respectivamente.
+\end{itemize}
 
 \section{Resultados}\label{resultados}
 
+\ldots{}
+
 \section{Conclusión}\label{conclusiuxf3n}
+
+\ldots{}
 
 \section{Discusión}\label{discusiuxf3n}
 
@@ -1491,6 +2069,9 @@ Stat 40, 2157--2181.
 
 Dunn, P. K., \& Smyth, G. K. (2018). \emph{Generalized linear models
 with examples in R. Springer.}
+
+Gong, H., \& Chen, S. (2024). \emph{Estimating positional plus-minus in
+the NBA.} Journal of Quantitative Analysis in Sports.
 
 Hvattum, L. M. (2019). \emph{A comprehensive review of plus--minus
 ratings for evaluating individual players in team sports.} International
