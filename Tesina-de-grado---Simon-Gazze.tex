@@ -832,13 +832,11 @@ N° & Acción\\
 \textbf{3} & FINAL DEL PERIODO\\
 \textbf{4} & ABANDONA LA PISTA\\
 \textbf{5} & TAPON REALIZADO\\
-\addlinespace
 \textbf{6} & TECNICA\\
 \textbf{7} & TECNICA BANQUILLO (C)\\
 \textbf{8} & TECNICA BANQUILLO (B)\\
 \textbf{9} & TECNICA DESCALIFICANTE\\
 \textbf{10} & TECNICA DESCALIFICANTE ACOMPAÑANTE NO PARTICIPA\\
-\addlinespace
 \textbf{11} & TECNICA-E (ALINEACIÓN ILEGAL)\\
 \textbf{12} & TIEMPO MUERTO SOLICITADO\\
 \textbf{13} & ANTIDEPORTIVA\\
@@ -942,7 +940,7 @@ y el cambio de cuarto. De manera que cada vez que ocurre alguno de estos
 eventos, se identifica como el inicio de una nueva posesión. Esto se
 encuentra ejemplificado en el Cuadro 2.
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:unnamed-chunk-12}Ejemplo de secuencia de acciones diferenciando cada posesión}
 \centering
@@ -957,7 +955,6 @@ Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión\\
 1 & 00:09:13 & TIRO DE 3 FALLADO & BUEMO, CARLOS EMANUEL & ATENAS &  & 3\\
 1 & 00:09:18 & FALTA RECIBIDA & BUENDIA, CARLOS MANUEL & ATENAS &  & 3\\
 1 & 00:09:31 & ASISTENCIA & VILDOZA, JOSE IGNACIO & BOCA &  & 2\\
-\addlinespace
 1 & 00:09:32 & TRIPLE & PIÑERO, FACUNDO & BOCA &  & 2\\
 1 & 00:09:42 & REBOTE DEFENSIVO \#11 & VILDOZA, JOSE IGNACIO & BOCA &  & 2\\
 1 & 00:09:43 & TIRO DE 2 FALLADO & OBERTO, JUAN CRUZ MATEO & ATENAS &  & 1\\
@@ -980,7 +977,7 @@ manera, cada posesión queda caracterizada por una variable discreta que
 representa su resultado ofensivo en términos de puntos anotados. Tal
 como se presenta en el Cuadro 3.
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:unnamed-chunk-13}Ejemplo de estructura con una fila por posesión}
 \centering
@@ -1053,7 +1050,7 @@ la Figura 9.
 Al presentarse errores en el marcador parcial de cada uno de los
 equipos, los puntos por posesión calculados como la diferencia del
 marcador de cada equipo con respecto al marcador parcial de la posesión
-anterior presentaban errores.
+anterior también eran erróneos.
 
 Para subsanar estos inconvenientes, se redefinió el procedimiento de
 cálculo de los puntos por posesión. En lugar de utilizar el marcador
@@ -1063,9 +1060,9 @@ manera independiente a partir de las acciones registradas en el
 acciones capaces de modificar el tanteador: TIRO LIBRE ANOTADO (+1
 punto), CANASTA DE 2 PUNTOS (+2 puntos) y TRIPLE (+3 puntos). A partir
 de estas acciones se calcularon de forma acumulativa los puntos
-convertidos por cada equipo a lo largo del partido, obteniéndose un
-marcador reconstruido que reemplazó al obtenido originalmente en el
-proceso de \emph{scrapping}.
+convertidos por cada equipo a lo largo de los partidos, obteniéndose
+marcadores reconstruidos que reemplazaron al obtenido originalmente
+mediante el proceso de \emph{scrapping}.
 
 Como resultado de esta corrección, la variable puntos por posesión pasó
 a tomar únicamente valores comprendidos entre 0 y 7 puntos, eliminándose
@@ -1076,8 +1073,8 @@ inusualmente altos en algunas posesiones, por lo que posteriormente
 también se revisaron los partidos donde esas situaciones sucedían.
 Durante esta revisión se identificaron inconsistencias en la secuencia
 cronológica de algunas acciones registradas en el \emph{play-by-play}.
-En particular, se observaron situaciones en las que dos acciones de
-anotación del mismo equipo aparecían de manera consecutiva sin que
+En particular, se identificaron situaciones en las que dos acciones de
+anotación del mismo equipo aparecían de manera consecutiva, sin que
 existiera una acción intermedia del equipo rival que justificara la
 continuidad de la posesión. Estas inconsistencias pueden deberse a
 errores en la carga manual de la información realizada durante el
@@ -1105,14 +1102,13 @@ los cinco jugadores del equipo defensor.
 
 A partir de esta información se construyó una representación matricial
 de jugadores por posesión, donde cada jugador de la temporada cuenta con
-dos variables indicadora. En la cual, la primer variable dummy asigna a
-cada jugador un 1 si el jugador forma parte del quinteto ofensivo y 0 en
-caso contratrio; mientras que la segunda variable dummy asigna un -1 si
-el jugador forma parte del quinteto defensivo, y 0 en otro caso. Este
+dos variables indicadoras. Donde, la primer variable dummy asigna a cada
+jugador un 1 si el jugador forma parte del quinteto ofensivo y 0 en caso
+contratrio; mientras que la segunda variable dummy asigna un -1 si el
+jugador forma parte del quinteto defensivo, y 0 en otro caso. Este
 esquema permite modelar de manera explícita la contribución ofensiva y
-defensiva de manera independiente/separada para cada uno de los
-jugadores que han participado en al menos un partido dentro de la
-temporada en estudio.
+defensiva de manera independiente para cada uno de los jugadores que han
+participado en al menos un partido dentro de la temporada en estudio.
 
 \subsection{\texorpdfstring{Base de datos final:
 \emph{poss-by-poss}}{Base de datos final: poss-by-poss}}\label{base-de-datos-final-poss-by-poss}
@@ -1136,6 +1132,14 @@ la acción.
 
 \texttt{condicion} = Condición de localia del equipo que está atacando
 en la posesión.
+
+Y se cuenta con variables indicadoras referentes a las presencias
+ofensivas y defensivas al momento de la posesión para cada uno de los
+jugadores que hayan completado al menos una posesión a lo largo de la
+temporada. Se encontraron 346 jugadores que cumplían esa condición en
+esta temporada, contabilizando de esta manera otras 692 (346 indicadoras
+ofensivas y 346 indicadoras defensivas) variables adicionales dentro del
+dataset.
 
 \section{Metodología}\label{metodologuxeda}
 
@@ -1355,13 +1359,14 @@ Un mayor valor en los coeficientes ofensivos
 mayor valor en la razón de \emph{odds} de anotar 1, 2 o 3 puntos o más,
 respecto de no anotar. Mientras que a valores más grandes en los
 coeficientes defensivos (\(\beta_1^d\),\(\beta_2^d\),\(\beta_3^d\)),
-menor será cada una de las respectivas razones de odds mencionadas.
+menor será cada una de las respectivas razones de \emph{odds}
+mencionadas.
 
-Como el objetivo de esta tesina está centrado en obtener una medida
-única que resuma la contribución de un jugador en el desempeño ofensivo
-y defensivo de su equipo, estos coeficientes no serán interpretados de
-manera individual, sino que servirán como base para la construcción de
-una métrica unificada.
+De igual manera, como el objetivo de esta tesina está centrado en
+obtener una medida única que resuma la contribución de un jugador en el
+desempeño ofensivo y defensivo de su equipo, estos coeficientes no serán
+interpretados de manera individual, sino que servirán como base para la
+construcción de una métrica unificada.
 
 \subsection{EPTS y wEPTS}\label{epts-y-wepts}
 
@@ -1371,11 +1376,12 @@ En el enfoque mencionado anteriormente los coeficientes
 \{\(\beta_1^o\),\(\beta_2^o\),\(\beta_3^o\)\} y
 \{\(\beta_1^d\),\(\beta_2^d\),\(\beta_3^d\)\} representan las
 contribuciones de cada jugador en los distintos tipos de anotación.
-Aunque puede resultar interesante y permita realizar distintos análisis,
-el objetivo final de este estudio es obtener una métrica que unifique la
-contribución ofensiva y defensiva en una única medida general.
+Aunque puede resultar interesante y permita realizar diversos tipos de
+análisis, el objetivo final de este estudio es obtener una métrica que
+unifique la contribución ofensiva y defensiva en una única medida
+general.
 
-A diferencia del modelo de regresión multinomial, el cambio en la
+A diferencia del modelo de regresión lineal múltiple, el cambio en la
 cantidad esperada de puntos al sustituir un jugador por otro no sólo
 está determinada por los coeficientes de ambos jugadores, sino también
 por los coeficientes de sus cuatro compañeros y de los cinco jugadores
@@ -1475,12 +1481,12 @@ defensa en la temporada.
 \subsubsection{Método de mínimos
 cuadrados}\label{muxe9todo-de-muxednimos-cuadrados}
 
-En el modelo de regresión lineal múltiple, se van a estimar los
-parámetros por mínimos cuadrados ponderados, siendo la función a
+En el modelo de regresión lineal múltiple, los parámetros se van a
+estimar mediante el método de mínimos cuadrados, siendo la función a
 minimizar:
 
 \begin{equation}
-S = \sum_{i=1}^n w_i(y_i-\mu_i)^2
+S = \sum_{i=1}^n (y_i-\mu_i)^2
 \end{equation}
 
 Los estimadores de \(\beta_j\) se definen como aquellos que minimizan la
@@ -1489,7 +1495,7 @@ suma de cuadrados \(S\), y se denotan como
 
 Obteniendo de esta manera los siguientes coeficientes estimados:
 \begin{equation}
-\hat{\beta_k} = \frac{\sum_{i=1}^n x_{ik}^*y_{i}}{\sum_{i=1}^n w_i(x_{ik}^*)^2}
+\hat{\beta_k} = \frac{\sum_{i=1}^n x_{ik}^*y_{i}}{\sum_{i=1}^n (x_{ik}^*)^2}
 \end{equation},
 
 para \(j= 0,...,p\), donde \(x_{ik}^*\) son los valores de la k-ésima
@@ -1531,7 +1537,7 @@ debido a la estructura propia del juego. Donde, al tener muchos
 jugadores que comparten una gran proporción de sus minutos en cancha con
 los mismos compañeros, se genera una fuerte dependencia entre las
 columnas correspondientes a la matriz de diseño, como puede
-identificarse en el cuadro X. Como resultado, el modelo dispone de poca
+identificarse en el Cuadro 4. Como resultado, el modelo dispone de poca
 información para distinguir cuál de los jugadores es realmente
 responsable del rendimiento observado durante esas posesiones.
 
@@ -1541,7 +1547,7 @@ es considerablemente menor que en competencias como la NBA, donde la
 cantidad de partidos disputados por cada equipo y la duración de los
 mismos es mayor.
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:unnamed-chunk-16}Pares de jugadores que compartieron la mayor proporción de posesiones durante la temporada regular.}
 \centering
@@ -1556,7 +1562,6 @@ BRUSSINO, JUAN IGNACIO & MILLER, TAVARIO EARNEST PTRISTIAN & 2.753 & 81.2 & 79.9
 ANDUJAR, LUCAS & THORNTON, WILLIE ALFORD & 3.302 & 77.9 & 81.2 & 0.788\\
 LUGARINI, BAUTISTA & VILDOZA, LEANDRO & 2.629 & 77.3 & 79.6 & 0.779\\
 THOMAS JR, MARCUS WILEY & THORNTON, WILLIE ALFORD & 3.132 & 78.4 & 77.0 & 0.769\\
-\addlinespace
 POMOLI LARRABURU, NICOLA & VILDOZA, LEANDRO & 2.507 & 77.3 & 75.9 & 0.759\\
 DEFELIPPO, JOSE & SHRIVER, DAVID RANDALL & 3.084 & 76.6 & 75.7 & 0.755\\
 BARRAL, PEDRO & MATA, MARCOS DANIEL & 2.874 & 75.7 & 75.3 & 0.747\\
@@ -1589,7 +1594,7 @@ En el presente trabajo se identificaron 346 jugadores que participaron
 en al menos una posesión a lo largo de la temporada, lo que representa
 un promedio de 17,3 jugadores utilizados por equipo. La distribución de
 posesiones presenta una marcada asimetría, tal como se observa en la
-figura 11, observándose jugadores que participaron en apenas una o dos
+Figura 10, observándose jugadores que participaron en apenas una o dos
 posesiones, mientras que otros, titulares indiscultibles, participaron
 en más de 4000 posesiones.
 
@@ -1668,7 +1673,7 @@ estimados \(\hat{\boldsymbol{\beta}}\) se obtienen minimizando la
 función de perdida (\(S\)) modificada de la siguiente manera:
 
 \begin{equation}
-S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2
+S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{j=1}^p\beta_j^2=S+\lambda \sum_{j=1}^p\beta_j^2
 \end{equation}
 
 Donde \(\lambda \geq 0\) es un hiperparámetro que controla la intensidad
@@ -1682,10 +1687,10 @@ Para encontrar el valor óptimo de \(\lambda\) se utilizarán técnicas de
 
 Mientras que en el caso del \textbf{modelo logístico multinomial}, se
 agrega un parámetro de penalización a la función de log-verosimilitud,
-de manera tal que la log-verosimilitud penalizada a maximizar resulta:
+de manera tal que la función a maximizar resulta:
 
 \begin{equation}
-L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p\beta_k^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p\beta_k^2
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^n\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p\beta_k^2=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p\beta_k^2
 \end{equation}
 
 Y el hiperparámetro \(\lambda\) se selecciona nuevamente mediante
@@ -1713,13 +1718,13 @@ de los coeficientes.
 Para el \textbf{modelo de regresión lineal múltiple} resulta:
 
 \begin{equation}
-S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{k=1}^p|\beta_k|=S+\lambda \sum_{k=1}^p\ |\beta_k|
+S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{k=1}^p|\beta_k|=S+\lambda \sum_{k=1}^p\ |\beta_k|
 \end{equation}
 
 Para el \textbf{modelo logístico multinomial} resulta:
 
 \begin{equation}
-L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p|\beta_k|=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p|\beta_k|
+L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^n\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p|\beta_k|=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p|\beta_k|
 \end{equation}
 
 En este caso valores grandes de \(\lambda\) incrementan la penalización,
@@ -1743,13 +1748,16 @@ Hastie (2005), la cual combina las penalizaciones L1 (Lasso) y L2
 Para el \textbf{modelo de regresión lineal múltiple} resulta:
 
 \begin{equation}
-S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=S+\lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=S+\lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
 \end{equation}
 
 Para el \textbf{modelo logístico multinomial} resulta:
 
 \begin{equation}
-L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+\begin{split}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y}) &= \sum_{i=1}^n\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p \left[ \alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2 \right] \\
+&= L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p \left[ \alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2 \right]
+\end{split}
 \end{equation}
 
 Donde, \(\lambda \geq 0\) sigue siendo el parámetro de regularización
@@ -1786,36 +1794,27 @@ método para evaluarlos, y de esta manera poder identificar cual es el
 que ofrece mejores resultados.
 
 En primera instancia, se evalúa la bondad de ajuste de los distintos
-modelos planteados en base a medidas de error y comprobación de
-supuestos (o En primera instancia, se evalúa la bondad de ajuste de los
-distintos modelos mediante medidas de error predictivo y procedimientos
-de validación basados en simulación.).quizas sea una primer apartado de
-análisis de supuestos/comprobación de supuestos/ comprobación de
-utilidad del modelo o algo así para mostrar que el modelo de regresión
-lineal múltiple no es adecuado.
+modelos mediante medidas de error y procedimientos de validación basados
+en simulación.
 
 Por otro lado, se realizan comparaciones a través de estrategias
 propuestas por otros autores en artículos relevantes dentro de la
 literatura de RAPM.
 
-En el ámbito del fútbol el profesor Lars Magnus Hvattum plantea una
-solución muy interesante para esta problemática, la cual no parece haber
-sido implementada en básquetbol hasta la fecha. En el artículo
-\emph{Modelling the financial contribution of soccer players to their
-clubs} (Sæbø \& Hvattum, 2019) y en videos de su página de youtube
+Particularmente, en el ámbito del fútbol, el profesor Lars Magnus
+Hvattum plantea una solución muy interesante para la comparación de
+modelos, la cual no parece haber sido implementada en básquetbol hasta
+la fecha. En el artículo \emph{Modelling the financial contribution of
+soccer players to their clubs} (Sæbø \& Hvattum, 2019) y en videos de su
+página de youtube
 \href{https://www.youtube.com/@footballplayerratings}{Football Player
 Rating}s se definen 2 criterios diferentes para medir los distintos
 sistemas de rankings, buscando evaluar la \textbf{consistencia} y la
 \textbf{validez} de los mismos. En este trabajo se replica esta
-metodología para medir la consistencia de nuestros modelos, mientras que
-para medir la validez del mismo se recurre a criterios de validación
+metodología para medir la consistencia de los modelos realizados,
+mientras que para medir la validez se recurre a criterios de validación
 externa, tomando la idea de \emph{Damoulaki et.al} (2025) pero ajustado
 a la información disponible en la Liga Nacional de Básquet Argentino.
-
-\subsubsection{Diagnóstico del modelo
-normal}\label{diagnuxf3stico-del-modelo-normal}
-
-\ldots{}
 
 \subsubsection{Bondad de ajuste}\label{bondad-de-ajuste}
 
@@ -1880,7 +1879,8 @@ Y por lo tanto,
 0\hat{\pi_{i0}}
 +1\hat{\pi_{i1}}
 +2\hat{\pi_{i2}}
-+3.03\hat{\pi_{i3}}.\]
++3.03\hat{\pi_{i3}}.
+\]
 
 De esta forma, tanto el modelo normal como el multinomial producen una
 \textbf{predicción continua} del número esperado de puntos por posesión,
@@ -1889,10 +1889,9 @@ permitiendo comparar ambos enfoques mediante el RMSE.
 \paragraph{Simulación del modelo
 multinomial}\label{simulaciuxf3n-del-modelo-multinomial}
 
-Además de evaluar el desempeño predictivo mediante el RMSE, se realizó
-una validación adicional basada en simulaciones del modelo multinomial.
-El objetivo de este procedimiento es verificar si el modelo reproduce
-adecuadamente la distribución empírica de puntos por posesión.
+Se realizó una validación adicional basada en simulaciones del modelo
+multinomial. El objetivo de este procedimiento es verificar si el modelo
+reproduce adecuadamente la distribución empírica de puntos por posesión.
 
 Para cada posesión \(i\), el modelo estima un vector de probabilidades:
 
@@ -2025,7 +2024,174 @@ más distinguidos de la temporada.
 
 \section{Resultados}\label{resultados}
 
-\ldots{}
+\subsection{Análisis descriptivo}\label{anuxe1lisis-descriptivo}
+
+La temporada 2024/2025 de la Liga Nacional de Básquet contó con 20
+equipos participantes, los cuales disputaron 38 partidos cada uno a lo
+largo de dicho año de competencia, a excepción de Zarate Basket (36
+partidos), Instituto (37 partidos) y Riachuelo (37 partidos) que
+disputaron una menor cantidad debido a la suspensión de 2 partidos.
+
+Del total de partidos analizados en este período, se identificaron 58625
+posesiones finalizadas, obteniendo un promedio de 155.09 posesiones en
+promedio por partido (77.54 posesiones promedio por equipo).
+
+\subsubsection{Puntos por posesión}\label{puntos-por-posesiuxf3n}
+
+Cada una de las posesiones analizadas contabilizaba cierta cantidad de
+puntos al finalizar, presentandose un rango de puntos que varió de 0 a 7
+puntos. Resultando los casos de 5,6 y 7 puntos situaciones
+extremadamente atípicas (0.089\% de los casos). El resultado más
+frecuente al finalizar una posesión fue la ausencia de puntos,
+obteniendose en 31241 posesiones, lo cual representa un 53.2\% del total
+de posesiones. Dicha información se ve reflejada en el Cuadro 5.
+
+El promedio de puntos por posesión en la temporada fue de 1.04 pts.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-18}Distribución de puntos por posesión}
+\centering
+\fontsize{10}{12}\selectfont
+\begin{tabular}[t]{rrr}
+\toprule
+Puntos & Posesiones & \%\\
+\midrule
+0 & 31241 & 53.290\\
+1 & 2385 & 4.068\\
+2 & 16670 & 28.435\\
+3 & 8134 & 13.875\\
+4 & 143 & 0.244\\
+5 & 45 & 0.077\\
+6 & 6 & 0.010\\
+7 & 1 & 0.002\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Rendimiento de los
+equipos}\label{rendimiento-de-los-equipos}
+
+Antes de analizar las métricas individuales, resulta conveniente
+presentar el desempeño general de los equipos durante la fase regular de
+la temporada 2024/2025. El Cuadro 6 muestra la tabla de posiciones final
+de la Liga Nacional, la cual servirá como referencia para interpretar
+los resultados obtenidos por las distintas métricas evaluadas en las
+secciones siguientes.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-19}Tabla de posiciones de la Liga Nacional 2024/2025}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{cl>{}ccccccc}
+\toprule
+Equipo & Pts & PJ & PG & PP & PF & PC & +/- & \\
+\midrule
+\cellcolor[HTML]{D8F3DC}{Boca Juniors} & \cellcolor[HTML]{D8F3DC}{67} & \textbf{\cellcolor[HTML]{D8F3DC}{38}} & \cellcolor[HTML]{D8F3DC}{29} & \cellcolor[HTML]{D8F3DC}{9} & \cellcolor[HTML]{D8F3DC}{3097} & \cellcolor[HTML]{D8F3DC}{2884} & \cellcolor[HTML]{D8F3DC}{213} & \cellcolor[HTML]{D8F3DC}{1°.}\\
+\cellcolor[HTML]{D8F3DC}{Oberá} & \cellcolor[HTML]{D8F3DC}{64} & \textbf{\cellcolor[HTML]{D8F3DC}{38}} & \cellcolor[HTML]{D8F3DC}{26} & \cellcolor[HTML]{D8F3DC}{12} & \cellcolor[HTML]{D8F3DC}{3140} & \cellcolor[HTML]{D8F3DC}{2960} & \cellcolor[HTML]{D8F3DC}{180} & \cellcolor[HTML]{D8F3DC}{2°.}\\
+\cellcolor[HTML]{D8F3DC}{Instituto} & \cellcolor[HTML]{D8F3DC}{64} & \textbf{\cellcolor[HTML]{D8F3DC}{38}} & \cellcolor[HTML]{D8F3DC}{26} & \cellcolor[HTML]{D8F3DC}{12} & \cellcolor[HTML]{D8F3DC}{3073} & \cellcolor[HTML]{D8F3DC}{2790} & \cellcolor[HTML]{D8F3DC}{283} & \cellcolor[HTML]{D8F3DC}{3°.}\\
+\cellcolor[HTML]{D8F3DC}{Quimsa} & \cellcolor[HTML]{D8F3DC}{63} & \textbf{\cellcolor[HTML]{D8F3DC}{38}} & \cellcolor[HTML]{D8F3DC}{25} & \cellcolor[HTML]{D8F3DC}{13} & \cellcolor[HTML]{D8F3DC}{3320} & \cellcolor[HTML]{D8F3DC}{2973} & \cellcolor[HTML]{D8F3DC}{347} & \cellcolor[HTML]{D8F3DC}{4°.}\\
+\cellcolor[HTML]{FFF3BF}{Obras} & \cellcolor[HTML]{FFF3BF}{62} & \textbf{\cellcolor[HTML]{FFF3BF}{38}} & \cellcolor[HTML]{FFF3BF}{24} & \cellcolor[HTML]{FFF3BF}{14} & \cellcolor[HTML]{FFF3BF}{3134} & \cellcolor[HTML]{FFF3BF}{3028} & \cellcolor[HTML]{FFF3BF}{106} & \cellcolor[HTML]{FFF3BF}{5°.}\\
+\cellcolor[HTML]{FFF3BF}{Riachuelo} & \cellcolor[HTML]{FFF3BF}{60} & \textbf{\cellcolor[HTML]{FFF3BF}{37}} & \cellcolor[HTML]{FFF3BF}{22} & \cellcolor[HTML]{FFF3BF}{15} & \cellcolor[HTML]{FFF3BF}{3032} & \cellcolor[HTML]{FFF3BF}{2894} & \cellcolor[HTML]{FFF3BF}{138} & \cellcolor[HTML]{FFF3BF}{6°.}\\
+\cellcolor[HTML]{FFF3BF}{Regatas} & \cellcolor[HTML]{FFF3BF}{58} & \textbf{\cellcolor[HTML]{FFF3BF}{38}} & \cellcolor[HTML]{FFF3BF}{20} & \cellcolor[HTML]{FFF3BF}{18} & \cellcolor[HTML]{FFF3BF}{3018} & \cellcolor[HTML]{FFF3BF}{3015} & \cellcolor[HTML]{FFF3BF}{3} & \cellcolor[HTML]{FFF3BF}{7°.}\\
+\cellcolor[HTML]{FFF3BF}{Ferro} & \cellcolor[HTML]{FFF3BF}{58} & \textbf{\cellcolor[HTML]{FFF3BF}{38}} & \cellcolor[HTML]{FFF3BF}{20} & \cellcolor[HTML]{FFF3BF}{18} & \cellcolor[HTML]{FFF3BF}{3108} & \cellcolor[HTML]{FFF3BF}{3131} & \cellcolor[HTML]{FFF3BF}{-23} & \cellcolor[HTML]{FFF3BF}{8°.}\\
+\cellcolor[HTML]{FFF3BF}{Gimnasia} & \cellcolor[HTML]{FFF3BF}{58} & \textbf{\cellcolor[HTML]{FFF3BF}{38}} & \cellcolor[HTML]{FFF3BF}{20} & \cellcolor[HTML]{FFF3BF}{18} & \cellcolor[HTML]{FFF3BF}{3141} & \cellcolor[HTML]{FFF3BF}{2985} & \cellcolor[HTML]{FFF3BF}{156} & \cellcolor[HTML]{FFF3BF}{9°.}\\
+\cellcolor[HTML]{FFF3BF}{San Martín} & \cellcolor[HTML]{FFF3BF}{57} & \textbf{\cellcolor[HTML]{FFF3BF}{38}} & \cellcolor[HTML]{FFF3BF}{19} & \cellcolor[HTML]{FFF3BF}{19} & \cellcolor[HTML]{FFF3BF}{2824} & \cellcolor[HTML]{FFF3BF}{2779} & \cellcolor[HTML]{FFF3BF}{45} & \cellcolor[HTML]{FFF3BF}{10°.}\\
+\cellcolor[HTML]{FFF3BF}{Unión} & \cellcolor[HTML]{FFF3BF}{57} & \textbf{\cellcolor[HTML]{FFF3BF}{38}} & \cellcolor[HTML]{FFF3BF}{19} & \cellcolor[HTML]{FFF3BF}{19} & \cellcolor[HTML]{FFF3BF}{3116} & \cellcolor[HTML]{FFF3BF}{3237} & \cellcolor[HTML]{FFF3BF}{-121} & \cellcolor[HTML]{FFF3BF}{11°.}\\
+\cellcolor[HTML]{FFF3BF}{Atenas} & \cellcolor[HTML]{FFF3BF}{57} & \textbf{\cellcolor[HTML]{FFF3BF}{38}} & \cellcolor[HTML]{FFF3BF}{19} & \cellcolor[HTML]{FFF3BF}{19} & \cellcolor[HTML]{FFF3BF}{2997} & \cellcolor[HTML]{FFF3BF}{3058} & \cellcolor[HTML]{FFF3BF}{-61} & \cellcolor[HTML]{FFF3BF}{12°.}\\
+\cellcolor[HTML]{F7F7F7}{Peñarol} & \cellcolor[HTML]{F7F7F7}{55} & \textbf{\cellcolor[HTML]{F7F7F7}{38}} & \cellcolor[HTML]{F7F7F7}{18} & \cellcolor[HTML]{F7F7F7}{20} & \cellcolor[HTML]{F7F7F7}{3085} & \cellcolor[HTML]{F7F7F7}{2990} & \cellcolor[HTML]{F7F7F7}{95} & \cellcolor[HTML]{F7F7F7}{13°.}\\
+\cellcolor[HTML]{F7F7F7}{Olímpico} & \cellcolor[HTML]{F7F7F7}{55} & \textbf{\cellcolor[HTML]{F7F7F7}{38}} & \cellcolor[HTML]{F7F7F7}{17} & \cellcolor[HTML]{F7F7F7}{21} & \cellcolor[HTML]{F7F7F7}{3067} & \cellcolor[HTML]{F7F7F7}{3168} & \cellcolor[HTML]{F7F7F7}{-101} & \cellcolor[HTML]{F7F7F7}{14°.}\\
+\cellcolor[HTML]{F7F7F7}{San Lorenzo} & \cellcolor[HTML]{F7F7F7}{55} & \textbf{\cellcolor[HTML]{F7F7F7}{38}} & \cellcolor[HTML]{F7F7F7}{17} & \cellcolor[HTML]{F7F7F7}{21} & \cellcolor[HTML]{F7F7F7}{2945} & \cellcolor[HTML]{F7F7F7}{3034} & \cellcolor[HTML]{F7F7F7}{-89} & \cellcolor[HTML]{F7F7F7}{15°.}\\
+\cellcolor[HTML]{F7F7F7}{Platense} & \cellcolor[HTML]{F7F7F7}{53} & \textbf{\cellcolor[HTML]{F7F7F7}{38}} & \cellcolor[HTML]{F7F7F7}{15} & \cellcolor[HTML]{F7F7F7}{23} & \cellcolor[HTML]{F7F7F7}{3018} & \cellcolor[HTML]{F7F7F7}{3125} & \cellcolor[HTML]{F7F7F7}{-107} & \cellcolor[HTML]{F7F7F7}{16°.}\\
+\cellcolor[HTML]{F7F7F7}{Independiente} & \cellcolor[HTML]{F7F7F7}{52} & \textbf{\cellcolor[HTML]{F7F7F7}{38}} & \cellcolor[HTML]{F7F7F7}{14} & \cellcolor[HTML]{F7F7F7}{24} & \cellcolor[HTML]{F7F7F7}{3237} & \cellcolor[HTML]{F7F7F7}{3348} & \cellcolor[HTML]{F7F7F7}{-111} & \cellcolor[HTML]{F7F7F7}{17°.}\\
+\cellcolor[HTML]{F7F7F7}{La Unión} & \cellcolor[HTML]{F7F7F7}{51} & \textbf{\cellcolor[HTML]{F7F7F7}{38}} & \cellcolor[HTML]{F7F7F7}{13} & \cellcolor[HTML]{F7F7F7}{25} & \cellcolor[HTML]{F7F7F7}{3199} & \cellcolor[HTML]{F7F7F7}{3286} & \cellcolor[HTML]{F7F7F7}{-87} & \cellcolor[HTML]{F7F7F7}{18°.}\\
+\cellcolor[HTML]{F8D7DA}{Zárate} & \cellcolor[HTML]{F8D7DA}{48} & \textbf{\cellcolor[HTML]{F8D7DA}{37}} & \cellcolor[HTML]{F8D7DA}{10} & \cellcolor[HTML]{F8D7DA}{27} & \cellcolor[HTML]{F8D7DA}{2723} & \cellcolor[HTML]{F8D7DA}{3097} & \cellcolor[HTML]{F8D7DA}{-374} & \cellcolor[HTML]{F8D7DA}{19°.}\\
+\cellcolor[HTML]{F8D7DA}{Argentino} & \cellcolor[HTML]{F8D7DA}{44} & \textbf{\cellcolor[HTML]{F8D7DA}{38}} & \cellcolor[HTML]{F8D7DA}{6} & \cellcolor[HTML]{F8D7DA}{32} & \cellcolor[HTML]{F8D7DA}{2724} & \cellcolor[HTML]{F8D7DA}{3216} & \cellcolor[HTML]{F8D7DA}{-492} & \cellcolor[HTML]{F8D7DA}{20°.}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsubsection{\texorpdfstring{Análisis de
+\emph{plus-minus}}{Análisis de plus-minus}}\label{anuxe1lisis-de-plus-minus}
+
+Como primera aproximación a la evaluación del rendimiento individual, se
+analizó la métrica \emph{plus-minus} (+/-), la cual brinda un indicio de
+cuan eficiente fue el jugador en el tiempo que permaneció en cancha,
+calculando la diferencia de puntos realizados por el equipo propio en
+comparación con los puntos del rival dentro de ese intervalo de tiempo.
+
+El Cuadro 7 deja en evidencia que los jugadores con mayor +/-
+pertenecen, en su mayoría, a a los equipos que mejores resultados
+obtuvieron durante la temporada regular. Donde nueve de los once
+jugadores mejor ubicados integraron alguno de los cuatro primeros
+equipos de la clasificación (Boca Juniors, Oberá Tenis Club, Instituto y
+Quimsa). Las únicas excepciones fueron Marcos Chacón Tirado y Diego
+Rafael Figueredo, quienes registraron valores elevados de
+\emph{plus-minus} a pesar de formar parte de equipos ubicados en la
+mitad de la tabla de posiciones.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-20}Jugadores con mayor Plus/Minus}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lll}
+\toprule
+jugador & Equipos & +/-\\
+\midrule
+LOUIS, ARNOLD MICHAEL & QUIMSA & \cellcolor[HTML]{B7E4C7}{\textbf{306}}\\
+VILDOZA, LEANDRO & INSTITUTO & \cellcolor[HTML]{B9E4C6}{\textbf{297}}\\
+POMOLI LARRABURU, NICOLA & INSTITUTO & \cellcolor[HTML]{BCE5C6}{\textbf{284}}\\
+CUELLO, MARTIN NICOLAS & BOCA & \cellcolor[HTML]{C3E6C4}{\textbf{254}}\\
+COPELLO, NICOLAS & INSTITUTO & \cellcolor[HTML]{C4E7C3}{\textbf{245}}\\
+VORHEES, WILLIAM LEONARD-DEUBLER & OBERA & \cellcolor[HTML]{C9E8C2}{\textbf{224}}\\
+LUGARINI, BAUTISTA & INSTITUTO & \cellcolor[HTML]{CCE8C1}{\textbf{211}}\\
+VILDOZA, JOSE IGNACIO & BOCA & \cellcolor[HTML]{CCE8C1}{\textbf{209}}\\
+FIGUEREDO, DIEGO RAFAEL & RIACHUELO & \cellcolor[HTML]{CDE8C1}{\textbf{205}}\\
+BRUSSINO, JUAN IGNACIO & QUIMSA & \cellcolor[HTML]{CEE8C0}{\textbf{201}}\\
+CHACON TIRADO, MARCOS & GIMNASIA & \cellcolor[HTML]{CEE8C0}{\textbf{201}}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+En el extremo opuesto se observa un patrón aún más marcado. Durante la
+temporada, Zárate Basket y Argentino de Junín presentaron un rendimiento
+considerablemente inferior al resto de los equipos, situación que se
+tradujo en diferencias de puntos ampliamente negativas. Como
+consecuencia, los diez jugadores con menor +/- de la competencia
+pertenecieron exclusivamente esos equipos, tal como se presenta en el
+Cuadro 8.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-21}Jugadores con menor Plus/Minus}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lll}
+\toprule
+jugador & Equipos & +/-\\
+\midrule
+GOMEZ, MANUEL ALEJANDRO & ARGENTINO & \cellcolor[HTML]{F4A6A6}{\textbf{-409}}\\
+SLIDER, JONATAN & ARGENTINO & \cellcolor[HTML]{F6B3A8}{\textbf{-352}}\\
+ALLENDE, TOMAS DANIEL & ARGENTINO & \cellcolor[HTML]{F8BFA9}{\textbf{-295}}\\
+FRONTERA, RAMIRO JEREMIAS & ARGENTINO & \cellcolor[HTML]{FAC6AA}{\textbf{-264}}\\
+PIÑERO, PATRICIO & ZARATE BASKET & \cellcolor[HTML]{FAC8AB}{\textbf{-252}}\\
+PODESTA, FERNANDO ARIEL & ARGENTINO & \cellcolor[HTML]{FAC8AB}{\textbf{-251}}\\
+HERNANDEZ, MANUEL ALONSO & ARGENTINO & \cellcolor[HTML]{FACBAB}{\textbf{-241}}\\
+MERCHANT, EDGAR HENRY & ZARATE BASKET & \cellcolor[HTML]{FCD5AC}{\textbf{-194}}\\
+DIGGS, AVERY GERELL & ZARATE BASKET & \cellcolor[HTML]{FCD5AC}{\textbf{-190}}\\
+CAPPONI, FEBO LORENZO & ZARATE BASKET & \cellcolor[HTML]{FCD6AD}{\textbf{-187}}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Queda evidenciado que los rendimientos propios de cada equipo dictan en
+gran medida quiénes lideran o cierran los rankings de \emph{plus-minus},
+reafirmando la dificultad que presenta esta medida tradicional para
+aislar el verdadero impacto individual del jugador respecto del contexto
+en el que participa.
 
 \section{Conclusión}\label{conclusiuxf3n}
 
@@ -2055,6 +2221,15 @@ comparar lo escrito en este rmd con el que escribi para el anteproyecto,
 quizas este era una versión anterior y le faltan correcciones
 
 evaluación de modelos de regresión lineal múltiple
+
+El punto de corte utilizado para definir a los LTPs estuvo basado en el
+criterio que utilizó Damoulaki en su artículo, pero no deja de ser algo
+``arbitrario''. Podría analizarse distintos escenarios, con distintos
+puntos de corte y evaluar los resultados de cada modelo.
+
+Ponderar los distintos momentos del partido de diferente manera (más
+peso a las situaciones clutch y menos a los garbage minutes), estaría
+bueno citar a algún artículo que haya realizado esto
 
 \newpage
 

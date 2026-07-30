@@ -415,8 +415,18 @@ tabla_plus_minus = browsable(
 
 tabla_plus_minus
 
-#saveRDS(tabla_plus_minus, "tabla_plus_minus.rds")
-
+#saveRDS(mej_pm, "mej_pm.rds")
+#saveRDS(peor_pm, "peor_pm.rds")
+# 
+# df_pm <- minutos_jugad %>%
+#   dplyr::select(jugador, Equipos, `+/-`)
+# 
+# paleta_sem <- col_numeric(
+#   palette = c("#F4A6A6", "#FFF3B0", "#B7E4C7"),
+#   domain = range(df_pm$`+/-`, na.rm = TRUE)
+# )
+# 
+# saveRDS(paleta_sem, "paleta_sem.rds")
 ```
 
 Observando la tabla anterior queda en evidencia que los jugadores con mejor +/- pertenecen a los equipos que mejores resultados obtuvieron a lo largo del año. Dentro de los 11 mejores jugadores en base a esta métrica, 9 pertenecían a uno de los 4 primeros de la temporada (Boca Juniors, Oberá, Instituto y Quimsa), mientras que los casos de Marcos Chacón Tirado y Diego Rafael Figueredo resultaron casos atípicos pertenecientes a equipos de mitad de tabla.

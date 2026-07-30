@@ -70,6 +70,9 @@ knitr::opts_chunk$set(
 library(knitr)
 library(kableExtra)
 library(dplyr)
+library(gt)
+library(htmltools)
+library(scales)
 ```
 
 # Resumen
@@ -254,11 +257,12 @@ datos_acciones %>%
   kable(
     format = "latex",
     booktabs = TRUE,
+    linesep = "",
     caption = "últimas 10 observaciones de la base de datos play-by-play.",
     col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Puntos local", "Puntos visitante")
   ) %>%
   kable_styling(
-    latex_options = c("hold_position", "scale_down"),
+    latex_options = c("HOLD_position", "scale_down"),
     position = "center",
     font_size = 8
   )
@@ -363,6 +367,7 @@ acciones_eliminadas %>%
   kable(
     format = "latex",
     booktabs = TRUE,
+    linesep = "",
     caption = "Acciones eliminadas por no ser informativas para la delimitación de las posesiones",
     col.names = c("N°", "Acción") # Encabezados claros
   ) %>%
@@ -435,11 +440,12 @@ datos_secuencia %>%
   kable(
     format = "latex",
     booktabs = TRUE,
+    linesep = "",
     caption = "Ejemplo de secuencia de acciones diferenciando cada posesión",
     col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Equipo", "...", "Posesión")
   ) %>%
   kable_styling(
-    latex_options = c("hold_position", "scale_down"), 
+    latex_options = c("HOLD_position", "scale_down"), 
     # 'striped': facilita seguir la fila con la vista
     # 'scale_down': asegura que entre en el ancho de la hoja
     position = "center",
@@ -472,11 +478,12 @@ datos_posesion %>%
   kable(
     format = "latex",
     booktabs = TRUE, # Líneas académicas formales
+    linesep = "",
     caption = "Ejemplo de estructura con una fila por posesión",
     col.names = c("Cuarto", "Tiempo", "Acción", "Jugador", "Equipo", "...", "Posesión", "Puntos")
   ) %>%
   kable_styling(
-    latex_options = c("hold_position", "scale_down"),
+    latex_options = c("HOLD_position", "scale_down"),
     # 'striped': filas grises alternas (estilo cebra)
     # 'scale_down': ajusta automáticamente al ancho de la hoja A4
     position = "center",
@@ -785,11 +792,12 @@ tabla_multicol %>%
   kable(
     format = "latex",
     booktabs = TRUE,
+    linesep = "",
     caption = "Pares de jugadores que compartieron la mayor proporción de posesiones durante la temporada regular.",
     align = c("l","l","r","r","r","r")
   ) %>%
   kable_styling(
-    latex_options = c("hold_position","scale_down"),
+    latex_options = c("HOLD_position","scale_down"),
     position = "center",
     font_size = 9
   )
@@ -879,7 +887,10 @@ S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-
 Para el **modelo logístico multinomial** resulta:
 
 \begin{equation}
-L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^n\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+\begin{split}
+L^*_m(\boldsymbol{\beta},\boldsymbol{y}) &= \sum_{i=1}^n\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p \left[ \alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2 \right] \\
+&= L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p \left[ \alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2 \right]
+\end{split}
 \end{equation}
 
 Donde, $\lambda \geq 0$ sigue siendo el parámetro de regularización que controla la fuerza de la penalización, y se agrega un nuevo hiperparámetro $\alpha \in [0,1]$ que controla la combinación entre lasso y ridge. Si $\alpha = 1$ se obtiene lasso y si $\alpha = 0$ se obtiene ridge.
@@ -1046,35 +1057,141 @@ El promedio de puntos por posesión en la temporada fue de 1.04 pts.
 ```{r, fig.cap="Distribución de puntos por posesión", out.width="80%", fig.align="center"}
 t1 = readRDS("puntos_por_pos.rds")
 
-kable(t1)%>% 
-  kable_styling(full_width = FALSE, position = "center", font_size = 15)
+kable(
+  t1,
+  format = "latex",
+  booktabs = TRUE,
+  linesep = "",
+  caption = "Distribución de puntos por posesión"
+) %>%
+  kable_styling(
+    latex_options = c("HOLD_position"),
+    position = "center",
+    font_size = 10
+  )
 ```
 
-### Análisis del *plus-minus*
+### Rendimiento de los equipos
 
-Dentro del universo de medidas que buscan cuantificar el aporte realizado por los jugadores en relación al desempeño de sus equipos, la métrica *plus-minus* (+/-) brinda un indicio de cuan eficiente fue el jugador en el tiempo que permaneció en cancha, calculando la diferencia de puntos realizados por el equipo propio en comparación con los puntos del rival dentro de ese intervalo de tiempo.
-
-Los lideres en +/- para la temporada 2024/2025 de la LNB fueron los siguientes:
-
-```{r, fig.cap="Mejores y peores *plus-minus* de la temporada", out.width="80%", fig.align="center"}
-
-tabla_plus_minus = readRDS("tabla_plus_minus.rds")
-
-tabla_plus_minus
-```
-
-ver escala de colores
-
-El cuadro 5 deja en evidencia que los jugadores con mejor +/- pertenecen a los equipos que mejores resultados obtuvieron a lo largo del año. Como se ve en el Cuadro 6, dentro de los 11 mejores jugadores en base a esta métrica, 9 pertenecían a uno de los 4 primeros de la temporada (Boca Juniors, Oberá, Instituto y Quimsa), mientras que los casos de Marcos Chacón Tirado y Diego Rafael Figueredo resultaron casos atípicos pertenecientes a equipos de mitad de tabla.
-
-Por otro lado, en esta temporada 2 equipos tuvieron un desempeño mucho peor que el resto de la liga obteniendo un +/- de equipo muy bajo, reflejandosé así en los jugadores. Los 10 jugadores con peor +/- en esta temporada pertencieron a esos equipos (Zarate Basket y Argentino de Junín).
+Antes de analizar las métricas individuales, resulta conveniente presentar el desempeño general de los equipos durante la fase regular de la temporada 2024/2025. El Cuadro 6 muestra la tabla de posiciones final de la Liga Nacional, la cual servirá como referencia para interpretar los resultados obtenidos por las distintas métricas evaluadas en las secciones siguientes.
 
 ```{r, fig.cap="Tabla de posiciones LNB - Temporada 24/25", out.width="80%", fig.align="center"}
 
-tabla_gt = readRDS("tabla_posiciones.rds")
+df <- data.frame(
+  Equipo = c("Boca Juniors","Oberá","Instituto","Quimsa","Obras",
+             "Riachuelo","Regatas","Ferro","Gimnasia","San Martín",
+             "Unión","Atenas","Peñarol","Olímpico","San Lorenzo",
+             "Platense","Independiente","La Unión","Zárate","Argentino"),
+  
+  Pts = c(67,64,64,63,62,60,58,58,58,57,57,57,55,55,55,53,52,51,48,44),
+  PJ  = c(38,38,38,38,38,37,38,38,38,38,38,38,38,38,38,38,38,38,37,38),
+  PG  = c(29,26,26,25,24,22,20,20,20,19,19,19,18,17,17,15,14,13,10,6),
+  PP  = c(9,12,12,13,14,15,18,18,18,19,19,19,20,21,21,23,24,25,27,32),
+  PF  = c(3097,3140,3073,3320,3134,3032,3018,3108,3141,2824,3116,2997,3085,3067,2945,3018,3237,3199,2723,2724),
+  PC  = c(2884,2960,2790,2973,3028,2894,3015,3131,2985,2779,3237,3058,2990,3168,3034,3125,3348,3286,3097,3216),
+  Dif = c(213,180,283,347,106,138,3,-23,156,45,-121,-61,95,-101,-89,-107,-111,-87,-374,-492)
+)
 
-tabla_gt
+tabla <- df %>%
+  arrange(desc(Pts)) %>%
+  mutate(pos = paste0(row_number(), "°."))
+
+kable(
+  tabla,
+  format = "latex",
+  booktabs = TRUE,
+  linesep = "",
+  caption = "Tabla de posiciones de la Liga Nacional 2024/2025",
+  col.names = c(
+    "Equipo",
+    "Pts",
+    "PJ",
+    "PG",
+    "PP",
+    "PF",
+    "PC",
+    "+/-",
+    ""
+  ),
+  align = c("c","l","c","c","c","c","c","c","c")
+) %>%
+  kable_styling(
+    latex_options = c("HOLD_position","scale_down"),
+    position = "center",
+    font_size = 9
+  ) %>%
+  row_spec(1:4, background = "#D8F3DC") %>%
+  row_spec(5:12, background = "#FFF3BF") %>%
+  row_spec(13:18, background = "#F7F7F7") %>%
+  row_spec(19:20, background = "#F8D7DA") %>%
+  column_spec(3, bold = TRUE)
 ```
+
+### Análisis de *plus-minus*
+
+Como primera aproximación a la evaluación del rendimiento individual, se analizó la métrica *plus-minus* (+/-), la cual brinda un indicio de cuan eficiente fue el jugador en el tiempo que permaneció en cancha, calculando la diferencia de puntos realizados por el equipo propio en comparación con los puntos del rival dentro de ese intervalo de tiempo.
+
+El Cuadro 7 deja en evidencia que los jugadores con mayor +/- pertenecen, en su mayoría, a a los equipos que mejores resultados obtuvieron durante la temporada regular. Donde nueve de los once jugadores mejor ubicados integraron alguno de los cuatro primeros equipos de la clasificación (Boca Juniors, Oberá Tenis Club, Instituto y Quimsa). Las únicas excepciones fueron Marcos Chacón Tirado y Diego Rafael Figueredo, quienes registraron valores elevados de *plus-minus* a pesar de formar parte de equipos ubicados en la mitad de la tabla de posiciones.
+
+
+```{r, fig.cap="Mejores plus-minus de la temporada", out.width="80%", fig.align="center"}
+paleta_sem = readRDS("paleta_sem.rds")
+
+mej_pm <- readRDS("mej_pm.rds")
+
+mej_pm %>%
+  mutate(
+    `+/-` = cell_spec(
+      `+/-`,
+      format = "latex",
+      bold = TRUE,
+      background = paleta_sem(`+/-`)
+    )
+  ) %>%
+  kable(
+    format = "latex",
+    escape = FALSE,
+    booktabs = TRUE,
+    linesep = "",
+    caption = "Jugadores con mayor Plus/Minus"
+  ) %>%
+  kable_styling(
+    latex_options = "HOLD_position",
+    position = "center",
+    font_size = 9
+  )
+```
+
+
+En el extremo opuesto se observa un patrón aún más marcado. Durante la temporada, Zárate Basket y Argentino de Junín presentaron un rendimiento considerablemente inferior al resto de los equipos, situación que se tradujo en diferencias de puntos ampliamente negativas. Como consecuencia, los diez jugadores con menor +/- de la competencia pertenecieron exclusivamente esos equipos, tal como se presenta en el Cuadro 8.
+
+```{r, fig.cap="Peores plus-minus de la temporada", out.width="80%", fig.align="center"}
+peor_pm <- readRDS("peor_pm.rds")
+
+peor_pm %>%
+  mutate(
+    `+/-` = cell_spec(
+      `+/-`,
+      format = "latex",
+      bold = TRUE,
+      background = paleta_sem(`+/-`)
+    )
+  ) %>%
+  kable(
+    format = "latex",
+    escape = FALSE,
+    booktabs = TRUE,
+    linesep = "",
+    caption = "Jugadores con menor Plus/Minus"
+  ) %>%
+  kable_styling(
+    latex_options = "HOLD_position",
+    position = "center",
+    font_size = 9
+  )
+```
+
+Queda evidenciado que los rendimientos propios de cada equipo dictan en gran medida quiénes lideran o cierran los rankings de *plus-minus*, reafirmando la dificultad que presenta esta medida tradicional para aislar el verdadero impacto individual del jugador respecto del contexto en el que participa. ojo quizas esto no convenga ponerlo todavía porque sigue la parte donde penalizamos a los jugadores que más juegan, pensarlo bien.
 
 # Conclusión
 
