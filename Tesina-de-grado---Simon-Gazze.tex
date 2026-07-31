@@ -2118,12 +2118,12 @@ Equipo & Pts & PJ & PG & PP & PF & PC & +/- & \\
 
 Como primera aproximación a la evaluación del rendimiento individual, se
 analizó la métrica \emph{plus-minus} (+/-), la cual brinda un indicio de
-cuan eficiente fue el jugador en el tiempo que permaneció en cancha,
+cuán eficiente fue el jugador en el tiempo que permaneció en cancha,
 calculando la diferencia de puntos realizados por el equipo propio en
 comparación con los puntos del rival dentro de ese intervalo de tiempo.
 
 El Cuadro 7 deja en evidencia que los jugadores con mayor +/-
-pertenecen, en su mayoría, a a los equipos que mejores resultados
+pertenecen, en su mayoría, a los equipos que mejores resultados
 obtuvieron durante la temporada regular. Donde nueve de los once
 jugadores mejor ubicados integraron alguno de los cuatro primeros
 equipos de la clasificación (Boca Juniors, Oberá Tenis Club, Instituto y
@@ -2161,7 +2161,7 @@ temporada, Zárate Basket y Argentino de Junín presentaron un rendimiento
 considerablemente inferior al resto de los equipos, situación que se
 tradujo en diferencias de puntos ampliamente negativas. Como
 consecuencia, los diez jugadores con menor +/- de la competencia
-pertenecieron exclusivamente esos equipos, tal como se presenta en el
+pertenecieron exclusivamente a esos equipos, tal como se presenta en el
 Cuadro 8.
 
 \begin{table}[H]
@@ -2191,7 +2191,115 @@ Queda evidenciado que los rendimientos propios de cada equipo dictan en
 gran medida quiénes lideran o cierran los rankings de \emph{plus-minus},
 reafirmando la dificultad que presenta esta medida tradicional para
 aislar el verdadero impacto individual del jugador respecto del contexto
-en el que participa.
+en el que participa. ojo quizas esto no convenga ponerlo todavía porque
+sigue la parte donde penalizamos a los jugadores que más juegan,
+pensarlo bien.
+
+\subsubsection{\texorpdfstring{Análisis del \emph{plus-minus} por cada
+100
+posesiones}{Análisis del plus-minus por cada 100 posesiones}}\label{anuxe1lisis-del-plus-minus-por-cada-100-posesiones}
+
+El \emph{plus-minus} acumulado a lo largo de la temporada se encuentra
+muy influenciado por la cantidad de posesiones en las que participa cada
+jugador. Por ejemplo, dos jugadores con desempeños similares
+pertenecientes a un equipo con muy buen desempeño en general, pueden
+diferir en esta métrica en caso de que uno de ellos dispute una mayor
+cantidad de partidos o permanezca más tiempo en cancha.
+
+Con el propósito de reducir inicialmente la influencia de este volumen
+de participación, se calculó el \emph{plus-minus} por cada 100
+posesiones:
+
+\[PM^{100}_j = \frac{PM_j \cdot 100}{N_j}\] donde \(PM_j\) representa el
+\emph{plus-minus} acumulado del jugador j y \(N_j\) la cantidad de
+posesiones en las que participó.
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.8\linewidth]{img/pm_por_posesiones} 
+
+}
+
+\caption{Ranking de plus-minus ponderado por cantidad de posesiones}\label{fig:unnamed-chunk-22}
+\end{figure}
+
+Al observar los resultados, los valores más extremos de la distribución
+se concentran entre los jugadores con menor participación. En
+particular, los 15 valores más altos y los 39 más bajos corresponden a
+jugadores que participaron en menos de 500 posesiones durante la
+temporada. Esta concentración en ambos extremos sugiere que, cuando se
+presentan pocas observaciones, la métrica resulta especialmente sensible
+a unas pocas acciones favorables o desfavorables y, por lo tanto,
+presenta una mayor variabilidad.
+
+Para abordar este problema, manteniendo consistencia con el criterio
+adoptado posteriormente para el tratamiento de los jugadores con poca
+participación, se restringió el análisis a quienes disputaron al menos
+500 posesiones en la temporada.
+
+A continuación, se presentan los diez valores más altos y los diez más
+bajos del plus-minus por cada 100 posesiones.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-23}Jugadores con mayor plus-minus por cada 100 posesiones}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{llrrl}
+\toprule
+jugador & Equipos & posesiones & +/- & $PM^{100}$\\
+\midrule
+LOUIS, ARNOLD MICHAEL & QUIMSA & 3052 & 306 & \cellcolor[HTML]{B7E4C7}{\textbf{10.0262123197903}}\\
+VILDOZA, LEANDRO & INSTITUTO & 3302 & 297 & \cellcolor[HTML]{BEE5C5}{\textbf{8.99454875832829}}\\
+POMOLI LARRABURU, NICOLA & INSTITUTO & 3243 & 284 & \cellcolor[HTML]{C0E6C4}{\textbf{8.75732346592661}}\\
+CHACON TIRADO, MARCOS & GIMNASIA & 2326 & 201 & \cellcolor[HTML]{C1E6C4}{\textbf{8.6414445399828}}\\
+VASIRANI, EDUARDO MARTIN & QUIMSA & 2383 & 182 & \cellcolor[HTML]{C8E7C2}{\textbf{7.63743180864456}}\\
+SANSIMONI, BRUNO & QUIMSA & 2006 & 152 & \cellcolor[HTML]{C8E7C2}{\textbf{7.57726819541376}}\\
+RIVERO, CARLOS EZEQUIEL & GIMNASIA & 1629 & 123 & \cellcolor[HTML]{C9E7C2}{\textbf{7.55064456721915}}\\
+COPELLO, NICOLAS & INSTITUTO & 3366 & 245 & \cellcolor[HTML]{CAE8C1}{\textbf{7.27866904337493}}\\
+PIÑERO, FACUNDO & BOCA & 2387 & 160 & \cellcolor[HTML]{CEE9C0}{\textbf{6.70297444490993}}\\
+CUELLO, MARTIN NICOLAS & BOCA & 3850 & 254 & \cellcolor[HTML]{CFE9C0}{\textbf{6.5974025974026}}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Luego de aplicar esta restricción, dos jugadores de Gimnasia de Comodoro
+se ubican entre los diez valores más altos. Evidenciando un impacto
+positivo de estos jugadores en el tiempo que estuvieron en cancha,
+destacando en un equipo de mitad de tabla.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-24}Jugadores con menor plus-minus por cada 100 posesiones}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{llrrl}
+\toprule
+jugador & Equipos & posesiones & +/- & $PM^{100}$\\
+\midrule
+ALONSO, GONZALO NICOLAS & LA UNION FSA. & 541 & -65 & \cellcolor[HTML]{F4A6A6}{\textbf{-12.0147874306839}}\\
+GOMEZ, MANUEL ALEJANDRO & ARGENTINO & 3702 & -409 & \cellcolor[HTML]{F5ADA7}{\textbf{-11.0480821177742}}\\
+ROVERES, AUGUSTO DANIEL & FERRO & 511 & -53 & \cellcolor[HTML]{F6B2A8}{\textbf{-10.3718199608611}}\\
+THORNTON, RAYNERE ZYNIQUE & ARGENTINO & 1088 & -108 & \cellcolor[HTML]{F7B5A8}{\textbf{-9.92647058823529}}\\
+SLIDER, JONATAN & ARGENTINO & 3685 & -352 & \cellcolor[HTML]{F7B7A8}{\textbf{-9.55223880597015}}\\
+MAXWELL, DU'VAUGHN ELISHA & OLIMPICO & 611 & -54 & \cellcolor[HTML]{F8BDA9}{\textbf{-8.8379705400982}}\\
+ALLENDE, TOMAS DANIEL & ARGENTINO & 3344 & -295 & \cellcolor[HTML]{F8BDA9}{\textbf{-8.82177033492823}}\\
+CAPPONI, FEBO LORENZO & ZARATE BASKET & 2179 & -187 & \cellcolor[HTML]{F8BEA9}{\textbf{-8.58191831115191}}\\
+PODESTA, FERNANDO ARIEL & ARGENTINO & 3047 & -251 & \cellcolor[HTML]{F9C1AA}{\textbf{-8.23761076468658}}\\
+ROMERO, GONZALO EMMANUEL & ARGENTINO & 587 & -48 & \cellcolor[HTML]{F9C1AA}{\textbf{-8.17717206132879}}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Mientras que en la parte inferior la composición del ranking deja de
+concentrarse exclusivamente en jugadores de Argentino de Junín y Zárate
+Basket, e incorpora también jugadores de La Unión de Formosa, Ferro y
+Olímpico.
+
+De igual manera, esta normalización de la métrica tradicional no elimina
+todas limitaciones del \emph{plus-minus}, dado que la métrica continúa
+sin considerar la calidad de los compañeros y rivales con los que cada
+jugador compartió cancha.
 
 \section{Conclusión}\label{conclusiuxf3n}
 

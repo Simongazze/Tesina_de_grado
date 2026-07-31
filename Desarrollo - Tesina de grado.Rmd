@@ -565,7 +565,7 @@ browsable(
 
 ```
 
-Obervando los resultados, podemos identificar que los valores más extremos del +/- ajustado son percibidos por jugadores con muy poca cantidad de posesiones consumidas durante la temporada. Este error es muy mencionado dentro de esta temática, y da pie a la presentación de los LTPs Players.
+Observando los resultados, podemos identificar que los valores más extremos del +/- ajustado son percibidos por jugadores con muy poca cantidad de posesiones consumidas durante la temporada. Este error es muy mencionado dentro de esta temática, y da pie a la presentación de los LTPs Players.
 
 A continuación se presenta el top de mejores y peores jugadores según esta métrica aplicando un filtro de \>500 posesiones:
 
@@ -600,11 +600,47 @@ browsable(
     div(tabla_peor_aj1, style = "width: 50%;")
   )
 )
+
+# saveRDS(mej_pm_aj1, "mej_pm_aj1.rds")
+# saveRDS(peor_pm_aj1, "peor_pm_aj1.rds")
+# df_pm_filtrado = g1 %>% filter(posesiones > 500)
+# paleta_sem1 <- col_numeric(
+#   palette = c("#F4A6A6", "#FFF3B0", "#B7E4C7"),
+#   domain = range(df_pm_filtrado$pm_ajust_pos, na.rm = TRUE)
+# )
+# 
+# saveRDS(paleta_sem1, "paleta_sem1.rds")
 ```
 
 Dentro de esta lista podemos destacar la incorporación de 2 jugadores de Gimnasia de Comodoro dentro de los 10 mejores jugadores, evidenciando un impacto positivo dentro de este equipo de mitad de tabla.
 
 Mientras que en la parte inferior de la tabla vemos que ya no solo aparecen jugadores de Argentino de Junin o Zarate Basket, sino que se suman jugadores de La Unión de Formosa, Ferro y Olímpico.
+
+```{r}
+g3 = ggplot(g1, aes(x = posesiones, y = pm_ajust_pos)) +
+  geom_hline(yintercept = 0, color = "grey60") +
+  geom_vline(
+    xintercept = 500,
+    linetype = "dashed",
+    color = "firebrick4"
+  ) +
+  geom_point(alpha = 0.5, color = "steelblue3") +
+  scale_x_log10() +#scale log 10 para que se muestren más las primeras posesiones?
+  labs(
+    x = "Cantidad de posesiones (escala logaritmica)",
+    y = "+/- por cada 100 posesiones",
+    caption = "La línea vertical indica el umbral de 500 posesiones."
+  ) +
+  theme_minimal()
+
+# ggsave(
+#   "img/pm_por_posesiones.pdf",
+#   g3,
+#   width = 7,
+#   height = 5
+# )
+```
+
 
 ### Análisis del +/- dentro del equipo
 

@@ -1129,9 +1129,9 @@ kable(
 
 ### Análisis de *plus-minus*
 
-Como primera aproximación a la evaluación del rendimiento individual, se analizó la métrica *plus-minus* (+/-), la cual brinda un indicio de cuan eficiente fue el jugador en el tiempo que permaneció en cancha, calculando la diferencia de puntos realizados por el equipo propio en comparación con los puntos del rival dentro de ese intervalo de tiempo.
+Como primera aproximación a la evaluación del rendimiento individual, se analizó la métrica *plus-minus* (+/-), la cual brinda un indicio de cuán eficiente fue el jugador en el tiempo que permaneció en cancha, calculando la diferencia de puntos realizados por el equipo propio en comparación con los puntos del rival dentro de ese intervalo de tiempo.
 
-El Cuadro 7 deja en evidencia que los jugadores con mayor +/- pertenecen, en su mayoría, a a los equipos que mejores resultados obtuvieron durante la temporada regular. Donde nueve de los once jugadores mejor ubicados integraron alguno de los cuatro primeros equipos de la clasificación (Boca Juniors, Oberá Tenis Club, Instituto y Quimsa). Las únicas excepciones fueron Marcos Chacón Tirado y Diego Rafael Figueredo, quienes registraron valores elevados de *plus-minus* a pesar de formar parte de equipos ubicados en la mitad de la tabla de posiciones.
+El Cuadro 7 deja en evidencia que los jugadores con mayor +/- pertenecen, en su mayoría, a los equipos que mejores resultados obtuvieron durante la temporada regular. Donde nueve de los once jugadores mejor ubicados integraron alguno de los cuatro primeros equipos de la clasificación (Boca Juniors, Oberá Tenis Club, Instituto y Quimsa). Las únicas excepciones fueron Marcos Chacón Tirado y Diego Rafael Figueredo, quienes registraron valores elevados de *plus-minus* a pesar de formar parte de equipos ubicados en la mitad de la tabla de posiciones.
 
 
 ```{r, fig.cap="Mejores plus-minus de la temporada", out.width="80%", fig.align="center"}
@@ -1163,7 +1163,7 @@ mej_pm %>%
 ```
 
 
-En el extremo opuesto se observa un patrón aún más marcado. Durante la temporada, Zárate Basket y Argentino de Junín presentaron un rendimiento considerablemente inferior al resto de los equipos, situación que se tradujo en diferencias de puntos ampliamente negativas. Como consecuencia, los diez jugadores con menor +/- de la competencia pertenecieron exclusivamente esos equipos, tal como se presenta en el Cuadro 8.
+En el extremo opuesto se observa un patrón aún más marcado. Durante la temporada, Zárate Basket y Argentino de Junín presentaron un rendimiento considerablemente inferior al resto de los equipos, situación que se tradujo en diferencias de puntos ampliamente negativas. Como consecuencia, los diez jugadores con menor +/- de la competencia pertenecieron exclusivamente a esos equipos, tal como se presenta en el Cuadro 8.
 
 ```{r, fig.cap="Peores plus-minus de la temporada", out.width="80%", fig.align="center"}
 peor_pm <- readRDS("peor_pm.rds")
@@ -1192,6 +1192,97 @@ peor_pm %>%
 ```
 
 Queda evidenciado que los rendimientos propios de cada equipo dictan en gran medida quiénes lideran o cierran los rankings de *plus-minus*, reafirmando la dificultad que presenta esta medida tradicional para aislar el verdadero impacto individual del jugador respecto del contexto en el que participa. ojo quizas esto no convenga ponerlo todavía porque sigue la parte donde penalizamos a los jugadores que más juegan, pensarlo bien.
+
+### Análisis del *plus-minus* por cada 100 posesiones
+
+El *plus-minus* acumulado a lo largo de la temporada se encuentra muy influenciado por la cantidad de posesiones en las que participa cada jugador. Por ejemplo, dos jugadores con desempeños similares pertenecientes a un equipo con muy buen desempeño en general, pueden diferir en esta métrica en caso de que uno de ellos dispute una mayor cantidad de partidos o permanezca más tiempo en cancha.
+
+Con el propósito de reducir inicialmente la influencia de este volumen de participación, se calculó el *plus-minus* por cada 100 posesiones:
+
+$$PM^{100}_j = \frac{PM_j \cdot 100}{N_j}$$
+donde $PM_j$ representa el *plus-minus* acumulado del jugador j y $N_j$ la cantidad de posesiones en las que participó.
+
+```{r, fig.cap="Ranking de plus-minus ponderado por cantidad de posesiones", out.width="80%", fig.align="center"}
+knitr::include_graphics("img/pm_por_posesiones.pdf")
+```
+
+Al observar los resultados, los valores más extremos de la distribución se concentran entre los jugadores con menor participación. En particular, los 15 valores más altos y los 39 más bajos corresponden a jugadores que participaron en menos de 500 posesiones durante la temporada. Esta concentración en ambos extremos sugiere que, cuando se presentan pocas observaciones, la métrica resulta especialmente sensible a unas pocas acciones favorables o desfavorables y, por lo tanto, presenta una mayor variabilidad.
+
+Para abordar este problema, manteniendo consistencia con el criterio adoptado posteriormente para el tratamiento de los jugadores con poca participación, se restringió el análisis a quienes disputaron al menos 500 posesiones en la temporada.
+
+A continuación, se presentan los diez valores más altos y los diez más bajos del plus-minus por cada 100 posesiones.
+
+```{r, fig.cap="Jugadores con mayor plus-minus por cada 100 posesiones", out.width="80%", fig.align="center"}
+mej_pm_aj1 <- readRDS("mej_pm_aj1.rds")
+paleta_sem1 <- readRDS("paleta_sem1.rds")
+
+
+# 1. Aplicamos el mutate usando el nombre original de la columna antes de renombrarla
+mej_pm_aj1 <- mej_pm_aj1 %>%
+  mutate(
+    pm_ajust_pos = cell_spec(
+      pm_ajust_pos,
+      format = "latex",
+      bold = TRUE,
+      background = paleta_sem1(pm_ajust_pos)
+    )
+  )
+
+names(mej_pm_aj1)[names(mej_pm_aj1) == "pm_ajust_pos"] <- "$PM^{100}$"
+
+mej_pm_aj1 %>%
+  kable(
+    format = "latex",
+    escape = FALSE,    #para que reconozca los $ y comandos de LaTeX
+    booktabs = TRUE,
+    linesep = "",
+    caption = "Jugadores con mayor plus-minus por cada 100 posesiones"
+  ) %>%
+  kable_styling(
+    latex_options = "HOLD_position",
+    position = "center",
+    font_size = 9
+  )
+```
+
+Luego de aplicar esta restricción, dos jugadores de Gimnasia de Comodoro se ubican entre los diez valores más altos. Evidenciando un impacto positivo de estos jugadores en el tiempo que estuvieron en cancha, destacando en un equipo de mitad de tabla.
+
+```{r, fig.cap="Jugadores con peor plus-minus por cada 100 posesiones", out.width="80%", fig.align="center"}
+peor_pm_aj1 <- readRDS("peor_pm_aj1.rds")
+
+
+# 1. Aplicamos el mutate usando el nombre original de la columna antes de renombrarla
+peor_pm_aj1 <- peor_pm_aj1 %>%
+  mutate(
+    pm_ajust_pos = cell_spec(
+      pm_ajust_pos,
+      format = "latex",
+      bold = TRUE,
+      background = paleta_sem1(pm_ajust_pos)
+    )
+  )
+
+names(peor_pm_aj1)[names(peor_pm_aj1) == "pm_ajust_pos"] <- "$PM^{100}$"
+
+peor_pm_aj1 %>%
+  kable(
+    format = "latex",
+    escape = FALSE,    #para que reconozca los $ y comandos de LaTeX
+    booktabs = TRUE,
+    linesep = "",
+    caption = "Jugadores con menor plus-minus por cada 100 posesiones"
+  ) %>%
+  kable_styling(
+    latex_options = "HOLD_position",
+    position = "center",
+    font_size = 9
+  )
+```
+
+Mientras que en la parte inferior la composición del ranking deja de concentrarse exclusivamente en jugadores de Argentino de Junín y Zárate Basket, e incorpora también jugadores de La Unión de Formosa, Ferro y Olímpico.
+
+De igual manera, esta normalización de la métrica tradicional no elimina todas limitaciones del *plus-minus*, dado que la métrica continúa sin considerar la calidad de los compañeros y rivales con los que cada jugador compartió cancha.
+
 
 # Conclusión
 
