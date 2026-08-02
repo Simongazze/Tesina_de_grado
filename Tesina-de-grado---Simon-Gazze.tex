@@ -2191,9 +2191,7 @@ Queda evidenciado que los rendimientos propios de cada equipo dictan en
 gran medida quiénes lideran o cierran los rankings de \emph{plus-minus},
 reafirmando la dificultad que presenta esta medida tradicional para
 aislar el verdadero impacto individual del jugador respecto del contexto
-en el que participa. ojo quizas esto no convenga ponerlo todavía porque
-sigue la parte donde penalizamos a los jugadores que más juegan,
-pensarlo bien.
+en el que participa.
 
 \subsubsection{\texorpdfstring{Análisis del \emph{plus-minus} por cada
 100
@@ -2238,7 +2236,7 @@ participación, se restringió el análisis a quienes disputaron al menos
 500 posesiones en la temporada.
 
 A continuación, se presentan los diez valores más altos y los diez más
-bajos del plus-minus por cada 100 posesiones.
+bajos del plus-minus por cada 100 posesiones bajo esta condición.
 
 \begin{table}[H]
 \centering
@@ -2300,6 +2298,51 @@ De igual manera, esta normalización de la métrica tradicional no elimina
 todas limitaciones del \emph{plus-minus}, dado que la métrica continúa
 sin considerar la calidad de los compañeros y rivales con los que cada
 jugador compartió cancha.
+
+\subsubsection{Análisis del +/- estandarizado por
+equipo}\label{anuxe1lisis-del---estandarizado-por-equipo}
+
+Como ya se mencionó, el cálculo de +/- por posesión resulta muy
+informativo, pero lo es más si se piensa dentro del contexto del equipo.
+Tal como se evidencia en la Figura 13, los valores presentados en dicha
+métrica dependen fuertemente del desempeño de cada equipo, donde equipos
+clasificados a \emph{playoffs} presentan jugadores con valoración
+generalmente positiva y equipos ubicados en el fondo de la tabla
+presentan, en su mayoría, una valoración negativa.
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.8\linewidth]{img/distribucion_pm100_por_equipo} 
+
+}
+
+\caption{plus-minus cada 100 posesiones por equipo}\label{fig:unnamed-chunk-25}
+\end{figure}
+
+Pensando en mitigar el efecto, tanto positivo como negativo, que genera
+pertenecer a cierto equipo, se evalúa el +/- por 100 posesiones en
+relación a los valores de dicha métrica presentados por los propios
+compañeros del equipo. De esta forma, se busca identificar a aquellos
+jugadores que, aun perteneciendo a un equipo con una diferencia de
+anotación desfavorable, presentan un desempeño relativo superior al de
+sus compañeros.
+
+Para ello se utilizó una estandarización robusta, basada en la mediana y
+la desviación absoluta mediana (\emph{median absolute deviation}, MAD),
+en lugar de la media y la desviación estándar. Para un jugador \(j\)
+perteneciente al equipo \(e\), se definió:
+
+\[PM^{est}_j = \frac{PM^{100}_j - \widetilde{PM^{100}}_e}{MAD_e(PM^{100})}\]
+
+Valores positivos indican que el jugador registró un +/- por 100
+posesiones superior a la mediana de sus compañeros, mientras que los
+valores negativos señalan un desempeño inferior en términos relativos
+dentro de su equipo. Esta medida complementa el análisis del +/- por 100
+posesiones al identificar la posición relativa de cada jugador dentro de
+su plantel. Por ello, valores elevados deben interpretarse
+principalmente como un desempeño superior respecto de sus compañeros, y
+no como una medida directa de rendimiento individual aislada del
+contexto del equipo.
 
 \section{Conclusión}\label{conclusiuxf3n}
 

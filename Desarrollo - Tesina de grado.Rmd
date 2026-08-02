@@ -657,9 +657,25 @@ Pero antes debemos tener en cuenta lo siguiente: jugadores con pocas posesiones 
 A su vez, aunque se excluyan este tipo de jugadores, las distribuciones de +/- cada 100 posesiones siguen presentando algunos valores extremos.
 
 ```{r}
-ggplot(plus_minus_por_equipo1)+
-  aes(y= equipo_del_jugador, x= plus_minus_100)+
-  geom_boxplot(fill = "lightblue4")
+posiciones = rev(c("BOCA", "OBERA", "INSTITUTO", "QUIMSA", "OBRAS",
+  "RIACHUELO", "REGATAS", "FERRO", "GIMNASIA", "SAN MARTIN",
+  "UNION", "ATENAS", "PEÑAROL", "OLIMPICO", "SAN LORENZO",
+  "PLATENSE", "INDEPENDIENTE", "LA UNION FSA.", "ZARATE BASKET", "ARGENTINO"))
+
+g4 = ggplot(plus_minus_por_equipo1)+
+  aes(y= factor(equipo_del_jugador, levels = posiciones), x= plus_minus_100)+
+  geom_boxplot(fill = "steelblue4")+
+  labs(x= expression(PM^{100}),
+       y="Equipos")
+
+g4
+
+# ggsave(
+#   "img/distribucion_pm100_por_equipo.pdf",
+#   g4,
+#   width = 7,
+#   height = 5
+# )
 
 ```
 
