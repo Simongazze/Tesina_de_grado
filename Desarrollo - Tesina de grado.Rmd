@@ -717,9 +717,20 @@ browsable(
     div(tabla_peor_aj1, style = "width: 50%;")
   )
 )
+
+# saveRDS(mej_pm_aj2, "mej_pm_aj2.rds")
+# saveRDS(peor_pm_aj2, "peor_pm_aj2.rds")
+# paleta_sem2 <- col_numeric(
+#   palette = c("#F4A6A6", "#FFF3B0", "#B7E4C7"),
+#   domain = range(plus_minus_por_equipo1$pm_estand_median, na.rm = TRUE)
+# )
+# 
+# saveRDS(paleta_sem2, "paleta_sem2.rds")
 ```
 
 Al analizar el ranking, identificamos que los 3 primeros puestos estan ocupados por jugadores que no participaron de la temporada completa, sino que llegaron como refuerzos o partieron en cierto momento, cambiando así el andar de estos equipos. Evidenciando el impacto positivo de los refuerzos que llegaron (Sanders y Vicente) o el efecto negativo que tiene la partida de un jugador importante en el desempeño del equipo (Mainoldi).
+
+Es importante destacar que dentro de los puestos altos del ranking en base a esta métrica se presenta un jugador con +/- negativo, el cual pertenece al equipo con peor desempeño en la temporada (Argentino de Junin). Brindandonos una valoración propia de un jugador a priori no muy valorado, pero al analizarlo dentro de su equipo se evidencia un rendimiento muy superior al de sus compañeros.
 
 Nakye Sanders, por lejos el mejor +/- de atenas en el torneo, gran diferencia respecto al 2do de su equipo: record de 9-9 con Sanders y de 9-11 sin Sanders.
 

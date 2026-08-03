@@ -1283,7 +1283,7 @@ Mientras que en la parte inferior la composición del ranking deja de concentrar
 
 De igual manera, esta normalización de la métrica tradicional no elimina todas limitaciones del *plus-minus*, dado que la métrica continúa sin considerar la calidad de los compañeros y rivales con los que cada jugador compartió cancha.
 
-### Análisis del +/- estandarizado por equipo
+### Análisis del *plus-minus* estandarizado por equipo
 
 Como ya se mencionó, el cálculo de +/- por posesión resulta muy informativo, pero lo es más si se piensa dentro del contexto del equipo. Tal como se evidencia en la Figura 13, los valores presentados en dicha métrica dependen fuertemente del desempeño de cada equipo, donde equipos clasificados a *playoffs* presentan jugadores con valoración generalmente positiva y equipos ubicados en el fondo de la tabla presentan, en su mayoría, una valoración negativa.
 
@@ -1295,19 +1295,103 @@ Pensando en mitigar el efecto, tanto positivo como negativo, que genera pertenec
 Para ello se utilizó una estandarización robusta, basada en la mediana y la desviación absoluta mediana (*median absolute deviation*, MAD), en lugar de la media y la desviación estándar. Para un jugador $j$ perteneciente al equipo $e$, se definió:
 
 $$PM^{est}_j = \frac{PM^{100}_j - \widetilde{PM^{100}}_e}{MAD_e(PM^{100})}$$
+Valores positivos indican que el jugador registró un +/- por 100 posesiones superior a la mediana de sus compañeros, mientras que los valores negativos señalan un desempeño inferior en términos relativos dentro de su equipo.
+
+```{r, fig.cap="Jugadores con mayor plus-minus estandarizado", out.width="80%", fig.align="center"}
+mej_pm_aj2 <- readRDS("mej_pm_aj2.rds")
+paleta_sem2 <- readRDS("paleta_sem2.rds")
 
 
+# 1. Aplicamos el mutate usando el nombre original de la columna antes de renombrarla
+mej_pm_aj2 <- mej_pm_aj2 %>%
+  mutate(
+    `+/- estandarizado` = cell_spec(
+      `+/- estandarizado`,
+      format = "latex",
+      bold = TRUE,
+      background = paleta_sem1(`+/- estandarizado`)
+    )
+  )
+
+names(mej_pm_aj2)[names(mej_pm_aj2) == "`+/- estandarizado`"] <- "$PM^{est}$"
+
+mej_pm_aj2 %>%
+  kable(
+    format = "latex",
+    escape = FALSE,    #para que reconozca los $ y comandos de LaTeX
+    booktabs = TRUE,
+    linesep = "",
+    caption = "Jugadores con mayor plus-minus por cada 100 posesiones"
+  ) %>%
+  kable_styling(
+    latex_options = "HOLD_position",
+    position = "center",
+    font_size = 9
+  )
+```
+
+En el cuadro 11 se observa que los tres primeros puestos corresponden a jugadores que no disputaron la temporada completa con sus respectivos equipos. Nakye Sanders y Garello Vicente se incorporaron como refuerzos a Atenas y San Martín, respectivamente, mientras que Leonardo Mainoldi dejó Olímpico luego de los primeros siete encuentros.
+
+En los tres casos, su participación coincide con períodos de mejores resultados para sus equipos. Atenas registró un récord de 9 victorias y 9 derrotas con Sanders, frente a 9-11 en los partidos que disputó sin él. Por su parte, San Martín obtuvo un récord de 4-10 antes de la llegada de Garello Vicente y de 15-9 desde su incorporación. Finalmente, Olímpico inició la temporada con un registro de 5-2 mientras contó con Mainoldi, pero acumuló 12 triunfos y 19 derrotas tras su partida. Si bien estas diferencias no permiten atribuir causalmente los cambios en el rendimiento colectivo a un único jugador, aportan contexto coherente con las elevadas valoraciones relativas que presentan dentro de sus planteles.
+
+Asimismo, entre los puestos superiores aparece Santiago Capelli, a pesar a registrar un +/- negativo en términos absolutos. Su caso ilustra el propósito de la estandarización: aunque integró Argentino de Junín, el equipo con peor desempeño de la temporada, su diferencial fue considerablemente más favorable que el de sus compañeros.
+
+```{r, fig.cap="Jugadores con peor plus-minus estandarizado", out.width="80%", fig.align="center"}
+
+peor_pm_aj2 <- readRDS("peor_pm_aj2.rds")
 
 
+# 1. Aplicamos el mutate usando el nombre original de la columna antes de renombrarla
+peor_pm_aj2 <- peor_pm_aj2 %>%
+  mutate(
+    `+/- estandarizado` = cell_spec(
+      `+/- estandarizado`,
+      format = "latex",
+      bold = TRUE,
+      background = paleta_sem1(`+/- estandarizado`)
+    )
+  )
 
+names(peor_pm_aj2)[names(peor_pm_aj2) == "`+/- estandarizado`"] <- "$PM^{est}$"
 
+peor_pm_aj2 %>%
+  kable(
+    format = "latex",
+    escape = FALSE,    #para que reconozca los $ y comandos de LaTeX
+    booktabs = TRUE,
+    linesep = "",
+    caption = "Jugadores con mayor plus-minus por cada 100 posesiones"
+  ) %>%
+  kable_styling(
+    latex_options = "HOLD_position",
+    position = "center",
+    font_size = 9
+  )
+```
 
+De manera similar, entre los puestos inferiores del ranking aparece Nicolas Romano, presentando un +/- positivo en términos absolutos. Integró al equipo con mayor +/- a lo largo de la temporada, pero presentó un desempeño muy por debajo al de de sus compañeros.
 
+Esta medida complementa el análisis del +/- por 100 posesiones al identificar la posición relativa de cada jugador dentro de su plantel. Sin embargo, los valores deben interpretarse principalmente como una medida del desempeño de cada jugador respecto al de sus compañeros, y no como una medida directa de rendimiento individual aislada del contexto del equipo.
 
+## Métricas basadas en modelos estadísticos
 
+...
 
+### RAPM
 
-Valores positivos indican que el jugador registró un +/- por 100 posesiones superior a la mediana de sus compañeros, mientras que los valores negativos señalan un desempeño inferior en términos relativos dentro de su equipo. Esta medida complementa el análisis del +/- por 100 posesiones al identificar la posición relativa de cada jugador dentro de su plantel. Por ello, valores elevados deben interpretarse principalmente como un desempeño superior respecto de sus compañeros, y no como una medida directa de rendimiento individual aislada del contexto del equipo.
+...
+
+### EPTS
+
+...
+
+### wEPTS
+
+...
+
+## Comparación de modelos
+
+...
 
 # Conclusión
 

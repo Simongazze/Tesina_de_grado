@@ -2299,8 +2299,9 @@ todas limitaciones del \emph{plus-minus}, dado que la métrica continúa
 sin considerar la calidad de los compañeros y rivales con los que cada
 jugador compartió cancha.
 
-\subsubsection{Análisis del +/- estandarizado por
-equipo}\label{anuxe1lisis-del---estandarizado-por-equipo}
+\subsubsection{\texorpdfstring{Análisis del \emph{plus-minus}
+estandarizado por
+equipo}{Análisis del plus-minus estandarizado por equipo}}\label{anuxe1lisis-del-plus-minus-estandarizado-por-equipo}
 
 Como ya se mencionó, el cálculo de +/- por posesión resulta muy
 informativo, pero lo es más si se piensa dentro del contexto del equipo.
@@ -2333,16 +2334,96 @@ en lugar de la media y la desviación estándar. Para un jugador \(j\)
 perteneciente al equipo \(e\), se definió:
 
 \[PM^{est}_j = \frac{PM^{100}_j - \widetilde{PM^{100}}_e}{MAD_e(PM^{100})}\]
-
 Valores positivos indican que el jugador registró un +/- por 100
 posesiones superior a la mediana de sus compañeros, mientras que los
 valores negativos señalan un desempeño inferior en términos relativos
-dentro de su equipo. Esta medida complementa el análisis del +/- por 100
-posesiones al identificar la posición relativa de cada jugador dentro de
-su plantel. Por ello, valores elevados deben interpretarse
-principalmente como un desempeño superior respecto de sus compañeros, y
-no como una medida directa de rendimiento individual aislada del
-contexto del equipo.
+dentro de su equipo.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-26}Jugadores con mayor plus-minus por cada 100 posesiones}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{llrrl}
+\toprule
+jugador & Equipos & Posesiones & +/- & +/- estandarizado\\
+\midrule
+SANDERS, NAKIE GERALD & ATENAS & 1211 & 60 & \cellcolor[HTML]{D6EABE}{\textbf{5.51819903353257}}\\
+GARELLO, VICENTE & SAN MARTIN & 1524 & 95 & \cellcolor[HTML]{E2EDBA}{\textbf{3.64294889650734}}\\
+MAINOLDI, LEONARDO ANDRES & OLIMPICO & 595 & 41 & \cellcolor[HTML]{E6EEB9}{\textbf{3.09825907096653}}\\
+CHACON TIRADO, MARCOS & GIMNASIA & 2326 & 201 & \cellcolor[HTML]{E7EEB8}{\textbf{2.84921632360827}}\\
+HARINA MARTINI, FEDERICO GABRIEL & LA UNION FSA. & 2982 & 55 & \cellcolor[HTML]{EAEEB7}{\textbf{2.3923691014528}}\\
+RIVERO, CARLOS EZEQUIEL & GIMNASIA & 1629 & 123 & \cellcolor[HTML]{EAEEB7}{\textbf{2.38614386747568}}\\
+CAPELLI, SANTIAGO & ARGENTINO & 554 & -16 & \cellcolor[HTML]{EBEFB7}{\textbf{2.24763251093135}}\\
+CARABALI POROZO, BRYAN JOSE & SAN MARTIN & 790 & 33 & \cellcolor[HTML]{ECEFB7}{\textbf{2.15598009971996}}\\
+LOUIS, ARNOLD MICHAEL & QUIMSA & 3052 & 306 & \cellcolor[HTML]{EDEFB6}{\textbf{2.00070037701909}}\\
+DATO, MARTINIANO & GIMNASIA & 2653 & 173 & \cellcolor[HTML]{EDEFB6}{\textbf{1.94899935973459}}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+En el cuadro 11 se observa que los tres primeros puestos corresponden a
+jugadores que no disputaron la temporada completa con sus respectivos
+equipos. Nakye Sanders y Garello Vicente se incorporaron como refuerzos
+a Atenas y San Martín, respectivamente, mientras que Leonardo Mainoldi
+dejó Olímpico luego de los primeros siete encuentros.
+
+En los tres casos, su participación coincide con períodos de mejores
+resultados para sus equipos. Atenas registró un récord de 9 victorias y
+9 derrotas con Sanders, frente a 9-11 en los partidos que disputó sin
+él. Por su parte, San Martín obtuvo un récord de 4-10 antes de la
+llegada de Garello Vicente y de 15-9 desde su incorporación. Finalmente,
+Olímpico inició la temporada con un registro de 5-2 mientras contó con
+Mainoldi, pero acumuló 12 triunfos y 19 derrotas tras su partida. Si
+bien estas diferencias no permiten atribuir causalmente los cambios en
+el rendimiento colectivo a un único jugador, aportan contexto coherente
+con las elevadas valoraciones relativas que presentan dentro de sus
+planteles.
+
+Asimismo, entre los puestos superiores aparece Santiago Capelli, a pesar
+a registrar un +/- negativo en términos absolutos. Su caso ilustra el
+propósito de la estandarización: aunque integró Argentino de Junín, el
+equipo con peor desempeño de la temporada, su diferencial fue
+considerablemente más favorable que el de sus compañeros.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-27}Jugadores con mayor plus-minus por cada 100 posesiones}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{llrrl}
+\toprule
+jugador & Equipos & Posesiones & +/- & +/- estandarizado\\
+\midrule
+ALONSO, GONZALO NICOLAS & LA UNION FSA. & 541 & -65 & \cellcolor[HTML]{FBCFAC}{\textbf{-6.22052704702372}}\\
+PAYTON CLOTTEY, EMMANUEL TRAVON & SAN MARTIN & 966 & -63 & \cellcolor[HTML]{FCD3AC}{\textbf{-5.58043365080232}}\\
+DIGON, ALEJO ADRIEL & OBRAS & 691 & -33 & \cellcolor[HTML]{FCD9AD}{\textbf{-4.71006082427822}}\\
+ROVERES, AUGUSTO DANIEL & FERRO & 511 & -53 & \cellcolor[HTML]{FDDEAE}{\textbf{-4.01835921693478}}\\
+LEDESMA, RAMIRO & ATENAS & 1484 & -75 & \cellcolor[HTML]{FDE0AE}{\textbf{-3.67482238452159}}\\
+MAXWELL, DU'VAUGHN ELISHA & OLIMPICO & 611 & -54 & \cellcolor[HTML]{FEE7AF}{\textbf{-2.75159319957874}}\\
+MITCHELL JR, TONY RASEAN & UNION & 690 & -55 & \cellcolor[HTML]{FEE8AF}{\textbf{-2.62576218414058}}\\
+KRAYEM, OMAR NABIL & RIACHUELO & 551 & -35 & \cellcolor[HTML]{FEE8AF}{\textbf{-2.596483523536}}\\
+JARA, CESAR AGUSTIN & INDEPENDIENTE & 3016 & -175 & \cellcolor[HTML]{FEE9AF}{\textbf{-2.47905876585209}}\\
+ROMANO, NICOLAS & QUIMSA & 2186 & 28 & \cellcolor[HTML]{FEE9AF}{\textbf{-2.45877657007413}}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+De manera similar, entre los puestos inferiores del ranking aparece
+Nicolas Romano, presentando un +/- positivo en términos absolutos.
+Integró al equipo con mayor +/- a lo largo de la temporada, pero
+presentó un desempeño muy por debajo al de de sus compañeros.
+
+Esta medida complementa el análisis del +/- por 100 posesiones al
+identificar la posición relativa de cada jugador dentro de su plantel.
+Sin embargo, los valores deben interpretarse principalmente como una
+medida del desempeño de cada jugador respecto al de sus compañeros, y no
+como una medida directa de rendimiento individual aislada del contexto
+del equipo.
+
+\subsection{Métricas RAPM}\label{muxe9tricas-rapm}
+
+\ldots{}
 
 \section{Conclusión}\label{conclusiuxf3n}
 
