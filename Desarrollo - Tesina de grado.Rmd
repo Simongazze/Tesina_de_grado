@@ -1776,6 +1776,88 @@ Quitar el intercepto en todos los modelos
 
 Buscando solucionar los problemas de la multicolinealidad y los valores extremos de jugador con pocos minutos de juego, se plantearán modelos con estimación de parámetros mediante métodos de regularización.
 
+#### Armamos el mismo fold para replicar en todos los modelos
+
+Primero modificamos las bases agregando el id de los partidos
+
+```{r}
+cols_ceros_mod <- g1 %>%
+  filter(posesiones < 500) %>%
+  pull(jugador)
+
+df_mod_ltp <- poss_by_poss_temporada %>%
+  dplyr::select(
+    partido_key,
+    puntos_pos,
+    dplyr::all_of(names(poss_by_poss_temporada)[24:369])
+  ) %>%
+  dplyr::select(-dplyr::all_of(cols_ceros_mod))
+
+df_mod_ltp_sep <- df_mod_ltp
+
+jugadores <- setdiff(
+  names(df_mod_ltp_sep),
+  c("partido_key", "puntos_pos")
+)
+
+for (j in jugadores) {
+  df_mod_ltp_sep[[paste0(j, "_off")]] <-
+    ifelse(df_mod_ltp_sep[[j]] == 1, 1, 0)
+
+  df_mod_ltp_sep[[paste0(j, "_def")]] <-
+    ifelse(df_mod_ltp_sep[[j]] == -1, -1, 0)
+}
+
+df_mod_ltp_sep <- df_mod_ltp_sep %>%
+  dplyr::select(-dplyr::all_of(jugadores))
+```
+
+Genero los folds por partido
+
+```{r}
+id_partido <- df_mod_ltp_sep$partido_key
+y <- df_mod_ltp_sep$puntos_pos
+
+X <- df_mod_ltp_sep %>%
+  dplyr::select(-partido_key, -puntos_pos) %>%
+  as.matrix()
+
+set.seed(20260809)
+
+K <- 10
+
+partidos <- unique(id_partido)
+
+fold_por_partido <- sample(
+  rep(seq_len(K), length.out = length(partidos))
+)
+
+foldid <- fold_por_partido[
+  match(id_partido, partidos)
+]
+
+stopifnot(
+  length(foldid) == nrow(X),
+  length(y) == nrow(X),
+  !anyNA(foldid)
+)
+
+# Partidos por fold
+sapply(
+  split(id_partido, foldid),
+  dplyr::n_distinct
+)
+
+# Posesiones por fold
+table(foldid)
+
+# Verificar que ningún partido aparezca en más de un fold
+max(
+  tapply(foldid, id_partido, dplyr::n_distinct)
+)
+```
+
+
 #### Ridge - Normal
 
 \begin{equation}
@@ -1835,19 +1917,24 @@ aplico directamente el modelo separando los efectos ofensivos y defensivos
 # mi_grilla_lambda <- 10^seq(3.5, -4.3, length = 200)
 # 
 # modelo_ridge <- cv.glmnet(
-#   X, y,
-#   alpha = 0,
-#   lambda = mi_grilla_lambda,# ridge
-#   nfolds = 10
+#   x = X,
+#   y = y,
+#   family = "gaussian",
+#   alpha = 0,# ridge
+#   lambda = mi_grilla_lambda,
+#   standardize = FALSE,
+#   foldid = foldid,
+#   type.measure = "mse",
+#   keep = TRUE
 # )
-# 
-# plot(modelo_ridge)
-# 
-# print(modelo_ridge$lambda.min)
-# 
-# min(modelo_ridge$cvm)
-#saveRDS(modelo_ridge, "modelo_ridge.RDS")
-modelo_ridge = readRDS("modelo_ridge.RDS")
+
+plot(modelo_ridge)
+
+print(modelo_ridge$lambda.min)
+
+min(modelo_ridge$cvm)
+saveRDS(modelo_ridge, "modelo_ridge.RDS")
+# modelo_ridge = readRDS("modelo_ridge.RDS")
 
 betas <- as.matrix(coef(modelo_ridge, s = "lambda.min"))
 
@@ -1856,7 +1943,8 @@ df_betas <- data.frame(
   beta = betas[,1]
 )
 
-beta_hat = df_betas[-c(1,2),]
+beta_hat <- df_betas %>%
+  filter(jugador != "(Intercept)")
 
 beta_hat_ridge_normal_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = beta)
 
@@ -1866,6 +1954,7 @@ beta_hat_ambas = beta_hat_ridge_normal_off %>% left_join(beta_hat_ridge_normal_d
 
 df_full <- beta_hat_ambas %>% 
   mutate(coef_tot = coef_of + coef_def)
+
 ```
 
 CME cross-validation
@@ -1933,29 +2022,34 @@ S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda \sum_{k=1}^p|\beta_k|=S+\lambda \su
 modelo separando los efectos ofensivos y defensivos
 
 ```{r}
-# grilla_lasso <- 10^seq(1, -5, length = 200)
-# 
+grilla_lasso <- 10^seq(1, -5, length = 200)
+
 # X <- model.matrix(
 #   puntos_pos ~ . -1,
 #   data = df_mod_ltp_sep
 # )
 # 
 # y <- df_mod_ltp_sep$puntos_pos
-# 
-# modelo_lasso <- cv.glmnet(
-#   X, y,
-#   alpha = 1,      
-#   nfolds = 10,
-#   lambda = grilla_lasso
-# )
-# 
-# modelo_lasso$lambda.min
-# 
-# min(modelo_lasso$cvm)
-# 
-# plot(modelo_lasso)
 
-#saveRDS(modelo_lasso, "modelo_lasso.RDS")
+modelo_lasso <- cv.glmnet(
+  x = X,
+  y = y,
+  family = "gaussian",
+  alpha = 1,
+  lambda = grilla_lasso,
+  foldid = foldid,
+  standardize = FALSE,
+  type.measure = "mse",
+  keep = TRUE
+)
+
+modelo_lasso$lambda.min
+
+min(modelo_lasso$cvm)
+
+plot(modelo_lasso)
+
+saveRDS(modelo_lasso, "modelo_lasso.RDS")
 
 modelo_lasso = readRDS("modelo_lasso.RDS")
 
@@ -1965,6 +2059,7 @@ df_betas <- data.frame(
   jugador = rownames(betas),
   beta = betas[,1]
 )
+sum(df_betas$beta == 0)
 
 beta_hat = df_betas[-c(1,2),]
 
@@ -2096,28 +2191,6 @@ g3 <- ggplot(df1, aes(x = pm_ajust_pos,
 Leandro vildoza: Reconocido base de carácter defensivo, condujo a los cordobeses a jugar la final ante Boca. Presentó el mayor coeficiente defensivo con lasso.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #### Elastic net - Normal
 
 Cuando existen predictores altamente correlacionados, **ridge** reduce la influencia de todos ellos a la vez de forma proporcional, mientras que **lasso** tiende a seleccionar uno de ellos, dándole todo el peso y excluyendo al resto. En presencia de correlaciones fuertes esta selección puede variar mucho ante pequeñas perturbaciones, por lo que las soluciones de lasso pueden ser más inestables.
@@ -2133,22 +2206,24 @@ S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{
 Para cada α en la grilla (0, 0.1, 0.2, …, 1.0), cv.glmnet internamente hace validación cruzada de 10 folds probando muchos valores de λ, y guarda el CME promedio mínimo.
 
 ```{r}
-alphas   <- seq(0, 1, by = 0.1)   # 0=Ridge, 1=Lasso
-# cv_lista <- list()
-# 
-# set.seed(42)
-# for (a in alphas) {
-#   cv_lista[[as.character(a)]] <- cv.glmnet(
-#     X, y,
-#     alpha       = a,
-#     nfolds      = 10,
-#     standardize = FALSE
-#   )
-# }
-# 
-# saveRDS(cv_lista, file = "cv_lista.RDS")
+alphas   <- c(
+  seq(0, 0.10, by = 0.005)
+)# 0=Ridge, 1=Lasso
+cv_lista <- list()
 
-cv_lista = readRDS("cv_lista.RDS")
+set.seed(20260809)
+for (a in alphas) {
+  cv_lista[[as.character(a)]] <- cv.glmnet(
+    X, y,
+    alpha       = a,
+    foldid = foldid,
+    standardize = FALSE
+  )
+}
+
+saveRDS(cv_lista, file = "cv_lista.RDS")
+# 
+# cv_lista = readRDS("cv_lista.RDS")
 
 # CV-error mínimo para cada alpha
 cv_errors <- sapply(cv_lista, function(m) min(m$cvm))
@@ -2179,7 +2254,7 @@ ggplot(df_alpha, aes(alpha, mse)) +
 
 ```
 
-modelo final con alpha 0.1
+modelo final con alpha 0.005
 
 ```{r}
 
@@ -2187,6 +2262,12 @@ modelo final con alpha 0.1
 modelo_enet <- cv_lista[[as.character(alpha_optimo)]]
 
 modelo_enet$lambda.min
+
+min(modelo_enet$cvm)
+
+```
+
+```{r}
 
 plot(modelo_enet)
 
@@ -2197,7 +2278,8 @@ df_betas <- data.frame(
   beta = betas[,1]
 )
 
-beta_hat = df_betas[-c(1,2),]
+beta_hat <- df_betas %>%
+  filter(jugador != "(Intercept)")
 
 beta_hat_enet_normal_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = beta)
 
@@ -2240,6 +2322,145 @@ ggplot(df_cv, aes(x = log_lambda)) +
   theme_minimal() +
 theme(axis.text.x.top = element_text(angle = 45, vjust = 0.5, size = 7))
 ```
+#### Jugadores excluidos
+
+
+```{r}
+resumen_nulidad <- function(modelo, nombre_modelo) {
+
+  betas <- as.matrix(
+    coef(modelo, s = "lambda.min")
+  )[, 1]
+
+  betas <- tibble::tibble(
+    variable = names(betas),
+    beta = as.numeric(betas)
+  ) %>%
+    dplyr::filter(variable != "(Intercept)") %>%
+    dplyr::mutate(
+      componente = dplyr::case_when(
+        stringr::str_ends(variable, "_off") ~ "Ofensivo",
+        stringr::str_ends(variable, "_def") ~ "Defensivo"
+      ),
+      jugador = stringr::str_remove(
+        variable,
+        "_(off|def)$"
+      ),
+      nulo = beta == 0
+    )
+
+  resumen_componentes <- betas %>%
+    dplyr::group_by(componente) %>%
+    dplyr::summarise(
+      nulos = sum(nulo),
+      no_nulos = sum(!nulo),
+      .groups = "drop"
+    )
+
+  resumen_jugadores <- betas %>%
+    dplyr::select(jugador, componente, nulo) %>%
+    tidyr::pivot_wider(
+      names_from = componente,
+      values_from = nulo
+    ) %>%
+    dplyr::summarise(
+      ambos_nulos = sum(Ofensivo & Defensivo),
+      solo_ofensivo_nulo = sum(Ofensivo & !Defensivo),
+      solo_defensivo_nulo = sum(!Ofensivo & Defensivo),
+      ninguno_nulo = sum(!Ofensivo & !Defensivo)
+    )
+
+  list(
+    modelo = nombre_modelo,
+    componentes = resumen_componentes,
+    jugadores = resumen_jugadores
+  )
+}
+
+resumen_nulidad(modelo_lasso, "Lasso")
+resumen_nulidad(modelo_enet, "Elastic Net")
+```
+
+
+para ridge
+
+```{r}
+resumen_coeficientes <- function(modelo, nombre) {
+
+  beta <- as.matrix(
+    coef(modelo, s = "lambda.min")
+  )[-1, 1]  # excluye el intercepto
+
+  tibble::tibble(
+    Modelo = nombre,
+    Total = length(beta),
+    Nulos = sum(beta == 0),
+    Cercanos_a_cero = sum(abs(beta) < 0.001),
+    Cercanos_no_nulos = sum(abs(beta) < 0.001 & beta != 0),
+    Mediana_abs = median(abs(beta)),
+    Q90_abs = quantile(abs(beta), 0.90),
+    Max_abs = max(abs(beta))
+  )
+}
+
+tabla_distribucion <- dplyr::bind_rows(
+  resumen_coeficientes(modelo_ridge, "Ridge"),
+  resumen_coeficientes(modelo_lasso, "LASSO"),
+  resumen_coeficientes(modelo_enet, "Elastic Net")
+)
+```
+
+#### Comparación de coeficientes
+
+```{r}
+extraer_betas <- function(modelo, nombre) {
+  
+  beta <- as.matrix(
+    coef(modelo, s = "lambda.min")
+  )[-1, 1]  # excluye el intercepto
+  
+  tibble::tibble(
+    modelo = nombre,
+    beta = as.numeric(beta)
+  )
+}
+
+betas_modelos <- dplyr::bind_rows(
+  extraer_betas(modelo_ridge, "Ridge"),
+  extraer_betas(modelo_enet, "Elastic Net"),
+  extraer_betas(modelo_lasso, "LASSO")
+) %>%
+  dplyr::mutate(
+    modelo = factor(
+      modelo,
+      levels = c("Ridge", "Elastic Net", "LASSO")
+    )
+  )
+
+betas_no_nulos <- betas_modelos %>%
+  dplyr::filter(beta != 0)
+
+dist_betas_normal = ggplot(betas_no_nulos, aes(x = beta, fill = modelo, color = modelo,)) +
+  geom_density(
+    alpha = 0.65,
+    linewidth = 0.7,
+    adjust = 1
+  ) +
+  scale_fill_brewer(palette = "Set2", name = "Modelo") +
+  scale_color_brewer(palette = "Set2", name = "Modelo") +
+  labs(
+    x = "Coeficientes estimados",
+    y = "Densidad") +
+  theme_minimal()
+
+# ggsave(
+#   "img/dist_betas_normal.pdf",
+#   dist_betas_normal,
+#   width = 7,
+#   height = 5
+# )
+```
+
 
 ### Modelo de regresión logística multinomial - Métodos de regularización
 
@@ -2326,6 +2547,8 @@ modelo_multi_ridge = readRDS("modelo_multi_ridge.RDS")
 # plot(modelo_multi_ridge)
 
 #modelo_multi_ridge$lambda
+modelo_multi_ridge$lambda.min
+min(modelo_multi_ridge$cvm)
 
 coefs <- coef(modelo_multi_ridge, s = "lambda.min")
 
@@ -2352,18 +2575,49 @@ intercepto_ridge <- df_betas |>
 df_betas <- df_betas |>
   filter(jugador != "(Intercept)")
 
+# Coeficientes ofensivos: presencia codificada como +1
+df_betas_off_ridge_multi <- df_betas %>%
+  filter(grepl("_off", jugador)) %>%
+  mutate(
+    den = exp(intercepto_ridge$beta_0 + beta_0) +
+          exp(intercepto_ridge$beta_1 + beta_1) +
+          exp(intercepto_ridge$beta_2 + beta_2) +
+          exp(intercepto_ridge$beta_3 + beta_3),
 
-pi_1 = exp(intercepto_ridge$beta_1 + df_betas$beta_1)/(exp(intercepto_ridge$beta_0 + df_betas$beta_0)+exp(intercepto_ridge$beta_1 + df_betas$beta_1)+exp(intercepto_ridge$beta_2 + df_betas$beta_2)+exp(intercepto_ridge$beta_3 + df_betas$beta_3))
+    pi_1 = exp(intercepto_ridge$beta_1 + beta_1) / den,
+    pi_2 = exp(intercepto_ridge$beta_2 + beta_2) / den,
+    pi_3 = exp(intercepto_ridge$beta_3 + beta_3) / den,
 
-pi_2 = exp(intercepto_ridge$beta_2 + df_betas$beta_2)/(exp(intercepto_ridge$beta_0 + df_betas$beta_0)+exp(intercepto_ridge$beta_1 + df_betas$beta_1)+exp(intercepto_ridge$beta_2 + df_betas$beta_2)+exp(intercepto_ridge$beta_3 + df_betas$beta_3))
+    epts = pi_1 + 2 * pi_2 + 3.0304 * pi_3,
+    tipo = "Ofensivo"
+  ) %>%
+  dplyr::select(-den)
 
-pi_3 = exp(intercepto_ridge$beta_3 + df_betas$beta_3)/(exp(intercepto_ridge$beta_0 + df_betas$beta_0)+exp(intercepto_ridge$beta_1 + df_betas$beta_1)+exp(intercepto_ridge$beta_2 + df_betas$beta_2)+exp(intercepto_ridge$beta_3 + df_betas$beta_3))
 
-df_betas = df_betas %>% mutate(pi_1 = pi_1, pi_2 = pi_2, pi_3 = pi_3)
+# Coeficientes defensivos: presencia codificada como -1
+df_betas_def_ridge_multi <- df_betas %>%
+  filter(grepl("_def", jugador)) %>%
+  mutate(
+    den = exp(intercepto_ridge$beta_0 - beta_0) +
+          exp(intercepto_ridge$beta_1 - beta_1) +
+          exp(intercepto_ridge$beta_2 - beta_2) +
+          exp(intercepto_ridge$beta_3 - beta_3),
 
-epts = pi_1 + 2*pi_2 + 3.01*pi_3
+    pi_1 = exp(intercepto_ridge$beta_1 - beta_1) / den,
+    pi_2 = exp(intercepto_ridge$beta_2 - beta_2) / den,
+    pi_3 = exp(intercepto_ridge$beta_3 - beta_3) / den,
 
-df_betas_ridge = df_betas %>% mutate(epts = epts)
+    epts = pi_1 + 2 * pi_2 + 3.0304 * pi_3,
+    tipo = "Defensivo"
+  ) %>%
+  dplyr::select(-den)
+
+
+# Concatenar resultados
+df_betas_ridge <- bind_rows(
+  df_betas_off_ridge_multi,
+  df_betas_def_ridge_multi
+)
 
 beta_hat_ridge_multi_off = df_betas_ridge %>% filter(grepl("off",jugador))
 
@@ -2417,6 +2671,8 @@ modelo_multi_lasso = readRDS("modelo_multi_lasso.RDS")
 #   standardize = FALSE
 # )
 
+min(modelo_multi_lasso$cvm)
+
 coefs <- coef(modelo_multi_lasso, s = "lambda.min")
 
 beta_0 <- as.numeric(coefs[["0"]])
@@ -2442,18 +2698,49 @@ intercepto_lasso <- df_betas |>
 df_betas <- df_betas |>
   filter(jugador != "(Intercept)")
 
+# Coeficientes ofensivos: presencia codificada como +1
+df_betas_off <- df_betas %>%
+  filter(grepl("_off", jugador)) %>%
+  mutate(
+    den = exp(intercepto_lasso$beta_0 + beta_0) +
+          exp(intercepto_lasso$beta_1 + beta_1) +
+          exp(intercepto_lasso$beta_2 + beta_2) +
+          exp(intercepto_lasso$beta_3 + beta_3),
 
-pi_1 = exp(intercepto_lasso$beta_1 + df_betas$beta_1)/(exp(intercepto_lasso$beta_0 + df_betas$beta_0)+exp(intercepto_lasso$beta_1 + df_betas$beta_1)+exp(intercepto_lasso$beta_2 + df_betas$beta_2)+exp(intercepto_lasso$beta_3 + df_betas$beta_3))
+    pi_1 = exp(intercepto_lasso$beta_1 + beta_1) / den,
+    pi_2 = exp(intercepto_lasso$beta_2 + beta_2) / den,
+    pi_3 = exp(intercepto_lasso$beta_3 + beta_3) / den,
 
-pi_2 = exp(intercepto_lasso$beta_2 + df_betas$beta_2)/(exp(intercepto_lasso$beta_0 + df_betas$beta_0)+exp(intercepto_lasso$beta_1 + df_betas$beta_1)+exp(intercepto_lasso$beta_2 + df_betas$beta_2)+exp(intercepto_lasso$beta_3 + df_betas$beta_3))
+    epts = pi_1 + 2 * pi_2 + 3.0304 * pi_3,
+    tipo = "Ofensivo"
+  ) %>%
+  dplyr::select(-den)
 
-pi_3 = exp(intercepto_lasso$beta_3 + df_betas$beta_3)/(exp(intercepto_lasso$beta_0 + df_betas$beta_0)+exp(intercepto_lasso$beta_1 + df_betas$beta_1)+exp(intercepto_lasso$beta_2 + df_betas$beta_2)+exp(intercepto_lasso$beta_3 + df_betas$beta_3))
 
-df_betas = df_betas %>% mutate(pi_1 = pi_1, pi_2 = pi_2, pi_3 = pi_3)
+# Coeficientes defensivos: presencia codificada como -1
+df_betas_def <- df_betas %>%
+  filter(grepl("_def", jugador)) %>%
+  mutate(
+    den = exp(intercepto_lasso$beta_0 - beta_0) +
+          exp(intercepto_lasso$beta_1 - beta_1) +
+          exp(intercepto_lasso$beta_2 - beta_2) +
+          exp(intercepto_lasso$beta_3 - beta_3),
 
-epts_lasso = pi_1 + 2*pi_2 + 3.01*pi_3
+    pi_1 = exp(intercepto_lasso$beta_1 - beta_1) / den,
+    pi_2 = exp(intercepto_lasso$beta_2 - beta_2) / den,
+    pi_3 = exp(intercepto_lasso$beta_3 - beta_3) / den,
 
-df_betas_lasso = df_betas %>% mutate(epts = epts_lasso)
+    epts = pi_1 + 2 * pi_2 + 3.0304 * pi_3,
+    tipo = "Defensivo"
+  ) %>%
+  dplyr::select(-den)
+
+
+# Concatenar resultados
+df_betas_lasso <- bind_rows(
+  df_betas_off,
+  df_betas_def
+)
 
 beta_hat_lasso_multi_off = df_betas_lasso %>% filter(grepl("off",jugador))
 
@@ -2464,7 +2751,7 @@ plot(modelo_multi_lasso)
 
 Se utiliza la función type.multinomial = "grouped" la cual aplica una penalización grupal (group lasso): los coeficientes de un mismo predictor(coef off o def) en todas las categorías se tratan como un grupo. El predictor entra o sale del modelo para todas las categorías al mismo tiempo.
 
-199 categorías distintas de 0
+199 indicadoras distintas de 0
 
 Deviance
 
@@ -2476,6 +2763,8 @@ modelo_multi_lasso$cvm[which.min(modelo_multi_lasso$cvm)]
 #y_pred_cat <- predict(modelo_multi_lasso, X, s = "lambda.min", type = "class")
 #mean(y_pred_cat == y_factor)                        # accuracy global
 #table(Predicho = y_pred_cat, Real = y_factor)
+
+resumen_nulidad(modelo_lasso, "LASSO - Logístico")
 ```
 
 caracteristicas jugadores eliminados de no eliminados
@@ -2570,12 +2859,7 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 \end{equation}
 
 ```{r}
-#Hacer
-# X <- model.matrix(
-#   puntos_pos ~ .,
-#   data = df_mod_ltp_sep
-# )
-# 
+
 # y_multi = df_mod_ltp_sep |>
 #   mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
 #   pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
@@ -2583,21 +2867,39 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 # 
 # y_factor <- factor(y_multi)
 # 
-# alphas <- seq(0, 1, by = 0.1)
-# resultados <- data.frame(alpha = numeric(), lambda_min = numeric(), cvm_min = numeric())
+# alphas   <- c(0,
+#   seq(0.005, 0.10, by = 0.005),
+#   seq(0.2,1,by = 0.1)
+# )# 0=Ridge, 1=Lasso
+# cv_lista <- list()
 # 
-# set.seed(42)
+# set.seed(20260809)
 # for (a in alphas) {
-#   cv_tmp <- cv.glmnet(X, y_factor, family = "multinomial",
-#                       alpha = a, nfolds = 10,
-#                       type.multinomial = "grouped")
-#   
-#   resultados <- rbind(resultados, data.frame(
-#     alpha      = a,
-#     lambda_min = cv_tmp$lambda.min,
-#     cvm_min    = min(cv_tmp$cvm)   # error de CV en lambda.min
-#   ))
+#   cv_lista[[as.character(a)]] <- cv.glmnet(
+#     X, y_factor,
+#     family = "multinomial",
+#     type.multinomial = "grouped",
+#     alpha  = a,
+#     foldid = foldid,
+#     standardize = FALSE
+#   )
 # }
+# 
+# resultados_multi <- data.frame(
+#   alpha = alphas,
+#   lambda_min = sapply(
+#     cv_lista,
+#     function(modelo) modelo$lambda.min
+#   ),
+#   cvm_min = sapply(
+#     cv_lista,
+#     function(modelo) min(modelo$cvm)
+#   )
+# )
+# 
+# resultados_multi |>
+#   arrange(cvm_min)
+
 
 # Mejor combinación
 # resultados[which.min(resultados$cvm_min), ]
@@ -2614,8 +2916,15 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 # 
 # min(modelo_multi_enet$cvm)
 
-modelo_multi_enet = readRDS("modelo_multi_enet.RDS")
+# mejor_enet <- resultados_multi |>
+#   filter(alpha > 0, alpha < 1) |>
+#   slice_min(cvm_min, n = 1)
+# 
+# modelo_multi_enet <- cv_lista[[as.character(0.005)]]
+# # 
+# saveRDS(modelo_multi_enet, "modelo_multi_enet.RDS")
 
+modelo_multi_enet = readRDS("modelo_multi_enet.RDS")
 
 coefs <- coef(modelo_multi_enet, s = "lambda.min")
 
@@ -2625,7 +2934,7 @@ beta_2 <- as.numeric(coefs[["2"]])
 beta_3 <- as.numeric(coefs[["3"]])
 
 df_betas <- data.frame(
-  jugador = rownames(coefs[["0"]]),
+  jugador = gsub("`", "", rownames(coefs[["0"]])),
   beta_0  = beta_0,
   beta_1  = beta_1,
   beta_2  = beta_2,
@@ -2633,7 +2942,7 @@ df_betas <- data.frame(
 )
 
 df_betas <- df_betas |>
-  filter(!(jugador == "(Intercept)" & beta_0 == 0 & beta_1 == 0 & 
+  filter(!(beta_0 == 0 & beta_1 == 0 & 
            beta_2 == 0 & beta_3 == 0))
 
 intercepto_enet <- df_betas |> 
@@ -2642,22 +2951,252 @@ intercepto_enet <- df_betas |>
 df_betas <- df_betas |>
   filter(jugador != "(Intercept)")
 
+# Coeficientes ofensivos: presencia codificada como +1
+df_betas_off <- df_betas %>%
+  filter(grepl("_off", jugador)) %>%
+  mutate(
+    den = exp(intercepto_enet$beta_0 + beta_0) +
+          exp(intercepto_enet$beta_1 + beta_1) +
+          exp(intercepto_enet$beta_2 + beta_2) +
+          exp(intercepto_enet$beta_3 + beta_3),
 
-pi_1 = exp(intercepto_enet$beta_1 + df_betas$beta_1)/(exp(intercepto_enet$beta_0 + df_betas$beta_0)+exp(intercepto_enet$beta_1 + df_betas$beta_1)+exp(intercepto_enet$beta_2 + df_betas$beta_2)+exp(intercepto_enet$beta_3 + df_betas$beta_3))
+    pi_1 = exp(intercepto_enet$beta_1 + beta_1) / den,
+    pi_2 = exp(intercepto_enet$beta_2 + beta_2) / den,
+    pi_3 = exp(intercepto_enet$beta_3 + beta_3) / den,
 
-pi_2 = exp(intercepto_enet$beta_2 + df_betas$beta_2)/(exp(intercepto_enet$beta_0 + df_betas$beta_0)+exp(intercepto_enet$beta_1 + df_betas$beta_1)+exp(intercepto_enet$beta_2 + df_betas$beta_2)+exp(intercepto_enet$beta_3 + df_betas$beta_3))
+    epts = pi_1 + 2 * pi_2 + 3.0304 * pi_3,
+    tipo = "Ofensivo"
+  ) %>%
+  dplyr::select(-den)
 
-pi_3 = exp(intercepto_enet$beta_3 + df_betas$beta_3)/(exp(intercepto_enet$beta_0 + df_betas$beta_0)+exp(intercepto_enet$beta_1 + df_betas$beta_1)+exp(intercepto_enet$beta_2 + df_betas$beta_2)+exp(intercepto_enet$beta_3 + df_betas$beta_3))
 
-df_betas = df_betas %>% mutate(pi_1 = pi_1, pi_2 = pi_2, pi_3 = pi_3)
+# Coeficientes defensivos: presencia codificada como -1
+df_betas_def <- df_betas %>%
+  filter(grepl("_def", jugador)) %>%
+  mutate(
+    den = exp(intercepto_enet$beta_0 - beta_0) +
+          exp(intercepto_enet$beta_1 - beta_1) +
+          exp(intercepto_enet$beta_2 - beta_2) +
+          exp(intercepto_enet$beta_3 - beta_3),
 
-epts = pi_1 + 2*pi_2 + 3.01*pi_3
+    pi_1 = exp(intercepto_enet$beta_1 - beta_1) / den,
+    pi_2 = exp(intercepto_enet$beta_2 - beta_2) / den,
+    pi_3 = exp(intercepto_enet$beta_3 - beta_3) / den,
 
-df_betas = df_betas %>% mutate(epts = epts)
+    epts = pi_1 + 2 * pi_2 + 3.0304 * pi_3,
+    tipo = "Defensivo"
+  ) %>%
+  dplyr::select(-den)
 
-beta_hat_enet_multi_off = df_betas %>% filter(grepl("off",jugador))
+# Concatenar resultados
+df_betas_enet <- bind_rows(
+  df_betas_off,
+  df_betas_def
+)
+```
 
-beta_hat_enet_multi_def = df_betas %>% filter(grepl("def",jugador))
+#### Coeficientes anulados
+
+```{r}
+resumen_nulidad_multi <- function(modelo, nombre_modelo) {
+  
+  # Lista con una matriz de coeficientes por categoría
+  coefs <- coef(modelo, s = "lambda.min")
+  
+  # Unir los coeficientes de las cuatro categorías
+  matriz_betas <- do.call(
+    cbind,
+    lapply(coefs, function(x) as.numeric(x[, 1]))
+  )
+  
+  rownames(matriz_betas) <- rownames(coefs[[1]])
+  colnames(matriz_betas) <- names(coefs)
+  
+  # Una variable es nula si es cero en todas las categorías
+  betas <- tibble::tibble(
+  variable = rownames(matriz_betas),
+  nulo = apply(matriz_betas == 0, 1, all)
+) %>%
+  dplyr::filter(variable != "(Intercept)") %>%
+  dplyr::mutate(
+    variable = stringr::str_remove_all(variable, "`"),
+    
+    componente = dplyr::case_when(
+      stringr::str_ends(variable, "_off") ~ "Ofensivo",
+      stringr::str_ends(variable, "_def") ~ "Defensivo",
+      TRUE ~ NA_character_
+    ),
+    
+    jugador = stringr::str_remove(
+      variable,
+      "_(off|def)$"
+    )
+  )
+  
+  resumen_componentes <- betas %>%
+    dplyr::group_by(componente) %>%
+    dplyr::summarise(
+      nulos = sum(nulo),
+      no_nulos = sum(!nulo),
+      .groups = "drop"
+    )
+  
+  resumen_jugadores <- betas %>%
+    dplyr::select(jugador, componente, nulo) %>%
+    tidyr::pivot_wider(
+      names_from = componente,
+      values_from = nulo
+    ) %>%
+    dplyr::summarise(
+      ambos_nulos = sum(Ofensivo & Defensivo),
+      solo_ofensivo_nulo = sum(Ofensivo & !Defensivo),
+      solo_defensivo_nulo = sum(!Ofensivo & Defensivo),
+      ninguno_nulo = sum(!Ofensivo & !Defensivo)
+    )
+  
+  list(
+    modelo = nombre_modelo,
+    componentes = resumen_componentes,
+    jugadores = resumen_jugadores
+  )
+}
+
+resumen_nulidad_multi(modelo_multi_enet, "Elastic Net - Multinomial")
+```
+
+#### Comparación de coeficientes
+
+```{r}
+epts_todos = bind_rows(df_betas_ridge %>% mutate(Modelo = "Ridge") %>% dplyr::select(jugador, epts, tipo, Modelo),df_betas_lasso %>% mutate(Modelo = "LASSO") %>% dplyr::select(jugador, epts, tipo, Modelo),df_betas_enet %>% mutate(Modelo = "Elastic Net") %>% dplyr::select(jugador, epts, tipo, Modelo))
+
+epts_todos = epts_todos %>% mutate(Modelo = factor(Modelo,levels = c("Ridge", "Elastic Net", "LASSO")))
+
+# dist_betas_multi = ggplot(epts_todos, aes(x = epts, fill = Modelo, color = Modelo,)) +
+#   geom_density(
+#     alpha = 0.65,
+#     linewidth = 0.7,
+#     adjust = 1
+#   ) +
+#   scale_fill_brewer(palette = "Set2", name = "Modelo") +
+#   scale_color_brewer(palette = "Set2", name = "Modelo") +
+#   labs(
+#     x = "Coeficientes estimados",
+#     y = "Densidad") +
+#   theme_minimal()
+
+library(ggplot2)
+library(ggridges)
+
+# ggplot(
+#   epts_todos,
+#   aes(
+#     x = epts,
+#     y = Modelo,
+#     fill = Modelo,
+#     color = Modelo
+#   )
+# ) +
+#   geom_density_ridges(
+#     alpha = 0.65,
+#     linewidth = 0.7,
+#     scale = 1.1,
+#     rel_min_height = 0.01
+#   ) +
+#   facet_wrap(
+#     ~ tipo,
+#     ncol = 1,
+#     scales = "free_y"
+#   ) +
+#   scale_fill_brewer(
+#     palette = "Set2",
+#     guide = "none"
+#   ) +
+#   scale_color_brewer(
+#     palette = "Set2",
+#     guide = "none"
+#   ) +
+#   labs(
+#     x = "Puntos esperados por posesión (EPTS)",
+#     y = NULL
+#   ) +
+#   theme_minimal() +
+#   theme(
+#     panel.grid = element_blank(),
+#     strip.text = element_text(
+#       face = "bold",
+#       size = 11
+#     )
+#   )
+
+dist_betas_multi = ggplot(
+  epts_todos,
+  aes(
+    x = epts,
+    y = tipo,
+    group = interaction(tipo, Modelo),
+    fill = Modelo,
+    color = Modelo
+  )
+) +
+  geom_density_ridges(
+    alpha = 0.65,
+    linewidth = 0.7,
+    scale = 0.9,
+    position = "identity"
+  ) +
+  scale_fill_brewer(palette = "Set2", name = "Modelo") +
+  scale_color_brewer(palette = "Set2", name = "Modelo") +
+  labs(
+    x = "Puntos esperados por posesión (EPTS)",
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(panel.grid = element_blank())
+
+# ggsave(
+#   "img/dist_betas_multi.pdf",
+#   dist_betas_multi,
+#   width = 7,
+#   height = 5
+# )
+
+```
+
+Calculo de correlación de spearman
+
+```{r}
+epts_ridge = epts_todos %>% filter(Modelo == "Ridge") %>% dplyr::select(jugador, tipo, epts) %>% arrange(jugador)
+
+epts_enet = epts_todos %>% filter(Modelo == "Elastic Net") %>% dplyr::select(jugador, tipo, epts)
+
+symdiff(epts_ridge$jugador, epts_enet$jugador)
+
+# Falta el coeficiente ALONSO, GONZALO NICOLAS_def en Elastic Net
+
+b0_enet <- sapply(
+  coef(modelo_multi_enet, s = "lambda.min"),
+  function(x) as.numeric(x["(Intercept)", 1])
+)
+
+# Softmax
+prob_base_enet <- exp(b0_enet - max(b0_enet))
+prob_base_enet <- prob_base_enet / sum(prob_base_enet)
+
+# EPTS cuando los coeficientes del jugador son cero
+epts_base_enet <- sum(
+  c("0" = 0, "1" = 1, "2" = 2, "3" = 3.0304)[names(prob_base_enet)] *
+    prob_base_enet
+)
+
+epts_base_enet
+
+epts_enet = add_row(epts_enet, jugador = "ALONSO, GONZALO NICOLAS_def", epts = epts_base_enet, tipo = "Defensivo")
+
+epts_enet = epts_enet %>% arrange(jugador)
+
+cor(epts_ridge %>% filter(tipo == "Ofensivo") %>% pull(epts), epts_enet %>% filter(tipo == "Ofensivo") %>% pull(epts), method = "spearman")
+
+cor(epts_ridge %>% filter(tipo == "Defensivo") %>% pull(epts), epts_enet %>% filter(tipo == "Defensivo") %>% pull(epts), method = "spearman")
 
 ```
 
@@ -2732,11 +3271,11 @@ pi_2 = exp(intercepto_ridge$beta_2)/(exp(intercepto_ridge$beta_0)+exp(intercepto
 
 pi_3 = exp(intercepto_ridge$beta_3)/(exp(intercepto_ridge$beta_0)+exp(intercepto_ridge$beta_1)+exp(intercepto_ridge$beta_2)+exp(intercepto_ridge$beta_3))
 
-epts_0_ridge = pi_1 + 2*pi_2 + 3.01*pi_3
+epts_0_ridge = pi_1 + 2*pi_2 + 3.0304*pi_3
 
-poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(beta_hat_ridge_multi_off %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_ridge = epts)
+poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(df_betas_off_ridge_multi %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_ridge = epts)
 
-poss_eq_jug = poss_eq_jug %>% left_join(beta_hat_ridge_multi_def %>% mutate(jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_ridge = epts)
+poss_eq_jug = poss_eq_jug %>% left_join(df_betas_def_ridge_multi %>% mutate(jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_ridge = epts)
 
 w_epts_off = poss_eq_jug$w_off*poss_eq_jug$epts_off_ridge + (1-(poss_eq_jug$w_off))*epts_0_ridge
 
@@ -2745,6 +3284,434 @@ w_epts_def = poss_eq_jug$w_def*poss_eq_jug$epts_def_ridge + (1-(poss_eq_jug$w_de
 poss_eq_jug = poss_eq_jug %>% mutate(w_epts_off_ridge = w_epts_off, w_epts_def_ridge = w_epts_def)
 
 ```
+
+#### Alternativas de análisis para wEPTS
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggridges)
+library(ggrepel)
+library(forcats)
+library(stringr)
+
+datos_ridge <- bind_rows(
+  poss_eq_jug %>%
+    transmute(
+      jugador = jugador_id,
+      tipo = "Ofensivo",
+      participacion = w_off,
+      EPTS = epts_off_ridge,
+      wEPTS = w_epts_off_ridge
+    ),
+  
+  poss_eq_jug %>%
+    transmute(
+      jugador = jugador_id,
+      tipo = "Defensivo",
+      participacion = w_def,
+      EPTS = epts_def_ridge,
+      wEPTS = w_epts_def_ridge
+    )
+) %>%
+  filter(
+    complete.cases(
+      jugador, participacion, EPTS, wEPTS
+    )
+  ) %>%
+  mutate(
+    tipo = factor(
+      tipo,
+      levels = c("Ofensivo", "Defensivo")
+    )
+  )
+
+datos_baja_participacion <- datos_ridge %>%
+  group_by(tipo) %>%
+  slice_min(
+    order_by = participacion,
+    prop = 0.25,
+    with_ties = FALSE
+  ) %>%
+  ungroup()
+
+referencia <- tibble(
+  tipo = factor(
+    c("Ofensivo", "Defensivo"),
+    levels = c("Ofensivo", "Defensivo")
+  ),
+  epts_0 = epts_0_ridge
+)
+```
+
+Gráfico 1) densidades
+
+```{r}
+datos_densidad <- datos_baja_participacion %>%
+  pivot_longer(
+    cols = c(EPTS, wEPTS),
+    names_to = "metrica",
+    values_to = "valor"
+  ) %>%
+  mutate(
+    metrica = factor(
+      metrica,
+      levels = c("EPTS", "wEPTS")
+    )
+  )
+
+grafico_distribuciones <- ggplot(
+  datos_densidad,
+  aes(
+    x = valor,
+    fill = metrica,
+    color = metrica
+  )
+) +
+  geom_vline(
+    data = referencia,
+    aes(xintercept = epts_0),
+    inherit.aes = FALSE,
+    linetype = "dashed",
+    linewidth = 0.7,
+    color = "#305F72"
+  ) +
+  geom_density(
+    alpha = 0.40,
+    linewidth = 0.8,
+    adjust = 1
+  ) +
+  facet_wrap(
+    ~ tipo,
+    ncol = 1,
+    scales = "free_x"
+  ) +
+  scale_fill_manual(
+    values = c(
+      "EPTS" = "#E69F00",
+      "wEPTS" = "#009587"
+    ),
+    name = "Métrica"
+  ) +
+  scale_color_manual(
+    values = c(
+      "EPTS" = "#E69F00",
+      "wEPTS" = "#009587"
+    ),
+    name = "Métrica"
+  ) +
+  labs(
+    x = "Puntos esperados por posesión",
+    y = "Densidad"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    strip.text = element_text(
+      face = "bold",
+      size = 11
+    ),
+    legend.position = "bottom"
+  )
+
+grafico_distribuciones
+```
+
+Gráfico 2) Dumbbell
+
+```{r}
+datos_dumbbell <- datos_ridge %>%
+  group_by(tipo) %>%
+  slice_min(
+    order_by = participacion,
+    n = 15,
+    with_ties = FALSE
+  ) %>%
+  ungroup() %>%
+  mutate(
+    jugador_panel = paste(
+      jugador,
+      tipo,
+      sep = "___"
+    ),
+    jugador_panel = fct_reorder(
+      jugador_panel,
+      participacion,
+      .desc = TRUE
+    )
+  )
+
+grafico_dumbbell <- ggplot(
+  datos_dumbbell,
+  aes(y = jugador_panel)
+) +
+  geom_vline(
+    data = referencia,
+    aes(xintercept = epts_0),
+    inherit.aes = FALSE,
+    linetype = "dashed",
+    linewidth = 0.7,
+    color = "#305F72"
+  ) +
+  geom_segment(
+    aes(
+      x = EPTS,
+      xend = wEPTS,
+      yend = jugador_panel
+    ),
+    linewidth = 0.8,
+    color = "grey65"
+  ) +
+  geom_point(
+    aes(x = EPTS, color = "EPTS"),
+    size = 2.7
+  ) +
+  geom_point(
+    aes(x = wEPTS, color = "wEPTS"),
+    size = 2.7
+  ) +
+  facet_wrap(
+    ~ tipo,
+    ncol = 1,
+    scales = "free_y"
+  ) +
+  scale_y_discrete(
+    labels = function(x) {
+      sub("___.*$", "", x)
+    }
+  ) +
+  scale_color_manual(
+    values = c(
+      "EPTS" = "#E69F00",
+      "wEPTS" = "#009587"
+    ),
+    name = "Métrica"
+  ) +
+  labs(
+    x = "Puntos esperados por posesión",
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(
+      face = "bold",
+      size = 11
+    ),
+    legend.position = "bottom"
+  )
+
+grafico_dumbbell
+```
+
+Gráfico 3) El pretensioso
+
+```{r}
+datos_penalizados <- datos_ridge %>%
+  mutate(
+    penalizacion = case_when(
+      tipo == "Ofensivo" ~ EPTS - wEPTS,
+      tipo == "Defensivo" ~ wEPTS - EPTS
+    )
+  ) %>%
+  filter(penalizacion > 0) %>%
+  group_by(tipo) %>%
+  slice_max(
+    order_by = penalizacion,
+    n = 5,
+    with_ties = FALSE
+  ) %>%
+  ungroup() %>%
+  mutate(
+    etiqueta = str_extract(
+      jugador,
+      "^[^,]+"
+    )
+  )
+
+datos_ridgeline <- datos_ridge %>%
+  pivot_longer(
+    cols = c(EPTS, wEPTS),
+    names_to = "metrica",
+    values_to = "valor"
+  ) %>%
+  mutate(
+    nivel = if_else(
+      metrica == "EPTS",
+      2,
+      1
+    )
+  )
+
+referencia_puntos <- expand_grid(
+  tipo = factor(
+    c("Ofensivo", "Defensivo"),
+    levels = c("Ofensivo", "Defensivo")
+  ),
+  nivel = c(1, 2)
+) %>%
+  mutate(epts_0 = epts_0_ridge)
+
+crear_ridgeline <- function(tipo_elegido) {
+  
+  ggplot() +
+    geom_density_ridges(
+      data = datos_ridgeline %>%
+        filter(tipo == tipo_elegido),
+      aes(
+        x = valor,
+        y = nivel,
+        group = metrica,
+        fill = metrica
+      ),
+      alpha = 0.55,
+      color = "white",
+      linewidth = 0.5,
+      scale = 0.65,
+      rel_min_height = 0.01
+    ) +
+    
+    geom_vline(
+      data = referencia %>%
+        filter(tipo == tipo_elegido),
+      aes(xintercept = epts_0),
+      inherit.aes = FALSE,
+      linetype = "dashed",
+      linewidth = 0.7,
+      color = "#305F72"
+    ) +
+    
+    geom_segment(
+      data = datos_penalizados %>%
+        filter(tipo == tipo_elegido),
+      aes(
+        x = EPTS,
+        xend = wEPTS,
+        y = 2,
+        yend = 1
+      ),
+      inherit.aes = FALSE,
+      color = "#C44E52",
+      alpha = 0.75,
+      linewidth = 0.7
+    ) +
+    
+    geom_point(
+      data = datos_penalizados %>%
+        filter(tipo == tipo_elegido),
+      aes(x = EPTS, y = 2),
+      inherit.aes = FALSE,
+      color = "#C44E52",
+      fill = "white",
+      shape = 21,
+      size = 2.8,
+      stroke = 0.9
+    ) +
+    
+    geom_point(
+      data = datos_penalizados %>%
+        filter(tipo == tipo_elegido),
+      aes(x = wEPTS, y = 1),
+      inherit.aes = FALSE,
+      color = "#C44E52",
+      fill = "#C44E52",
+      shape = 21,
+      size = 2.8
+    ) +
+    
+    geom_point(
+      data = referencia_puntos %>%
+        filter(tipo == tipo_elegido),
+      aes(x = epts_0, y = nivel),
+      inherit.aes = FALSE,
+      color = "#305F72",
+      fill = "white",
+      shape = 21,
+      size = 3.2,
+      stroke = 1.1
+    ) +
+    
+    geom_text_repel(
+      data = datos_penalizados %>%
+        filter(tipo == tipo_elegido),
+      aes(
+        x = EPTS,
+        y = 2,
+        label = etiqueta
+      ),
+      inherit.aes = FALSE,
+      nudge_y = 0.35,
+      size = 3,
+      min.segment.length = 0,
+      segment.color = "grey55",
+      box.padding = 0.25,
+      max.overlaps = Inf
+    ) +
+    
+    scale_y_continuous(
+      breaks = c(1, 2),
+      labels = c("wEPTS", "EPTS"),
+      limits = c(0.75, 2.8),
+      expand = expansion(mult = c(0, 0.02))
+    ) +
+    
+    scale_fill_manual(
+      values = c(
+        "EPTS" = "#E69F00",
+        "wEPTS" = "#009587"
+      ),
+      guide = "none"
+    ) +
+    
+    labs(
+      title = paste("Componente", tolower(tipo_elegido)),
+      x = "Puntos esperados por posesión",
+      y = NULL
+    ) +
+    
+    theme_minimal() +
+    theme(
+      panel.grid = element_blank(),
+      plot.title = element_text(
+        hjust = 0.5,
+        face = "bold",
+        size = 11
+      )
+    )
+}
+
+grafico_ofensivo <- crear_ridgeline("Ofensivo")
+grafico_defensivo <- crear_ridgeline("Defensivo")
+grafico_ofensivo
+grafico_defensivo
+
+# ggsave(
+#   "img/grafico_ofensivo_wepts.pdf",
+#   grafico_ofensivo,
+#   width = 7,
+#   height = 5
+# )
+# 
+# 
+# ggsave(
+#   "img/grafico_defensivo_wepts.pdf",
+#   grafico_defensivo,
+#   width = 7,
+#   height = 5
+# )
+
+```
+
+
+
+
+
+
+
+
+
 
 
 Lasso
