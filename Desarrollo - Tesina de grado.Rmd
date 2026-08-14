@@ -33,8 +33,9 @@ library(ggrepel)
 library(reactable)
 library(scales)
 library(glmnet)
+library(ggstatsplot)
 
-set.seed(452)
+#set.seed(452)
 ```
 
 ```{r}
@@ -1928,13 +1929,13 @@ aplico directamente el modelo separando los efectos ofensivos y defensivos
 #   keep = TRUE
 # )
 
-plot(modelo_ridge)
-
-print(modelo_ridge$lambda.min)
-
-min(modelo_ridge$cvm)
-saveRDS(modelo_ridge, "modelo_ridge.RDS")
-# modelo_ridge = readRDS("modelo_ridge.RDS")
+# plot(modelo_ridge)
+# 
+# print(modelo_ridge$lambda.min)
+# 
+# min(modelo_ridge$cvm)
+# saveRDS(modelo_ridge, "modelo_ridge.RDS")
+modelo_ridge = readRDS("modelo_ridge.RDS")
 
 betas <- as.matrix(coef(modelo_ridge, s = "lambda.min"))
 
@@ -1950,9 +1951,9 @@ beta_hat_ridge_normal_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% 
 
 beta_hat_ridge_normal_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = beta)
 
-beta_hat_ambas = beta_hat_ridge_normal_off %>% left_join(beta_hat_ridge_normal_def)
+beta_hat_ridge_ambas = beta_hat_ridge_normal_off %>% left_join(beta_hat_ridge_normal_def)
 
-df_full <- beta_hat_ambas %>% 
+df_ridge_full <- beta_hat_ridge_ambas %>% 
   mutate(coef_tot = coef_of + coef_def)
 
 ```
@@ -2031,17 +2032,17 @@ grilla_lasso <- 10^seq(1, -5, length = 200)
 # 
 # y <- df_mod_ltp_sep$puntos_pos
 
-modelo_lasso <- cv.glmnet(
-  x = X,
-  y = y,
-  family = "gaussian",
-  alpha = 1,
-  lambda = grilla_lasso,
-  foldid = foldid,
-  standardize = FALSE,
-  type.measure = "mse",
-  keep = TRUE
-)
+# modelo_lasso <- cv.glmnet(
+#   x = X,
+#   y = y,
+#   family = "gaussian",
+#   alpha = 1,
+#   lambda = grilla_lasso,
+#   foldid = foldid,
+#   standardize = FALSE,
+#   type.measure = "mse",
+#   keep = TRUE
+# )
 
 modelo_lasso$lambda.min
 
@@ -2049,7 +2050,7 @@ min(modelo_lasso$cvm)
 
 plot(modelo_lasso)
 
-saveRDS(modelo_lasso, "modelo_lasso.RDS")
+# saveRDS(modelo_lasso, "modelo_lasso.RDS")
 
 modelo_lasso = readRDS("modelo_lasso.RDS")
 
@@ -2061,15 +2062,16 @@ df_betas <- data.frame(
 )
 sum(df_betas$beta == 0)
 
-beta_hat = df_betas[-c(1,2),]
+beta_hat = df_betas %>%
+  filter(jugador != "(Intercept)")
 
 beta_hat_lasso_normal_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% mutate(jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_of = beta)
 
 beta_hat_lasso_normal_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = beta)
 
-beta_hat_ambas = beta_hat_lasso_normal_off %>% left_join(beta_hat_lasso_normal_def)
+beta_hat_lasso_ambas = beta_hat_lasso_normal_off %>% left_join(beta_hat_lasso_normal_def)
 
-df_full <- beta_hat_ambas %>% 
+df_lasso_full <- beta_hat_lasso_ambas %>% 
   mutate(coef_tot = coef_of + coef_def)
 ```
 
@@ -2112,76 +2114,76 @@ activos <- coefs |>
 ```
 
 ```{r}
-df1 = df_estadisticas %>%  mutate(lasso = if_else(jugador %in% activos$jugador, "Activo", "Eliminado")) %>% filter(!is.na(pm_estandarizado))
-
-library(patchwork)
-# Paleta
-colores <- c(
-  "Activo" = "#1f77b4",
-  "Eliminado" = "#d62728"
-)
-
-# ---------- PM ESTANDARIZADO ----------
-g1 <- ggplot(df1, aes(x = pm_estandarizado,
-                      fill = lasso,
-                      color = lasso)) +
-  geom_histogram(alpha = 0.35, linewidth = 1.1) +
-  scale_fill_manual(values = colores) +
-  scale_color_manual(values = colores) +
-  labs(
-    title = "Distribución de PM estandarizado",
-    x = "PM estandarizado",
-    y = "Densidad",
-    fill = "",
-    color = ""
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "top"
-  )
-
-# ---------- PLUS/MINUS ----------
-g2 <- ggplot(df1, aes(x = `+/-`,
-                      fill = lasso,
-                      color = lasso)) +
-  geom_histogram(alpha = 0.35) +
-  scale_fill_manual(values = colores) +
-  scale_color_manual(values = colores) +
-  labs(
-    title = "Distribución de +/-",
-    x = "+/-",
-    y = "Densidad",
-    fill = "",
-    color = ""
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "top"
-  )
-
-# ---------- PM AJUSTADO ----------
-g3 <- ggplot(df1, aes(x = pm_ajust_pos,
-                      fill = lasso,
-                      color = lasso)) +
-  geom_histogram(alpha = 0.35) +
-  scale_fill_manual(values = colores) +
-  scale_color_manual(values = colores) +
-  labs(
-    title = "Distribución de PM ajustado por posesión",
-    x = "PM ajustado",
-    y = "Densidad",
-    fill = "",
-    color = ""
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "top"
-  )
-
-(g1 / g2 / g3)
+# df1 = df_estadisticas %>%  mutate(lasso = if_else(jugador %in% activos$jugador, "Activo", "Eliminado")) %>% filter(!is.na(pm_estandarizado))
+# 
+# library(patchwork)
+# # Paleta
+# colores <- c(
+#   "Activo" = "#1f77b4",
+#   "Eliminado" = "#d62728"
+# )
+# 
+# # ---------- PM ESTANDARIZADO ----------
+# g1 <- ggplot(df1, aes(x = pm_estandarizado,
+#                       fill = lasso,
+#                       color = lasso)) +
+#   geom_histogram(alpha = 0.35, linewidth = 1.1) +
+#   scale_fill_manual(values = colores) +
+#   scale_color_manual(values = colores) +
+#   labs(
+#     title = "Distribución de PM estandarizado",
+#     x = "PM estandarizado",
+#     y = "Densidad",
+#     fill = "",
+#     color = ""
+#   ) +
+#   theme_minimal(base_size = 14) +
+#   theme(
+#     plot.title = element_text(face = "bold"),
+#     legend.position = "top"
+#   )
+# 
+# # ---------- PLUS/MINUS ----------
+# g2 <- ggplot(df1, aes(x = `+/-`,
+#                       fill = lasso,
+#                       color = lasso)) +
+#   geom_histogram(alpha = 0.35) +
+#   scale_fill_manual(values = colores) +
+#   scale_color_manual(values = colores) +
+#   labs(
+#     title = "Distribución de +/-",
+#     x = "+/-",
+#     y = "Densidad",
+#     fill = "",
+#     color = ""
+#   ) +
+#   theme_minimal(base_size = 14) +
+#   theme(
+#     plot.title = element_text(face = "bold"),
+#     legend.position = "top"
+#   )
+# 
+# # ---------- PM AJUSTADO ----------
+# g3 <- ggplot(df1, aes(x = pm_ajust_pos,
+#                       fill = lasso,
+#                       color = lasso)) +
+#   geom_histogram(alpha = 0.35) +
+#   scale_fill_manual(values = colores) +
+#   scale_color_manual(values = colores) +
+#   labs(
+#     title = "Distribución de PM ajustado por posesión",
+#     x = "PM ajustado",
+#     y = "Densidad",
+#     fill = "",
+#     color = ""
+#   ) +
+#   theme_minimal(base_size = 14) +
+#   theme(
+#     plot.title = element_text(face = "bold"),
+#     legend.position = "top"
+#   )
+# 
+# (g1 / g2 / g3)
 
 ```
 
@@ -2206,51 +2208,58 @@ S^*= \sum_{i=1}^n w_i(y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{
 Para cada α en la grilla (0, 0.1, 0.2, …, 1.0), cv.glmnet internamente hace validación cruzada de 10 folds probando muchos valores de λ, y guarda el CME promedio mínimo.
 
 ```{r}
-alphas   <- c(
-  seq(0, 0.10, by = 0.005)
-)# 0=Ridge, 1=Lasso
+alphas   <- c(0.005)
+# 0=Ridge, 1=Lasso
 cv_lista <- list()
 
-set.seed(20260809)
-for (a in alphas) {
-  cv_lista[[as.character(a)]] <- cv.glmnet(
-    X, y,
-    alpha       = a,
-    foldid = foldid,
-    standardize = FALSE
-  )
-}
+# set.seed(20260809)
+# for (a in alphas) {
+#   cv_lista[[as.character(a)]] <- cv.glmnet(
+#     X, y,
+#     alpha       = a,
+#     foldid = foldid,
+#     standardize = FALSE
+#   )
+# }
 
-saveRDS(cv_lista, file = "cv_lista.RDS")
+# saveRDS(cv_lista, file = "cv_lista.RDS")
 # 
 # cv_lista = readRDS("cv_lista.RDS")
 
 # CV-error mínimo para cada alpha
-cv_errors <- sapply(cv_lista, function(m) min(m$cvm))
+# cv_errors <- sapply(cv_lista, function(m) min(m$cvm))
 
 # Alpha óptimo
-alpha_optimo <- alphas[which.min(cv_errors)]
-cat("Alpha óptimo:", alpha_optimo, "\n")
+
+# modelo_enet = cv_lista$`0.005`
+# 
+# saveRDS(modelo_enet, "modelo_enet.RDS")
+
+modelo_enet = readRDS("modelo_enet.RDS")
+
+# alpha_optimo <- alphas[which.min(cv_errors)]
+# 
+# cat("Alpha óptimo:", alpha_optimo, "\n")
 
 ```
 
 
 ```{r}
-cv_errors <- sapply(cv_lista, function(m) min(m$cvm))
-names(cv_errors) <- alphas
-
-df_alpha <- data.frame(alpha = alphas, mse = cv_errors)
-
-ggplot(df_alpha, aes(alpha, mse)) +
-  geom_line(color = "steelblue") +
-  geom_point(aes(color = mse == min(mse)), size = 3, show.legend = FALSE) +
-  scale_color_manual(values = c("steelblue", "orange")) +
-  geom_vline(xintercept = alpha_optimo, linetype = "dashed", color = "orange") +
-  annotate("text", x = alpha_optimo + 0.03, y = max(cv_errors),
-           label = paste0("α* = ", alpha_optimo), color = "orange", hjust = 0) +
-  labs(x = "Alpha (0 = Ridge, 1 = Lasso)", y = "CV-CME mínimo",
-       title = "Búsqueda del alpha óptimo") +
-  theme_minimal()
+# cv_errors <- sapply(cv_lista, function(m) min(m$cvm))
+# names(cv_errors) <- alphas
+# 
+# df_alpha <- data.frame(alpha = alphas, mse = cv_errors)
+# 
+# ggplot(df_alpha, aes(alpha, mse)) +
+#   geom_line(color = "steelblue") +
+#   geom_point(aes(color = mse == min(mse)), size = 3, show.legend = FALSE) +
+#   scale_color_manual(values = c("steelblue", "orange")) +
+#   geom_vline(xintercept = alpha_optimo, linetype = "dashed", color = "orange") +
+#   annotate("text", x = alpha_optimo + 0.03, y = max(cv_errors),
+#            label = paste0("α* = ", alpha_optimo), color = "orange", hjust = 0) +
+#   labs(x = "Alpha (0 = Ridge, 1 = Lasso)", y = "CV-CME mínimo",
+#        title = "Búsqueda del alpha óptimo") +
+#   theme_minimal()
 
 ```
 
@@ -2259,7 +2268,7 @@ modelo final con alpha 0.005
 ```{r}
 
 # Modelo final con alpha óptimo
-modelo_enet <- cv_lista[[as.character(alpha_optimo)]]
+# modelo_enet <- cv_lista[[as.character(alpha_optimo)]]
 
 modelo_enet$lambda.min
 
@@ -2285,42 +2294,42 @@ beta_hat_enet_normal_off = beta_hat %>% filter(str_detect(jugador,"_off")) %>% m
 
 beta_hat_enet_normal_def = beta_hat %>% filter(str_detect(jugador,"_def")) %>% mutate(jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = beta)
 
-beta_hat_ambas = beta_hat_enet_normal_off %>% left_join(beta_hat_enet_normal_def)
+beta_hat_enet_ambas = beta_hat_enet_normal_off %>% left_join(beta_hat_enet_normal_def)
 
-df_full <- beta_hat_ambas %>% 
+df_enet_full <- beta_hat_enet_ambas %>% 
   mutate(coef_tot = coef_of + coef_def)
 
 # Versión base R (viene incluida en glmnet)
 plot(modelo_enet)
 
-df_cv <- data.frame(
-  log_lambda = log(modelo_enet$lambda),
-  mse        = modelo_enet$cvm,
-  se_upper   = modelo_enet$cvm + modelo_enet$cvsd,
-  se_lower   = modelo_enet$cvm - modelo_enet$cvsd,
-  nzero      = modelo_enet$nzero
-)
+# df_cv <- data.frame(
+#   log_lambda = log(modelo_enet$lambda),
+#   mse        = modelo_enet$cvm,
+#   se_upper   = modelo_enet$cvm + modelo_enet$cvsd,
+#   se_lower   = modelo_enet$cvm - modelo_enet$cvsd,
+#   nzero      = modelo_enet$nzero
+# )
 
-log_min  <- log(modelo_enet$lambda.min)
+# log_min  <- log(modelo_enet$lambda.min)
 
-ggplot(df_cv, aes(x = log_lambda)) +
-  geom_ribbon(aes(ymin = se_lower, ymax = se_upper),
-              fill = "steelblue", alpha = 0.15) +
-  geom_line(aes(y = mse), color = "steelblue", linewidth = 0.9) +
-  geom_point(aes(y = mse), color = "steelblue", size = 1.8) +
-  geom_vline(xintercept = log_min,  color = "#E24B4A", linetype = "dashed") +
-  annotate("text", x = log_min,  y = max(df_cv$se_upper),
-           label = "λ.min",  color = "#E24B4A", hjust = -0.15, size = 3.5) +
-  # Cantidad de coeficientes activos arriba del gráfico
-  scale_x_continuous(
-    sec.axis = sec_axis(~ ., breaks = df_cv$log_lambda,
-                        labels = df_cv$nzero,
-                        name   = "Coeficientes ≠ 0")
-  ) +
-  labs(x = "log(λ)", y = "CV-MSE",
-       title = "Elastic Net — selección de λ por validación cruzada") +
-  theme_minimal() +
-theme(axis.text.x.top = element_text(angle = 45, vjust = 0.5, size = 7))
+# ggplot(df_cv, aes(x = log_lambda)) +
+#   geom_ribbon(aes(ymin = se_lower, ymax = se_upper),
+#               fill = "steelblue", alpha = 0.15) +
+#   geom_line(aes(y = mse), color = "steelblue", linewidth = 0.9) +
+#   geom_point(aes(y = mse), color = "steelblue", size = 1.8) +
+#   geom_vline(xintercept = log_min,  color = "#E24B4A", linetype = "dashed") +
+#   annotate("text", x = log_min,  y = max(df_cv$se_upper),
+#            label = "λ.min",  color = "#E24B4A", hjust = -0.15, size = 3.5) +
+#   # Cantidad de coeficientes activos arriba del gráfico
+#   scale_x_continuous(
+#     sec.axis = sec_axis(~ ., breaks = df_cv$log_lambda,
+#                         labels = df_cv$nzero,
+#                         name   = "Coeficientes ≠ 0")
+#   ) +
+#   labs(x = "log(λ)", y = "CV-MSE",
+#        title = "Elastic Net — selección de λ por validación cruzada") +
+#   theme_minimal() +
+# theme(axis.text.x.top = element_text(angle = 45, vjust = 0.5, size = 7))
 ```
 #### Jugadores excluidos
 
@@ -2527,12 +2536,12 @@ modelo_multi_ridge = readRDS("modelo_multi_ridge.RDS")
 #   data = df_mod_ltp_sep
 # )
 # 
-# y_multi = df_mod_ltp_sep |>
-#   mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
-#   pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
-# 
-# 
-# y_factor <- factor(y_multi)
+y_multi = df_mod_ltp_sep |>
+  mutate(puntos_pos = if_else(puntos_pos >= 3, 3, puntos_pos)) |>
+  pull(puntos_pos) #pull puntos_pos extrae solo esta columna del data frame
+
+
+y_factor <- factor(y_multi)
 # 
 # modelo_multi_ridge <- cv.glmnet(
 #   X, y_factor,
@@ -2699,7 +2708,7 @@ df_betas <- df_betas |>
   filter(jugador != "(Intercept)")
 
 # Coeficientes ofensivos: presencia codificada como +1
-df_betas_off <- df_betas %>%
+df_betas_off_lasso_multi <- df_betas %>%
   filter(grepl("_off", jugador)) %>%
   mutate(
     den = exp(intercepto_lasso$beta_0 + beta_0) +
@@ -2718,7 +2727,7 @@ df_betas_off <- df_betas %>%
 
 
 # Coeficientes defensivos: presencia codificada como -1
-df_betas_def <- df_betas %>%
+df_betas_def_lasso_multi <- df_betas %>%
   filter(grepl("_def", jugador)) %>%
   mutate(
     den = exp(intercepto_lasso$beta_0 - beta_0) +
@@ -2738,8 +2747,8 @@ df_betas_def <- df_betas %>%
 
 # Concatenar resultados
 df_betas_lasso <- bind_rows(
-  df_betas_off,
-  df_betas_def
+  df_betas_off_lasso_multi,
+  df_betas_def_lasso_multi
 )
 
 beta_hat_lasso_multi_off = df_betas_lasso %>% filter(grepl("off",jugador))
@@ -2771,84 +2780,84 @@ caracteristicas jugadores eliminados de no eliminados
 
 ```{r}
 
-coefs_lasso <- df_betas %>%  dplyr::select(jugador) %>% 
-  mutate(
-    jugador = str_remove(jugador, "_off$|_def$"), # elimina sufijo
-    jugador = str_remove_all(jugador, "`")        # elimina `
-  )
-
-activos <- coefs_lasso |>
-  distinct(jugador)
-
-df1 = df_estadisticas %>%  mutate(lasso = if_else(jugador %in% activos$jugador, "Activo", "Eliminado")) %>% filter(!is.na(pm_estandarizado))
-
-# Paleta
-colores <- c(
-  "Activo" = "#1f77b4",
-  "Eliminado" = "#d62728"
-)
-
-# ---------- PM ESTANDARIZADO ----------
-g1 <- ggplot(df1, aes(x = pm_estandarizado,
-                      fill = lasso,
-                      color = lasso)) +
-  geom_histogram(alpha = 0.35, linewidth = 1.1) +
-  scale_fill_manual(values = colores) +
-  scale_color_manual(values = colores) +
-  labs(
-    title = "Distribución de PM estandarizado",
-    x = "PM estandarizado",
-    y = "Densidad",
-    fill = "",
-    color = ""
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "top"
-  )
-
-# ---------- PLUS/MINUS ----------
-g2 <- ggplot(df1, aes(x = `+/-`,
-                      fill = lasso,
-                      color = lasso)) +
-  geom_histogram(alpha = 0.35) +
-  scale_fill_manual(values = colores) +
-  scale_color_manual(values = colores) +
-  labs(
-    title = "Distribución de +/-",
-    x = "+/-",
-    y = "Densidad",
-    fill = "",
-    color = ""
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "top"
-  )
-
-# ---------- PM AJUSTADO ----------
-g3 <- ggplot(df1, aes(x = pm_ajust_pos,
-                      fill = lasso,
-                      color = lasso)) +
-  geom_histogram(alpha = 0.35) +
-  scale_fill_manual(values = colores) +
-  scale_color_manual(values = colores) +
-  labs(
-    title = "Distribución de PM ajustado por posesión",
-    x = "PM ajustado",
-    y = "Densidad",
-    fill = "",
-    color = ""
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "top"
-  )
-
-(g1 / g2 / g3)
+# coefs_lasso <- df_betas %>%  dplyr::select(jugador) %>% 
+#   mutate(
+#     jugador = str_remove(jugador, "_off$|_def$"), # elimina sufijo
+#     jugador = str_remove_all(jugador, "`")        # elimina `
+#   )
+# 
+# activos <- coefs_lasso |>
+#   distinct(jugador)
+# 
+# df1 = df_estadisticas %>%  mutate(lasso = if_else(jugador %in% activos$jugador, "Activo", "Eliminado")) %>% filter(!is.na(pm_estandarizado))
+# 
+# # Paleta
+# colores <- c(
+#   "Activo" = "#1f77b4",
+#   "Eliminado" = "#d62728"
+# )
+# 
+# # ---------- PM ESTANDARIZADO ----------
+# g1 <- ggplot(df1, aes(x = pm_estandarizado,
+#                       fill = lasso,
+#                       color = lasso)) +
+#   geom_histogram(alpha = 0.35, linewidth = 1.1) +
+#   scale_fill_manual(values = colores) +
+#   scale_color_manual(values = colores) +
+#   labs(
+#     title = "Distribución de PM estandarizado",
+#     x = "PM estandarizado",
+#     y = "Densidad",
+#     fill = "",
+#     color = ""
+#   ) +
+#   theme_minimal(base_size = 14) +
+#   theme(
+#     plot.title = element_text(face = "bold"),
+#     legend.position = "top"
+#   )
+# 
+# # ---------- PLUS/MINUS ----------
+# g2 <- ggplot(df1, aes(x = `+/-`,
+#                       fill = lasso,
+#                       color = lasso)) +
+#   geom_histogram(alpha = 0.35) +
+#   scale_fill_manual(values = colores) +
+#   scale_color_manual(values = colores) +
+#   labs(
+#     title = "Distribución de +/-",
+#     x = "+/-",
+#     y = "Densidad",
+#     fill = "",
+#     color = ""
+#   ) +
+#   theme_minimal(base_size = 14) +
+#   theme(
+#     plot.title = element_text(face = "bold"),
+#     legend.position = "top"
+#   )
+# 
+# # ---------- PM AJUSTADO ----------
+# g3 <- ggplot(df1, aes(x = pm_ajust_pos,
+#                       fill = lasso,
+#                       color = lasso)) +
+#   geom_histogram(alpha = 0.35) +
+#   scale_fill_manual(values = colores) +
+#   scale_color_manual(values = colores) +
+#   labs(
+#     title = "Distribución de PM ajustado por posesión",
+#     x = "PM ajustado",
+#     y = "Densidad",
+#     fill = "",
+#     color = ""
+#   ) +
+#   theme_minimal(base_size = 14) +
+#   theme(
+#     plot.title = element_text(face = "bold"),
+#     legend.position = "top"
+#   )
+# 
+# (g1 / g2 / g3)
 
 ```
 
@@ -2952,7 +2961,7 @@ df_betas <- df_betas |>
   filter(jugador != "(Intercept)")
 
 # Coeficientes ofensivos: presencia codificada como +1
-df_betas_off <- df_betas %>%
+df_betas_off_enet_multi <- df_betas %>%
   filter(grepl("_off", jugador)) %>%
   mutate(
     den = exp(intercepto_enet$beta_0 + beta_0) +
@@ -2971,7 +2980,7 @@ df_betas_off <- df_betas %>%
 
 
 # Coeficientes defensivos: presencia codificada como -1
-df_betas_def <- df_betas %>%
+df_betas_def_enet_multi <- df_betas %>%
   filter(grepl("_def", jugador)) %>%
   mutate(
     den = exp(intercepto_enet$beta_0 - beta_0) +
@@ -2990,9 +2999,13 @@ df_betas_def <- df_betas %>%
 
 # Concatenar resultados
 df_betas_enet <- bind_rows(
-  df_betas_off,
-  df_betas_def
+  df_betas_off_enet_multi,
+  df_betas_def_enet_multi
 )
+
+beta_hat_enet_multi_off = df_betas_enet %>% filter(grepl("off",jugador))
+
+beta_hat_enet_multi_def = df_betas_enet %>% filter(grepl("def",jugador))
 ```
 
 #### Coeficientes anulados
@@ -3348,162 +3361,162 @@ referencia <- tibble(
 Gráfico 1) densidades
 
 ```{r}
-datos_densidad <- datos_baja_participacion %>%
-  pivot_longer(
-    cols = c(EPTS, wEPTS),
-    names_to = "metrica",
-    values_to = "valor"
-  ) %>%
-  mutate(
-    metrica = factor(
-      metrica,
-      levels = c("EPTS", "wEPTS")
-    )
-  )
-
-grafico_distribuciones <- ggplot(
-  datos_densidad,
-  aes(
-    x = valor,
-    fill = metrica,
-    color = metrica
-  )
-) +
-  geom_vline(
-    data = referencia,
-    aes(xintercept = epts_0),
-    inherit.aes = FALSE,
-    linetype = "dashed",
-    linewidth = 0.7,
-    color = "#305F72"
-  ) +
-  geom_density(
-    alpha = 0.40,
-    linewidth = 0.8,
-    adjust = 1
-  ) +
-  facet_wrap(
-    ~ tipo,
-    ncol = 1,
-    scales = "free_x"
-  ) +
-  scale_fill_manual(
-    values = c(
-      "EPTS" = "#E69F00",
-      "wEPTS" = "#009587"
-    ),
-    name = "Métrica"
-  ) +
-  scale_color_manual(
-    values = c(
-      "EPTS" = "#E69F00",
-      "wEPTS" = "#009587"
-    ),
-    name = "Métrica"
-  ) +
-  labs(
-    x = "Puntos esperados por posesión",
-    y = "Densidad"
-  ) +
-  theme_minimal() +
-  theme(
-    panel.grid = element_blank(),
-    strip.text = element_text(
-      face = "bold",
-      size = 11
-    ),
-    legend.position = "bottom"
-  )
-
-grafico_distribuciones
+# datos_densidad <- datos_baja_participacion %>%
+#   pivot_longer(
+#     cols = c(EPTS, wEPTS),
+#     names_to = "metrica",
+#     values_to = "valor"
+#   ) %>%
+#   mutate(
+#     metrica = factor(
+#       metrica,
+#       levels = c("EPTS", "wEPTS")
+#     )
+#   )
+# 
+# grafico_distribuciones <- ggplot(
+#   datos_densidad,
+#   aes(
+#     x = valor,
+#     fill = metrica,
+#     color = metrica
+#   )
+# ) +
+#   geom_vline(
+#     data = referencia,
+#     aes(xintercept = epts_0),
+#     inherit.aes = FALSE,
+#     linetype = "dashed",
+#     linewidth = 0.7,
+#     color = "#305F72"
+#   ) +
+#   geom_density(
+#     alpha = 0.40,
+#     linewidth = 0.8,
+#     adjust = 1
+#   ) +
+#   facet_wrap(
+#     ~ tipo,
+#     ncol = 1,
+#     scales = "free_x"
+#   ) +
+#   scale_fill_manual(
+#     values = c(
+#       "EPTS" = "#E69F00",
+#       "wEPTS" = "#009587"
+#     ),
+#     name = "Métrica"
+#   ) +
+#   scale_color_manual(
+#     values = c(
+#       "EPTS" = "#E69F00",
+#       "wEPTS" = "#009587"
+#     ),
+#     name = "Métrica"
+#   ) +
+#   labs(
+#     x = "Puntos esperados por posesión",
+#     y = "Densidad"
+#   ) +
+#   theme_minimal() +
+#   theme(
+#     panel.grid = element_blank(),
+#     strip.text = element_text(
+#       face = "bold",
+#       size = 11
+#     ),
+#     legend.position = "bottom"
+#   )
+# 
+# grafico_distribuciones
 ```
 
 Gráfico 2) Dumbbell
 
 ```{r}
-datos_dumbbell <- datos_ridge %>%
-  group_by(tipo) %>%
-  slice_min(
-    order_by = participacion,
-    n = 15,
-    with_ties = FALSE
-  ) %>%
-  ungroup() %>%
-  mutate(
-    jugador_panel = paste(
-      jugador,
-      tipo,
-      sep = "___"
-    ),
-    jugador_panel = fct_reorder(
-      jugador_panel,
-      participacion,
-      .desc = TRUE
-    )
-  )
-
-grafico_dumbbell <- ggplot(
-  datos_dumbbell,
-  aes(y = jugador_panel)
-) +
-  geom_vline(
-    data = referencia,
-    aes(xintercept = epts_0),
-    inherit.aes = FALSE,
-    linetype = "dashed",
-    linewidth = 0.7,
-    color = "#305F72"
-  ) +
-  geom_segment(
-    aes(
-      x = EPTS,
-      xend = wEPTS,
-      yend = jugador_panel
-    ),
-    linewidth = 0.8,
-    color = "grey65"
-  ) +
-  geom_point(
-    aes(x = EPTS, color = "EPTS"),
-    size = 2.7
-  ) +
-  geom_point(
-    aes(x = wEPTS, color = "wEPTS"),
-    size = 2.7
-  ) +
-  facet_wrap(
-    ~ tipo,
-    ncol = 1,
-    scales = "free_y"
-  ) +
-  scale_y_discrete(
-    labels = function(x) {
-      sub("___.*$", "", x)
-    }
-  ) +
-  scale_color_manual(
-    values = c(
-      "EPTS" = "#E69F00",
-      "wEPTS" = "#009587"
-    ),
-    name = "Métrica"
-  ) +
-  labs(
-    x = "Puntos esperados por posesión",
-    y = NULL
-  ) +
-  theme_minimal() +
-  theme(
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    strip.text = element_text(
-      face = "bold",
-      size = 11
-    ),
-    legend.position = "bottom"
-  )
-
-grafico_dumbbell
+# datos_dumbbell <- datos_ridge %>%
+#   group_by(tipo) %>%
+#   slice_min(
+#     order_by = participacion,
+#     n = 15,
+#     with_ties = FALSE
+#   ) %>%
+#   ungroup() %>%
+#   mutate(
+#     jugador_panel = paste(
+#       jugador,
+#       tipo,
+#       sep = "___"
+#     ),
+#     jugador_panel = fct_reorder(
+#       jugador_panel,
+#       participacion,
+#       .desc = TRUE
+#     )
+#   )
+# 
+# grafico_dumbbell <- ggplot(
+#   datos_dumbbell,
+#   aes(y = jugador_panel)
+# ) +
+#   geom_vline(
+#     data = referencia,
+#     aes(xintercept = epts_0),
+#     inherit.aes = FALSE,
+#     linetype = "dashed",
+#     linewidth = 0.7,
+#     color = "#305F72"
+#   ) +
+#   geom_segment(
+#     aes(
+#       x = EPTS,
+#       xend = wEPTS,
+#       yend = jugador_panel
+#     ),
+#     linewidth = 0.8,
+#     color = "grey65"
+#   ) +
+#   geom_point(
+#     aes(x = EPTS, color = "EPTS"),
+#     size = 2.7
+#   ) +
+#   geom_point(
+#     aes(x = wEPTS, color = "wEPTS"),
+#     size = 2.7
+#   ) +
+#   facet_wrap(
+#     ~ tipo,
+#     ncol = 1,
+#     scales = "free_y"
+#   ) +
+#   scale_y_discrete(
+#     labels = function(x) {
+#       sub("___.*$", "", x)
+#     }
+#   ) +
+#   scale_color_manual(
+#     values = c(
+#       "EPTS" = "#E69F00",
+#       "wEPTS" = "#009587"
+#     ),
+#     name = "Métrica"
+#   ) +
+#   labs(
+#     x = "Puntos esperados por posesión",
+#     y = NULL
+#   ) +
+#   theme_minimal() +
+#   theme(
+#     panel.grid.major.y = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     strip.text = element_text(
+#       face = "bold",
+#       size = 11
+#     ),
+#     legend.position = "bottom"
+#   )
+# 
+# grafico_dumbbell
 ```
 
 Gráfico 3) El pretensioso
@@ -3634,21 +3647,27 @@ crear_ridgeline <- function(tipo_elegido) {
     ) +
     
     geom_text_repel(
-      data = datos_penalizados %>%
-        filter(tipo == tipo_elegido),
-      aes(
-        x = EPTS,
-        y = 2,
-        label = etiqueta
-      ),
-      inherit.aes = FALSE,
-      nudge_y = 0.35,
-      size = 3,
-      min.segment.length = 0,
-      segment.color = "grey55",
-      box.padding = 0.25,
-      max.overlaps = Inf
-    ) +
+  data = datos_penalizados %>%
+    filter(tipo == tipo_elegido),
+  aes(
+    x = EPTS,
+    y = 2,
+    label = etiqueta
+  ),
+  inherit.aes = FALSE,
+  nudge_y = 0.40,
+  size = 3,
+  min.segment.length = 0,
+  segment.color = "grey55",
+  box.padding = 0.4,
+  point.padding = 0.15,
+  force = 2,
+  force_pull = 0.3,
+  max.iter = 10000,
+  max.time = 2,
+  max.overlaps = Inf,
+  seed = 123
+)+
     
     scale_y_continuous(
       breaks = c(1, 2),
@@ -3723,7 +3742,7 @@ pi_2 = exp(intercepto_lasso$beta_2)/(exp(intercepto_lasso$beta_0)+exp(intercepto
 
 pi_3 = exp(intercepto_lasso$beta_3)/(exp(intercepto_lasso$beta_0)+exp(intercepto_lasso$beta_1)+exp(intercepto_lasso$beta_2)+exp(intercepto_lasso$beta_3))
 
-epts_0_lasso = pi_1 + 2*pi_2 + 3.01*pi_3
+epts_0_lasso = pi_1 + 2*pi_2 + 3.0304*pi_3
 
 poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(beta_hat_lasso_multi_off %>% mutate(jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_lasso = epts)
 
@@ -3745,11 +3764,11 @@ pi_2 = exp(intercepto_enet$beta_2)/(exp(intercepto_enet$beta_0)+exp(intercepto_e
 
 pi_3 = exp(intercepto_enet$beta_3)/(exp(intercepto_enet$beta_0)+exp(intercepto_enet$beta_1)+exp(intercepto_enet$beta_2)+exp(intercepto_enet$beta_3))
 
-epts_0_enet = pi_1 + 2*pi_2 + 3.01*pi_3
+epts_0_enet = pi_1 + 2*pi_2 + 3.0304*pi_3
 
-poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(beta_hat_enet_multi_off %>% mutate(jugador = str_remove_all(jugador, "`"), jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_enet = epts)
+poss_eq_jug = poss_eq_jug %>% filter(posesiones_totales > 500) %>% left_join(df_betas_off_enet_multi %>% mutate(jugador = str_remove_all(jugador, "`"), jugador_id = str_replace_all(jugador, "_off", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_off_enet = epts)
 
-poss_eq_jug = poss_eq_jug %>% left_join(beta_hat_enet_multi_def %>% mutate(jugador = str_remove_all(jugador, "`"), jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_enet = epts)
+poss_eq_jug = poss_eq_jug %>% left_join(df_betas_def_enet_multi %>% mutate(jugador = str_remove_all(jugador, "`"), jugador_id = str_replace_all(jugador, "_def", "")) %>% dplyr::select(c(jugador_id, epts))) %>% rename(epts_def_enet = epts)
 
 w_epts_off = poss_eq_jug$w_off*poss_eq_jug$epts_off_enet + (1-(poss_eq_jug$w_off))*epts_0_enet
 
@@ -3760,6 +3779,1128 @@ poss_eq_jug = poss_eq_jug %>% mutate(w_epts_off_enet = w_epts_off, w_epts_def_en
 
 
 ### Comparación de modelos
+
+#### Bondad de ajuste
+
+RSME fuera del fold para modelos normales
+
+```{r}
+lambda_normal_ridge <- modelo_ridge$lambda.min
+
+pred_normal_ridge <- rep(NA_real_, nrow(X))
+
+for (f in sort(unique(foldid))) {
+
+  idx_train <- foldid != f
+  idx_test  <- foldid == f
+
+  ajuste_f <- glmnet(
+    x = X[idx_train, ],
+    y = y[idx_train],
+    family = "gaussian",
+    alpha = 0,
+    lambda = lambda_normal_ridge,
+    standardize = FALSE
+  )
+
+  pred_normal_ridge[idx_test] <- as.numeric(
+    predict(
+      ajuste_f,
+      newx = X[idx_test, ],
+      s = lambda_normal_ridge
+    )
+  )
+}
+
+rmse_normal_ridge <- sqrt(
+  mean((y - pred_normal_ridge)^2)
+)
+
+lambda_normal_lasso <- modelo_lasso$lambda.min
+
+pred_normal_lasso <- rep(NA_real_, nrow(X))
+
+for (f in sort(unique(foldid))) {
+
+  idx_train <- foldid != f
+  idx_test  <- foldid == f
+
+  ajuste_f <- glmnet(
+    x = X[idx_train, ],
+    y = y[idx_train],
+    family = "gaussian",
+    alpha = 1,
+    lambda = lambda_normal_lasso,
+    standardize = FALSE
+  )
+
+  pred_normal_lasso[idx_test] <- as.numeric(
+    predict(
+      ajuste_f,
+      newx = X[idx_test, ],
+      s = lambda_normal_lasso
+    )
+  )
+}
+
+rmse_normal_lasso <- sqrt(
+  mean((y - pred_normal_lasso)^2)
+)
+
+lambda_normal_enet <- modelo_enet$lambda.min
+
+pred_normal_enet <- rep(NA_real_, nrow(X))
+
+for (f in sort(unique(foldid))) {
+
+  idx_train <- foldid != f
+  idx_test  <- foldid == f
+
+  ajuste_f <- glmnet(
+    x = X[idx_train, ],
+    y = y[idx_train],
+    family = "gaussian",
+    alpha = 0.005,
+    lambda = lambda_normal_enet,
+    standardize = FALSE
+  )
+
+  pred_normal_enet[idx_test] <- as.numeric(
+    predict(
+      ajuste_f,
+      newx = X[idx_test, ],
+      s = lambda_normal_enet
+    )
+  )
+}
+
+rmse_normal_enet <- sqrt(
+  mean((y - pred_normal_enet)^2)
+)
+```
+
+Modelos multinomiales
+
+```{r}
+lambda_multi_ridge <- modelo_multi_ridge$lambda.min
+
+pred_multi_ridge <- rep(NA_real_, nrow(X))
+
+probs_multi_ridge <- matrix(
+  NA_real_,
+  nrow = nrow(X),
+  ncol = 4,
+  dimnames = list(NULL, c("0", "1", "2", "3"))
+)
+
+for (f in sort(unique(foldid))) {
+
+  idx_train <- foldid != f
+  idx_test  <- foldid == f
+
+  ajuste_f <- glmnet(
+    x = X[idx_train, ],
+    y = y_factor[idx_train],
+    family = "multinomial",
+    alpha = 0,
+    lambda = lambda_multi_ridge,
+    type.multinomial = "grouped",
+    standardize = FALSE
+  )
+
+  probabilidades <- predict(
+    ajuste_f,
+    newx = X[idx_test, ],
+    s = lambda_multi_ridge,
+    type = "response"
+  )
+
+  # predict devuelve observaciones × categorías × lambda
+  probabilidades <- probabilidades[, , 1]
+  
+  probs_multi_ridge[idx_test, ] <- probabilidades
+
+  # Valor representativo de la categoría 3+
+  valor_3_mas <- mean(
+    y[idx_train][y[idx_train] >= 3]
+  )
+
+  pred_multi_ridge[idx_test] <-
+    probabilidades[, "1"] +
+    2 * probabilidades[, "2"] +
+    valor_3_mas * probabilidades[, "3"]
+}
+
+rmse_multi_ridge <- sqrt(
+  mean((y - pred_multi_ridge)^2)
+)
+
+rmse_multi_ridge
+
+stopifnot(!anyNA(probs_multi_ridge))
+
+lambda_multi_lasso <- modelo_multi_lasso$lambda.min
+
+probs_multi_lasso <- matrix(
+  NA_real_,
+  nrow = nrow(X),
+  ncol = 4,
+  dimnames = list(NULL, c("0", "1", "2", "3"))
+)
+
+pred_multi_lasso <- rep(NA_real_, nrow(X))
+
+for (f in sort(unique(foldid))) {
+
+  idx_train <- foldid != f
+  idx_test  <- foldid == f
+
+  ajuste_f <- glmnet(
+    x = X[idx_train, ],
+    y = y_factor[idx_train],
+    family = "multinomial",
+    alpha = 1,
+    lambda = lambda_multi_lasso,
+    type.multinomial = "grouped",
+    standardize = FALSE
+  )
+
+  probabilidades <- predict(
+    ajuste_f,
+    newx = X[idx_test, ],
+    s = lambda_multi_lasso,
+    type = "response"
+  )
+
+  # predict devuelve observaciones × categorías × lambda
+  probabilidades <- probabilidades[, , 1]
+  
+  probs_multi_lasso[idx_test, ] <- probabilidades
+
+  # Valor representativo de la categoría 3+
+  valor_3_mas <- mean(
+    y[idx_train][y[idx_train] >= 3]
+  )
+
+  pred_multi_lasso[idx_test] <-
+    probabilidades[, "1"] +
+    2 * probabilidades[, "2"] +
+    valor_3_mas * probabilidades[, "3"]
+}
+
+rmse_multi_lasso <- sqrt(
+  mean((y - pred_multi_lasso)^2)
+)
+
+rmse_multi_lasso
+
+stopifnot(!anyNA(probs_multi_lasso))
+
+lambda_multi_enet <- modelo_multi_enet$lambda.min
+
+pred_multi_enet <- rep(NA_real_, nrow(X))
+
+probs_multi_enet <- matrix(
+  NA_real_,
+  nrow = nrow(X),
+  ncol = 4,
+  dimnames = list(NULL, c("0", "1", "2", "3"))
+)
+
+for (f in sort(unique(foldid))) {
+
+  idx_train <- foldid != f
+  idx_test  <- foldid == f
+
+  ajuste_f <- glmnet(
+    x = X[idx_train, ],
+    y = y_factor[idx_train],
+    family = "multinomial",
+    alpha = 0.005,
+    lambda = lambda_multi_enet,
+    type.multinomial = "grouped",
+    standardize = FALSE
+  )
+
+  probabilidades <- predict(
+    ajuste_f,
+    newx = X[idx_test, ],
+    s = lambda_multi_enet,
+    type = "response"
+  )
+
+  # predict devuelve observaciones × categorías × lambda
+  probabilidades <- probabilidades[, , 1]
+  
+  probs_multi_enet[idx_test, ] <- probabilidades
+
+  # Valor representativo de la categoría 3+
+  valor_3_mas <- mean(
+    y[idx_train][y[idx_train] >= 3]
+  )
+
+  pred_multi_enet[idx_test] <-
+    probabilidades[, "1"] +
+    2 * probabilidades[, "2"] +
+    valor_3_mas * probabilidades[, "3"]
+}
+
+rmse_multi_enet <- sqrt(
+  mean((y - pred_multi_enet)^2)
+)
+
+rmse_multi_enet
+
+stopifnot(!anyNA(probs_multi_enet))
+```
+
+Modelo nulo, que predice la media de puntos en todas las posesiones
+
+```{r}
+pred_nulo <- rep(NA_real_, length(y))
+
+for (f in sort(unique(foldid))) {
+
+  idx_train <- foldid != f
+  idx_test  <- foldid == f
+
+  media_train <- mean(y[idx_train])
+
+  pred_nulo[idx_test] <- media_train
+}
+
+stopifnot(!anyNA(pred_nulo))
+
+rmse_nulo <- sqrt(
+  mean((y - pred_nulo)^2)
+)
+
+rmse_nulo
+```
+Tabla de resultados
+
+```{r}
+library(dplyr)
+library(tibble)
+
+resultados_rmse <- tibble(
+  Modelo = c(
+    "Normal Ridge",
+    "Normal LASSO",
+    "Normal Elastic Net",
+    "Multinomial Ridge",
+    "Multinomial LASSO",
+    "Multinomial Elastic Net"
+  ),
+  RMSE = c(
+    rmse_normal_ridge,
+    rmse_normal_lasso,
+    rmse_normal_enet,
+    rmse_multi_ridge,
+    rmse_multi_lasso,
+    rmse_multi_enet
+  )
+)
+
+resultados_rmse %>%
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    linesep = "",
+    caption = "Ejemplo de secuencia de acciones diferenciando cada posesión"
+  ) %>%
+  kable_styling(
+    latex_options = c("HOLD_position", "scale_down"), 
+    # 'striped': facilita seguir la fila con la vista
+    # 'scale_down': asegura que entre en el ancho de la hoja
+    position = "center",
+    font_size = 9
+  )
+```
+Simulación de la distribución empírica
+
+```{r}
+# simular_distribucion <- function(probabilidades, B = 1000, semilla = 20260811) {
+# 
+#   set.seed(semilla)
+# 
+#   categorias <- colnames(probabilidades)
+#   n <- nrow(probabilidades)
+# 
+#   simulaciones <- replicate(B, {
+# 
+#     resultado_simulado <- apply(
+#       probabilidades,
+#       1,
+#       function(p) {
+#         sample(
+#           x = categorias,
+#           size = 1,
+#           prob = p
+#         )
+#       }
+#     )
+# 
+#     prop.table(
+#       table(
+#         factor(
+#           resultado_simulado,
+#           levels = categorias
+#         )
+#       )
+#     )
+#   })
+# 
+#   tibble(
+#     Categoria = categorias,
+#     Frecuencia_simulada = rowMeans(simulaciones),
+#     Limite_inferior = apply(simulaciones, 1, quantile, probs = 0.025),
+#     Limite_superior = apply(simulaciones, 1, quantile, probs = 0.975)
+#   )
+# }
+# 
+# #Distribuciones simuladas por los modelos
+# 
+# dist_ridge <- simular_distribucion(
+#   probs_multi_ridge
+# ) %>%
+#   mutate(Modelo = "Ridge")
+# 
+# dist_lasso <- simular_distribucion(
+#   probs_multi_lasso
+# ) %>%
+#   mutate(Modelo = "LASSO")
+# 
+# dist_enet <- simular_distribucion(
+#   probs_multi_enet
+# ) %>%
+#   mutate(Modelo = "Elastic Net")
+
+# Distribución empírica
+
+dist_empirica <- tibble(
+  Categoria = c("0", "1", "2", "3"),
+  Frecuencia_empirica = as.numeric(
+    prop.table(
+      table(
+        factor(
+          y_factor,
+          levels = c("0", "1", "2", "3")
+        )
+      )
+    )
+  )
+)
+
+comparacion_distribuciones <- bind_rows(
+  dist_ridge,
+  dist_lasso,
+  dist_enet
+) %>%
+  left_join(
+    dist_empirica,
+    by = "Categoria"
+  ) %>%
+  mutate(
+    Categoria = recode(
+      Categoria,
+      "3" = "+3"
+    ),
+    Diferencia = Frecuencia_simulada - Frecuencia_empirica
+  )
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+datos_grafico <- bind_rows(
+  comparacion_distribuciones %>%
+    transmute(
+      Categoria,
+      Modelo,
+      Frecuencia = Frecuencia_simulada
+    ),
+  
+  comparacion_distribuciones %>%
+    distinct(Categoria, Frecuencia_empirica) %>%
+    transmute(
+      Categoria,
+      Modelo = "Empírica",
+      Frecuencia = Frecuencia_empirica
+    )
+) %>%
+  mutate(
+    Categoria = factor(
+      Categoria,
+      levels = c("0", "1", "2", "+3")
+    ),
+    Modelo = factor(
+      Modelo,
+      levels = c("Ridge", "Elastic Net", "LASSO", "Empírica")
+    )
+  )
+
+ggplot(
+  datos_grafico,
+  aes(
+    x = Categoria,
+    y = Frecuencia,
+    fill = Modelo
+  )
+) +
+  geom_col(
+    position = position_dodge(width = 0.8),
+    width = 0.7,
+    color = "black",
+    linewidth = 0.25
+  ) +
+  scale_fill_manual(
+    name = "Modelo",
+    values = c(
+      "Ridge"       = "#66C2A5",  # verde Set2
+      "Elastic Net" = "#FC8D62",  # naranja Set2
+      "LASSO"       = "#8DA0CB",  # azul Set2
+      "Empirica"    = "grey65"
+    )
+  ) +
+  scale_y_continuous(
+    labels = label_percent(
+      accuracy = 1,
+      decimal.mark = ","
+    ),
+    expand = expansion(mult = c(0, 0.05))
+  ) +
+  labs(
+    x = "Puntos por posesion",
+    y = "Frecuencia relativa"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_text(face = "bold")
+  )
+```
+
+Grafico de la distriución de las proporciones en vez de la media
+
+```{r}
+# library(dplyr)
+# library(tidyr)
+# library(purrr)
+# library(ggplot2)
+# 
+# simular_proporciones <- function(
+#     probabilidades,
+#     modelo,
+#     B = 1000,
+#     semilla = 20260811
+# ) {
+#   
+#   set.seed(semilla)
+#   
+#   categorias <- colnames(probabilidades)
+#   
+#   simulaciones <- replicate(B, {
+#     
+#     resultado <- apply(
+#       probabilidades,
+#       1,
+#       function(p) {
+#         sample(
+#           x = categorias,
+#           size = 1,
+#           prob = p
+#         )
+#       }
+#     )
+#     
+#     as.numeric(
+#       prop.table(
+#         table(
+#           factor(resultado, levels = categorias)
+#         )
+#       )
+#     )
+#   })
+#   
+#   as.data.frame(t(simulaciones)) %>%
+#     setNames(categorias) %>%
+#     mutate(
+#       Simulacion = row_number(),
+#       Modelo = modelo
+#     ) %>%
+#     pivot_longer(
+#       cols = all_of(categorias),
+#       names_to = "Categoria",
+#       values_to = "Proporcion"
+#     )
+# }
+# 
+# sim_ridge <- simular_proporciones(
+#   probs_multi_ridge,
+#   modelo = "Ridge"
+# )
+# 
+# sim_en <- simular_proporciones(
+#   probs_multi_enet,
+#   modelo = "Elastic Net"
+# )
+# 
+# sim_lasso <- simular_proporciones(
+#   probs_multi_lasso,
+#   modelo = "LASSO"
+# )
+# 
+# distribuciones_simuladas <- bind_rows(
+#   sim_ridge,
+#   sim_en,
+#   sim_lasso
+# ) %>%
+#   mutate(
+#     Categoria = recode(Categoria, "3" = "+3"),
+#     Categoria = factor(
+#       Categoria,
+#       levels = c("0", "1", "2", "+3")
+#     ),
+#     Modelo = factor(
+#       Modelo,
+#       levels = c("Ridge", "Elastic Net", "LASSO")
+#     )
+#   )
+
+# saveRDS(distribuciones_simuladas, "distribuciones_simuladas.RDS")
+distribuciones_simuladas = readRDS("distribuciones_simuladas.RDS")
+
+distribucion_empirica <- tibble(
+  Categoria = c("0", "1", "2", "+3"),
+  Proporcion_empirica = as.numeric(
+    prop.table(
+      table(
+        factor(
+          y_factor,
+          levels = c("0", "1", "2", "3")
+        )
+      )
+    )
+  )
+) %>%
+  mutate(
+    Categoria = factor(
+      Categoria,
+      levels = c("0", "1", "2", "+3")
+    )
+  )
+```
+
+
+Box-plots + violines + puntos para cada categoría de respuesta
+
+```{r}
+library(patchwork)
+
+colores_modelo <- c(
+  "Ridge" = "#66C2A5",
+  "Elastic Net" = "#FC8D62",
+  "LASSO" = "#8DA0CB"
+)
+
+categorias <- c("0", "1", "2", "+3")
+
+graficos <- lapply(categorias, function(cat) {
+  
+  prop_emp <- distribucion_empirica %>%
+    filter(Categoria == cat) %>%
+    pull(Proporcion_empirica)
+  
+  ggbetweenstats(
+    data = distribuciones_simuladas %>%
+      filter(Categoria == cat),
+    
+    x = Modelo,
+    y = Proporcion,
+    
+    results.subtitle = FALSE,
+    pairwise.display = "none",
+    
+    # Mantenemos el punto de la media
+    centrality.plotting = FALSE
+    
+  ) +
+    geom_hline(
+      yintercept = prop_emp,
+      linetype = "dashed",
+      linewidth = 0.7
+    ) +
+    scale_fill_manual(values = colores_modelo) +
+    scale_color_manual(values = colores_modelo) +
+    labs(
+      x = NULL,
+      y = "Proporción",
+      title = cat,
+      subtitle = NULL
+    ) +
+    theme_minimal() +
+    theme(
+      panel.grid = element_blank(),
+      legend.position = "none"
+    )
+})
+
+grafico_final <- wrap_plots(graficos, ncol = 2) +
+  plot_annotation(
+    caption = "La línea punteada representa la proporción empírica"
+  )
+
+# ggsave(
+#   "img/simulacion_proporcion_empirica.pdf",
+#   grafico_final,
+#   width = 7,
+#   height = 5
+# )
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### Comparación con medidas descriptivas
+
+```{r}
+# poss_eq_jug1 = poss_eq_jug %>% rename(jugador = jugador_id) 
+# poss_eq_jug1 = poss_eq_jug1 %>% dplyr::select(jugador, contains("epts"))
+# beta_hat_enet_ambas1 = beta_hat_enet_ambas %>% rename(ORAPM_enet = coef_of, DRAPM_enet = coef_def)
+# beta_hat_lasso_ambas1 = beta_hat_lasso_ambas %>% rename(ORAPM_lasso = coef_of, DRAPM_lasso = coef_def)
+# beta_hat_ridge_ambas1 = beta_hat_ridge_ambas %>% rename(ORAPM_ridge = coef_of, DRAPM_ridge = coef_def)
+# plus_minus_por_equipo2 = plus_minus_por_equipo %>% rename(jugador = jugador_id)
+# 
+# 
+# df_metricas = plus_minus_por_equipo2 %>% left_join(beta_hat_lasso_ambas1) %>% left_join(beta_hat_ridge_ambas1) %>% left_join(beta_hat_enet_ambas1) %>% left_join(poss_eq_jug1)
+# 
+# saveRDS(df_metricas, "df_metricas.RDS")
+
+df_metricas = readRDS("df_metricas.RDS")
+
+library(tidyverse)
+library(scales)
+
+#------------------------------------------------------------
+# 1. Consolidar jugadores que participaron en dos equipos
+#------------------------------------------------------------
+
+metricas_modelo <- c(
+  "ORAPM_lasso", "DRAPM_lasso",
+  "ORAPM_ridge", "DRAPM_ridge",
+  "ORAPM_enet",  "DRAPM_enet",
+
+  "epts_off_ridge", "epts_def_ridge",
+  "w_epts_off_ridge", "w_epts_def_ridge",
+
+  "epts_off_lasso", "epts_def_lasso",
+  "w_epts_off_lasso", "w_epts_def_lasso",
+
+  "epts_off_enet", "epts_def_enet",
+  "w_epts_off_enet", "w_epts_def_enet"
+)
+
+# Conserva el único valor modelado disponible por jugador
+valor_unico <- function(x) {
+
+  valores <- unique(x[!is.na(x)])
+
+  if (length(valores) == 0) {
+    return(NA_real_)
+  }
+
+  if (
+    length(valores) > 1 &&
+    diff(range(valores)) > 1e-10
+  ) {
+    warning(
+      "Se encontraron valores modelados distintos ",
+      "para un mismo jugador."
+    )
+  }
+
+  valores[1]
+}
+
+media_ponderada_segura <- function(x, w) {
+
+  validos <- !is.na(x) & !is.na(w) & w > 0
+
+  if (!any(validos)) {
+    return(NA_real_)
+  }
+
+  weighted.mean(
+    x[validos],
+    w[validos]
+  )
+}
+
+df_jugadores <- df_metricas %>%
+  group_by(jugador) %>%
+  summarise(
+    equipos = paste(
+      sort(unique(equipo_del_jugador)),
+      collapse = " / "
+    ),
+
+    posesiones_totales = sum(
+      posesiones_totales,
+      na.rm = TRUE
+    ),
+
+    posesiones_ofensivas = sum(
+      posesiones_ofensivas,
+      na.rm = TRUE
+    ),
+
+    posesiones_defensivas = sum(
+      posesiones_defensivas,
+      na.rm = TRUE
+    ),
+
+    plus_minus_total = sum(
+      plus_minus_total,
+      na.rm = TRUE
+    ),
+
+    # Se recalcula después de reunir los equipos
+    plus_minus_100 =
+      100 * plus_minus_total / posesiones_totales,
+
+    pm_est_ofensivo = media_ponderada_segura(
+      pts_realiz_estand_median,
+      posesiones_ofensivas
+    ),
+
+    pm_est_defensivo = media_ponderada_segura(
+      pts_recib_estand_median,
+      posesiones_defensivas
+    ),
+
+    across(
+      all_of(metricas_modelo),
+      valor_unico
+    ),
+
+    .groups = "drop"
+  )
+
+preparar_dispersion <- function(
+    datos,
+    regularizacion = c("ridge", "lasso", "enet"),
+    tolerancia = 1e-10
+) {
+
+  regularizacion <- match.arg(regularizacion)
+
+  nombres <- switch(
+    regularizacion,
+
+    ridge = list(
+      rapm_off  = "ORAPM_ridge",
+      rapm_def  = "DRAPM_ridge",
+      epts_off  = "epts_off_ridge",
+      epts_def  = "epts_def_ridge",
+      wepts_off = "w_epts_off_ridge",
+      wepts_def = "w_epts_def_ridge"
+    ),
+
+    lasso = list(
+      rapm_off  = "ORAPM_lasso",
+      rapm_def  = "DRAPM_lasso",
+      epts_off  = "epts_off_lasso",
+      epts_def  = "epts_def_lasso",
+      wepts_off = "w_epts_off_lasso",
+      wepts_def = "w_epts_def_lasso"
+    ),
+
+    enet = list(
+      rapm_off  = "ORAPM_enet",
+      rapm_def  = "DRAPM_enet",
+      epts_off  = "epts_off_enet",
+      epts_def  = "epts_def_enet",
+      wepts_off = "w_epts_off_enet",
+      wepts_def = "w_epts_def_enet"
+    )
+  )
+
+  # Cada jugador aparece una vez como ofensivo
+  # y otra vez como defensivo
+  datos_componentes <- bind_rows(
+
+    datos %>%
+      transmute(
+        jugador,
+        Componente = "Ofensivo",
+
+        RAPM = .data[[nombres$rapm_off]],
+        EPTS = .data[[nombres$epts_off]],
+        wEPTS = .data[[nombres$wepts_off]],
+
+        `+/− acumulado` = plus_minus_total,
+        `+/− por 100 posesiones` = plus_minus_100,
+        `+/− estandarizado` = pm_est_ofensivo
+      ),
+
+    datos %>%
+      transmute(
+        jugador,
+        Componente = "Defensivo",
+
+        RAPM = .data[[nombres$rapm_def]],
+        EPTS = .data[[nombres$epts_def]],
+        wEPTS = .data[[nombres$wepts_def]],
+
+        `+/− acumulado` = plus_minus_total,
+        `+/− por 100 posesiones` = plus_minus_100,
+        `+/− estandarizado` = pm_est_defensivo
+      )
+  ) %>%
+    mutate(
+      Componente = factor(
+        Componente,
+        levels = c("Ofensivo", "Defensivo")
+      )
+    )
+
+  datos_largos <- datos_componentes %>%
+    pivot_longer(
+      cols = c(RAPM, EPTS, wEPTS),
+      names_to = "Metrica_modelo",
+      values_to = "Valor_modelo"
+    ) %>%
+    pivot_longer(
+      cols = c(
+        `+/− acumulado`,
+        `+/− por 100 posesiones`,
+        `+/− estandarizado`
+      ),
+      names_to = "Metrica_descriptiva",
+      values_to = "Valor_descriptivo"
+    ) %>%
+    mutate(
+      Metrica_modelo = factor(
+        Metrica_modelo,
+        levels = c("RAPM", "EPTS", "wEPTS")
+      ),
+
+      Metrica_descriptiva = factor(
+        Metrica_descriptiva,
+        levels = c(
+          "+/− acumulado",
+          "+/− por 100 posesiones",
+          "+/− estandarizado"
+        )
+      )
+    ) %>%
+    filter(
+      !is.na(Valor_modelo),
+      !is.na(Valor_descriptivo)
+    )
+
+  # En LASSO y Elastic Net se quitan de la dispersión
+  # los RAPM reducidos exactamente a cero.
+  #
+  # Los EPTS/wEPTS del grupo de referencia aparecen como NA
+  # en tu df_metricas y ya fueron retirados por filter().
+  if (regularizacion %in% c("lasso", "enet")) {
+
+    datos_largos <- datos_largos %>%
+      filter(
+        Metrica_modelo != "RAPM" |
+          abs(Valor_modelo) > tolerancia
+      )
+  }
+
+  datos_largos
+}
+
+crear_grilla_dispersion <- function(
+    datos,
+    regularizacion = c("ridge", "lasso", "enet")
+) {
+
+  regularizacion <- match.arg(regularizacion)
+
+  nombre_regularizacion <- recode(
+    regularizacion,
+    ridge = "Ridge",
+    lasso = "LASSO",
+    enet = "Elastic Net"
+  )
+
+  datos_grafico <- preparar_dispersion(
+    datos = datos,
+    regularizacion = regularizacion
+  )
+
+  ggplot(
+    datos_grafico,
+    aes(
+      x = Valor_descriptivo,
+      y = Valor_modelo
+    )
+  ) +
+
+    geom_point(
+      aes(shape = Componente),
+      color = "steelblue3",
+      size = 1.45,
+      alpha = 0.58,
+      stroke = 0.65
+    ) +
+
+    # Una recta diferente para cada componente
+    geom_smooth(
+      aes(
+        group = Componente,
+        linetype = Componente
+      ),
+      method = "lm",
+      formula = y ~ x,
+      se = FALSE,
+      color = "#B45F4D",
+      linewidth = 0.65
+    ) +
+
+    facet_grid(
+      rows = vars(Metrica_modelo),
+      cols = vars(Metrica_descriptiva),
+      scales = "free"
+    ) +
+
+    scale_shape_manual(
+      values = c(
+        "Ofensivo" = 16,
+        "Defensivo" = 1
+      )
+    ) +
+
+    scale_linetype_manual(
+      values = c(
+        "Ofensivo" = "solid",
+        "Defensivo" = "dashed"
+      )
+    ) +
+
+    labs(
+      x = "Métrica descriptiva",
+      y = "Métrica basada en modelos",
+      caption = paste0(
+        nombre_regularizacion,
+        ": las líneas representan ajustes lineales ",
+        "para cada componente."
+      ),
+      shape = "Componente",
+      linetype = "Componente"
+    ) +
+
+    guides(
+      shape = guide_legend(
+        order = 1,
+        override.aes = list(
+          color = "steelblue3",
+          alpha = 1,
+          size = 2.2
+        )
+      ),
+
+      linetype = guide_legend(
+        order = 1,
+        override.aes = list(
+          color = "#B45F4D",
+          linewidth = 0.7
+        )
+      )
+    ) +
+
+    theme_minimal(
+      base_size = 8.5,
+      base_family = "serif"
+    ) +
+
+    theme(
+      panel.grid.minor = element_blank(),
+
+      panel.grid.major = element_line(
+        color = "grey90",
+        linewidth = 0.25
+      ),
+
+      panel.spacing = unit(0.7, "lines"),
+
+      strip.background = element_rect(
+        fill = "grey92",
+        color = "grey75",
+        linewidth = 0.3
+      ),
+
+      strip.text = element_text(
+        face = "bold",
+        color = "grey20",
+        size = 8
+      ),
+
+      axis.text = element_text(
+        color = "grey25",
+        size = 6.8
+      ),
+
+      axis.title = element_text(
+        color = "grey20",
+        size = 8.5
+      ),
+
+      legend.position = "bottom",
+      legend.title = element_text(face = "bold"),
+
+      plot.caption = element_text(
+        hjust = 0,
+        color = "grey35",
+        size = 7.2,
+        margin = margin(t = 5)
+      ),
+
+      plot.margin = margin(5, 6, 4, 4)
+    )
+}
+
+dispersion_ridge <- crear_grilla_dispersion(
+  df_jugadores,
+  "ridge"
+)
+
+dispersion_lasso <- crear_grilla_dispersion(
+  df_jugadores,
+  "lasso"
+)
+
+dispersion_elastic_net <- crear_grilla_dispersion(
+  df_jugadores,
+  "enet"
+)
+```
+
+
+
+
+
+
 
 #### Modelo Normal vs Modelo Multinomial
 
@@ -4138,7 +5279,6 @@ df_ltps <- purrr::imap_dfr(
 )
 
 knitr::kable(df_ltps,     caption = "Pocos minutos — rankings ofensivos")
-knitr::kable(df_ltps_def, caption = "Pocos minutos — rankings defensivos")
 
 ```
 
@@ -4164,6 +5304,9 @@ df_ltps_def <- purrr::imap_dfr(
 
   }
 )
+
+
+knitr::kable(df_ltps_def, caption = "Pocos minutos — rankings defensivos")
 ```
 
 Titulares

@@ -2447,7 +2447,7 @@ jugadores presentes en cada posesión.(ver)
 
 Como primer medida estandar a evaluar, se planteó un \textbf{modelo de
 regresión lineal múltiple normal}. Para el cual se consideraron \(K\) =
-229 jugadores (\%66,1 del total) que superaron el filtro de cantidad de
+229 jugadores (66,1\% del total) que superaron el filtro de cantidad de
 posesiones, derivando en 458 indicadores de presencia, 229 ofensivos y
 229 defensivos. Los coeficientes se estimaron mediante \emph{Ridge},
 \emph{Lasso} y \emph{Elastic Net} para reducir la inestabilidad generada
@@ -2468,17 +2468,16 @@ Los resultados obtenidos se presentan en el Cuadro 13.
 \centering
 \caption{\label{tab:unnamed-chunk-28}Técnicas de regularización y valores de hiperparámetros.}
 \centering
-\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{9}{11}\selectfont
-\begin{tabular}[t]{lcccc}
+\fontsize{10}{12}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{3.6cm}>{\centering\arraybackslash}p{1.6cm}>{\centering\arraybackslash}p{2.2cm}>{\centering\arraybackslash}p{2.5cm}>{\centering\arraybackslash}p{4.3cm}}
 \toprule
-Penalización & X..alpha. & X..lambda. & CME.CV & Coeficientes.activos\\
+Penalización & $\alpha$ & $\lambda$ & CME CV & Coeficientes activos\\
 \midrule
-Ridge & 0 & 0.06258 & 1.405088 & 458\\
-Lasso & 1 & 0.00085 & 1.405401 & 98\\
-Elastic Net & 0,005 & 0.04261 & 1,405031 & 331\\
+Ridge & 0 & 0,06258 & 1,405088 & 458\\
+Lasso & 1 & 0,00085 & 1,405401 & 98\\
+Elastic Net & 0,005 & 0,04261 & 1,405031 & 331\\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \end{table}
 
 Las distintas regularizaciones presentaron medidas de error muy
@@ -2496,7 +2495,7 @@ ingresaron en el modelo, 144 presentaron ambos coeficientes iguales a 0
 en el modelos \emph{LASSO}, mientras que solo 22 cumplieron esa
 condición con \emph{Elastic Net}. En estos casos, la anulación de un
 coeficiente no implica necesariamente que un jugador carezca de impacto,
-sino que, a partir la información aportada por el resto de los
+sino que, a partir de la información aportada por el resto de los
 predictores, su efecto ofensivo o defensivo no resultó suficientemente
 distinguible del grupo de referencia. Esta anulación puede estar
 asociada tanto con la cantidad de posesiones disputadas como con la
@@ -2504,7 +2503,7 @@ elevada correlación existente entre jugadores que comparten
 frecuentemente sus minutos en cancha.
 
 Por otro lado, el modelo \emph{Ridge} no reduce los coeficientes
-exactamente hasta 0, pero si los penaliza. 51 coeficientes presentaron
+exactamente hasta 0, pero sí los penaliza. 51 coeficientes presentaron
 una magnitud inferior a 0,001 puntos por posesión, equivalente a un
 efecto inferior a 0,1 puntos cada 100 posesiones.
 
@@ -2538,7 +2537,7 @@ probabilidades estimadas.
 Se procede a la implementación de los modelos de \textbf{regresión
 logística multinomial} para modelar la probabilidad estimada de cada
 tipo de anotación. Siguiendo la metodología propuesta con los modelos
-normales, los coeficientes de estos modelos seran obtenidos a través de
+normales, los coeficientes de estos modelos serán obtenidos a través de
 distintas técnicas de regularización. Solo que para estos modelos la
 medida de error a minimizar fue la \emph{Deviance}.
 
@@ -2553,17 +2552,16 @@ simultáneamente para todos los tipos de anotación.
 \centering
 \caption{\label{tab:unnamed-chunk-30}Técnicas de regularización y valores de hiperparámetros.}
 \centering
-\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{9}{11}\selectfont
-\begin{tabular}[t]{lcccc}
+\fontsize{10}{12}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{3.6cm}>{\centering\arraybackslash}p{1.6cm}>{\centering\arraybackslash}p{2.2cm}>{\centering\arraybackslash}p{2.5cm}>{\centering\arraybackslash}p{4.3cm}}
 \toprule
-Penalización & X..alpha. & X..lambda. & Deviance.CV & Predictores.activos\\
+Penalización & $\alpha$ & $\lambda$ & \textit{Deviance} CV & Predictores activos\\
 \midrule
-Ridge & 0 & 0.00946 & 2.195519 & 458\\
-Lasso & 1 & 0.00039 & 2.196606 & 199\\
-Elastic Net & 0,005 & 0.00562 & 2.195772 & 457\\
+Ridge & 0 & 0,00946 & 2,195519 & 458\\
+Lasso & 1 & 0,00039 & 2,196606 & 199\\
+Elastic Net & 0,005 & 0,00562 & 2,195772 & 457\\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \end{table}
 
 La menor \emph{Deviance} de validación cruzada se obtuvo mediante
@@ -2590,7 +2588,7 @@ nulos, 49 solo el coeficiente ofensivo nulo y 46 solo el defensivo nulo.
 Estos modelos permiten cuantificar el aporte de los jugadores a cada uno
 de los distintos tipos de anotación, midiendo su contribución tanto
 ofensiva como defensiva en cada caso. Pero en base al objetivo de esta
-tesina, se buscará unificar este aporte en un solo indice de
+tesina, se buscará unificar este aporte en un único indice de
 rendimiento. Obteniendo así la métrica denominada: \emph{Expected
 Points} (\emph{EPTS}).
 
@@ -2616,7 +2614,7 @@ valor de \(\alpha\) seleccionado para \emph{Elastic Net} (\(\alpha\) =
 predominante.
 
 Mientras que para \emph{LASSO} se observa que, al igual que en los
-modelos normales, la distribución de las métricas es más dispera, con
+modelos normales, la distribución de las métricas es más dispersa, con
 colas más pronunciadas. Debido en gran medida a la cantidad de
 coeficientes reducidos a 0 en la regularización.
 
@@ -2624,7 +2622,7 @@ coeficientes reducidos a 0 en la regularización.
 
 Una vez obtenidos los \(EPTS\) se calcula su versión ponderada según la
 proporción de posesiones de su equipo en las que participó cada jugador.
-Este índice actua como un \emph{shrinkage} sobre el EPTS penalizando a
+Este índice actúa como un \emph{shrinkage} sobre el EPTS penalizando a
 los jugadores con menos tiempo de juego, contrayendo sus EPTS hacia los
 puntos esperados del grupo de referencia. En caso de que el jugador si
 participara en todas las posesiones de su equipo, el \(wEPTS\) sería
@@ -2642,13 +2640,13 @@ distribuciones de EPTS y wEPTS obtenidas mediante \emph{Ridge}.
 \caption{Comparación de distribuciones: EPTS vs wEPTS}\label{fig:unnamed-chunk-32}
 \end{figure}
 
-Al considerar las métricas ofensivas, se observa que las mayores
-reducciones absolutas no se concentran necesariamente entre quienes
-presentan muy baja participación durante la temporada. Cuatro de los
-cinco jugadores mejor ubicados en el ranking ofensivo de \emph{EPTS} se
-encontraron entre los más afectados por la ponderación, a pesar de haber
-participado aproximadamente en el 40\%--45\% de las posesiones de sus
-equipos. Como consecuencia, registraron caídas relevantes en el ranking:
+A través de la Figura 16 se observa que las mayores reducciones
+absolutas no se concentran necesariamente entre quienes presentan muy
+baja participación durante la temporada. Cuatro de los cinco jugadores
+mejor ubicados en el ranking ofensivo de \emph{EPTS} se encontraron
+entre los más afectados por la ponderación, a pesar de haber participado
+aproximadamente en el 40\%--45\% de las posesiones de sus equipos. Como
+consecuencia, registraron caídas relevantes en el ranking:
 
 \begin{itemize}
 \item
@@ -2665,8 +2663,8 @@ equipos. Como consecuencia, registraron caídas relevantes en el ranking:
   \texttt{THOMAS\ III,\ CHARLES\ PRICE} pasó del 5to puesto al 12vo.
 \end{itemize}
 
-Al analizar las métricas defensivas también se observa un comportamiento
-similar al mencionado.
+Por otra parte, al analizar las métricas defensivas presentadas en la
+Figura 17 también se observa un comportamiento similar al mencionado.
 
 \begin{figure}[H]
 
@@ -2678,12 +2676,12 @@ similar al mencionado.
 \end{figure}
 
 Donde destaca \texttt{SANDERS,\ NAKIE\ GERALD}, jugador que presentó la
-mayor reducción en la métrica entre todos los predictores (-0,02215).
-Pasando del 9no puesto defensivo en el ranking EPTS al 39° en el ranking
-wEPTS.
+mayor reducción en la métrica entre todos los predictores (diferencia de
+0,02215). Pasando del 9no puesto defensivo en el ranking EPTS al 39° en
+el ranking wEPTS.
 
-Entre los 5 jugadores con mayor penalización en su métrica defensiva
-encontramos, al igual que sucedió con la métrica defensiva, al jugador
+Entre los cinco jugadores con mayor penalización en su métrica defensiva
+encontramos, al igual que sucedió con la métrica ofensiva, al jugador
 \texttt{CHACON\ TIRADO,\ MARCOS}, el cual pasó del 7mo puesto defensivo
 al 13vo en el nuevo ranking. Identificandose como uno de los jugadores
 más afectados por esta nueva métrica ponderada.
@@ -2694,40 +2692,314 @@ original y el valor de referencia. Por definición:
 
 \[wEPTS_k-EPTS_0=W_k(EPTS_k-EPTS_0)\]
 
-Por lo que la distancia respecto de \(EPTS_0\) se reduce
-proporcionalmente según \(W_k\). De esta manera, quienes tienen menor
-participación siempre van a presentar una contracción
-\textbf{proporcional} mayor. Sin embargo, el cambio absoluto es:
+Por lo tanto, luego de aplicar la ponderación, el jugador conserva una
+proporción de \(W_k\) de su distancia original respecto de \(EPTS_0\).
+De esta manera, quienes tienen menor participación siempre van a
+presentar una contracción \textbf{proporcional} mayor. Sin embargo, el
+cambio absoluto es:
 
 \[|wEPTS_k-EPTS_k|=(1-W_k)|EPTS_k-EPTS_0|\]
 
 Por eso, un jugador con una participación intermedia (como la gran
 mayoría de casos que se vieron anteriormente) puede ser uno de los más
-afectado en términos absolutos si su EPTS original es muy alto o muy
-bajo, y por lo tanto muy lejano a \(EPTS_0\).
+afectados en términos absolutos si su EPTS original está muy alejado de
+\(EPTS_0\).
 
-De esta manera, wEPTS no solo estabiliza las estimaciones de jugadores
-con escasa presencia, sino que modifica la interpretación del ranking al
-incorporar la proporción de posesiones disputadas durante la temporada.
-
-En conclusión, ambas medidas parecen abordar un problema diferente,
-wEPTS representa una \textbf{medida de contribución de los jugadores a
-lo largo de toda la temporada}, mientras que EPTS describe
-principalmente el \textbf{rendimiento esperado cuando el jugador se
-encuentra en cancha}.
+En conclusión, wEPTS no solo estabiliza las estimaciones de jugadores
+con escasa presencia, sino que modifica la interpretación del ranking.
+Esto se debe a que las dos medidas parecieran responder a problemas
+diferentes, wEPTS puede interpretarse como una \textbf{medida de
+contribución total del rendimiento de los jugadores a lo largo de toda
+la temporada}, mientras que EPTS describe principalmente el
+\textbf{rendimiento esperado durante las posesiones en las que el
+jugador se encuentra en cancha}.
 
 \subsection{Comparación de modelos}\label{comparaciuxf3n-de-modelos-1}
 
-\ldots{}
+\subsubsection{Bondad de ajuste}\label{bondad-de-ajuste-1}
+
+La capacidad predictiva de estos modelos se compara, al igual que en el
+artículo de referencia, mediante el RMSE. Las predicciones de cada
+posesión utilizadas para obtener esta medida fueron obtenidas mediante
+un reajuste de los modelos, donde en cada caso se fue excluyendo
+sucesivamente uno de los \emph{folds}, se entrenó el modelo con los
+nueve restantes y se predijeron las posesiones pertenecientes al
+\emph{fold} omitido.
+
+Los resultados fueron los siguientes:
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-34}RMSE out-of-fold para cada modelo}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lr}
+\toprule
+Modelo & RMSE\\
+\midrule
+Normal Ridge & 1.185367\\
+Normal LASSO & 1.185494\\
+Normal Elastic Net & 1.185344\\
+Multinomial Ridge & 1.185414\\
+Multinomial LASSO & 1.185505\\
+Multinomial Elastic Net & 1.185378\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+En base al Cuadro 15 se puede notar que ninguna combinación de
+distribución y regularización pareciera producir una mejora predictiva
+importante sobre las demás. Siendo la mejor métrica obtenida por el
+modelo de regresión múltiple penalizada con \emph{Elastic Net}, con un
+RMSE = 1,185344; sin embargo, la diferencia respecto del modelo
+multinomial \emph{LASSO}, que presentó el valor más elevado, fue de
+apenas 0,000161.
+
+Dado que el RMSE evalúa únicamente la precisión del valor esperado de
+puntos, se complementó este análisis mediante el otro procedimiento
+propuesto por Damoulaki et al.~(2025), comparando la distribución
+empírica de los puntos por posesión con la obtenida a partir de
+simulaciones del modelo multinomial.
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.8\linewidth]{img/simulacion_proporcion_empirica} 
+
+}
+
+\caption{Simulación de distribución empírica}\label{fig:unnamed-chunk-35}
+\end{figure}
+
+Para cada categoría de anotación se representó la distribución de las
+proporciones obtenidas en 1.000 simulaciones. Como se observa en la
+figura 18, las distribuciones se concentraron alrededor del valor
+empírico y fueron prácticamente iguales entre las tres técnicas de
+regularización, lo que indica que los modelos multinomiales reproducen
+de manera adecuada, y similar entre si, la distribución marginal
+observada de los puntos por posesión.
 
 \subsubsection{Consistencia}\label{consistencia}
 
-\ldots{}
+Los resultados anteriores mostraron que las distintas combinaciones de
+distribución y técnica de regularización presentaron una capacidad
+predictiva prácticamente equivalente. Sin embargo, una bondad de ajuste
+similar no implica necesariamente que los rankings estimados sean
+igualmente confiables. Un modelo puede reproducir adecuadamente los
+resultados observados y, al mismo tiempo, generar métricas muy sensibles
+a los partidos incluidos en el conjunto de datos.
 
-\subsubsection{Validez - Validación
-externa}\label{validez---validaciuxf3n-externa}
+Siguiendo el enfoque propuesto por Hvattum, se evaluó entonces la
+consistencia de los modelos, entendida como su capacidad para producir
+valoraciones similares al ser ajustados sobre muestras diferentes. Para
+ello, los partidos fueron distribuidos aleatoriamente en dos particiones
+con cantidades similares de posesiones, manteniendo todas las posesiones
+de un mismo encuentro dentro de una única partición. Posteriormente,
+cada modelo fue reajustado de manera independiente y se calculó la
+correlación de Pearson entre los ratings obtenidos para los jugadores
+presentes en ambas muestras.
 
-\ldots{}
+El análisis se realizó separadamente para las contribuciones ofensivas y
+defensivas. Como referencia adicional, las correlaciones observadas se
+compararon con rankings generados aleatoriamente para evidenciar mejoras
+sobre un escenario base.
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.8\linewidth]{img/consistencia_modelos} 
+
+}
+
+\caption{Análisis de consistencia de los rankings}\label{fig:unnamed-chunk-36}
+\end{figure}
+
+Las correlaciones de Pearson obtenidas entre los rankings estimados en
+ambas particiones fueron positivas en todas las combinaciones
+analizadas, aunque con asociaciones bajas a moderadas. Los valores
+variaron en un rango de 0,116 a 0,345, evidenciando cierta sencibilidad
+en los modelos, más aún si se utiliza solo media temporada para su
+cálculo.
+
+Además, de este análisis se despenden los siguientes resultados:
+
+\begin{itemize}
+\item
+  En términos generales, las contribuciones defensivas presentaron una
+  mayor consistencia que las ofensivas. Los valores más elevados
+  correspondieron al wEPTS defensivo estimado mediante Elastic Net y
+  Ridge, con correlaciones de 0,345 y 0,337, respectivamente.
+\item
+  \emph{Elastic Net} presentó la mayor correlación en cinco de las seis
+  combinaciones, aunque sus resultados fueron muy similares a los
+  obtenidos mediante \emph{Ridge}. En cambio, LASSO registró
+  sistemáticamente las correlaciones de Pearson más bajas, llegando en
+  algunos casos a valores que no pudieron distinguirse de los esperables
+  bajo rankings aleatorios.
+\item
+  16 de las 18 combinaciones analizadas presentaron correlaciones
+  mayores al percentil 97,5 de la distribución de las 5.000
+  correlaciones generadas mediante rankings aleatorios.
+\item
+  Los dos rankings que parecieran haber sido más consistentes son: wEPTS
+  - Ridge y wEPTS - Elastic Net.
+\end{itemize}
+
+\subsubsection{Validación externa}\label{validaciuxf3n-externa}
+
+Las evaluaciones anteriores permitieron analizar la capacidad de ajuste
+de los modelos y la estabilidad de las valoraciones obtenidas ante
+cambios en la muestra utilizada. Sin embargo, resulta importante
+complementar estos criterios con validaciones externas que permitan
+determinar en qué medida los rankings representan adecuadamente el
+rendimiento de los jugadores, o la percepción del rendimiento que los
+especialistas tienen sobre los mismos.
+
+En un primer paso vamos a comparar las métricas con los primeros tres
+criterios mencionados en el apartado metodológico:
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-37}Comparación de rankings según criterios de validación externa}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+Modelo & Criterio 1 (\%) & Criterio 2 (\%) & Criterio 3a (\%) & Criterio 3b (\%)\\
+\midrule
+RAPM - Ridge & 49.4 & 6.0 & 66.0 & 59.0\\
+RAPM - Lasso & 43.2 & 13.0 & 61.0 & 57.0\\
+RAPM - Elastic Net & 50.6 & 6.0 & 65.0 & 59.0\\
+EPTS - Ridge & 49.4 & 12.0 & 61.0 & 54.0\\
+EPTS - Lasso & \textbf{54.3} & 5.0 & 67.0 & 64.0\\
+EPTS - Elastic Net & 49.4 & 11.0 & 61.0 & 55.0\\
+wEPTS - Ridge & 53.1 & \textbf{2.0} & \textbf{78.0} & \textbf{73.0}\\
+wEPTS - Lasso & \textbf{54.3} & 5.0 & 68.0 & 63.0\\
+wEPTS - Elastic Net & 53.1 & \textbf{2.0} & 77.0 & 72.0\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[para]
+\item Los porcentajes se calcularon sobre 100 posiciones: las 50 primeras o últimas de los rankings ofensivos y las 50 primeras o últimas de los rankings defensivos. Criterio 1: jugadores galardonados incluidos en el top 100. Criterio 2: jugadores con menor participación incluidos en el top 100. Criterio 3a: titulares incluidos en el top 100. Criterio 3b: titulares incluidos en el bottom 100.
+\end{tablenotes}
+\end{threeparttable}}
+\end{table}
+
+Al analizar el Cuadro 16, puede identificarse que los criterios basados
+en el tiempo de juego de los jugadores mejor calificados presentan
+mejores desempeños en las métricas wEPTS, de manera lógica debido a su
+formulación. Dentro de estas medidas, la que se destacó por sobre las
+demás fue la producida mediante regularización \emph{Ridge}. Por otro
+lado, al observar la proporción de jugadores premiados a lo largo de la
+temporada en las posiciones altas de los rankings, los desempeños fueron
+más similares, siendo el modelo multinomial estimado mediante
+\emph{LASSO} el que produzco el mejor resultado, alcanzando a un 54.3 de
+los galardonados tanto en los rankings EPTS como en los wEPTS.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-38}Comparación de los rankings según estadísticas tradicionales del box score}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Estadísticas ofensivas} & \multicolumn{3}{c}{Estadísticas defensivas} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+Modelo & PTS (\%) & AST (\%) & OREB (\%) & DREB (\%) & STL (\%) & BLK (\%)\\
+\midrule
+RAPM - Ridge & 40.0 & 34.0 & 34.0 & 22.0 & 30.0 & 26.0\\
+RAPM - Lasso & 36.0 & 30.0 & 30.0 & 30.0 & 30.0 & \textbf{30.0}\\
+RAPM - Elastic Net & 40.0 & 34.0 & 34.0 & 22.0 & 30.0 & 26.0\\
+EPTS - Ridge & 36.0 & 26.0 & 34.0 & 22.0 & 28.0 & \textbf{30.0}\\
+EPTS - Lasso & 44.0 & 28.0 & 32.0 & 26.0 & \textbf{36.0} & 24.0\\
+EPTS - Elastic Net & 38.0 & 28.0 & 36.0 & 22.0 & 28.0 & \textbf{30.0}\\
+wEPTS - Ridge & \textbf{48.0} & 38.0 & \textbf{42.0} & \textbf{32.0} & \textbf{36.0} & 28.0\\
+wEPTS - Lasso & 44.0 & 28.0 & 32.0 & 26.0 & \textbf{36.0} & 24.0\\
+wEPTS - Elastic Net & \textbf{48.0} & \textbf{40.0} & 40.0 & 30.0 & \textbf{36.0} & 28.0\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[para]
+\item PTS: puntos totales; AST: asistencias totales; OREB: rebotes ofensivos totales; DREB: rebotes defensivos totales; STL: recuperos totales; BLK: tapas totales.
+\end{tablenotes}
+\end{threeparttable}}
+\end{table}
+
+Analizando las estadísticas del \emph{box score}, vuelven a encontrarse
+mejores resultados en los modelos wEPTS estimados mediante \emph{Elastic
+Net} y \emph{Ridge}, especialmente al realizar comparaciones a través de
+las estadísticas ofensivas, donde dichas métricas dominan en todos los
+casos. En las variables defensivas no se observó un modelo claramente
+dominante. Los rankings wEPTS estimados mediante \emph{Ridge} y
+\emph{Elastic Net} alcanzaron la mayor coincidencia en rebotes
+defensivos (32\%), mientras que los mayores porcentajes en recuperos y
+tapas correspondieron a distintas variantes de RAPM.
+
+En términos generales, las coincidencias fueron superiores para las
+estadísticas ofensivas: el promedio entre modelos fue de 36,1\%, frente
+al 22,3\% registrado en las defensivas. Este patrón coincide con lo
+señalado por Damoulaki et al.~(2025), donde se sostiene que el
+rendimiento ofensivo puede asociarse más con la habilidad individual de
+los jugadores, mientras que el éxito defensivo depende en mayor medida
+de la coordinación y cooperación colectiva. Sin embargo, se considera
+que el planteo realizado por Damoulaki resulta parcial o incompleto,
+debido a que la menor coincidencia observada no debe atribuirse
+exclusivamente a una limitación de los modelos, sino a una limitación
+propia de las medidas tradicionales defensivas como los rebotes
+defensivos, los recuperos y las tapas las cuales no cuantifican de
+manera adecuada el aporte defensivo defensivo del jugador y no capturan
+aspectos importantes como el posicionamiento, las rotaciones o la
+intensidad.
+
+Adicionalmente, se incorporaron comparaciones con los rankings generados
+mediante las métricas descriptivas basadas en el \emph{plus-minus}, lo
+que permite evaluar si los modelos propuestos generan valoraciones
+similares con otras medidas que buscan explicar el mismo fenómeno. Los
+resultados obtenidos se presentan en el Cuadro 18.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-39}Concordancia entre los rankings estimados y las medidas descriptivas basadas en plus-minus}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Puntos realizados} & \multicolumn{2}{c}{Puntos recibidos} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+Modelo & Por posesión (\%) & Estandarizados (\%) & Por posesión (\%) & Estandarizados (\%)\\
+\midrule
+RAPM - Ridge & \textbf{86} & 58 & 76 & 66\\
+RAPM - Lasso & 48 & 48 & 54 & 50\\
+RAPM - Elastic Net & 84 & 58 & \textbf{78} & 66\\
+EPTS - Ridge & 78 & 58 & 66 & \textbf{72}\\
+EPTS - Lasso & 62 & 56 & 60 & 58\\
+EPTS - Elastic Net & 78 & \textbf{60} & 66 & 70\\
+wEPTS - Ridge & 72 & 54 & 60 & 58\\
+wEPTS - Lasso & 60 & 56 & 60 & 58\\
+wEPTS - Elastic Net & 74 & 52 & 62 & 58\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[para]
+\item Cada celda indica el porcentaje de jugadores del top 50 del ranking estimado que también pertenece al top 50 de la correspondiente medida descriptiva.
+\end{tablenotes}
+\end{threeparttable}}
+\end{table}
+
+Los rankings estimados mediante \emph{Ridge} y \emph{Elastic Net}
+mostraron una mayor concordancia con las medidas basadas en
+\emph{plus-minus} en comparación con los rankings producidos mediante
+\emph{LASSO}. Este menor grado de coincidencia podría relacionarse con
+la mayor contracción ejercida por LASSO, que lleva a cero una proporción
+considerable de los coeficientes. Por otro lado, los rankings RAPM
+tendieron a presentar una mayor concordancia que los derivados de los
+modelos multinomiales, particularmente en las medidas por posesión. Sin
+embargo, este resultado debe interpretarse con cautela, dado que el RAPM
+utiliza como variable respuesta los puntos anotados en cada posesión y,
+por lo tanto, su asociación con estas medidas descriptivas no constituye
+una validación completamente independiente
 
 \section{Conclusión}\label{conclusiuxf3n}
 
@@ -2766,6 +3038,14 @@ puntos de corte y evaluar los resultados de cada modelo.
 Ponderar los distintos momentos del partido de diferente manera (más
 peso a las situaciones clutch y menos a los garbage minutes), estaría
 bueno citar a algún artículo que haya realizado esto
+
+Una de las motivaciones para desarrollar métricas RAPM consiste en
+superar este reduccionismo del box score y estimar contribuciones que no
+quedan registradas en las estadísticas individuales. Por lo tanto, una
+menor concordancia con estas medidas no debería interpretarse
+automáticamente como evidencia de menor validez del modelo, sino como
+una posible divergencia entre distintas formas de conceptualizar y medir
+el aporte defensivo.
 
 \newpage
 
