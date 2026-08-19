@@ -73,6 +73,7 @@ library(dplyr)
 library(gt)
 library(htmltools)
 library(scales)
+library(stringr)
 ```
 
 # Resumen
@@ -161,21 +162,21 @@ El objetivo general de esta tesina es estimar el aporte individual de los jugado
 
 4)  Comparar modelos en base a distintos criterios de evaluación, para poder determinar cual de ellos proporciona mejores métricas, debiendo resumir de manera consistente y precisa el aporte ofensivo y defensivo de cada jugador en relación al desempeño de su equipo.
 
------ Modificación del objetivo ------
+<!-- ----- Modificación del objetivo ------ -->
 
-Recibí el siguiente comentario de parte de los jurados en la corrección del anteproyecto:
+<!-- Recibí el siguiente comentario de parte de los jurados en la corrección del anteproyecto: -->
 
-"Actualmente el objetivo enfatiza la construcción de un ranking. Te sugiero reformularlo poniendo mayor énfasis en la evaluación y comparación metodológica de los distintos enfoques de estimación (modelo lineal vs. multinomial, distintas penalizaciones, etc.). El ranking debería presentarse como un resultado del análisis, no como el eje central del trabajo."
+<!-- "Actualmente el objetivo enfatiza la construcción de un ranking. Te sugiero reformularlo poniendo mayor énfasis en la evaluación y comparación metodológica de los distintos enfoques de estimación (modelo lineal vs. multinomial, distintas penalizaciones, etc.). El ranking debería presentarse como un resultado del análisis, no como el eje central del trabajo." -->
 
-A pesar de que mi idea era centrar la tesis en encontrar un ranking óptimo (objetivo general) y para esto comparar distintos modelos (objetivo específico 4), pienso que tiene razón de ser este comentario al ser una tesina de estadística más que una tesina vinculada al deporte. Mis objetivos modificados serían los siguientes, quedó atento a su opinión al respecto.
+<!-- A pesar de que mi idea era centrar la tesis en encontrar un ranking óptimo (objetivo general) y para esto comparar distintos modelos (objetivo específico 4), pienso que tiene razón de ser este comentario al ser una tesina de estadística más que una tesina vinculada al deporte. Mis objetivos modificados serían los siguientes, quedó atento a su opinión al respecto. -->
 
-Objetivo general:
+<!-- Objetivo general: -->
 
-El objetivo general de esta tesina es evaluar y comparar diferentes enfoques de estimación de modelos RAPM para cuantificar el impacto individual de los jugadores de la Liga Nacional de Básquetbol de Argentina durante la temporada 2024/2025.
+<!-- El objetivo general de esta tesina es evaluar y comparar diferentes enfoques de estimación de modelos RAPM para cuantificar el impacto individual de los jugadores de la Liga Nacional de Básquetbol de Argentina durante la temporada 2024/2025. -->
 
-Objetivo específico 4:
+<!-- Objetivo específico 4: -->
 
-Generar rankings definitivos de la Liga Nacional como el resultado final obtenido mediante el modelo óptimo, identificando a los mejores jugadores de cada rubro para la temporada en estudio.
+<!-- Generar rankings definitivos de la Liga Nacional como el resultado final obtenido mediante el modelo óptimo, identificando a los mejores jugadores de cada rubro para la temporada en estudio. -->
 
 # Materiales
 
@@ -264,7 +265,7 @@ datos_acciones %>%
   kable_styling(
     latex_options = c("HOLD_position", "scale_down"),
     position = "center",
-    font_size = 8
+    font_size = 11
   )
 ```
 
@@ -374,7 +375,7 @@ acciones_eliminadas %>%
     latex_options = c("HOLD_position"), 
     # Quitamos 'scale_down' porque esta tabla no es ancha y no lo necesita
     position = "center",
-    font_size = 9
+    font_size = 11
   ) %>%
   column_spec(1, width = "1.5cm", bold = TRUE) %>% # Columna de números centrada y negrita
   column_spec(2, width = "12cm") # Ancho fijo para que el texto ocupe bien la hoja
@@ -448,8 +449,7 @@ datos_secuencia %>%
     # 'striped': facilita seguir la fila con la vista
     # 'scale_down': asegura que entre en el ancho de la hoja
     position = "center",
-    font_size = 9
-  )
+    font_size = 11  )
 ```
 
 De este modo, se seleccionaron las filas correspondientes a los eventos finales de cada posesión, descartando las acciones intermedias que no determinan su conclusión.
@@ -486,7 +486,7 @@ datos_posesion %>%
     # 'striped': filas grises alternas (estilo cebra)
     # 'scale_down': ajusta automáticamente al ancho de la hoja A4
     position = "center",
-    font_size = 9
+    font_size = 11
   )
 ```
 
@@ -774,19 +774,22 @@ Este problema resulta especialmente relevante en la Liga Nacional de Básquetbol
 ```{r, warning=FALSE}
 tabla_top10 = readRDS("tabla_top10.RDS")
 
+tabla_top10 = tabla_top10 %>% mutate(JugadorA = str_replace(JugadorA, "(, .).*$", "\\1."),
+                                      JugadorB = str_replace(JugadorB, "(, .).*$", "\\1."))
+
 tabla_multicol <- tabla_top10 %>%
   mutate(
     `Posesiones juntos` = scales::comma(posesiones_juntos, big.mark = "."),
-    `% de posesiones de A con B` = sprintf("%.1f", pct_A_con_B),
-    `% de posesiones de B con A` = sprintf("%.1f", pct_B_con_A),
+    `% de A con B` = sprintf("%.1f", pct_A_con_B),
+    `% de B con A` = sprintf("%.1f", pct_B_con_A),
     `Correlación ofensiva` = sprintf("%.3f", correlacion)
   ) %>%
   dplyr::select(
     `Jugador A` = JugadorA,
     `Jugador B` = JugadorB,
     `Posesiones juntos`,
-    `% de posesiones de A con B`,
-    `% de posesiones de B con A`,
+    `% de A con B`,
+    `% de B con A`,
     `Correlación ofensiva`
   )
 
@@ -801,7 +804,7 @@ tabla_multicol %>%
   kable_styling(
     latex_options = c("HOLD_position","scale_down"),
     position = "center",
-    font_size = 9
+    font_size = 11
   )
 ```
 
@@ -1069,7 +1072,7 @@ kable(
   kable_styling(
     latex_options = c("HOLD_position"),
     position = "center",
-    font_size = 10
+    font_size = 11
   )
 ```
 
@@ -1120,7 +1123,7 @@ kable(
   kable_styling(
     latex_options = c("HOLD_position","scale_down"),
     position = "center",
-    font_size = 9
+    font_size = 11
   ) %>%
   row_spec(1:4, background = "#D8F3DC") %>%
   row_spec(5:12, background = "#FFF3BF") %>%
@@ -1209,7 +1212,7 @@ Al observar los resultados, los valores más extremos de la distribución se con
 
 Para abordar este problema, manteniendo consistencia con el criterio adoptado posteriormente para el tratamiento de los jugadores con poca participación, se restringió el análisis a quienes disputaron al menos 500 posesiones en la temporada.
 
-A continuación, se presentan los diez valores más altos y los diez más bajos del plus-minus por cada 100 posesiones bajo esta condición.
+En el cuadro 9 se presentan los diez valores más altos y los diez más bajos del plus-minus por cada 100 posesiones bajo esta condición.
 
 ```{r, fig.cap="Jugadores con mayor plus-minus por cada 100 posesiones", out.width="80%", fig.align="center"}
 mej_pm_aj1 <- readRDS("mej_pm_aj1.rds")
@@ -1220,7 +1223,7 @@ paleta_sem1 <- readRDS("paleta_sem1.rds")
 mej_pm_aj1 <- mej_pm_aj1 %>%
   mutate(
     pm_ajust_pos = cell_spec(
-      pm_ajust_pos,
+      round(pm_ajust_pos, 4),
       format = "latex",
       bold = TRUE,
       background = paleta_sem1(pm_ajust_pos)
@@ -1254,7 +1257,7 @@ peor_pm_aj1 <- readRDS("peor_pm_aj1.rds")
 peor_pm_aj1 <- peor_pm_aj1 %>%
   mutate(
     pm_ajust_pos = cell_spec(
-      pm_ajust_pos,
+      round(pm_ajust_pos, 4),
       format = "latex",
       bold = TRUE,
       background = paleta_sem1(pm_ajust_pos)
@@ -1278,7 +1281,7 @@ peor_pm_aj1 %>%
   )
 ```
 
-Mientras que en la parte inferior la composición del ranking deja de concentrarse exclusivamente en jugadores de Argentino de Junín y Zárate Basket, e incorpora también jugadores de La Unión de Formosa, Ferro y Olímpico.
+Mientras que en la parte inferior (Cuadro 10) la composición del ranking deja de concentrarse exclusivamente en jugadores de Argentino de Junín y Zárate Basket, e incorpora también jugadores de La Unión de Formosa, Ferro y Olímpico.
 
 De igual manera, esta normalización de la métrica tradicional no elimina todas limitaciones del *plus-minus*, dado que la métrica continúa sin considerar la calidad de los compañeros y rivales con los que cada jugador compartió cancha.
 
@@ -1305,7 +1308,7 @@ paleta_sem2 <- readRDS("paleta_sem2.rds")
 mej_pm_aj2 <- mej_pm_aj2 %>%
   mutate(
     `+/- estandarizado` = cell_spec(
-      `+/- estandarizado`,
+      round(`+/- estandarizado`, 4),
       format = "latex",
       bold = TRUE,
       background = paleta_sem1(`+/- estandarizado`)
@@ -1344,7 +1347,7 @@ peor_pm_aj2 <- readRDS("peor_pm_aj2.rds")
 peor_pm_aj2 <- peor_pm_aj2 %>%
   mutate(
     `+/- estandarizado` = cell_spec(
-      `+/- estandarizado`,
+      round(`+/- estandarizado`, 4),
       format = "latex",
       bold = TRUE,
       background = paleta_sem1(`+/- estandarizado`)
@@ -1412,7 +1415,7 @@ tabla_penalizacion %>%
   kable_styling(
     latex_options = "hold_position",
     position = "center",
-    font_size = 10
+    font_size = 11
   ) %>%
   column_spec(1, width = "3.6cm") %>%
   column_spec(2, width = "1.6cm") %>%
@@ -1469,7 +1472,7 @@ tabla_penalizacion %>%
   kable_styling(
     latex_options = "hold_position",
     position = "center",
-    font_size = 10
+    font_size = 11
   ) %>%
   column_spec(1, width = "3.6cm") %>%
   column_spec(2, width = "1.6cm") %>%
@@ -1574,7 +1577,7 @@ resultados_rmse %>%
     # 'striped': facilita seguir la fila con la vista
     # 'scale_down': asegura que entre en el ancho de la hoja
     position = "center",
-    font_size = 9
+    font_size = 11
   )
 ```
 
@@ -1705,7 +1708,7 @@ tabla_criterios_formato %>%
       "scale_down"
     ),
     position = "center",
-    font_size = 8
+    font_size = 11
   ) %>%
   footnote(
     general = paste(
@@ -1786,7 +1789,7 @@ tabla_boxscore_formato %>%
       "scale_down"
     ),
     position = "center",
-    font_size = 8
+    font_size = 11
   ) %>%
   footnote(
     general = paste(
@@ -1876,7 +1879,7 @@ tabla_concordancia_formato %>%
       "scale_down"
     ),
     position = "center",
-    font_size = 8
+    font_size = 11
   ) %>%
   kableExtra::footnote(
     general = paste(

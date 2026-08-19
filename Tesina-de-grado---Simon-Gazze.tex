@@ -469,38 +469,6 @@ ranking que refleje su impacto en el desempeño de sus equipos.
   de cada jugador en relación al desempeño de su equipo.
 \end{enumerate}
 
------ Modificación del objetivo ------
-
-Recibí el siguiente comentario de parte de los jurados en la corrección
-del anteproyecto:
-
-``Actualmente el objetivo enfatiza la construcción de un ranking. Te
-sugiero reformularlo poniendo mayor énfasis en la evaluación y
-comparación metodológica de los distintos enfoques de estimación (modelo
-lineal vs.~multinomial, distintas penalizaciones, etc.). El ranking
-debería presentarse como un resultado del análisis, no como el eje
-central del trabajo.''
-
-A pesar de que mi idea era centrar la tesis en encontrar un ranking
-óptimo (objetivo general) y para esto comparar distintos modelos
-(objetivo específico 4), pienso que tiene razón de ser este comentario
-al ser una tesina de estadística más que una tesina vinculada al
-deporte. Mis objetivos modificados serían los siguientes, quedó atento a
-su opinión al respecto.
-
-Objetivo general:
-
-El objetivo general de esta tesina es evaluar y comparar diferentes
-enfoques de estimación de modelos RAPM para cuantificar el impacto
-individual de los jugadores de la Liga Nacional de Básquetbol de
-Argentina durante la temporada 2024/2025.
-
-Objetivo específico 4:
-
-Generar rankings definitivos de la Liga Nacional como el resultado final
-obtenido mediante el modelo óptimo, identificando a los mejores
-jugadores de cada rubro para la temporada en estudio.
-
 \section{Materiales}\label{materiales}
 
 Una parte central de esta tesina estará dedicada a la construcción de
@@ -822,7 +790,7 @@ Estas acciones son:
 \centering
 \caption{\label{tab:unnamed-chunk-10}Acciones eliminadas por no ser informativas para la delimitación de las posesiones}
 \centering
-\fontsize{9}{11}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{tabular}[t]{>{\raggedleft\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}p{12cm}}
 \toprule
 N° & Acción\\
@@ -945,7 +913,7 @@ encuentra ejemplificado en el Cuadro 2.
 \caption{\label{tab:unnamed-chunk-12}Ejemplo de secuencia de acciones diferenciando cada posesión}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{9}{11}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{tabular}[t]{rlllllr}
 \toprule
 Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión\\
@@ -982,7 +950,7 @@ como se presenta en el Cuadro 3.
 \caption{\label{tab:unnamed-chunk-13}Ejemplo de estructura con una fila por posesión}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{9}{11}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{tabular}[t]{rlllllrr}
 \toprule
 Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión & Puntos\\
@@ -1558,21 +1526,21 @@ mismos es mayor.
 \caption{\label{tab:unnamed-chunk-16}Pares de jugadores que compartieron la mayor proporción de posesiones durante la temporada regular.}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{9}{11}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{tabular}[t]{llrrrr}
 \toprule
-Jugador A & Jugador B & Posesiones juntos & \% de posesiones de A con B & \% de posesiones de B con A & Correlación ofensiva\\
+Jugador A & Jugador B & Posesiones juntos & \% de A con B & \% de B con A & Correlación ofensiva\\
 \midrule
-BARREIRO, AGUSTIN & BROCAL, AGUSTIN ANDRES & 3.893 & 80.9 & 84.1 & 0.819\\
-BRUSSINO, JUAN IGNACIO & MILLER, TAVARIO EARNEST PTRISTIAN & 2.753 & 81.2 & 79.9 & 0.800\\
-ANDUJAR, LUCAS & THORNTON, WILLIE ALFORD & 3.302 & 77.9 & 81.2 & 0.788\\
-LUGARINI, BAUTISTA & VILDOZA, LEANDRO & 2.629 & 77.3 & 79.6 & 0.779\\
-THOMAS JR, MARCUS WILEY & THORNTON, WILLIE ALFORD & 3.132 & 78.4 & 77.0 & 0.769\\
-POMOLI LARRABURU, NICOLA & VILDOZA, LEANDRO & 2.507 & 77.3 & 75.9 & 0.759\\
-DEFELIPPO, JOSE & SHRIVER, DAVID RANDALL & 3.084 & 76.6 & 75.7 & 0.755\\
-BARRAL, PEDRO & MATA, MARCOS DANIEL & 2.874 & 75.7 & 75.3 & 0.747\\
-LUGARINI, BAUTISTA & POMOLI LARRABURU, NICOLA & 2.533 & 74.5 & 78.1 & 0.757\\
-CABRERA, MARTIN ANDRES & VALLEJOS, ROLANDO EXEQUIEL & 3.038 & 78.9 & 74.1 & 0.757\\
+BARREIRO, A. & BROCAL, A. & 3.893 & 80.9 & 84.1 & 0.819\\
+BRUSSINO, J. & MILLER, T. & 2.753 & 81.2 & 79.9 & 0.800\\
+ANDUJAR, L. & THORNTON, W. & 3.302 & 77.9 & 81.2 & 0.788\\
+LUGARINI, B. & VILDOZA, L. & 2.629 & 77.3 & 79.6 & 0.779\\
+THOMAS JR, M. & THORNTON, W. & 3.132 & 78.4 & 77.0 & 0.769\\
+POMOLI LARRABURU, N. & VILDOZA, L. & 2.507 & 77.3 & 75.9 & 0.759\\
+DEFELIPPO, J. & SHRIVER, D. & 3.084 & 76.6 & 75.7 & 0.755\\
+BARRAL, P. & MATA, M. & 2.874 & 75.7 & 75.3 & 0.747\\
+LUGARINI, B. & POMOLI LARRABURU, N. & 2.533 & 74.5 & 78.1 & 0.757\\
+CABRERA, M. & VALLEJOS, R. & 3.038 & 78.9 & 74.1 & 0.757\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -2064,7 +2032,7 @@ El promedio de puntos por posesión en la temporada fue de 1.04 pts.
 \centering
 \caption{\label{tab:unnamed-chunk-18}Distribución de puntos por posesión}
 \centering
-\fontsize{10}{12}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{tabular}[t]{rrr}
 \toprule
 Puntos & Posesiones & \%\\
@@ -2096,7 +2064,7 @@ secciones siguientes.
 \caption{\label{tab:unnamed-chunk-19}Tabla de posiciones de la Liga Nacional 2024/2025}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{9}{11}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{tabular}[t]{cl>{}ccccccc}
 \toprule
 Equipo & Pts & PJ & PG & PP & PF & PC & +/- & \\
@@ -2247,7 +2215,7 @@ adoptado posteriormente para el tratamiento de los jugadores con poca
 participación, se restringió el análisis a quienes disputaron al menos
 500 posesiones en la temporada.
 
-A continuación, se presentan los diez valores más altos y los diez más
+En el cuadro 9 se presentan los diez valores más altos y los diez más
 bajos del plus-minus por cada 100 posesiones bajo esta condición.
 
 \begin{table}[H]
@@ -2259,16 +2227,16 @@ bajos del plus-minus por cada 100 posesiones bajo esta condición.
 \toprule
 jugador & Equipos & posesiones & +/- & $PM^{100}$\\
 \midrule
-LOUIS, ARNOLD MICHAEL & QUIMSA & 3052 & 306 & \cellcolor[HTML]{B7E4C7}{\textbf{10.0262123197903}}\\
-VILDOZA, LEANDRO & INSTITUTO & 3302 & 297 & \cellcolor[HTML]{BEE5C5}{\textbf{8.99454875832829}}\\
-POMOLI LARRABURU, NICOLA & INSTITUTO & 3243 & 284 & \cellcolor[HTML]{C0E6C4}{\textbf{8.75732346592661}}\\
-CHACON TIRADO, MARCOS & GIMNASIA & 2326 & 201 & \cellcolor[HTML]{C1E6C4}{\textbf{8.6414445399828}}\\
-VASIRANI, EDUARDO MARTIN & QUIMSA & 2383 & 182 & \cellcolor[HTML]{C8E7C2}{\textbf{7.63743180864456}}\\
-SANSIMONI, BRUNO & QUIMSA & 2006 & 152 & \cellcolor[HTML]{C8E7C2}{\textbf{7.57726819541376}}\\
-RIVERO, CARLOS EZEQUIEL & GIMNASIA & 1629 & 123 & \cellcolor[HTML]{C9E7C2}{\textbf{7.55064456721915}}\\
-COPELLO, NICOLAS & INSTITUTO & 3366 & 245 & \cellcolor[HTML]{CAE8C1}{\textbf{7.27866904337493}}\\
-PIÑERO, FACUNDO & BOCA & 2387 & 160 & \cellcolor[HTML]{CEE9C0}{\textbf{6.70297444490993}}\\
-CUELLO, MARTIN NICOLAS & BOCA & 3850 & 254 & \cellcolor[HTML]{CFE9C0}{\textbf{6.5974025974026}}\\
+LOUIS, ARNOLD MICHAEL & QUIMSA & 3052 & 306 & \cellcolor[HTML]{B7E4C7}{\textbf{10.0262}}\\
+VILDOZA, LEANDRO & INSTITUTO & 3302 & 297 & \cellcolor[HTML]{BEE5C5}{\textbf{8.9945}}\\
+POMOLI LARRABURU, NICOLA & INSTITUTO & 3243 & 284 & \cellcolor[HTML]{C0E6C4}{\textbf{8.7573}}\\
+CHACON TIRADO, MARCOS & GIMNASIA & 2326 & 201 & \cellcolor[HTML]{C1E6C4}{\textbf{8.6414}}\\
+VASIRANI, EDUARDO MARTIN & QUIMSA & 2383 & 182 & \cellcolor[HTML]{C8E7C2}{\textbf{7.6374}}\\
+SANSIMONI, BRUNO & QUIMSA & 2006 & 152 & \cellcolor[HTML]{C8E7C2}{\textbf{7.5773}}\\
+RIVERO, CARLOS EZEQUIEL & GIMNASIA & 1629 & 123 & \cellcolor[HTML]{C9E7C2}{\textbf{7.5506}}\\
+COPELLO, NICOLAS & INSTITUTO & 3366 & 245 & \cellcolor[HTML]{CAE8C1}{\textbf{7.2787}}\\
+PIÑERO, FACUNDO & BOCA & 2387 & 160 & \cellcolor[HTML]{CEE9C0}{\textbf{6.703}}\\
+CUELLO, MARTIN NICOLAS & BOCA & 3850 & 254 & \cellcolor[HTML]{CFE9C0}{\textbf{6.5974}}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2287,24 +2255,24 @@ destacando en un equipo de mitad de tabla.
 \toprule
 jugador & Equipos & posesiones & +/- & $PM^{100}$\\
 \midrule
-ALONSO, GONZALO NICOLAS & LA UNION FSA. & 541 & -65 & \cellcolor[HTML]{F4A6A6}{\textbf{-12.0147874306839}}\\
-GOMEZ, MANUEL ALEJANDRO & ARGENTINO & 3702 & -409 & \cellcolor[HTML]{F5ADA7}{\textbf{-11.0480821177742}}\\
-ROVERES, AUGUSTO DANIEL & FERRO & 511 & -53 & \cellcolor[HTML]{F6B2A8}{\textbf{-10.3718199608611}}\\
-THORNTON, RAYNERE ZYNIQUE & ARGENTINO & 1088 & -108 & \cellcolor[HTML]{F7B5A8}{\textbf{-9.92647058823529}}\\
-SLIDER, JONATAN & ARGENTINO & 3685 & -352 & \cellcolor[HTML]{F7B7A8}{\textbf{-9.55223880597015}}\\
-MAXWELL, DU'VAUGHN ELISHA & OLIMPICO & 611 & -54 & \cellcolor[HTML]{F8BDA9}{\textbf{-8.8379705400982}}\\
-ALLENDE, TOMAS DANIEL & ARGENTINO & 3344 & -295 & \cellcolor[HTML]{F8BDA9}{\textbf{-8.82177033492823}}\\
-CAPPONI, FEBO LORENZO & ZARATE BASKET & 2179 & -187 & \cellcolor[HTML]{F8BEA9}{\textbf{-8.58191831115191}}\\
-PODESTA, FERNANDO ARIEL & ARGENTINO & 3047 & -251 & \cellcolor[HTML]{F9C1AA}{\textbf{-8.23761076468658}}\\
-ROMERO, GONZALO EMMANUEL & ARGENTINO & 587 & -48 & \cellcolor[HTML]{F9C1AA}{\textbf{-8.17717206132879}}\\
+ALONSO, GONZALO NICOLAS & LA UNION FSA. & 541 & -65 & \cellcolor[HTML]{F4A6A6}{\textbf{-12.0148}}\\
+GOMEZ, MANUEL ALEJANDRO & ARGENTINO & 3702 & -409 & \cellcolor[HTML]{F5ADA7}{\textbf{-11.0481}}\\
+ROVERES, AUGUSTO DANIEL & FERRO & 511 & -53 & \cellcolor[HTML]{F6B2A8}{\textbf{-10.3718}}\\
+THORNTON, RAYNERE ZYNIQUE & ARGENTINO & 1088 & -108 & \cellcolor[HTML]{F7B5A8}{\textbf{-9.9265}}\\
+SLIDER, JONATAN & ARGENTINO & 3685 & -352 & \cellcolor[HTML]{F7B7A8}{\textbf{-9.5522}}\\
+MAXWELL, DU'VAUGHN ELISHA & OLIMPICO & 611 & -54 & \cellcolor[HTML]{F8BDA9}{\textbf{-8.838}}\\
+ALLENDE, TOMAS DANIEL & ARGENTINO & 3344 & -295 & \cellcolor[HTML]{F8BDA9}{\textbf{-8.8218}}\\
+CAPPONI, FEBO LORENZO & ZARATE BASKET & 2179 & -187 & \cellcolor[HTML]{F8BEA9}{\textbf{-8.5819}}\\
+PODESTA, FERNANDO ARIEL & ARGENTINO & 3047 & -251 & \cellcolor[HTML]{F9C1AA}{\textbf{-8.2376}}\\
+ROMERO, GONZALO EMMANUEL & ARGENTINO & 587 & -48 & \cellcolor[HTML]{F9C1AA}{\textbf{-8.1772}}\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Mientras que en la parte inferior la composición del ranking deja de
-concentrarse exclusivamente en jugadores de Argentino de Junín y Zárate
-Basket, e incorpora también jugadores de La Unión de Formosa, Ferro y
-Olímpico.
+Mientras que en la parte inferior (Cuadro 10) la composición del ranking
+deja de concentrarse exclusivamente en jugadores de Argentino de Junín y
+Zárate Basket, e incorpora también jugadores de La Unión de Formosa,
+Ferro y Olímpico.
 
 De igual manera, esta normalización de la métrica tradicional no elimina
 todas limitaciones del \emph{plus-minus}, dado que la métrica continúa
@@ -2360,16 +2328,16 @@ dentro de su equipo.
 \toprule
 jugador & Equipos & Posesiones & +/- & +/- estandarizado\\
 \midrule
-SANDERS, NAKIE GERALD & ATENAS & 1211 & 60 & \cellcolor[HTML]{D6EABE}{\textbf{5.51819903353257}}\\
-GARELLO, VICENTE & SAN MARTIN & 1524 & 95 & \cellcolor[HTML]{E2EDBA}{\textbf{3.64294889650734}}\\
-MAINOLDI, LEONARDO ANDRES & OLIMPICO & 595 & 41 & \cellcolor[HTML]{E6EEB9}{\textbf{3.09825907096653}}\\
-CHACON TIRADO, MARCOS & GIMNASIA & 2326 & 201 & \cellcolor[HTML]{E7EEB8}{\textbf{2.84921632360827}}\\
-HARINA MARTINI, FEDERICO GABRIEL & LA UNION FSA. & 2982 & 55 & \cellcolor[HTML]{EAEEB7}{\textbf{2.3923691014528}}\\
-RIVERO, CARLOS EZEQUIEL & GIMNASIA & 1629 & 123 & \cellcolor[HTML]{EAEEB7}{\textbf{2.38614386747568}}\\
-CAPELLI, SANTIAGO & ARGENTINO & 554 & -16 & \cellcolor[HTML]{EBEFB7}{\textbf{2.24763251093135}}\\
-CARABALI POROZO, BRYAN JOSE & SAN MARTIN & 790 & 33 & \cellcolor[HTML]{ECEFB7}{\textbf{2.15598009971996}}\\
-LOUIS, ARNOLD MICHAEL & QUIMSA & 3052 & 306 & \cellcolor[HTML]{EDEFB6}{\textbf{2.00070037701909}}\\
-DATO, MARTINIANO & GIMNASIA & 2653 & 173 & \cellcolor[HTML]{EDEFB6}{\textbf{1.94899935973459}}\\
+SANDERS, NAKIE GERALD & ATENAS & 1211 & 60 & \cellcolor[HTML]{D6EABE}{\textbf{5.5182}}\\
+GARELLO, VICENTE & SAN MARTIN & 1524 & 95 & \cellcolor[HTML]{E2EDBA}{\textbf{3.6429}}\\
+MAINOLDI, LEONARDO ANDRES & OLIMPICO & 595 & 41 & \cellcolor[HTML]{E6EEB9}{\textbf{3.0983}}\\
+CHACON TIRADO, MARCOS & GIMNASIA & 2326 & 201 & \cellcolor[HTML]{E7EEB8}{\textbf{2.8492}}\\
+HARINA MARTINI, FEDERICO GABRIEL & LA UNION FSA. & 2982 & 55 & \cellcolor[HTML]{EAEEB7}{\textbf{2.3924}}\\
+RIVERO, CARLOS EZEQUIEL & GIMNASIA & 1629 & 123 & \cellcolor[HTML]{EAEEB7}{\textbf{2.3861}}\\
+CAPELLI, SANTIAGO & ARGENTINO & 554 & -16 & \cellcolor[HTML]{EBEFB7}{\textbf{2.2476}}\\
+CARABALI POROZO, BRYAN JOSE & SAN MARTIN & 790 & 33 & \cellcolor[HTML]{ECEFB7}{\textbf{2.156}}\\
+LOUIS, ARNOLD MICHAEL & QUIMSA & 3052 & 306 & \cellcolor[HTML]{EDEFB6}{\textbf{2.0007}}\\
+DATO, MARTINIANO & GIMNASIA & 2653 & 173 & \cellcolor[HTML]{EDEFB6}{\textbf{1.949}}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2407,16 +2375,16 @@ considerablemente más favorable que el de sus compañeros.
 \toprule
 jugador & Equipos & Posesiones & +/- & +/- estandarizado\\
 \midrule
-ALONSO, GONZALO NICOLAS & LA UNION FSA. & 541 & -65 & \cellcolor[HTML]{FBCFAC}{\textbf{-6.22052704702372}}\\
-PAYTON CLOTTEY, EMMANUEL TRAVON & SAN MARTIN & 966 & -63 & \cellcolor[HTML]{FCD3AC}{\textbf{-5.58043365080232}}\\
-DIGON, ALEJO ADRIEL & OBRAS & 691 & -33 & \cellcolor[HTML]{FCD9AD}{\textbf{-4.71006082427822}}\\
-ROVERES, AUGUSTO DANIEL & FERRO & 511 & -53 & \cellcolor[HTML]{FDDEAE}{\textbf{-4.01835921693478}}\\
-LEDESMA, RAMIRO & ATENAS & 1484 & -75 & \cellcolor[HTML]{FDE0AE}{\textbf{-3.67482238452159}}\\
-MAXWELL, DU'VAUGHN ELISHA & OLIMPICO & 611 & -54 & \cellcolor[HTML]{FEE7AF}{\textbf{-2.75159319957874}}\\
-MITCHELL JR, TONY RASEAN & UNION & 690 & -55 & \cellcolor[HTML]{FEE8AF}{\textbf{-2.62576218414058}}\\
-KRAYEM, OMAR NABIL & RIACHUELO & 551 & -35 & \cellcolor[HTML]{FEE8AF}{\textbf{-2.596483523536}}\\
-JARA, CESAR AGUSTIN & INDEPENDIENTE & 3016 & -175 & \cellcolor[HTML]{FEE9AF}{\textbf{-2.47905876585209}}\\
-ROMANO, NICOLAS & QUIMSA & 2186 & 28 & \cellcolor[HTML]{FEE9AF}{\textbf{-2.45877657007413}}\\
+ALONSO, GONZALO NICOLAS & LA UNION FSA. & 541 & -65 & \cellcolor[HTML]{FBCFAC}{\textbf{-6.2205}}\\
+PAYTON CLOTTEY, EMMANUEL TRAVON & SAN MARTIN & 966 & -63 & \cellcolor[HTML]{FCD3AC}{\textbf{-5.5804}}\\
+DIGON, ALEJO ADRIEL & OBRAS & 691 & -33 & \cellcolor[HTML]{FCD9AD}{\textbf{-4.7101}}\\
+ROVERES, AUGUSTO DANIEL & FERRO & 511 & -53 & \cellcolor[HTML]{FDDEAE}{\textbf{-4.0184}}\\
+LEDESMA, RAMIRO & ATENAS & 1484 & -75 & \cellcolor[HTML]{FDE0AE}{\textbf{-3.6748}}\\
+MAXWELL, DU'VAUGHN ELISHA & OLIMPICO & 611 & -54 & \cellcolor[HTML]{FEE7AF}{\textbf{-2.7516}}\\
+MITCHELL JR, TONY RASEAN & UNION & 690 & -55 & \cellcolor[HTML]{FEE8AF}{\textbf{-2.6258}}\\
+KRAYEM, OMAR NABIL & RIACHUELO & 551 & -35 & \cellcolor[HTML]{FEE8AF}{\textbf{-2.5965}}\\
+JARA, CESAR AGUSTIN & INDEPENDIENTE & 3016 & -175 & \cellcolor[HTML]{FEE9AF}{\textbf{-2.4791}}\\
+ROMANO, NICOLAS & QUIMSA & 2186 & 28 & \cellcolor[HTML]{FEE9AF}{\textbf{-2.4588}}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2468,7 +2436,7 @@ Los resultados obtenidos se presentan en el Cuadro 13.
 \centering
 \caption{\label{tab:unnamed-chunk-28}Técnicas de regularización y valores de hiperparámetros.}
 \centering
-\fontsize{10}{12}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{tabular}[t]{>{\raggedright\arraybackslash}p{3.6cm}>{\centering\arraybackslash}p{1.6cm}>{\centering\arraybackslash}p{2.2cm}>{\centering\arraybackslash}p{2.5cm}>{\centering\arraybackslash}p{4.3cm}}
 \toprule
 Penalización & $\alpha$ & $\lambda$ & CME CV & Coeficientes activos\\
@@ -2552,7 +2520,7 @@ simultáneamente para todos los tipos de anotación.
 \centering
 \caption{\label{tab:unnamed-chunk-30}Técnicas de regularización y valores de hiperparámetros.}
 \centering
-\fontsize{10}{12}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{tabular}[t]{>{\raggedright\arraybackslash}p{3.6cm}>{\centering\arraybackslash}p{1.6cm}>{\centering\arraybackslash}p{2.2cm}>{\centering\arraybackslash}p{2.5cm}>{\centering\arraybackslash}p{4.3cm}}
 \toprule
 Penalización & $\alpha$ & $\lambda$ & \textit{Deviance} CV & Predictores activos\\
@@ -2733,7 +2701,7 @@ Los resultados fueron los siguientes:
 \caption{\label{tab:unnamed-chunk-34}RMSE out-of-fold para cada modelo}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{9}{11}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{tabular}[t]{lr}
 \toprule
 Modelo & RMSE\\
@@ -2862,7 +2830,7 @@ criterios mencionados en el apartado metodológico:
 \caption{\label{tab:unnamed-chunk-37}Comparación de rankings según criterios de validación externa}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{8}{10}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{threeparttable}
 \begin{tabular}[t]{lcccc}
 \toprule
@@ -2901,7 +2869,7 @@ los galardonados tanto en los rankings EPTS como en los wEPTS.
 \caption{\label{tab:unnamed-chunk-38}Comparación de los rankings según estadísticas tradicionales del box score}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{8}{10}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{threeparttable}
 \begin{tabular}[t]{lcccccc}
 \toprule
@@ -2963,7 +2931,7 @@ resultados obtenidos se presentan en el Cuadro 18.
 \caption{\label{tab:unnamed-chunk-39}Concordancia entre los rankings estimados y las medidas descriptivas basadas en plus-minus}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{8}{10}\selectfont
+\fontsize{11}{13}\selectfont
 \begin{threeparttable}
 \begin{tabular}[t]{lcccc}
 \toprule
