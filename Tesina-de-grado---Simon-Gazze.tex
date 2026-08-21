@@ -157,9 +157,7 @@
 
 \newpage
 
-\renewcommand{\contentsname}{Contenido}
-\tableofcontents
-\newpage
+\pagenumbering{gobble}
 
 \section{Resumen}\label{resumen}
 
@@ -215,6 +213,12 @@ Nacional de Básquet, plus-minus, RAPM, regresión logística multinomial,
 regularización.
 
 \newpage
+\renewcommand{\contentsname}{Contenido}
+\tableofcontents
+
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
 
 \section{Introducción}\label{introducciuxf3n}
 
@@ -1136,10 +1140,12 @@ de K jugadores.
 El componente aleatorio supone que las respuestas \(y_i\) tienen
 variancias constantes \(\sigma^2\). De esta manera tenemos que,
 
-\[\begin{cases}
+\begin{equation}
+\begin{cases}
 y_i \sim N(\mu_i  , \sigma^2) \\
 \mu_i = \beta_0 + \sum_{j=1}^{K} \beta^o_j x^o_{ji} + \sum_{j=1}^{K} \beta^d_j x^d_{ji}
-\end{cases} \]
+\end{cases}
+\end{equation}
 
 para \(i = 1,...,n\);
 
@@ -1271,7 +1277,7 @@ esperada de puntos anotados por el equipo atacante pasa a ser
 \end{aligned}
 \]
 
-entonces \(\mu_3-\mu_1= -\beta_{b_6}^{O}+\beta_{b_1}^{O}\) representa la
+entonces \(\mu_3-\mu_1= -\beta_{b_6}^{D}+\beta_{b_1}^{D}\) representa la
 diferencia de puntos esperados recibidos por el equipo B cuando el
 jugador \(x_{b6}\) reemplaza al jugador \(x_{b1}\), y todos los demás
 jugadores se mantienen constantes. De esta manera, si \(\beta_{b6}\) es
@@ -1290,13 +1296,15 @@ multinomial para modelar el resultado en puntos de cada posesión.
 Recordando que \(y_i\) es igual a la cantidad de puntos en una posesión,
 nuestra nueva variable respuesta resulta:
 
-\[
+\begin{equation}
 y^M_i =
 \begin{cases}
 y_i, & \text{para } y_i \in \{0, 1, 2\} \\
 3, & \text{para } y_i \geq 3
 \end{cases}
-\] Donde, \(y^M_i \sim Multinomial(n, \boldsymbol{\pi_i})\) con
+\end{equation}
+
+Donde, \(y^M_i \sim Multinomial(n, \boldsymbol{\pi_i})\) con
 \(\boldsymbol{\pi_i} = (\pi_{i0},\pi_{i1},\pi_{i2},\pi_{i3})\) y
 \(\sum_{c=0}^3 \pi_{ic}=1\).
 
@@ -1375,15 +1383,17 @@ demás jugadores en cancha pertenecen al grupo de referencia.
 A esta nueva métrica la denominamos EPTS (\emph{Expected Points per Team
 possession with the player Scoring contribution})
 
-\[
+\begin{equation}
 EPTS_k^r= E(PTS_i \mid X_{ik}^r \ne 0,\, \boldsymbol{X}_{i/k}^r = 0,\, \boldsymbol{X}_i^{\overline{r}} = 0), \quad r \in \{o, d\}
-\]
+\end{equation}
 
 Estas dos medidas, \(EPTS^o\) y \(EPTS^d\), serán funciones de los
 coeficientes ofensivos y defensivos del modelo multinomial ajustado. Se
 obtienen mediante:
 
-\[EPTS_k^r= \pi^r_{k1}+2\pi_{k2}^r+3,0304\pi_{k3}^r, \quad r \in \{o,d\}\]
+\begin{equation}
+EPTS_k^r= \pi^r_{k1}+2\pi_{k2}^r+3,0304\pi_{k3}^r, \quad r \in \{o,d\}
+\end{equation}
 
 Donde \(\pi_{kc}^o\) son las probabilidades estimadas mediante un modelo
 de regresión logística multinomial de anotar uno, dos o tres puntos o
@@ -1422,24 +1432,24 @@ anteriormente presentada se pondera según la proporción de posesiones en
 las que el jugador de interés estuvo en cancha. Por lo tanto, el EPTS
 ponderado (wEPTS) se define como:
 
-\[
+\begin{equation}
 \begin{aligned}
 wEPTS_k^{r} &= E(Pts_i \mid \boldsymbol{X}_{i\setminus{k}}^{r} = \boldsymbol{0},\, \boldsymbol{X}_i^{\,\bar{r}} = \boldsymbol{0},\, T_i = t_k) \\[6pt]
 &= P(X_{ik}^{r} \ne 0 \mid T_i = t_k) \, E(Pts_i \mid X_{ik}^{r} \ne 0,\boldsymbol{X}_{i\setminus{k}}^{r} = \boldsymbol{0},\, \boldsymbol{X}_i^{\,\bar{r}} = \boldsymbol{0}) \\[6pt]
 &\quad + P(X_{ik}^{r} = 0 \mid T_i = t_k) \, E(Pts_i \mid X_{ik}^{r} = 0,\boldsymbol{X}_{i\setminus{k}}^{r} = \boldsymbol{0},\, \boldsymbol{X}_i^{\,\bar{r}} = \boldsymbol{0}) \\[6pt]
 &= W_k^{r} \, EPTS_k^{r} + (1 - W_k^{r}) \, EPTS_0
 \end{aligned}
-\]
+\end{equation}
 
 donde \(r \in \{o, d\}\). Además, el peso \(W_k^{r}\) se estima como:
 
-\[
+\begin{equation}
 \hat{W}_k^{r} =
 \frac{n_k^{r}}{n_{t_k}^{r}}
 =
 \frac{\sum_{i=1}^{n} \mathcal{I}(X_{ik}^{r} \ne 0)}
      {\sum_{i=1}^{n} \mathcal{I}(T_i^{r} = t_k)}.
-\]
+\end{equation}
 
 Ahora tenemos que \(\mathcal{I}(A)\) es una variable indicadora que vale
 1 en caso de que A sea verdadero y 0 en caso contrario, \(T_i^r\) es el
@@ -1468,6 +1478,7 @@ suma de cuadrados \(S\), y se denotan como
 \(\hat{\beta}_0, \ldots, \hat{\beta}_p\).
 
 Obteniendo de esta manera los siguientes coeficientes estimados:
+
 \begin{equation}
 \hat{\beta_k} = \frac{\sum_{i=1}^n x_{ik}^*y_{i}}{\sum_{i=1}^n (x_{ik}^*)^2}
 \end{equation},
@@ -1487,7 +1498,9 @@ En el modelo logístico multinomial, los parámetros
 simultáneamente las (c-1) ecuaciones logit, de manera que se maximice la
 log-verosimilitud:
 
-Función a maximizar: \begin{equation}
+Función a maximizar:
+
+\begin{equation}
 L_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^n\sum_{j=1}^cy_{ij}log(\pi_{ij})
 \end{equation},
 
@@ -1722,15 +1735,15 @@ Hastie (2005), la cual combina las penalizaciones L1 (Lasso) y L2
 Para el \textbf{modelo de regresión lineal múltiple} resulta:
 
 \begin{equation}
-S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=S+\lambda \sum_{k=1}^p[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
+S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda [\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]=S+\lambda[\alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2]
 \end{equation}
 
 Para el \textbf{modelo logístico multinomial} resulta:
 
 \begin{equation}
 \begin{split}
-L^*_m(\boldsymbol{\beta},\boldsymbol{y}) &= \sum_{i=1}^n\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \sum_{k=1}^p \left[ \alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2 \right] \\
-&= L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{k=1}^p \left[ \alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2 \right]
+L^*_m(\boldsymbol{\beta},\boldsymbol{y}) &= \sum_{i=1}^n\sum_{j=1}^cy_{ij}log(\pi_{ij}) + \lambda \left[ \alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2 \right] \\
+&= L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \left[ \alpha\sum_{k=1}^p|\beta_k|+\frac{(1-\alpha)}{2}\sum_{k=1}^p\beta_k^2 \right]
 \end{split}
 \end{equation}
 
@@ -1804,14 +1817,14 @@ Con el objetivo de evaluar el desempeño predictivo, se compararón los
 distintos modelos utilizando como criterio principal a la raíz del error
 cuadrático medio (\textit{Root Mean Squared Error}, RMSE).
 
-\[
+\begin{equation}
 RMSE=
 \sqrt{
 \frac{1}{n}
 \sum_{i=1}^{n}
 (y_i-\hat y_i)^2
 },
-\]
+\end{equation}
 
 donde \(y_i\) representa el valor observado y \(\hat y_i\) el valor
 predicho por el modelo.
@@ -1849,7 +1862,7 @@ EPTS = E(Y_i)=
 0\pi_{i0}
 +1\pi_{i1}
 +2\pi_{i2}
-+3.03\pi_{i3}.
++3.0304\pi_{i3}.
 \]
 
 Y por lo tanto,
@@ -1859,7 +1872,7 @@ Y por lo tanto,
 0\hat{\pi_{i0}}
 +1\hat{\pi_{i1}}
 +2\hat{\pi_{i2}}
-+3.03\hat{\pi_{i3}}.
++3.0304\hat{\pi_{i3}}.
 \]
 
 De esta forma, tanto el modelo normal como el multinomial producen una
@@ -2293,7 +2306,7 @@ presentan, en su mayoría, una valoración negativa.
 
 \begin{figure}[H]
 
-{\centering \includegraphics[width=0.8\linewidth]{img/distribucion_pm100_por_equipo} 
+{\centering \includegraphics[width=0.85\linewidth]{img/distribucion_pm100_por_equipo} 
 
 }
 
@@ -2477,7 +2490,7 @@ efecto inferior a 0,1 puntos cada 100 posesiones.
 
 \begin{figure}[H]
 
-{\centering \includegraphics[width=0.8\linewidth]{img/dist_betas_normal} 
+{\centering \includegraphics[width=0.9\linewidth]{img/dist_betas_normal} 
 
 }
 
@@ -2562,7 +2575,7 @@ Points} (\emph{EPTS}).
 
 \begin{figure}[H]
 
-{\centering \includegraphics[width=0.8\linewidth]{img/dist_betas_multi} 
+{\centering \includegraphics[width=0.9\linewidth]{img/dist_betas_multi} 
 
 }
 
@@ -2732,7 +2745,7 @@ simulaciones del modelo multinomial.
 
 \begin{figure}[H]
 
-{\centering \includegraphics[width=0.8\linewidth]{img/simulacion_proporcion_empirica} 
+{\centering \includegraphics[width=0.9\linewidth]{img/simulacion_proporcion_empirica} 
 
 }
 
@@ -2774,7 +2787,7 @@ sobre un escenario base.
 
 \begin{figure}[H]
 
-{\centering \includegraphics[width=0.8\linewidth]{img/consistencia_modelos} 
+{\centering \includegraphics[width=0.9\linewidth]{img/consistencia_modelos} 
 
 }
 

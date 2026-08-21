@@ -791,7 +791,7 @@ grafico_consistencia <- ggplot(
   ) +
   geom_point(
     position = posicion,
-    size = 3
+    size = 2
   ) +
   facet_wrap(~ metrica, nrow = 1) +
   scale_color_manual(values = colores_componente) +
