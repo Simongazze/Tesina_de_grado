@@ -246,19 +246,19 @@ departamentos especializados en análisis de datos para optimizar
 estrategias de juego, evaluar el rendimiento de jugadores, prevenir
 lesiones y gestionar recursos económicos de manera más eficiente.
 
-El \textbf{básquetbol} es uno de los deportes que más ha incorporado el
-análisis estadístico en su evolución reciente. Desde las primeras
-métricas derivadas del \emph{box score} (resumen estructurado de los
-resultados de un partido), el desarrollo de bases de datos
-\emph{play-by-play} (registro de cada una de las acciones del partido) a
-partir de la década del 2000 hasta la incorporación más reciente de
-tecnologías de \emph{player tracking} (sistema que utiliza cámaras y
-software de visión artificial en los estadios para registrar los
-movimientos de jugadores y pelotas en tiempo real). A partir de esta
-información, se han desarrollado distintas herramientas estadísticas
-para poder estudiar la eficiencia de los jugadores, la eficiencia de los
-lanzamientos al aro, el desempeño de los equipos, la importancia en la
-creación de espacios, entre otras cosas.
+El básquetbol es uno de los deportes que más ha incorporado el análisis
+estadístico en su evolución reciente. Desde las primeras métricas
+derivadas del \emph{box score} (resumen estructurado de los resultados
+de un partido), el desarrollo de bases de datos \emph{play-by-play}
+(registro de cada una de las acciones del partido) a partir de la década
+del 2000 hasta la incorporación más reciente de tecnologías de
+\emph{player tracking} (sistema que utiliza cámaras y software de visión
+artificial en los estadios para registrar los movimientos de jugadores y
+pelotas en tiempo real). A partir de esta información, se han
+desarrollado distintas herramientas estadísticas para poder estudiar la
+eficiencia de los jugadores, la eficiencia de los lanzamientos al aro,
+el desempeño de los equipos, la importancia en la creación de espacios,
+entre otras cosas.
 
 \subsection{Medidas de desempeño para jugadores de
 básquetbol}\label{medidas-de-desempeuxf1o-para-jugadores-de-buxe1squetbol}
@@ -289,40 +289,40 @@ del equipo en su conjunto, y el crédito por dicho rendimiento se
 distribuye entre los jugadores que estuvieron involucrados en el
 partido, sin importar qué acciones puntuales hayan realizado.
 
-Con la idea de que lo más importante en un partido es \textbf{ganar}, y
+Con la idea de que lo más importante en un partido es ganar, y
 entendiendo que las estadísticas tradicionales son solo una medida
 imperfecta de muchas de las contribuciones que realizan los jugadores a
 la victoria, en este trabajo buscaremos ``pensar más allá del \emph{box
 score}'' y nos centraremos en estadísticas \emph{top-down}, más
-precisamente en la medida \emph{Plus/Minus}. Esta estadística registra
+precisamente en la medida \emph{plus-minus}. Esta estadística registra
 los cambios que se producen en el marcador durante los minutos en que el
 jugador de interés está en cancha, partiendo de la idea de que los
-equipos deberían rendir mejor (reflejado en un \emph{Plus/Minus} más
+equipos deberían rendir mejor (reflejado en un \emph{plus-minus} más
 alto) cuando sus buenos jugadores están en cancha que cuando no lo
 están. Sin embargo esta métrica posee una deficiencia clave: \textbf{la
 calificación de cada jugador va a depender en gran medida de la calidad
 de sus compañeros en el campo}. Por ejemplo: un jugador de rol dentro de
-un gran equipo va a tener un mayor \emph{Plus/Minus} que una
+un gran equipo va a tener un mayor \emph{plus-minus} que una
 superestrella en un equipo con mal desempeño.
 
-\subsection{RAPM (Regularized Adjusted Plus
-Minus)}\label{rapm-regularized-adjusted-plus-minus}
+\subsection{\texorpdfstring{\emph{Regularized Adjusted Plus Minus}
+(RAPM)}{Regularized Adjusted Plus Minus (RAPM)}}\label{regularized-adjusted-plus-minus-rapm}
 
 La deficiencia anteriormente mencionada se ha intentado solucionar
-implementando \textbf{modelos matemáticos} que incorporen los efectos
-tanto de los compañeros presentes en cancha como de los rivales en ese
-momento, buscando aislar el efecto real de los jugadores en la cancha.
-El primero en realizar una publicación sobre el tema fue Dan Rosenbaum
-(2004), el cual planteó un \textbf{modelo de regresión lineal múltiple}
-en base a observaciones provenientes de partidos de las temporadas
-2002-2003 y 2003-2004 de la National Basketball Association o
-\emph{NBA}. Como unidad de análisis se utilizaron segmentos de partidos
-donde no ocurrian sustituciones, la variable respuesta fue la diferencia
-en el marcador entre el equipo local y el visitante en ese segmento; y
-como variables explicativas se postularon variables dicotómicas para
-cada uno de los jugadores que hayan jugado al menos un partido en esas
-temporadas. Finalmente las métricas de desempeño se correspondían con
-los coeficientes estimados que acompañaban a las ``Dummies'' de cada
+implementando modelos matemáticos que incorporen los efectos tanto de
+los compañeros presentes en cancha como de los rivales en ese momento,
+buscando aislar el efecto real de los jugadores en la cancha. El primero
+en realizar una publicación sobre el tema fue Dan Rosenbaum (2004), el
+cual planteó un \textbf{modelo de regresión lineal múltiple} en base a
+observaciones provenientes de partidos de las temporadas 2002-2003 y
+2003-2004 de la \emph{National Basketball Association} (NBA). Como
+unidad de análisis se utilizaron segmentos de partidos donde no ocurrian
+sustituciones, la variable respuesta fue la diferencia en el marcador
+entre el equipo local y el visitante en ese segmento; y como variables
+explicativas se postularon variables dicotómicas para cada uno de los
+jugadores que hayan jugado al menos un partido en esas temporadas.
+Finalmente las métricas de desempeño se correspondían con los
+coeficientes estimados que acompañaban a las ``Dummies'' de cada
 jugador, dichas estimaciones se realizaron mediante la técnica de
 Mínimos Cuadrados Ordinarios. Estas estadísticas se conocen como
 \emph{Adjusted Plus Minus} (APM).
@@ -338,11 +338,10 @@ cada jugador.
 
 Para solucionar está problemática, se plantea la métrica RAPM
 introducida por Sill (2010) en la cual se aborda el problema de la
-Multicolinealidad mediante estimaciones de los parametros realizadas con
-Métodos de Regularización, particularmente utilizando la
-\textbf{Regresión Ridge}. Esté método de regularización es el más
-abordado a lo largo de toda la literatura relevante sobre RAPM hasta la
-fecha.
+multicolinealidad mediante estimaciones de los parámetros realizadas con
+métodos de regularización, particularmente utilizando la Regresión
+Ridge. Esté método de regularización es el más abordado a lo largo de
+toda la literatura relevante sobre RAPM hasta la fecha.
 
 Otro de los problemas recurrentes en estos modelos esta relacionado con
 la inclusión de jugadores que participan muy pocos minutos en cancha
@@ -363,15 +362,15 @@ tipo de jugadores.
 En los últimos años, muchos investigadores han publicado trabajos
 orientados a mejorar los resultados de las métricas RAPM.
 Particularmente en este trabajo se usa como referencia central al
-artículo titulado: \textbf{Lasso multinomial performance indicators for
-in‑play basketball data (Damoulaki et al.~, 2025)}, el cual presenta
+artículo titulado \textbf{Lasso multinomial performance indicators for
+in‑play basketball data} (Damoulaki et al.~, 2025), el cual presenta
 diferencias importantes respecto de los estudios previos. Dicho artículo
-utiliza \textbf{posesiones} (definidas, según Kubatko et al.~(2007),
-como el periodo que comienza cuando un equipo obtiene el control de la
-pelota y termina cuando cede su control al rival) como unidad de
-análisis, \textbf{puntos} en esas posesiones como variable respuesta y
-emplea \textbf{modelos logísticos multinomiales} que representan de
-manera más adecuada la naturaleza de la respuesta.
+utiliza posesiones (definidas, según Kubatko et al.~(2007), como el
+periodo que comienza cuando un equipo obtiene el control de la pelota y
+termina cuando cede su control al rival) como unidad de análisis, puntos
+en esas posesiones como variable respuesta y emplea \textbf{modelos
+logísticos multinomiales} que representan de manera más adecuada la
+naturaleza de la respuesta.
 
 \section{Motivación}\label{motivaciuxf3n}
 
@@ -488,8 +487,8 @@ Liga Nacional de Básquet} , utilizando librerías de Python como
 \texttt{Selenium} y \texttt{BeautifulSoup}.
 
 Posteriormente, se realizó un preprocesamiento orientado a transformar
-los eventos crudos en un \emph{dataset} apto para la aplicación de los
-modelos mencionados anteriormente. Como resultado, se obtuvo una tabla
+los eventos crudos en un \emph{dataset} apto para cumplir los objetivos
+específicos de este trabajo. Como resultado, se obtuvo una base de datos
 ordenada cronológicamente en la cual cada fila corresponde a una
 posesión del partido, contabilizando los puntos anotados durante esa
 posesión y los jugadores que formaron parte de la misma, diferenciando
@@ -541,14 +540,13 @@ texto.
 A partir de dicho archivo de texto, se utiliza la librería
 \texttt{BeautifulSoup} de Python para recorrer la estructura del DOM,
 identificando previamente los elementos que contienen los enlaces de
-cada partido. Como se observa en la Figura 2, esta información se
-encuentra dentro de las clases ``fila-tabla-calendarios
-datos-estadisticos'', las cuales se recorren para obtener los
-respectivos enlaces a las páginas de estadísticas de cada partido, los
-nombres de los equipos participantes, la fecha y hora del encuentro y el
-resultado final, para cada uno de los 378 partidos disputados en la
-temporada regular. Obteniendo finalmente un diccionario que contenga
-toda esta información.
+cada partido. En la Figura 2, esta información se encuentra dentro de
+las clases ``fila-tabla-calendarios datos-estadisticos'', las cuales se
+recorren para obtener los respectivos enlaces a las páginas de
+estadísticas de cada partido, los nombres de los equipos participantes,
+la fecha y hora del encuentro y el resultado final, para cada uno de los
+378 partidos disputados en la temporada regular. Obteniendo finalmente
+un diccionario que contenga toda esta información.
 
 Dicho diccionario constituyó el insumo básico para el proceso posterior
 de scraping masivo, sobre los cuales se iterará para obtener así la
@@ -568,9 +566,9 @@ Para esto, se accedió individualmente a la página de estadísticas de
 cada encuentro, particularmente a la pestaña denominada ``en vivo'',
 donde se presenta el detalle secuencial de los eventos.
 
-Como se observa en la Figura 3, esta sección del sitio web contiene una
-tabla que se genera dinámicamente y que registra, en orden cronológico,
-todas las acciones ocurridas durante el partido.
+En la Figura 3, esta pestaña del sitio web contiene una tabla que se
+genera dinámicamente y que registra, en orden cronológico, todas las
+acciones ocurridas durante el partido.
 
 \begin{figure}[H]
 
@@ -585,8 +583,8 @@ En dicha tabla, cada acción del partido se encuentra representada como
 un elemento que incluye información textual sobre el tipo de acción (por
 ejemplo, lanzamiento convertido, falta, pérdida, etc), el jugador que
 realiza dicha acción, el cuarto de juego, el tiempo restante en el
-cuarto y , en caso de ser una acción donde se generan puntos, el
-marcador parcial en ese momento del partido. Esta información fue
+cuarto y, en caso de ser una acción donde se generan puntos, el marcador
+parcial en ese momento del partido. Esta información fue
 sistemáticamente extraída y almacenada en una estructura tabular,
 conservando el orden temporal de las acciones.
 
@@ -594,14 +592,15 @@ Este procedimiento se aplicó de forma idéntica a todos los partidos de
 la temporada analizada, utilizando como insumo los enlaces previamente
 identificados. Finalmente, los registros de acciones obtenidos para cada
 encuentro fueron concatenados en una única base de datos
-\emph{play-by-play}, incorporando un identificador de partido que
-permite distinguir y vincular las acciones correspondientes a cada
+\emph{play-by-play}, \textbf{incorporando un identificador de partido
+que permite distinguir y vincular las acciones correspondientes a cada
 juego. Asimismo, a partir de esta clave única asociada al encuentro (por
 ejemplo, GIMNASIA (CR) vs REGATAS (C) (03/05/2025 20:30)), fue posible
 identificar e incorporar a la base el equipo local y visitante
 correspondiente a cada partido. Esta información resultó útil en etapas
 posteriores del procesamiento donde al conocer el equipo asociado a cada
-acción, puede inferirse la condición del mismo (local o visitante).
+acción, puede inferirse la condición del mismo (local o
+visitante).}cambiar, que contenga una explicación de como se forma el id
 
 Es importante destacar que el \emph{dataset} resultante constituye una
 secuencia detallada de eventos, pero en su forma original no incluye una
@@ -636,7 +635,7 @@ disputados en dicho partido, generándose así una tabla de
 correspondencia jugador--equipo.
 
 Esta tabla constituye un diccionario que permite asociar a cada jugador
-con su respectivo equipo, y es utilizada posteriormente como insumo para
+con su respectivo equipo y es utilizada posteriormente como insumo para
 realizar dicha correspondencia en cada acción de la base
 \emph{play-by-play}.
 
@@ -874,17 +873,17 @@ contexto de la acción previa para decidir si una falta debe ser
 conservada o eliminada del registro. Particularmente, se definió que:
 una falta debe conservarse si el equipo que la comete es distinto al
 equipo que realizó la acción inmediata anterior, siempre que dicha
-acción previa sea:
+acción previa sea
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi})}
 \tightlist
 \item
-  un lanzamiento fallido.
+  un lanzamiento fallido,
 \item
-  una pérdida de balón.
+  una pérdida de balón,
 \item
-  Una anotación con una separación temporal suficiente\footnote{Si a una
+  una anotación con una separación temporal suficiente\footnote{Si a una
     anotación le sigue una falta inmediata del rival, resulta ser la
     denominada ``falta y conversión'' la cual forma parte de la misma
     posesión.} que indique el transcurso de una nueva posesión.
@@ -985,15 +984,15 @@ incorrectos.
 Ejemplo: \emph{QUIMSA vs BOCA (019/10/2024 11:30)}
 
 Al revisar uno de los partidos con presencia de puntos incompatibles, se
-detectó que, hacia el minuto 02:27 del tercer cuarto, el marcador
-parcial reflejaba correctamente el resultado del partido (64 - 42 a
-favor de QUIMSA). Sin embargo, la acción de anotación siguiente, el TIRO
-LIBRE ANOTADO del jugador de BOCA, PIÑERO, FACUNDO, en el minuto 02:21
-del tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43.
-Se observa entonces que el marcador parcial aumentó en tres puntos para
-el equipo local (QUIMSA) entre una acción y la siguiente, sin que
-existiera ninguna anotación registrada en el \emph{play-by-play} que
-justificara dicha variación (Figura 8).
+detectó que, en el minuto 02:27 del tercer cuarto, el marcador parcial
+reflejaba correctamente el resultado del partido (64 - 42 a favor de
+QUIMSA). Sin embargo, la acción de anotación siguiente, el TIRO LIBRE
+ANOTADO del jugador de BOCA, PIÑERO, FACUNDO, en el minuto 02:21 del
+tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43. Se
+observa entonces que el marcador parcial aumentó en tres puntos para el
+equipo local (QUIMSA) entre una acción y la siguiente, sin que existiera
+ninguna anotación registrada en el \emph{play-by-play} que justificara
+dicha variación (Figura 8).
 
 \begin{figure}[H]
 
@@ -1053,8 +1052,8 @@ errores en la carga manual de la información realizada durante el
 partido y constituyen una limitación inherente a la calidad de los datos
 disponibles. Si bien estos casos fueron poco frecuentes, generan
 incertidumbre principalmente en las posesiones con cinco, seis o siete
-puntos, cuya ocurrencia es excepcional en condiciones normales de
-juego.En este sentido, mientras que en la base de datos utilizada por
+puntos, cuya ocurrencia es excepcional en condiciones normales de juego.
+En este sentido, mientras que en la base de datos utilizada por
 Damoulaki et al.~(2025) las posesiones con más de 3 puntos representan
 aproximadamente el 0,1 \% del total, en la base construida para este
 trabajo dicha proporción asciende al 0,3 \%, lo que resulta consistente
@@ -1115,53 +1114,48 @@ dataset.
 
 \section{Metodología}\label{metodologuxeda}
 
-En base a los objetivos planteados en esta tesina de grado, se
-compararon resultados provistos por modelos con distintas
-características, con el fin de poder sintetizar la contribución ofensiva
-y defensiva de los jugadores de manera adecuada. Para identificar qué
-modelo es el que brinda mejores resultados, se definieron procedimientos
-adecuado para evaluarlos. Los distintos modelos utilizados, las formas
-de estimar los parámetros y los métodos de comparación de modelos se
-definen a continuación.
+Con el fin de sintetizar adecuadamente la contribución ofensiva y
+defensiva de los jugadores de manera adecuada, se compararon los
+resultados provistos por modelos con distintas características. Para
+identificar cuál de ellos brinda los mejores resultados, se definieron
+procedimientos adecuados para su evaluación y comparación. Los distintos
+modelos utilizados, las formas de estimación de sus parámetros y los
+métodos empleados para compararlos se presentan a continuación.
 
 \subsection{Modelos propuestos}\label{modelos-propuestos}
 
 \subsubsection{Modelo de regresión lineal
 múltiple}\label{modelo-de-regresiuxf3n-lineal-muxfaltiple}
 
-Los modelos más comúnmente utilizados en la literatura relevante sobre
-RAPMs son los \textbf{modelos de regresión lineal múltiple}, los cuales
-van a modelar el comportamiento de la variable respuesta \emph{puntos en
-la posesión i} (\(Y_i\)) en función de P = 2K variables explicativas
+Los modelos más utilizados en la literatura relevante sobre RAPMs son
+los \textbf{modelos de regresión lineal múltiple}, los cuales van a
+modelar el comportamiento de la variable respuesta \emph{puntos en la
+posesión i} (\(Y_i\)) en función de P = 2K variables explicativas
 dicotómicas, correspondientes a las apariciones ofensivas y defensivas
 de K jugadores.
 
 El componente aleatorio supone que las variables respuesta \(Y_i\)
-tienen variancias constantes \(\sigma^2\). De esta manera tenemos que,
+tienen variancia constante \(\sigma^2\). De esta manera tenemos que,
 
 \begin{equation}
 \begin{cases}
-Y_i \sim N(\mu_i  , \sigma^2) \\
-\mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_k x^d_{ik}
+Y_i \sim N(\mu_i  , \sigma^2), \\
+\mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_k x^d_{ik},
 \end{cases}
 \end{equation}
 
-para \(i = 1,...,n\),
-
-donde:
-
-\(n\): es el número total de posesiones disputadas, \(K\): es el número
-total de jugadores en consideración, \(Y_i\): es la variable respuesta
-correspondiente al número de puntos realizados en la posesión \(i\),
-\(\mu_i\): es la cantidad esperada de puntos anotados en la posesión
-\(i\), \(x^o_{ik}\): indicadora ofensiva del jugador \(k\) en la
-posesión \(i\) (\(1\) si el jugador \(k\) estaba jugando en ataque en la
-posesión \(i\), \(0\) en otro caso), \(x^d_{ik}\): indicadora defensiva
-del jugador \(k\) en la posesión \(i\) (\(-1\) si el jugador \(k\)
-estaba jugando en defensa en la posesión \(i\), \(0\) en otro caso),
-\(\beta_0\): Intercepto del modelo, \(\beta^o_k\): coeficiente ofensivo
-del jugador \(k\) (\(ORAPM\)), \(\beta^d_k\): coeficiente defensivo del
-jugador \(k\) (\(DRAPM\)).
+para \(i = 1,...,n\), donde \(n\): es el número total de posesiones
+disputadas, \(K\): es el número total de jugadores en el análisis,
+\(Y_i\): es la variable respuesta correspondiente al número de puntos
+realizados en la posesión \(i\), \(\mu_i\): es la cantidad esperada de
+puntos anotados en la posesión \(i\), \(x^o_{ik}\): indicadora ofensiva
+del jugador \(k\) en la posesión \(i\) (\(1\) si el jugador \(k\) estaba
+jugando en ataque en la posesión \(i\), \(0\) en otro caso),
+\(x^d_{ik}\): indicadora defensiva del jugador \(k\) en la posesión
+\(i\) (\(-1\) si el jugador \(k\) estaba jugando en defensa en la
+posesión \(i\), \(0\) en otro caso), \(\beta_0\): Intercepto del modelo,
+\(\beta^o_k\): coeficiente ofensivo del jugador \(k\) (\(ORAPM\)),
+\(\beta^d_k\): coeficiente defensivo del jugador \(k\) (\(DRAPM\)).
 
 Este modelo es de sencilla aplicación y ha sido ampliamente utilizado
 por distintos analistas que trabajan con este tipo de métricas. Sin
@@ -1218,9 +1212,9 @@ equipo atacante viene dada por
 \end{aligned}
 \]
 
-Supongamos que el jugador \(a_6\) reemplaza al jugador \(a_1\),
+Si se asume que el jugador \(a_6\) reemplaza al jugador \(a_1\),
 manteniéndose sin modificaciones los restantes nueve jugadores. En ese
-caso, la cantidad esperada de puntos pasa a ser:
+caso, la cantidad esperada de puntos se modifica a:
 
 \[
 \begin{aligned}
@@ -2153,7 +2147,7 @@ mitad de la tabla de posiciones.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-20}Jugadores con mayor Plus/Minus}
+\caption{\label{tab:unnamed-chunk-20}Jugadores con mayor plus-minus}
 \centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lll}
@@ -2185,7 +2179,7 @@ Cuadro 8.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-21}Jugadores con menor Plus/Minus}
+\caption{\label{tab:unnamed-chunk-21}Jugadores con menor plus-minus}
 \centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lll}

@@ -105,7 +105,7 @@ A pesar de que las primeras aplicaciones al análisis de datos al deporte se rem
 
 [^1]: Término utilizado para referirse al análisis estadístico del béisbol, basado en la recopilación y estudio sistemático de datos con el fin de comprender y cuantificar el desempeño de los jugadores y equipos. El nombre proviene de SABR (*Society for American Baseball Research*).
 
-El **básquetbol** es uno de los deportes que más ha incorporado el análisis estadístico en su evolución reciente. Desde las primeras métricas derivadas del *box score* (resumen estructurado de los resultados de un partido), el desarrollo de bases de datos *play-by-play* (registro de cada una de las acciones del partido) a partir de la década del 2000 hasta la incorporación más reciente de tecnologías de *player tracking* (sistema que utiliza cámaras y software de visión artificial en los estadios para registrar los movimientos de jugadores y pelotas en tiempo real). A partir de esta información, se han desarrollado distintas herramientas estadísticas para poder estudiar la eficiencia de los jugadores, la eficiencia de los lanzamientos al aro, el desempeño de los equipos, la importancia en la creación de espacios, entre otras cosas.
+El básquetbol es uno de los deportes que más ha incorporado el análisis estadístico en su evolución reciente. Desde las primeras métricas derivadas del *box score* (resumen estructurado de los resultados de un partido), el desarrollo de bases de datos *play-by-play* (registro de cada una de las acciones del partido) a partir de la década del 2000 hasta la incorporación más reciente de tecnologías de *player tracking* (sistema que utiliza cámaras y software de visión artificial en los estadios para registrar los movimientos de jugadores y pelotas en tiempo real). A partir de esta información, se han desarrollado distintas herramientas estadísticas para poder estudiar la eficiencia de los jugadores, la eficiencia de los lanzamientos al aro, el desempeño de los equipos, la importancia en la creación de espacios, entre otras cosas.
 
 ## Medidas de desempeño para jugadores de básquetbol
 
@@ -113,19 +113,19 @@ Desde la consolidación del *box-score* en el básquetbol profesional, durante l
 
 Por otra parte, las medidas *top-down* se basan en el rendimiento del equipo en su conjunto, y el crédito por dicho rendimiento se distribuye entre los jugadores que estuvieron involucrados en el partido, sin importar qué acciones puntuales hayan realizado.
 
-Con la idea de que lo más importante en un partido es **ganar**, y entendiendo que las estadísticas tradicionales son solo una medida imperfecta de muchas de las contribuciones que realizan los jugadores a la victoria, en este trabajo buscaremos “pensar más allá del *box score*” y nos centraremos en estadísticas *top-down*, más precisamente en la medida *Plus/Minus*. Esta estadística registra los cambios que se producen en el marcador durante los minutos en que el jugador de interés está en cancha, partiendo de la idea de que los equipos deberían rendir mejor (reflejado en un *Plus/Minus* más alto) cuando sus buenos jugadores están en cancha que cuando no lo están. Sin embargo esta métrica posee una deficiencia clave: **la calificación de cada jugador va a depender en gran medida de la calidad de sus compañeros en el campo**. Por ejemplo: un jugador de rol dentro de un gran equipo va a tener un mayor *Plus/Minus* que una superestrella en un equipo con mal desempeño.
+Con la idea de que lo más importante en un partido es ganar, y entendiendo que las estadísticas tradicionales son solo una medida imperfecta de muchas de las contribuciones que realizan los jugadores a la victoria, en este trabajo buscaremos “pensar más allá del *box score*” y nos centraremos en estadísticas *top-down*, más precisamente en la medida *plus-minus*. Esta estadística registra los cambios que se producen en el marcador durante los minutos en que el jugador de interés está en cancha, partiendo de la idea de que los equipos deberían rendir mejor (reflejado en un *plus-minus* más alto) cuando sus buenos jugadores están en cancha que cuando no lo están. Sin embargo esta métrica posee una deficiencia clave: **la calificación de cada jugador va a depender en gran medida de la calidad de sus compañeros en el campo**. Por ejemplo: un jugador de rol dentro de un gran equipo va a tener un mayor *plus-minus* que una superestrella en un equipo con mal desempeño.
 
-## RAPM (Regularized Adjusted Plus Minus)
+## *Regularized Adjusted Plus Minus* (RAPM)
 
-La deficiencia anteriormente mencionada se ha intentado solucionar implementando **modelos matemáticos** que incorporen los efectos tanto de los compañeros presentes en cancha como de los rivales en ese momento, buscando aislar el efecto real de los jugadores en la cancha. El primero en realizar una publicación sobre el tema fue Dan Rosenbaum (2004), el cual planteó un **modelo de regresión lineal múltiple** en base a observaciones provenientes de partidos de las temporadas 2002-2003 y 2003-2004 de la National Basketball Association o *NBA*. Como unidad de análisis se utilizaron segmentos de partidos donde no ocurrian sustituciones, la variable respuesta fue la diferencia en el marcador entre el equipo local y el visitante en ese segmento; y como variables explicativas se postularon variables dicotómicas para cada uno de los jugadores que hayan jugado al menos un partido en esas temporadas. Finalmente las métricas de desempeño se correspondían con los coeficientes estimados que acompañaban a las "Dummies" de cada jugador, dichas estimaciones se realizaron mediante la técnica de Mínimos Cuadrados Ordinarios. Estas estadísticas se conocen como *Adjusted Plus Minus* (APM).
+La deficiencia anteriormente mencionada se ha intentado solucionar implementando modelos matemáticos que incorporen los efectos tanto de los compañeros presentes en cancha como de los rivales en ese momento, buscando aislar el efecto real de los jugadores en la cancha. El primero en realizar una publicación sobre el tema fue Dan Rosenbaum (2004), el cual planteó un **modelo de regresión lineal múltiple** en base a observaciones provenientes de partidos de las temporadas 2002-2003 y 2003-2004 de la *National Basketball Association* (NBA). Como unidad de análisis se utilizaron segmentos de partidos donde no ocurrian sustituciones, la variable respuesta fue la diferencia en el marcador entre el equipo local y el visitante en ese segmento; y como variables explicativas se postularon variables dicotómicas para cada uno de los jugadores que hayan jugado al menos un partido en esas temporadas. Finalmente las métricas de desempeño se correspondían con los coeficientes estimados que acompañaban a las "Dummies" de cada jugador, dichas estimaciones se realizaron mediante la técnica de Mínimos Cuadrados Ordinarios. Estas estadísticas se conocen como *Adjusted Plus Minus* (APM).
 
 A pesar de que estas métricas presentaban una solución innovadora a la problematica inicial, Rosenbaum señaló que las estimaciones obtenidas no resultaron muy precisas. El modelo propuesto presentaba estimaciones con mucho error, debido a un claro problema de **multicolinealidad** ya que muchos de los jugadores compartían una gran cantidad de minutos juntos en cancha, y se necesitaba de una gran cantidad observaciones de varias temporadas para que el modelo pudiera separar el efecto propio de cada jugador.
 
-Para solucionar está problemática, se plantea la métrica RAPM introducida por Sill (2010) en la cual se aborda el problema de la Multicolinealidad mediante estimaciones de los parametros realizadas con Métodos de Regularización, particularmente utilizando la **Regresión Ridge**. Esté método de regularización es el más abordado a lo largo de toda la literatura relevante sobre RAPM hasta la fecha.
+Para solucionar está problemática, se plantea la métrica RAPM introducida por Sill (2010) en la cual se aborda el problema de la multicolinealidad mediante estimaciones de los parámetros realizadas con métodos de regularización, particularmente utilizando la Regresión Ridge. Esté método de regularización es el más abordado a lo largo de toda la literatura relevante sobre RAPM hasta la fecha.
 
 Otro de los problemas recurrentes en estos modelos esta relacionado con la inclusión de jugadores que participan muy pocos minutos en cancha (*LTPs - Low time Players*). Cuando un jugador juega muy poco, el modelo solo tiene unas pocas observaciones (segmentos) para evaluarlo, y si particularmente en esas observaciones el equipo tiene un muy buen desempeño (probablemente por casualidad); entonces el modelo no puede diferenciar si el efecto es propio del jugador y estima coeficientes extremos. Para solucionar estos casos se han contemplado las siguientes alternativas: 1) excluir a los jugadores con pocos minutos dentro de las temporadas (por ejemplo: Rosembaum (2004) excluye a lo jugadores con menos de 250 minutos, Ilardi (2007) excluyen a lo jugadores con menos de 400 minutos, etc), 2) utilizar una gran cantidad de observaciones (Ilardi & Barzilai (2008) incorpora información de 5 temporadas), 3) plantear métodos de estimación de los parámetros que penalicen a este tipo de jugadores.
 
-En los últimos años, muchos investigadores han publicado trabajos orientados a mejorar los resultados de las métricas RAPM. Particularmente en este trabajo se usa como referencia central al artículo titulado: **Lasso multinomial performance indicators for in‑play basketball data (Damoulaki et al. , 2025)**, el cual presenta diferencias importantes respecto de los estudios previos. Dicho artículo utiliza **posesiones** (definidas, según Kubatko et al. (2007), como el periodo que comienza cuando un equipo obtiene el control de la pelota y termina cuando cede su control al rival) como unidad de análisis, **puntos** en esas posesiones como variable respuesta y emplea **modelos logísticos multinomiales** que representan de manera más adecuada la naturaleza de la respuesta.
+En los últimos años, muchos investigadores han publicado trabajos orientados a mejorar los resultados de las métricas RAPM. Particularmente en este trabajo se usa como referencia central al artículo titulado **Lasso multinomial performance indicators for in‑play basketball data** (Damoulaki et al. , 2025), el cual presenta diferencias importantes respecto de los estudios previos. Dicho artículo utiliza posesiones (definidas, según Kubatko et al. (2007), como el periodo que comienza cuando un equipo obtiene el control de la pelota y termina cuando cede su control al rival) como unidad de análisis, puntos en esas posesiones como variable respuesta y emplea **modelos logísticos multinomiales** que representan de manera más adecuada la naturaleza de la respuesta.
 
 <!-- Además de calcular estas métricas por primera vez para jugadores de Liga Nacional de Básquetbol de Argentina, se implementaran modificaciones con el objetivo de mejorar las estimaciones de nuestro modelo. Entre ellas, se propone asignar mayor peso a las observaciones que ocurren en momentos verdaderamente relevantes del partido, incorporar variables explicativas de interés y comparar diferentes métodos de estimación de los parámetros, entre otros ajustes. -->
 
@@ -185,7 +185,7 @@ El objetivo general de esta tesina es estimar el aporte individual de los jugado
 
 Una parte central de esta tesina estará dedicada a la construcción de una base de datos *play-by-play* correspondiente a la temporada 2024/2025 de la Liga Nacional de Básquetbol de Argentina (LNB). Este tipo de base registra de manera secuencial todas las acciones ocurridas dentro de un partido. Dado que no existe una fuente oficial que provea los datos en formato estructurado y descargable para su análisis estadístico, fue necesario diseñar y ejecutar un proceso de *web scraping* que permita recolectar, integrar y depurar la información de manera sistemática y reproducible. Los datos necesarios se extrajeron del [Sitio Oficial de la Liga Nacional de Básquet](https://www.laliganacional.com.ar/laliga/) , utilizando librerías de Python como `Selenium` y `BeautifulSoup`.
 
-Posteriormente, se realizó un preprocesamiento orientado a transformar los eventos crudos en un *dataset* apto para la aplicación de los modelos mencionados anteriormente. Como resultado, se obtuvo una tabla ordenada cronológicamente en la cual cada fila corresponde a una posesión del partido, contabilizando los puntos anotados durante esa posesión y los jugadores que formaron parte de la misma, diferenciando sus roles ofensivos y defensivos. Debido a que bajo está metodología se registran cada una de las posesiones del partido de manera secuencial, se denominó a esta estructura final como: base de datos *poss-by-poss*.
+Posteriormente, se realizó un preprocesamiento orientado a transformar los eventos crudos en un *dataset* apto para cumplir los objetivos específicos de este trabajo. Como resultado, se obtuvo una base de datos ordenada cronológicamente en la cual cada fila corresponde a una posesión del partido, contabilizando los puntos anotados durante esa posesión y los jugadores que formaron parte de la misma, diferenciando sus roles ofensivos y defensivos. Debido a que bajo está metodología se registran cada una de las posesiones del partido de manera secuencial, se denominó a esta estructura final como: base de datos *poss-by-poss*.
 
 ## Generación de la base de datos a partir de técnicas de Web Scraping
 
@@ -205,7 +205,7 @@ En la Figura 1 se muestra la interfaz del sitio web, donde se visualiza el lista
 knitr::include_graphics("img/Captura DOM.png")
 ```
 
-A partir de dicho archivo de texto, se utiliza la librería `BeautifulSoup` de Python para recorrer la estructura del DOM, identificando previamente los elementos que contienen los enlaces de cada partido. Como se observa en la Figura 2, esta información se encuentra dentro de las clases “fila-tabla-calendarios datos-estadisticos”, las cuales se recorren para obtener los respectivos enlaces a las páginas de estadísticas de cada partido, los nombres de los equipos participantes, la fecha y hora del encuentro y el resultado final, para cada uno de los 378 partidos disputados en la temporada regular. Obteniendo finalmente un diccionario que contenga toda esta información.
+A partir de dicho archivo de texto, se utiliza la librería `BeautifulSoup` de Python para recorrer la estructura del DOM, identificando previamente los elementos que contienen los enlaces de cada partido. En la Figura 2, esta información se encuentra dentro de las clases “fila-tabla-calendarios datos-estadisticos”, las cuales se recorren para obtener los respectivos enlaces a las páginas de estadísticas de cada partido, los nombres de los equipos participantes, la fecha y hora del encuentro y el resultado final, para cada uno de los 378 partidos disputados en la temporada regular. Obteniendo finalmente un diccionario que contenga toda esta información.
 
 Dicho diccionario constituyó el insumo básico para el proceso posterior de scraping masivo, sobre los cuales se iterará para obtener así la información correspondiente a cada una de las acciones registradas en cada partido. Esta estrategia permitió, además, asegurar la reproducibilidad del proceso, ya que el listado de partidos es eliminado de la página web una vez terminada la temporada, quedando fijado y documentado de manera explícita para su uso, en caso de ser requerido.
 
@@ -213,13 +213,13 @@ Dicho diccionario constituyó el insumo básico para el proceso posterior de scr
 
 Una vez obtenido el listado completo de enlaces correspondientes a cada uno de los partidos en el período de estudio, se procedió a la extracción del registro de acciones del partido (*play-by-play*). Para esto, se accedió individualmente a la página de estadísticas de cada encuentro, particularmente a la pestaña denominada “en vivo”, donde se presenta el detalle secuencial de los eventos.
 
-Como se observa en la Figura 3, esta sección del sitio web contiene una tabla que se genera dinámicamente y que registra, en orden cronológico, todas las acciones ocurridas durante el partido.
+En la Figura 3, esta pestaña del sitio web contiene una tabla que se genera dinámicamente y que registra, en orden cronológico, todas las acciones ocurridas durante el partido.
 
 ```{r, echo=FALSE, fig.cap="Pestaña en vivo dentro de la página web de estadísticas de un partido", out.width="70%", fig.align="center"}
 knitr::include_graphics("img/imagen play by play_1.png")
 ```
 
-En dicha tabla, cada acción del partido se encuentra representada como un elemento que incluye información textual sobre el tipo de acción (por ejemplo, lanzamiento convertido, falta, pérdida, etc), el jugador que realiza dicha acción, el cuarto de juego, el tiempo restante en el cuarto y , en caso de ser una acción donde se generan puntos, el marcador parcial en ese momento del partido. Esta información fue sistemáticamente extraída y almacenada en una estructura tabular, conservando el orden temporal de las acciones.
+En dicha tabla, cada acción del partido se encuentra representada como un elemento que incluye información textual sobre el tipo de acción (por ejemplo, lanzamiento convertido, falta, pérdida, etc), el jugador que realiza dicha acción, el cuarto de juego, el tiempo restante en el cuarto y, en caso de ser una acción donde se generan puntos, el marcador parcial en ese momento del partido. Esta información fue sistemáticamente extraída y almacenada en una estructura tabular, conservando el orden temporal de las acciones.
 
 ```{r, echo=FALSE, eval=FALSE}
 
@@ -274,7 +274,7 @@ datos_acciones %>%
   )
 ```
 
-Este procedimiento se aplicó de forma idéntica a todos los partidos de la temporada analizada, utilizando como insumo los enlaces previamente identificados. Finalmente, los registros de acciones obtenidos para cada encuentro fueron concatenados en una única base de datos *play-by-play*, incorporando un identificador de partido que permite distinguir y vincular las acciones correspondientes a cada juego. Asimismo, a partir de esta clave única asociada al encuentro (por ejemplo, GIMNASIA (CR) vs REGATAS (C) (03/05/2025 20:30)), fue posible identificar e incorporar a la base el equipo local y visitante correspondiente a cada partido. Esta información resultó útil en etapas posteriores del procesamiento donde al conocer el equipo asociado a cada acción, puede inferirse la condición del mismo (local o visitante).
+Este procedimiento se aplicó de forma idéntica a todos los partidos de la temporada analizada, utilizando como insumo los enlaces previamente identificados. Finalmente, los registros de acciones obtenidos para cada encuentro fueron concatenados en una única base de datos *play-by-play*, **incorporando un identificador de partido que permite distinguir y vincular las acciones correspondientes a cada juego. Asimismo, a partir de esta clave única asociada al encuentro (por ejemplo, GIMNASIA (CR) vs REGATAS (C) (03/05/2025 20:30)), fue posible identificar e incorporar a la base el equipo local y visitante correspondiente a cada partido. Esta información resultó útil en etapas posteriores del procesamiento donde al conocer el equipo asociado a cada acción, puede inferirse la condición del mismo (local o visitante).**cambiar, que contenga una explicación de como se forma el id
 
 Es importante destacar que el *dataset* resultante constituye una secuencia detallada de eventos, pero en su forma original no incluye una identificación explícita del equipo asociado a cada acción, lo cual resulta indispensable a la hora de realizar los análisis posteriores.
 
@@ -288,7 +288,7 @@ knitr::include_graphics("img/imagen box score.png")
 
 En esta pestaña, la información se organiza en dos tablas con estadísticas individuales de los jugadores, una correspondiente al equipo local y otra al equipo visitante, las cuales aparecen en el mismo orden en que se muestran los nombres de los equipos en la interfaz del sitio web. A partir de esta estructura, se extrajo para cada jugador su nombre completo, el equipo al que pertenece y la cantidad de minutos disputados en dicho partido, generándose así una tabla de correspondencia jugador–equipo.
 
-Esta tabla constituye un diccionario que permite asociar a cada jugador con su respectivo equipo, y es utilizada posteriormente como insumo para realizar dicha correspondencia en cada acción de la base *play-by-play*.
+Esta tabla constituye un diccionario que permite asociar a cada jugador con su respectivo equipo y es utilizada posteriormente como insumo para realizar dicha correspondencia en cada acción de la base *play-by-play*.
 
 <!-- A su vez, mediante la adición de la cantidad de minutos en el partido se realiza un filtrado de jugadores que hayan participado menos de cierto umbral requerido de tiempo durante la temporada, cuestión fundamental a tratar posteriormente en este trabajo. -->
 
@@ -409,11 +409,11 @@ Se detectó que, en algunos casos, el *play-by-play* registra un rebote defensiv
 
 Las faltas ofensivas representan un caso particular dentro del *play-by-play*, ya que no son diferenciadas de las faltas defensivas en la descripción de la acción, y tienen una diferencia fundamental a la hora de definir las posesiones. Por un lado, las faltas defensivas corresponden a una "acción intrusa" y deben ser eliminadas de la base, mientras que las faltas ofensivas siempre implican un cambio inmediato de posesión y, en ocasiones, pueden ser la única acción que realice un equipo dentro de una posesión, como se observa en la Figura 7. Por lo que en esos casos puntuales dicha acción debe conservarse.
 
-En consecuencia, se desarrolló un conjunto de reglas basadas en el contexto de la acción previa para decidir si una falta debe ser conservada o eliminada del registro. Particularmente, se definió que: una falta debe conservarse si el equipo que la comete es distinto al equipo que realizó la acción inmediata anterior, siempre que dicha acción previa sea:
+En consecuencia, se desarrolló un conjunto de reglas basadas en el contexto de la acción previa para decidir si una falta debe ser conservada o eliminada del registro. Particularmente, se definió que: una falta debe conservarse si el equipo que la comete es distinto al equipo que realizó la acción inmediata anterior, siempre que dicha acción previa sea
 
-1)  un lanzamiento fallido.
-2)  una pérdida de balón.
-3)  Una anotación con una separación temporal suficiente[^3] que indique el transcurso de una nueva posesión.
+1)  un lanzamiento fallido,
+2)  una pérdida de balón,
+3)  una anotación con una separación temporal suficiente[^3] que indique el transcurso de una nueva posesión.
 
 [^3]: Si a una anotación le sigue una falta inmediata del rival, resulta ser la denominada "falta y conversión" la cual forma parte de la misma posesión.
 
@@ -501,7 +501,7 @@ La inspección de los registros permitió comprobar que, en cinco partidos, el m
 
 Ejemplo: *QUIMSA vs BOCA (019/10/2024 11:30)*
 
-Al revisar uno de los partidos con presencia de puntos incompatibles, se detectó que, hacia el minuto 02:27 del tercer cuarto, el marcador parcial reflejaba correctamente el resultado del partido (64 - 42 a favor de QUIMSA). Sin embargo, la acción de anotación siguiente, el TIRO LIBRE ANOTADO del jugador de BOCA, PIÑERO, FACUNDO, en el minuto 02:21 del tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43. Se observa entonces que el marcador parcial aumentó en tres puntos para el equipo local (QUIMSA) entre una acción y la siguiente, sin que existiera ninguna anotación registrada en el *play-by-play* que justificara dicha variación (Figura 8).
+Al revisar uno de los partidos con presencia de puntos incompatibles, se detectó que, en el minuto 02:27 del tercer cuarto, el marcador parcial reflejaba correctamente el resultado del partido (64 - 42 a favor de QUIMSA). Sin embargo, la acción de anotación siguiente, el TIRO LIBRE ANOTADO del jugador de BOCA, PIÑERO, FACUNDO, en el minuto 02:21 del tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43. Se observa entonces que el marcador parcial aumentó en tres puntos para el equipo local (QUIMSA) entre una acción y la siguiente, sin que existiera ninguna anotación registrada en el *play-by-play* que justificara dicha variación (Figura 8).
 
 ```{r, echo=FALSE, fig.cap="Comienzo de secuencia de acciones con errores en la carga del marcador", out.width="50%", fig.align="center"}
 knitr::include_graphics("img/error_puntos_1_2_.png")
@@ -519,7 +519,7 @@ Para subsanar estos inconvenientes, se redefinió el procedimiento de cálculo d
 
 Como resultado de esta corrección, la variable puntos por posesión pasó a tomar únicamente valores comprendidos entre 0 y 7 puntos, eliminándose los valores imposibles detectados inicialmente.
 
-Cabe destacar que las posesiones obtenidas seguían presentando puntos inusualmente altos en algunas posesiones, por lo que posteriormente también se revisaron los partidos donde esas situaciones sucedían. Durante esta revisión se identificaron inconsistencias en la secuencia cronológica de algunas acciones registradas en el *play-by-play*. En particular, se identificaron situaciones en las que dos acciones de anotación del mismo equipo aparecían de manera consecutiva, sin que existiera una acción intermedia del equipo rival que justificara la continuidad de la posesión. Estas inconsistencias pueden deberse a errores en la carga manual de la información realizada durante el partido y constituyen una limitación inherente a la calidad de los datos disponibles. Si bien estos casos fueron poco frecuentes, generan incertidumbre principalmente en las posesiones con cinco, seis o siete puntos, cuya ocurrencia es excepcional en condiciones normales de juego.En este sentido, mientras que en la base de datos utilizada por Damoulaki et al. (2025) las posesiones con más de 3 puntos representan aproximadamente el 0,1 % del total, en la base construida para este trabajo dicha proporción asciende al 0,3 %, lo que resulta consistente con la presencia de errores de carga no detectados en la totalidad de los partidos. Por los alcances de esta tesina, estas observaciones fueron conservadas en la base de datos; esta limitación será retomada en el capítulo de Discusión.
+Cabe destacar que las posesiones obtenidas seguían presentando puntos inusualmente altos en algunas posesiones, por lo que posteriormente también se revisaron los partidos donde esas situaciones sucedían. Durante esta revisión se identificaron inconsistencias en la secuencia cronológica de algunas acciones registradas en el *play-by-play*. En particular, se identificaron situaciones en las que dos acciones de anotación del mismo equipo aparecían de manera consecutiva, sin que existiera una acción intermedia del equipo rival que justificara la continuidad de la posesión. Estas inconsistencias pueden deberse a errores en la carga manual de la información realizada durante el partido y constituyen una limitación inherente a la calidad de los datos disponibles. Si bien estos casos fueron poco frecuentes, generan incertidumbre principalmente en las posesiones con cinco, seis o siete puntos, cuya ocurrencia es excepcional en condiciones normales de juego. En este sentido, mientras que en la base de datos utilizada por Damoulaki et al. (2025) las posesiones con más de 3 puntos representan aproximadamente el 0,1 % del total, en la base construida para este trabajo dicha proporción asciende al 0,3 %, lo que resulta consistente con la presencia de errores de carga no detectados en la totalidad de los partidos. Por los alcances de esta tesina, estas observaciones fueron conservadas en la base de datos; esta limitación será retomada en el capítulo de Discusión.
 
 ### Identificación de jugadores ofensivos y defensivos en cancha
 
@@ -551,28 +551,26 @@ Y se cuenta con variables indicadoras referentes a las presencias ofensivas y de
 
 # Metodología
 
-En base a los objetivos planteados en esta tesina de grado, se compararon resultados provistos por modelos con distintas características, con el fin de poder sintetizar la contribución ofensiva y defensiva de los jugadores de manera adecuada. Para identificar qué modelo es el que brinda mejores resultados, se definieron procedimientos adecuado para evaluarlos. Los distintos modelos utilizados, las formas de estimar los parámetros y los métodos de comparación de modelos se definen a continuación.
+<!-- En concordancia a los objetivos planteados en esta tesina de grado, se compararon resultados provistos por modelos con distintas características, con el fin de poder sintetizar la contribución ofensiva y defensiva de los jugadores de manera adecuada. Para identificar qué modelo es el que brinda mejores resultados, se definieron procedimientos adecuado para evaluarlos. Los distintos modelos utilizados, las formas de estimar los parámetros y los métodos de comparación de modelos se definen a continuación. -->
+
+Con el fin de sintetizar adecuadamente la contribución ofensiva y defensiva de los jugadores de manera adecuada, se compararon los resultados provistos por modelos con distintas características. Para identificar cuál de ellos brinda los mejores resultados, se definieron procedimientos adecuados para su evaluación y comparación. Los distintos modelos utilizados, las formas de estimación de sus parámetros y los métodos empleados para compararlos se presentan a continuación.
 
 ## Modelos propuestos
 
 ### Modelo de regresión lineal múltiple
 
-Los modelos más comúnmente utilizados en la literatura relevante sobre RAPMs son los **modelos de regresión lineal múltiple**, los cuales van a modelar el comportamiento de la variable respuesta *puntos en la posesión i* ($Y_i$) en función de P = 2K variables explicativas dicotómicas, correspondientes a las apariciones ofensivas y defensivas de K jugadores.
+Los modelos más utilizados en la literatura relevante sobre RAPMs son los **modelos de regresión lineal múltiple**, los cuales van a modelar el comportamiento de la variable respuesta *puntos en la posesión i* ($Y_i$) en función de P = 2K variables explicativas dicotómicas, correspondientes a las apariciones ofensivas y defensivas de K jugadores.
 
-El componente aleatorio supone que las variables respuesta $Y_i$ tienen variancias constantes $\sigma^2$. De esta manera tenemos que,
+El componente aleatorio supone que las variables respuesta $Y_i$ tienen variancia constante $\sigma^2$. De esta manera tenemos que,
 
 \begin{equation}
 \begin{cases}
-Y_i \sim N(\mu_i  , \sigma^2) \\
-\mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_k x^d_{ik}
+Y_i \sim N(\mu_i  , \sigma^2), \\
+\mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_k x^d_{ik},
 \end{cases}
 \end{equation}
 
-para $i = 1,...,n$,
-
-donde:
-
-$n$: es el número total de posesiones disputadas, $K$: es el número total de jugadores en consideración, $Y_i$: es la variable respuesta correspondiente al número de puntos realizados en la posesión $i$, $\mu_i$: es la cantidad esperada de puntos anotados en la posesión $i$, $x^o_{ik}$: indicadora ofensiva del jugador $k$ en la posesión $i$ ($1$ si el jugador $k$ estaba jugando en ataque en la posesión $i$, $0$ en otro caso), $x^d_{ik}$: indicadora defensiva del jugador $k$ en la posesión $i$ ($-1$ si el jugador $k$ estaba jugando en defensa en la posesión $i$, $0$ en otro caso), $\beta_0$: Intercepto del modelo, $\beta^o_k$: coeficiente ofensivo del jugador $k$ ($ORAPM$), $\beta^d_k$: coeficiente defensivo del jugador $k$ ($DRAPM$).
+para $i = 1,...,n$, donde $n$: es el número total de posesiones disputadas, $K$: es el número total de jugadores en el análisis, $Y_i$: es la variable respuesta correspondiente al número de puntos realizados en la posesión $i$, $\mu_i$: es la cantidad esperada de puntos anotados en la posesión $i$, $x^o_{ik}$: indicadora ofensiva del jugador $k$ en la posesión $i$ ($1$ si el jugador $k$ estaba jugando en ataque en la posesión $i$, $0$ en otro caso), $x^d_{ik}$: indicadora defensiva del jugador $k$ en la posesión $i$ ($-1$ si el jugador $k$ estaba jugando en defensa en la posesión $i$, $0$ en otro caso), $\beta_0$: Intercepto del modelo, $\beta^o_k$: coeficiente ofensivo del jugador $k$ ($ORAPM$), $\beta^d_k$: coeficiente defensivo del jugador $k$ ($DRAPM$).
 
 <!-- Como $\hat{\beta}_k$ es una combinación lineal de $Y_i$ , entonces la distribución de estos estimadores es conocida. Tenemos que: -->
 
@@ -607,7 +605,7 @@ $$
 \end{aligned}
 $$
 
-Supongamos que el jugador $a_6$ reemplaza al jugador $a_1$, manteniéndose sin modificaciones los restantes nueve jugadores. En ese caso, la cantidad esperada de puntos pasa a ser:
+Si se asume que el jugador $a_6$ reemplaza al jugador $a_1$, manteniéndose sin modificaciones los restantes nueve jugadores. En ese caso, la cantidad esperada de puntos se modifica a:
 
 $$
 \begin{aligned}
@@ -873,7 +871,7 @@ En el caso de los modelos logísticos multinomiales, cada variable explicativa p
 
 ### Regresión Ridge o Regularización $L_2$
 
-Este método incorpora una penalización cuadrática sobre los coeficientes del modelo.
+El método más utilizado en la bibliografía relevante sobre RAPM es el de Ridge, dicha técnica fue propuesta originalmente por Hoerld y Kennard (1970) e incorpora una penalización cuadrática ($L_2$) sobre los coeficientes del modelo.
 
 Para el **modelo de regresión lineal múltiple** los coeficientes estimados $\hat{\boldsymbol{\beta}}$ se obtienen minimizando la función de pérdida ($S$) modificada de la siguiente manera:
 
@@ -881,9 +879,9 @@ Para el **modelo de regresión lineal múltiple** los coeficientes estimados $\h
 S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{l=1}^P \beta_l^2=S+\lambda \sum_{l=1}^P \beta_l^2
 \end{equation}
 
-donde $\lambda \geq 0$ es un hiperparámetro que controla la intensidad de la penalización.
+Al igual que en mínimos cuadrados ordinarios, la regresión Ridge busca coeficientes estimados que ajusten bien a los datos, minimizando la suma de cuadrados del error. Por otro lado, el segundo término, $\lambda \sum_{l=1}^P \beta_l^2$ es menor cuando $\beta_1,...,\beta_P$ son más cercanos a cero. De este manera este término penalizador tiene el efecto de contraer los coeficientes estimados hacia cero.
 
-Cuando $\lambda = 0$ no hay penalización y la estimación será igual a la obtenida por mínimos cuadrados; y a medida que $\lambda$ aumenta la penalización se vuelve más dominante y los coeficientes tienden a 0. Para determinar el valor óptimo de $\lambda$ se utilizaron técnicas de **validación cruzada**.
+El *trade-off* entre estos dos criterios es controlado por el hiperparámetro $\lambda \geq 0$ el cual controla el efecto relativo de estos dos términos en los coeficientes de regresión estimados. La estimación será igual a la de mínimos cuadrados cuando $\lambda$ = 0 (no hay penalización) y a medida que $\lambda$ aumenta la penalización se vuelve más dominante y los coeficientes tienden a 0.
 
 Mientras que en el caso del **modelo logístico multinomial**, se agrega un parámetro de penalización a la función de log-verosimilitud, de manera tal que la función a minimizar resulta:
 
@@ -891,13 +889,23 @@ Mientras que en el caso del **modelo logístico multinomial**, se agrega un par�
 L^*_m(\boldsymbol{\beta},\boldsymbol{y})= -\sum_{i=1}^n\sum_{c=0}^3y_{ic}log(\pi_{ic}) + \lambda \sum_{l=1}^P\sum_{c=1}^3 \beta_{lc}^2= - L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{l=1}^P\sum_{c=1}^3 \beta_{lc}^2,
 \end{equation}
 
-y el hiperparámetro $\lambda$ se selecciona nuevamente mediante validación cruzada.
+En ambos casos el valor del $\lambda$ se selecciona mediante validación cruzada.
+
+La importancia de este método radica en la relación entre el sesgo y la variancia. A medida que incremente $\lambda$, la flexibilidad del modelo decrece, decreciendo también la variancia de los estimadores, a cambio de introducir sesgo en dichas estimaciones. En el caso de Ridge,
+
+$$\boldsymbol{\beta}^R = (X'X + \lambda I)^{-1}(X'X) \boldsymbol{\beta}^{MCO}$$,
+
+de aquí se desprende que:
+
+$$variancia(beta) y sesgo(beta)$$,
+
+
+
+Una característica de la penalización $(L_2)$ es que, en general, no produce coeficientes exactamente iguales a cero para valores finitos de $(\lambda)$. Esto se debe a que la función de penalización $(\beta_l^2)$ es suave y diferenciable en cero, por lo que no existe un cambio abrupto en el criterio de optimización cuando un coeficiente alcanza dicho valor. En consecuencia, Ridge reduce la magnitud de los efectos estimados pero conserva habitualmente a todos los predictores dentro del modelo.
 
 ### Lasso o Regularización $L_1$
 
-A diferencia de la regresión *Ridge*, en la cual los coeficientes pueden acercarse a 0 pero nunca llegan exactamente a ese valor, la técnica *Lasso*, presentada por Robert Tibshirani (1996), tiende a forzar algunos parámetros a ser cero, con lo cual también se realiza una selección de las variables más influyentes. La intención de aplicar esta técnica está basada en su posible utilidad para abordar el problema de los coeficientes extremos que presentan los jugadores que juegan pocos minutos. La penalización en este caso se basa en la suma de los valores absolutos de los coeficientes.
-
-[^4]: Por jugador de referencia entendemos a cualquier jugador que pertenece al grupo de jugadores con coeficientes iguales a cero.
+A diferencia de la regresión *Ridge*, en la cual los coeficientes pueden acercarse a 0 pero nunca llegan exactamente a ese valor, la técnica *Lasso*, presentada por Robert Tibshirani (1996), fuerza algunos coeficientes estimados a ser cero, con lo cual también se realiza una selección de las variables más influyentes. La intención de aplicar esta técnica está basada en su posible utilidad para abordar el problema de los coeficientes extremos que presentan los jugadores que juegan pocos minutos. La penalización en este caso se basa en la suma de los valores absolutos de los coeficientes.
 
 Para el **modelo de regresión lineal múltiple** resulta:
 
@@ -1190,7 +1198,7 @@ mej_pm %>%
     escape = FALSE,
     booktabs = TRUE,
     linesep = "",
-    caption = "Jugadores con mayor Plus/Minus"
+    caption = "Jugadores con mayor plus-minus"
   ) %>%
   kable_styling(
     latex_options = "HOLD_position",
@@ -1218,7 +1226,7 @@ peor_pm %>%
     escape = FALSE,
     booktabs = TRUE,
     linesep = "",
-    caption = "Jugadores con menor Plus/Minus"
+    caption = "Jugadores con menor plus-minus"
   ) %>%
   kable_styling(
     latex_options = "HOLD_position",
