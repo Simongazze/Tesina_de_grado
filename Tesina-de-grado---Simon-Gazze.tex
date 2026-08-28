@@ -171,10 +171,10 @@ propósito es el \emph{plus-minus}, que registra la diferencia de puntos
 generada mientras un jugador permanece en cancha. Sin embargo, esta
 métrica presenta dificultades para aislar el efecto propio de cada
 jugador respecto del contexto en el que participa. En respuesta a esta
-problemática surge el \emph{Regularized Adjusted Plus Minus}
-(\emph{RAPM}), una medida basada en modelos estadísticos que estima el
-impacto ofensivo y defensivo de cada jugador controlando simultáneamente
-la presencia de compañeros y rivales en cancha.
+problemática surge el \emph{Regularized Adjusted Plus Minus} (RAPM), una
+medida basada en modelos estadísticos que estima el impacto ofensivo y
+defensivo de cada jugador controlando simultáneamente la presencia de
+compañeros y rivales en cancha.
 
 El objetivo de este trabajo es estimar el impacto individual de los
 jugadores de la Liga Nacional de Básquetbol de Argentina durante la
@@ -194,16 +194,16 @@ Posteriormente, se implementaron modelos de regresión logística
 multinomial que representan de manera más adecuada la naturaleza
 discreta de la variable respuesta. A partir de las probabilidades
 estimadas por estos modelos se construyeron métricas basadas en puntos
-esperados por posesión (\emph{EPTS}). Finalmente, se propuso una
-ponderación a dicha métrica denominada \emph{wEPTS}, que incorpora la
-participación de cada jugador relativa a las posesiones de su equipo con
-el objetivo de penalizar a los jugadores con poco tiempo de juego. Los
-resultados obtenidos muestran que esta métrica presentó un desempeño
-superior al de las alternativas propuestas, de acuerdo con los distintos
-criterios de validación utilizados.
+esperados por posesión (EPTS). Finalmente, se propuso una ponderación a
+dicha métrica denominada wEPTS, que incorpora la participación de cada
+jugador relativa a las posesiones de su equipo con el objetivo de
+penalizar a los jugadores con poco tiempo de juego. Los resultados
+obtenidos muestran que esta métrica presentó un desempeño superior al de
+las alternativas propuestas, de acuerdo con los distintos criterios de
+validación utilizados.
 
-Este estudio constituye la primera aplicación de métricas \emph{RAPM} en
-la Liga Nacional de Básquetbol de Argentina y aporta una metodología
+Este estudio constituye la primera aplicación de métricas RAPM en la
+Liga Nacional de Básquetbol de Argentina y aporta una metodología
 reproducible para la evaluación objetiva del rendimiento individual de
 los jugadores, contribuyendo al desarrollo de herramientas de analítica
 deportiva en el contexto del básquetbol argentino.
@@ -221,7 +221,8 @@ regularización.
 
 \section{Introducción}\label{introducciuxf3n}
 
-\subsection{Sports Analytics}\label{sports-analytics}
+\subsubsection*{Sports Analytics}\label{sports-analytics}
+\addcontentsline{toc}{subsubsection}{Sports Analytics}
 
 \emph{Sports Analytics} o analítica en el deporte es un término que
 refiere a la aplicación de métodos estadísticos para describir, explicar
@@ -260,119 +261,10 @@ eficiencia de los jugadores, la eficiencia de los lanzamientos al aro,
 el desempeño de los equipos, la importancia en la creación de espacios,
 entre otras cosas.
 
-\subsection{Medidas de desempeño para jugadores de
-básquetbol}\label{medidas-de-desempeuxf1o-para-jugadores-de-buxe1squetbol}
-
-Desde la consolidación del \emph{box-score} en el básquetbol
-profesional, durante la década de 1950, empezaron a calcularse las
-primeras medidas de desempeño para los jugadores, como pueden ser los
-puntos, rebotes, asistencias, etc. Durante mucho tiempo estas métricas
-constituyeron una de las formas más tradicionales de evaluar el
-rendimiento individual en el básquetbol. Su amplia disponibilidad y
-fácil interpretación las convirtieron en el principal insumo para
-comparar jugadores, otorgar premios o negociar contratos. Estas medidas
-suelen agruparse en un conjunto de estadísticas denominadas
-\emph{bottom-up}, las cuales se calculan en función de las acciones
-individuales de los jugadores, es decir, si un jugador realiza una
-acción que se asocia con un resultado positivo para el equipo, la
-calificación de ese jugador aumenta, mientras que la calificación de los
-demás jugadores, que no participaron en la jugada, permanece sin
-cambios. Pero estas medidas presentan algunas limitaciones importantes,
-ya que, sólo capturan una parte de los eventos relevantes del partido
-(acciones como una defensa asfixiante, buenas rotaciones defensivas o
-pases rápidos para iniciar una posesión no están contempladas) y no
-necesariamente reflejan el impacto real de un jugador en las victorias
-de su equipo, que es lo que importa a fin de cuentas.
-
-Por otra parte, las medidas \emph{top-down} se basan en el rendimiento
-del equipo en su conjunto, y el crédito por dicho rendimiento se
-distribuye entre los jugadores que estuvieron involucrados en el
-partido, sin importar qué acciones puntuales hayan realizado.
-
-Con la idea de que lo más importante en un partido es ganar, y
-entendiendo que las estadísticas tradicionales son solo una medida
-imperfecta de muchas de las contribuciones que realizan los jugadores a
-la victoria, en este trabajo buscaremos ``pensar más allá del \emph{box
-score}'' y nos centraremos en estadísticas \emph{top-down}, más
-precisamente en la medida \emph{plus-minus}. Esta estadística registra
-los cambios que se producen en el marcador durante los minutos en que el
-jugador de interés está en cancha, partiendo de la idea de que los
-equipos deberían rendir mejor (reflejado en un \emph{plus-minus} más
-alto) cuando sus buenos jugadores están en cancha que cuando no lo
-están. Sin embargo esta métrica posee una deficiencia clave: \textbf{la
-calificación de cada jugador va a depender en gran medida de la calidad
-de sus compañeros en el campo}. Por ejemplo: un jugador de rol dentro de
-un gran equipo va a tener un mayor \emph{plus-minus} que una
-superestrella en un equipo con mal desempeño.
-
-\subsection{\texorpdfstring{\emph{Regularized Adjusted Plus Minus}
-(RAPM)}{Regularized Adjusted Plus Minus (RAPM)}}\label{regularized-adjusted-plus-minus-rapm}
-
-La deficiencia anteriormente mencionada se ha intentado solucionar
-implementando modelos matemáticos que incorporen los efectos tanto de
-los compañeros presentes en cancha como de los rivales en ese momento,
-buscando aislar el efecto real de los jugadores en la cancha. El primero
-en realizar una publicación sobre el tema fue Dan Rosenbaum (2004), el
-cual planteó un \textbf{modelo de regresión lineal múltiple} en base a
-observaciones provenientes de partidos de las temporadas 2002-2003 y
-2003-2004 de la \emph{National Basketball Association} (NBA). Como
-unidad de análisis se utilizaron segmentos de partidos donde no ocurrian
-sustituciones, la variable respuesta fue la diferencia en el marcador
-entre el equipo local y el visitante en ese segmento; y como variables
-explicativas se postularon variables dicotómicas para cada uno de los
-jugadores que hayan jugado al menos un partido en esas temporadas.
-Finalmente las métricas de desempeño se correspondían con los
-coeficientes estimados que acompañaban a las ``Dummies'' de cada
-jugador, dichas estimaciones se realizaron mediante la técnica de
-Mínimos Cuadrados Ordinarios. Estas estadísticas se conocen como
-\emph{Adjusted Plus Minus} (APM).
-
-A pesar de que estas métricas presentaban una solución innovadora a la
-problematica inicial, Rosenbaum señaló que las estimaciones obtenidas no
-resultaron muy precisas. El modelo propuesto presentaba estimaciones con
-mucho error, debido a un claro problema de \textbf{multicolinealidad} ya
-que muchos de los jugadores compartían una gran cantidad de minutos
-juntos en cancha, y se necesitaba de una gran cantidad observaciones de
-varias temporadas para que el modelo pudiera separar el efecto propio de
-cada jugador.
-
-Para solucionar está problemática, se plantea la métrica RAPM
-introducida por Sill (2010) en la cual se aborda el problema de la
-multicolinealidad mediante estimaciones de los parámetros realizadas con
-métodos de regularización, particularmente utilizando la Regresión
-Ridge. Esté método de regularización es el más abordado a lo largo de
-toda la literatura relevante sobre RAPM hasta la fecha.
-
-Otro de los problemas recurrentes en estos modelos esta relacionado con
-la inclusión de jugadores que participan muy pocos minutos en cancha
-(\emph{LTPs - Low time Players}). Cuando un jugador juega muy poco, el
-modelo solo tiene unas pocas observaciones (segmentos) para evaluarlo, y
-si particularmente en esas observaciones el equipo tiene un muy buen
-desempeño (probablemente por casualidad); entonces el modelo no puede
-diferenciar si el efecto es propio del jugador y estima coeficientes
-extremos. Para solucionar estos casos se han contemplado las siguientes
-alternativas: 1) excluir a los jugadores con pocos minutos dentro de las
-temporadas (por ejemplo: Rosembaum (2004) excluye a lo jugadores con
-menos de 250 minutos, Ilardi (2007) excluyen a lo jugadores con menos de
-400 minutos, etc), 2) utilizar una gran cantidad de observaciones
-(Ilardi \& Barzilai (2008) incorpora información de 5 temporadas), 3)
-plantear métodos de estimación de los parámetros que penalicen a este
-tipo de jugadores.
-
-En los últimos años, muchos investigadores han publicado trabajos
-orientados a mejorar los resultados de las métricas RAPM.
-Particularmente en este trabajo se usa como referencia central al
-artículo titulado \textbf{Lasso multinomial performance indicators for
-in‑play basketball data} (Damoulaki et al.~, 2025), el cual presenta
-diferencias importantes respecto de los estudios previos. Dicho artículo
-utiliza posesiones (definidas, según Kubatko et al.~(2007), como el
-periodo que comienza cuando un equipo obtiene el control de la pelota y
-termina cuando cede su control al rival) como unidad de análisis, puntos
-en esas posesiones como variable respuesta y emplea \textbf{modelos
-logísticos multinomiales} que representan de manera más adecuada la
-naturaleza de la respuesta.
-
-\section{Motivación}\label{motivaciuxf3n}
+\subsubsection*{Análitica deportiva en el básquetbol
+argentino}\label{anuxe1litica-deportiva-en-el-buxe1squetbol-argentino}
+\addcontentsline{toc}{subsubsection}{Análitica deportiva en el
+básquetbol argentino}
 
 El creciente interés por la analítica deportiva que se ha evidenciado en
 los últimos años en distintos paises del mundo, ha empezado a captar la
@@ -437,18 +329,134 @@ conocimiento técnico-deportivo y el enfoque estadístico permitiría
 potenciar el desarrollo del básquet argentino y contribuir a elevar su
 nivel competitivo en un futuro.
 
+\subsubsection*{Medidas de desempeño para jugadores de
+básquetbol}\label{medidas-de-desempeuxf1o-para-jugadores-de-buxe1squetbol}
+\addcontentsline{toc}{subsubsection}{Medidas de desempeño para jugadores
+de básquetbol}
+
+Desde la consolidación del \emph{box-score} en el básquetbol
+profesional, durante la década de 1950, empezaron a calcularse las
+primeras medidas de desempeño para los jugadores, como pueden ser los
+puntos, rebotes, asistencias, etc. Durante mucho tiempo estas métricas
+constituyeron una de las formas más tradicionales de evaluar el
+rendimiento individual en el básquetbol. Su amplia disponibilidad y
+fácil interpretación las convirtieron en el principal insumo para
+comparar jugadores, otorgar premios o negociar contratos. Estas medidas
+suelen agruparse en un conjunto de estadísticas denominadas
+\emph{bottom-up}, las cuales se calculan en función de las acciones
+individuales de los jugadores, es decir, si un jugador realiza una
+acción que se asocia con un resultado positivo para el equipo, la
+calificación de ese jugador aumenta, mientras que la calificación de los
+demás jugadores, que no participaron en la jugada, permanece sin
+cambios. Pero estas medidas presentan algunas limitaciones importantes,
+ya que, sólo capturan una parte de los eventos relevantes del partido
+(acciones como una defensa asfixiante, buenas rotaciones defensivas o
+pases rápidos para iniciar una posesión no están contempladas) y no
+necesariamente reflejan el impacto real de un jugador en las victorias
+de su equipo, que es lo que importa a fin de cuentas.
+
+Por otra parte, las medidas \emph{top-down} se basan en el rendimiento
+del equipo en su conjunto, y el crédito por dicho rendimiento se
+distribuye entre los jugadores que estuvieron involucrados en el
+partido, sin importar qué acciones puntuales hayan realizado.
+
+Con la idea de que lo más importante en un partido es ganar, y
+entendiendo que las estadísticas tradicionales son solo una medida
+imperfecta de muchas de las contribuciones que realizan los jugadores a
+la victoria, en este trabajo buscaremos ``pensar más allá del \emph{box
+score}'' y nos centraremos en estadísticas \emph{top-down}, más
+precisamente en la medida \emph{plus-minus}. Esta estadística registra
+los cambios que se producen en el marcador durante los minutos en que el
+jugador de interés está en cancha, partiendo de la idea de que los
+equipos deberían rendir mejor (reflejado en un \emph{plus-minus} más
+alto) cuando sus buenos jugadores están en cancha que cuando no lo
+están. Sin embargo esta métrica posee una deficiencia clave: \textbf{la
+calificación de cada jugador va a depender en gran medida de la calidad
+de sus compañeros en el campo}. Por ejemplo: un jugador de rol dentro de
+un gran equipo va a tener un mayor \emph{plus-minus} que una
+superestrella en un equipo con mal desempeño.
+
+\subsubsection*{\texorpdfstring{\emph{Regularized Adjusted Plus Minus}
+(RAPM)}{Regularized Adjusted Plus Minus (RAPM)}}\label{regularized-adjusted-plus-minus-rapm}
+\addcontentsline{toc}{subsubsection}{\emph{Regularized Adjusted Plus
+Minus} (RAPM)}
+
+La deficiencia anteriormente mencionada se ha intentado solucionar
+implementando modelos matemáticos que incorporen los efectos tanto de
+los compañeros presentes en cancha como de los rivales en ese momento,
+buscando aislar el efecto real de los jugadores en la cancha. El primero
+en realizar una publicación sobre el tema fue Dan Rosenbaum (2004), el
+cual planteó un modelo de regresión lineal múltiple en base a
+observaciones provenientes de partidos de las temporadas 2002-2003 y
+2003-2004 de la \emph{National Basketball Association} (NBA). Como
+unidad de análisis se utilizaron segmentos de partidos donde no ocurrian
+sustituciones, la variable respuesta fue la diferencia en el marcador
+entre el equipo local y el visitante en ese segmento; y como variables
+explicativas se postularon variables dicotómicas para cada uno de los
+jugadores que hayan jugado al menos un partido en esas temporadas.
+Finalmente las métricas de desempeño se correspondían con los
+coeficientes estimados que acompañaban a las ``Dummies'' de cada
+jugador, dichas estimaciones se realizaron mediante la técnica de
+Mínimos Cuadrados Ordinarios. Estas estadísticas se conocen como
+\emph{Adjusted Plus Minus} (APM).
+
+A pesar de que estas métricas presentaban una solución innovadora a la
+problematica inicial, Rosenbaum señaló que las estimaciones obtenidas no
+resultaron muy precisas. El modelo propuesto presentaba estimaciones con
+mucho error, debido a un claro problema de multicolinealidad ya que
+muchos de los jugadores compartían una gran cantidad de minutos juntos
+en cancha, y se necesitaba de una gran cantidad observaciones de varias
+temporadas para que el modelo pudiera separar el efecto propio de cada
+jugador.
+
+Para solucionar está problemática, se plantea la métrica RAPM
+introducida por Sill (2010) en la cual se aborda el problema de la
+multicolinealidad mediante estimaciones de los parámetros realizadas con
+métodos de regularización, particularmente utilizando la Regresión
+Ridge. Esté método de regularización es el más abordado a lo largo de
+toda la literatura relevante sobre RAPM hasta la fecha.
+
+Otro de los problemas recurrentes en estos modelos esta relacionado con
+la inclusión de jugadores que participan muy pocos minutos en cancha
+(\emph{LTPs - Low time Players}). Cuando un jugador juega muy poco, el
+modelo solo tiene unas pocas observaciones (segmentos) para evaluarlo, y
+si particularmente en esas observaciones el equipo tiene un muy buen
+desempeño (probablemente por casualidad); entonces el modelo no puede
+diferenciar si el efecto es propio del jugador y estima coeficientes
+extremos. Para solucionar estos casos se han contemplado las siguientes
+alternativas: 1) excluir a los jugadores con pocos minutos dentro de las
+temporadas (por ejemplo: Rosembaum (2004) excluye a lo jugadores con
+menos de 250 minutos, Ilardi (2007) excluyen a lo jugadores con menos de
+400 minutos, etc), 2) utilizar una gran cantidad de observaciones
+(Ilardi \& Barzilai (2008) incorpora información de 5 temporadas), 3)
+plantear métodos de estimación de los parámetros que penalicen a este
+tipo de jugadores.
+
+En los últimos años, muchos investigadores han publicado trabajos
+orientados a mejorar los resultados de las métricas RAPM.
+Particularmente en este trabajo se usa como referencia central al
+artículo titulado \textbf{Lasso multinomial performance indicators for
+in‑play basketball data} (Damoulaki et al.~, 2025), el cual presenta
+diferencias importantes respecto de los estudios previos. Dicho artículo
+utiliza posesiones (definidas, según Kubatko et al.~(2007), como el
+periodo que comienza cuando un equipo obtiene el control de la pelota y
+termina cuando cede su control al rival) como unidad de análisis, puntos
+en esas posesiones como variable respuesta y emplea modelos logísticos
+multinomiales que representan de manera más adecuada la naturaleza de la
+respuesta.
+
 \newpage
 
-\section{Objetivos}\label{objetivos}
+\subsection{Objetivos}\label{objetivos}
 
-\subsection{Objetivo general}\label{objetivo-general}
+\subsubsection{Objetivo general}\label{objetivo-general}
 
 El objetivo general de esta tesina es estimar el aporte individual de
 los jugadores de la Liga Nacional de Básquetbol de Argentina durante la
 temporada 2024/2025 mediante modelos RAPM, con el fin de construir un
 ranking que refleje su impacto en el desempeño de sus equipos.
 
-\subsection{Objetivos específicos}\label{objetivos-especuxedficos}
+\subsubsection{Objetivos específicos}\label{objetivos-especuxedficos}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi})}
@@ -471,7 +479,43 @@ ranking que refleje su impacto en el desempeño de sus equipos.
   de cada jugador en relación al desempeño de su equipo.
 \end{enumerate}
 
-\section{Datos}\label{datos}
+\subsection{Organización de la
+tesina}\label{organizaciuxf3n-de-la-tesina}
+
+El trabajo se organiza de la siguiente manera:
+
+En el \hyperref[cap:datos]{Capítulo 2} se describe el proceso de
+generación y procesamiento de los datos. Se detalla la construcción de
+la base \emph{play-by-play} mediante técnicas de \emph{web scraping},
+las etapas de limpieza y preprocesamiento de la información y la
+generación de la base \emph{poss-by-poss} utilizada para el ajuste de
+los modelos estadísticos.
+
+En el \hyperref[cap:metodologia]{Capítulo 3} se desarrolla la
+metodología estadística empleada en el trabajo. Se presentan los modelos
+propuestos, las métricas derivadas de los mismos, los principales
+problemas que suelen presentarse en este tipo de enfoques y las técnicas
+de regularización utilizadas para abordarlos. Finalmente, se describen
+los criterios adoptados para comparar el desempeño de los distintos
+modelos considerados.
+
+En el \hyperref[cap:resultados]{Capítulo 4} se presentan los resultados
+obtenidos. Inicialmente, se realiza un análisis descriptivo de los datos
+y de distintas medidas basadas en plus-minus. Posteriormente, se
+analizan los rankings obtenidos mediante RAPM, EPTS y wEPTS y se
+comparan las distintas alternativas propuestas de acuerdo con los
+criterios de evaluación definidos previamente.
+
+En el \hyperref[cap:conclusiones]{Capítulo 5} se presentan las
+principales conclusiones del trabajo, sintetizando los resultados más
+relevantes obtenidos a partir de la comparación de los distintos
+modelos.
+
+Finalmente, en el \hyperref[cap:discusion]{Capítulo 6} se discuten los
+alcances y limitaciones del enfoque adoptado, y se plantean posibles
+líneas de investigación futura.
+
+\section{Datos}\label{cap:datos}
 
 Una parte central de esta tesina estará dedicada a la construcción de
 una base de datos \emph{play-by-play} correspondiente a la temporada
@@ -1112,7 +1156,7 @@ esta temporada, contabilizando de esta manera otras 692 (346 indicadoras
 ofensivas y 346 indicadoras defensivas) variables adicionales dentro del
 dataset.
 
-\section{Metodología}\label{metodologuxeda}
+\section{Metodología}\label{cap:metodologia}
 
 Con el fin de sintetizar adecuadamente la contribución ofensiva y
 defensiva de los jugadores de manera adecuada, se compararon los
@@ -1154,8 +1198,8 @@ jugando en ataque en la posesión \(i\), \(0\) en otro caso),
 \(x^d_{ik}\): indicadora defensiva del jugador \(k\) en la posesión
 \(i\) (\(-1\) si el jugador \(k\) estaba jugando en defensa en la
 posesión \(i\), \(0\) en otro caso), \(\beta_0\): Intercepto del modelo,
-\(\beta^o_k\): coeficiente ofensivo del jugador \(k\) (\(ORAPM\)),
-\(\beta^d_k\): coeficiente defensivo del jugador \(k\) (\(DRAPM\)).
+\(\beta^o_k\): coeficiente ofensivo del jugador \(k\) (ORAPM),
+\(\beta^d_k\): coeficiente defensivo del jugador \(k\) (DRAPM).
 
 Este modelo es de sencilla aplicación y ha sido ampliamente utilizado
 por distintos analistas que trabajan con este tipo de métricas. Sin
@@ -1168,7 +1212,7 @@ interés.
 \paragraph{Interpretación de los
 coeficientes}\label{interpretaciuxf3n-de-los-coeficientes}
 
-Las medidas de eficiencia ofensiva *ORAPM) y defensiva (DRAPM) están
+Las medidas de eficiencia ofensiva (ORAPM) y defensiva (DRAPM) están
 representadas por los coeficientes asociados a las variables indicadoras
 ofensivas y defensivas de cada jugador, denotados por \(\beta_k^o\) y
 \(\beta_k^d\), respectivamente. Estos coeficientes cuantifican el aporte
@@ -1349,7 +1393,8 @@ construcción de una métrica unificada.
 
 \subsection{EPTS y wEPTS}\label{epts-y-wepts}
 
-\subsubsection{EPTS}\label{epts}
+\subsubsection{\texorpdfstring{\emph{Expected points}
+(EPTS)}{Expected points (EPTS)}}\label{expected-points-epts}
 
 En el enfoque mencionado anteriormente los coeficientes representan las
 contribuciones de cada jugador en los distintos tipos de anotación.
@@ -1378,7 +1423,7 @@ similar, la contribución defensiva de un jugador se obtiene mediante la
 cantidad esperada de puntos concedidos por posesión por el equipo de
 dicho jugador cuando él está en la alineación y todos los demás
 jugadores en cancha pertenecen al grupo de referencia. A esta nueva
-métrica la denominamos EPTS (\emph{Expected Points})
+métrica la denominamos \emph{Expected Points} (EPTS).
 
 \begin{equation}
 EPTS_k^r= E(Y_i \mid X_{ik}^r \ne 0,\, \boldsymbol{X}_{{i\setminus{k}}}^r = \boldsymbol{0},\, \boldsymbol{X}_i^{\overline{r}} = \boldsymbol{0}), \quad r \in \{o, d\}.
@@ -1419,7 +1464,8 @@ participa ofensivamente, mientras que un menor valor de \(EPTS^d\)
 representa una menor cantidad esperada de puntos concedidos por posesión
 cuando el jugador integra el equipo defensor.
 
-\subsubsection{wEPTS}\label{wepts}
+\subsubsection{\texorpdfstring{\emph{Weighted expected points}
+(wEPTS)}{Weighted expected points (wEPTS)}}\label{weighted-expected-points-wepts}
 
 Una versión ponderada de los EPTS es propuesta por Damoulaki et
 al.~(2025), la cual tiene en cuenta la participación del jugador a lo
@@ -1584,11 +1630,11 @@ CABRERA, M. & VALLEJOS, R. & 3.038 & 78.9 & 74.1 & 0.757\\
 
 Para abordar este problema, tal como se mencionó en la Sección 2.3, los
 distintos autores que trabajaron con este tipo de modelos recurrieron a
-estimaciones basadas en \textbf{métodos de regularización} mediante los
-cuales se introduce deliberadamente un pequeño sesgo en las estimaciones
-con el objetivo de reducir su varianza. Este compromiso entre sesgo y
-varianza suele traducirse en una disminución del error de predicción y
-en estimaciones considerablemente más estables. Por otra parte, diversos
+estimaciones basadas en métodos de regularización mediante los cuales se
+introduce deliberadamente un pequeño sesgo en las estimaciones con el
+objetivo de reducir su varianza. Este compromiso entre sesgo y varianza
+suele traducirse en una disminución del error de predicción y en
+estimaciones considerablemente más estables. Por otra parte, diversos
 autores destacaron las ventajas de disponer de una mayor cantidad de
 datos, incorporando en muchos casos información de varias temporadas.
 Sin embargo, esta estrategia no pudo implementarse en el presente
@@ -1652,117 +1698,166 @@ elimina completamente este problema de sobreestimación de coeficientes,
 ya que continúan existiendo diferencias importantes en la cantidad de
 observaciones disponibles para cada jugador. Por este motivo, además del
 criterio de exclusión adoptado, en los modelos propuestos se emplean
-\textbf{métodos de regularización}, los cuales penalizan la magnitud de
-los coeficientes estimados cuando la información disponible resulta
+métodos de regularización, los cuales penalizan la magnitud de los
+coeficientes estimados cuando la información disponible resulta
 insuficiente.
 
 \subsection{Métodos de
 regularización}\label{muxe9todos-de-regularizaciuxf3n}
 
-Como se ha mencionado anteriormente, el modelo planteado presenta
-variables predictoras altamente correlacionadas debido a que muchos de
-los jugadores comparten gran parte del tiempo en cancha, por lo que el
-ajuste con mínimos cuadrados ordinarios o mediante máxima verosimilitud
-se torna inestable. Con el objetivo de abordar este problema, se
-realizaron estimaciones mediante métodos de regularización (o
-\emph{shrinkage}), los cuales incorporan un término de penalización a la
-función de pérdida para de esta manera controlar la magnitud de los
-coeficientes estimados. Esta técnica provoca que las estimaciones sean
-sesgadas, pero a cambio de una notable reducción en la variancia.
+El modelo planteado presenta variables predictoras altamente
+correlacionadas debido a que muchos de los jugadores comparten gran
+parte del tiempo en cancha, por lo que el ajuste con mínimos cuadrados
+ordinarios o mediante máxima verosimilitud se torna inestable. Con el
+objetivo de abordar este problema, se realizaron estimaciones mediante
+métodos de regularización (o \emph{shrinkage}), los cuales incorporan un
+término de penalización a la función de pérdida para de esta manera
+controlar la magnitud de los coeficientes estimados. Esta técnica
+provoca que las estimaciones sean sesgadas, pero a cambio de una notable
+reducción en la variancia (James, G., Witten, D., Hastie, T., \&
+Tibshirani, R. (2021)).
 
 En el caso de los modelos logísticos multinomiales, cada variable
 explicativa posee un coeficiente asociado a cada una de las tres
 ecuaciones logit. En su implementación mediante la librería
 \texttt{glmnet} se utilizó una penalización agrupada, de modo que los
-coeficientes correspondientes a una misma variable explicativa se
-consideran conjuntamente a través de las distintas categorías de
-respuesta. Esta característica resulta relevante para las penalizaciones
-que incorporan un componente \(L_1\), ya que los coeficientes asociados
-a una misma variable se contraen o anulan conjuntamente.
+tres coeficientes correspondientes a una misma variable explicativa se
+consideran como un único grupo. Esta característica resulta relevante
+para las penalizaciones que incorporan un componente \(L_1\), ya que las
+variables explicativas permanecen activas o se anulan simultáneamente en
+las tres categorías de respuesta.
 
 \subsubsection{\texorpdfstring{Regresión Ridge o Regularización
 \(L_2\)}{Regresión Ridge o Regularización L\_2}}\label{regresiuxf3n-ridge-o-regularizaciuxf3n-l_2}
 
-Este método incorpora una penalización cuadrática sobre los coeficientes
-del modelo.
+El método más utilizado en la bibliografía relevante sobre RAPM es la
+regresión Ridge. Esta técnica, propuesta originalmente por Hoerl y
+Kennard (1970), incorpora una penalización cuadrática (\(L_2\)) sobre
+los coeficientes del modelo.
 
-Para el \textbf{modelo de regresión lineal múltiple} los coeficientes
-estimados \(\hat{\boldsymbol{\beta}}\) se obtienen minimizando la
-función de pérdida (\(S\)) modificada de la siguiente manera:
+Para el modelo de regresión lineal múltiple los coeficientes estimados
+\(\hat{\boldsymbol{\beta}}\) se obtienen minimizando la función de
+pérdida (\(S\)) modificada de la siguiente manera:
 
 \begin{equation}
 S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{l=1}^P \beta_l^2=S+\lambda \sum_{l=1}^P \beta_l^2
 \end{equation}
 
-donde \(\lambda \geq 0\) es un hiperparámetro que controla la intensidad
-de la penalización.
+Al igual que en mínimos cuadrados ordinarios, la regresión Ridge busca
+coeficientes estimados que ajusten bien a los datos, minimizando la suma
+de cuadrados del error. Por otro lado, el segundo término,
+\(\lambda \sum_{l=1}^P \beta_l^2\) es menor cuando
+\(\beta_1,...,\beta_P\) son más cercanos a cero. De esta manera este
+término penalizador tiene el efecto de contraer los coeficientes
+estimados hacia cero.
 
-Cuando \(\lambda = 0\) no hay penalización y la estimación será igual a
-la obtenida por mínimos cuadrados; y a medida que \(\lambda\) aumenta la
+El \emph{trade-off} entre estos dos criterios es controlado por el
+hiperparámetro \(\lambda \geq 0\), el cual controla el efecto relativo
+de estos dos términos en los coeficientes de regresión estimados. La
+estimación será igual a la de mínimos cuadrados cuando \(\lambda\) = 0
+(no hay penalización) y a medida que \(\lambda\) aumenta, la
 penalización se vuelve más dominante y los coeficientes tienden a 0.
-Para determinar el valor óptimo de \(\lambda\) se utilizaron técnicas de
-\textbf{validación cruzada}.
 
-Mientras que en el caso del \textbf{modelo logístico multinomial}, se
-agrega un parámetro de penalización a la función de log-verosimilitud,
-de manera tal que la función a minimizar resulta:
+Por otro lado, en el caso del modelo logístico multinomial, el parámetro
+de penalización se agrega a la función de log-verosimilitud, de manera
+tal que la función a minimizar resulta:
 
 \begin{equation}
 L^*_m(\boldsymbol{\beta},\boldsymbol{y})= -\sum_{i=1}^n\sum_{c=0}^3y_{ic}log(\pi_{ic}) + \lambda \sum_{l=1}^P\sum_{c=1}^3 \beta_{lc}^2= - L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{l=1}^P\sum_{c=1}^3 \beta_{lc}^2,
 \end{equation}
 
-y el hiperparámetro \(\lambda\) se selecciona nuevamente mediante
-validación cruzada.
+en ambos casos el valor del \(\lambda\) se selecciona mediante
+validación cruzada. Cabe destacar que, a diferencia de lo que ocurre con
+la penalización L1 (Sección 6.6.2), la agrupación de los tres
+coeficientes de un mismo jugador no introducen ninguna diferencia en la
+penalización Ridge.
+
+Una característica de la penalización \(L_2\) es que, en general, no
+produce coeficientes exactamente iguales a cero para valores finitos de
+\(\lambda\). Esto se debe a que la función de penalización
+\((\beta_l^2)\) es suave y diferenciable en cero, por lo que no existe
+un cambio abrupto en el criterio de optimización cuando un coeficiente
+alcanza dicho valor. En consecuencia, Ridge reduce la magnitud de los
+efectos estimados pero conserva habitualmente a todos los predictores
+dentro del modelo.
 
 \subsubsection{\texorpdfstring{Lasso o Regularización
 \(L_1\)}{Lasso o Regularización L\_1}}\label{lasso-o-regularizaciuxf3n-l_1}
 
-A diferencia de la regresión \emph{Ridge}, en la cual los coeficientes
-pueden acercarse a 0 pero nunca llegan exactamente a ese valor, la
-técnica \emph{Lasso}, presentada por Robert Tibshirani (1996), tiende a
-forzar algunos parámetros a ser cero, con lo cual también se realiza una
-selección de las variables más influyentes. La intención de aplicar esta
-técnica está basada en su posible utilidad para abordar el problema de
-los coeficientes extremos que presentan los jugadores que juegan pocos
-minutos. La penalización en este caso se basa en la suma de los valores
-absolutos de los coeficientes.
-
-Para el \textbf{modelo de regresión lineal múltiple} resulta:
+La técnica Lasso, propuesta por Tibshirani (1996), constituye una
+alternativa a Ridge que, además de contraer la magnitud de los
+coeficientes, puede llevar algunos de ellos exactamente a cero. De esta
+manera, el método realiza simultáneamente regularización y selección de
+variables. La intención de aplicar esta técnica está basada en su
+posible utilidad para abordar el problema de los coeficientes extremos
+que presentan los jugadores que juegan pocos minutos. A diferencia de la
+penalización cuadrática utilizada por Ridge, Lasso incorpora una
+penalización \(L_1\), basada en la suma de los valores absolutos de los
+coeficientes. Para el modelo de regresión lineal múltiple la función de
+pérdida resulta:
 
 \begin{equation}
-S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{l=1}^P \beta_l=S+\lambda \sum_{l=1}^P |\beta_l|.
+S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{l=1}^P |\beta_l|=S+\lambda \sum_{l=1}^P |\beta_l|.
 \end{equation}
 
-Para el \textbf{modelo logístico multinomial} resulta:
+En esta técnica se presenta la función \((|\beta_l|)\) , la cual no es
+diferenciable en cero y presenta un punto anguloso en dicho valor. Esta
+característica permite que, para determinados valores de \(\lambda\), el
+mínimo de la función objetivo se alcance exactamente en \(\beta_l=0\).
+En su interpretación geométrica, la restricción \(L_1\) presenta
+vértices sobre los ejes correspondientes a coeficientes nulos, mientras
+que la restricción \(L_2\) de Ridge posee una superficie suave. Como
+consecuencia, Lasso no solo contrae los coeficientes, sino que puede
+anular completamente algunos de ellos. En este caso valores grandes de
+\(\lambda\) incrementan la penalización, llevando a que un mayor número
+de coeficientes se reduzcan exactamente a cero.
+
+Por otro lado, considerando la penalización agrupada mencionada al
+inicio de esta sección, en el modelo logístico multinomial la
+penalización L1 no se aplica a cada coeficiente individualmente, sino a
+la norma L2 del vector formado por los tres coeficientes asociados a
+cada jugador. Esta variante se conoce en la literatura como \emph{group
+lasso} (Yuan \& Lin, 2006), y resulta en:
 
 \begin{equation}
 L^*_m(\boldsymbol{\beta},\boldsymbol{y})= - \sum_{i=1}^n \sum_{c=0}^3 y_{ic} log(\pi_{ic}) + \lambda \sum_{l=1}^P \sqrt{\beta_{l1}^2+\beta_{l2}^2+\beta_{l3}^2}= - L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{l=1}^P \sqrt{\beta_{l1}^2+\beta_{l2}^2+\beta_{l3}^2}.
 \end{equation}
 
-En este caso valores grandes de \(\lambda\) incrementan la penalización,
-llevando a que un mayor número de coeficientes se reduzcan exactamente a
-cero.
+En este caso, al tratarse de una penalización agrupada, la anulación
+ocurre a nivel de grupo, donde los tres coeficientes asociados a un
+mismo predictor (\(\beta_{l1},\beta_{l2},\beta_{l3}\)) se anulan de
+manera conjunta, o ninguno de ellos lo hace.
 
 \subsubsection{Elastic Net}\label{elastic-net}
 
-Cuando existen predictores altamente correlacionados, \emph{Ridge}
-reduce la influencia de todos ellos a la vez de forma proporcional,
-mientras que \emph{Lasso} tiende a seleccionar uno de ellos, dándole
-todo el peso y excluyendo al resto. En presencia de correlaciones
-fuertes esta selección puede variar mucho ante pequeñas perturbaciones,
-por lo que las soluciones de \emph{Lasso} pueden ser más inestables.
+Lasso presenta una limitación relevante cuando existen grupos de
+predictores fuertemente correlacionados. En estas situaciones puede
+seleccionar uno de ellos y contraer los restantes a cero, aun cuando
+varios contengan información similar sobre la variable respuesta. Como
+consecuencia, pequeñas modificaciones en los datos pueden cambiar cuál
+de las variables correlacionadas se contrae a cero.
 
-Para encontrar un equilibrio entre ambos métodos se plantea la
-penalización \emph{Elastic net}, introducido por Hui Zou y Trevor Hastie
-(2005), la cual combina las penalizaciones \(L_1\) y \(L_2\).
+Elastic Net, propuesto por Zou y Hastie (2005), combina las
+penalizaciones \(L_1\) y \(L_2\) con el objetivo de reunir las
+principales propiedades de ambos métodos. La componente \(L_1\) permite
+anular algunos coeficientes y, por lo tanto, realizar selección de
+variables. La componente \(L_2\), en cambio, favorece que predictores
+altamente correlacionados reciban coeficientes similares, evitando que
+el modelo seleccione arbitrariamente uno de ellos y elimine al resto.
 
-Para el \textbf{modelo de regresión lineal múltiple} resulta:
+Esta característica resulta particularmente apropiada para los modelos
+RAPM, donde es habitual encontrar jugadores que comparten una proporción
+elevada de sus posesiones. Frente a este escenario, Elastic Net permite
+evitar en cierta medida la selección arbitraria de uno solo de los
+jugadores realizada por Lasso, sin renunciar completamente a la
+capacidad de producir coeficientes nulos. Para el modelo de regresión
+lineal múltiple la función de pérdida viene dada por:
 
 \begin{equation}
-S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda [\alpha\sum_{l=1}^P|\beta_l|+\frac{(1-\alpha)}{2}\sum_{l=1}^P \beta_l^2]=S+\lambda[\alpha\sum_{l=1}^P |\beta_l|+\frac{(1-\alpha)}{2}\sum_{l=1}^P \beta_l^2].
+S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda [\alpha\sum_{l=1}^P|\beta_l|+\frac{(1-\alpha)}{2}\sum_{l=1}^P \beta_l^2]=S+\lambda[\alpha\sum_{l=1}^P |\beta_l|+\frac{(1-\alpha)}{2}\sum_{l=1}^P \beta_l^2],
 \end{equation}
 
-Para el \textbf{modelo logístico multinomial} resulta:
+mientras que para el modelo logístico multinomial resulta:
 
 \begin{equation}
 \begin{split}
@@ -1771,11 +1866,11 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y}) &= -\sum_{i=1}^n\sum_{c=0}^3y_{ic}log(\
 \end{split}
 \end{equation}
 
-donde, \(\lambda \geq 0\) sigue siendo el parámetro de regularización
-que controla la fuerza de la penalización, y se agrega un nuevo
-hiperparámetro \(\alpha \in [0,1]\) que controla la combinación entre
-\emph{Lasso} y \emph{Ridge}. Si \(\alpha = 1\) se obtiene \emph{Lasso} y
-si \(\alpha = 0\) se obtiene \emph{Ridge}.
+donde, \(\lambda\) controla la intensidad de la regularización, mientras
+que \(\alpha \in [0,1]\) determina cuánto peso se asigna a cada
+penalización. Para \(\alpha=0\) se obtiene Ridge y para \(\alpha=1\) se
+obtiene Lasso. Los valores intermedios permiten distintos compromisos
+entre contracción y selección de variables.
 
 \subsection{Selección de hiperparámetros
 óptimos}\label{selecciuxf3n-de-hiperparuxe1metros-uxf3ptimos}
@@ -1834,7 +1929,8 @@ Argentina.
 
 \subsubsection{Bondad de ajuste}\label{bondad-de-ajuste}
 
-\paragraph{RMSE}\label{rmse}
+\paragraph{Raíz del error cuadrático medio
+(RMSE)}\label{rauxedz-del-error-cuadruxe1tico-medio-rmse}
 
 Con el objetivo de evaluar el desempeño predictivo, se compararon los
 distintos modelos utilizando como criterio principal a la raíz del error
@@ -1899,7 +1995,7 @@ Y por lo tanto,
 \]
 
 De esta forma, tanto el modelo normal como el multinomial producen una
-\textbf{predicción continua} del número esperado de puntos por posesión,
+predicción continua del número esperado de puntos por posesión,
 permitiendo comparar ambos enfoques mediante el RMSE.
 
 \paragraph{Simulación del modelo
@@ -2035,7 +2131,7 @@ integraron alguna terna.
   defensivos, respectivamente.
 \end{itemize}
 
-\section{Resultados}\label{resultados}
+\section{Resultados}\label{cap:resultados}
 
 \subsection{Análisis descriptivo}\label{anuxe1lisis-descriptivo}
 
@@ -2446,9 +2542,9 @@ jugadores presentes en cada posesión.(ver)
 
 \subsubsection{RAPM}\label{rapm}
 
-Como primer medida estandar a evaluar, se planteó un \textbf{modelo de
-regresión lineal múltiple normal}. Para el cual se consideraron \(K\) =
-229 jugadores (66,1\% del total) que superaron el filtro de cantidad de
+Como primer medida estandar a evaluar, se planteó un modelo de regresión
+lineal múltiple normal. Para el cual se consideraron \(K\) = 229
+jugadores (66,1\% del total) que superaron el filtro de cantidad de
 posesiones, derivando en 458 indicadores de presencia, 229 ofensivos y
 229 defensivos. Los coeficientes se estimaron mediante \emph{Ridge},
 \emph{Lasso} y \emph{Elastic Net} para reducir la inestabilidad generada
@@ -2460,8 +2556,8 @@ hiperparámetros que controlan la magnitud de las penalizaciones
 realizadas. \emph{Ridge} y \emph{Lasso} requieren seleccionar
 \(\lambda\), mientras que Elastic Net requiere seleccionar conjuntamente
 \(\alpha\) y \(\lambda\). Para esto se utilizó validación cruzada de
-diez particiones y se eligieron los valores que minimizaban el
-\textbf{error cuadrático medio}.
+diez particiones y se eligieron los valores que minimizaban el error
+cuadrático medio.
 
 Los resultados obtenidos se presentan en el Cuadro 13.
 
@@ -2533,14 +2629,14 @@ motivo, a continuación se presentan los resultados obtenidos mediante
 regresión logística multinomial y las métricas EPTS derivadas de sus
 probabilidades estimadas.
 
-\subsubsection{EPTS}\label{epts-1}
+\subsubsection{EPTS}\label{epts}
 
-Se procede a la implementación de los modelos de \textbf{regresión
-logística multinomial} para modelar la probabilidad estimada de cada
-tipo de anotación. Siguiendo la metodología propuesta con los modelos
-normales, los coeficientes de estos modelos serán obtenidos a través de
-distintas técnicas de regularización. Solo que para estos modelos la
-medida de error a minimizar fue la \emph{Deviance}.
+Se procede a la implementación de los modelos de regresión logística
+multinomial para modelar la probabilidad estimada de cada tipo de
+anotación. Siguiendo la metodología propuesta con los modelos normales,
+los coeficientes de estos modelos serán obtenidos a través de distintas
+técnicas de regularización. Solo que para estos modelos la medida de
+error a minimizar fue la \emph{Deviance}.
 
 Se decidió utilizar el parámetro
 \texttt{type.multinomial\ =\ "grouped"}, el cual aplica una penalización
@@ -2591,7 +2687,7 @@ de los distintos tipos de anotación, midiendo su contribución tanto
 ofensiva como defensiva en cada caso. Pero en base al objetivo de esta
 tesina, se buscará unificar este aporte en un único indice de
 rendimiento. Obteniendo así la métrica denominada: \emph{Expected
-Points} (\emph{EPTS}).
+Points} (EPTS).
 
 \begin{figure}[H]
 
@@ -2619,15 +2715,15 @@ modelos normales, la distribución de las métricas es más dispersa, con
 colas más pronunciadas. Debido en gran medida a la cantidad de
 coeficientes reducidos a 0 en la regularización.
 
-\subsubsection{wEPTS}\label{wepts-1}
+\subsubsection{wEPTS}\label{wepts}
 
-Una vez obtenidos los \(EPTS\) se calcula su versión ponderada según la
+Una vez obtenidos los EPTS se calcula su versión ponderada según la
 proporción de posesiones de su equipo en las que participó cada jugador.
 Este índice actúa como un \emph{shrinkage} sobre el EPTS penalizando a
 los jugadores con menos tiempo de juego, contrayendo sus EPTS hacia los
 puntos esperados del grupo de referencia. En caso de que el jugador si
-participara en todas las posesiones de su equipo, el \(wEPTS\) sería
-igual al \(EPTS\).
+participara en todas las posesiones de su equipo, el wEPTS sería igual
+al EPTS.
 
 Para evidenciar el efecto de esta ponderación, se compararon las
 distribuciones de EPTS y wEPTS obtenidas mediante \emph{Ridge}.
@@ -2644,8 +2740,8 @@ distribuciones de EPTS y wEPTS obtenidas mediante \emph{Ridge}.
 A través de la Figura 16 se observa que las mayores reducciones
 absolutas no se concentran necesariamente entre quienes presentan muy
 baja participación durante la temporada. Cuatro de los cinco jugadores
-mejor ubicados en el ranking ofensivo de \emph{EPTS} se encontraron
-entre los más afectados por la ponderación, a pesar de haber participado
+mejor ubicados en el ranking ofensivo de EPTS se encontraron entre los
+más afectados por la ponderación, a pesar de haber participado
 aproximadamente en el 40\%--45\% de las posesiones de sus equipos. Como
 consecuencia, registraron caídas relevantes en el ranking:
 
@@ -2696,8 +2792,8 @@ original y el valor de referencia. Por definición:
 Por lo tanto, luego de aplicar la ponderación, el jugador conserva una
 proporción de \(W_k\) de su distancia original respecto de \(EPTS_0\).
 De esta manera, quienes tienen menor participación siempre van a
-presentar una contracción \textbf{proporcional} mayor. Sin embargo, el
-cambio absoluto es:
+presentar una contracción proporcional mayor. Sin embargo, el cambio
+absoluto es:
 
 \[|wEPTS_k-EPTS_k|=(1-W_k)|EPTS_k-EPTS_0|\]
 
@@ -2709,11 +2805,10 @@ afectados en términos absolutos si su EPTS original está muy alejado de
 En conclusión, wEPTS no solo estabiliza las estimaciones de jugadores
 con escasa presencia, sino que modifica la interpretación del ranking.
 Esto se debe a que las dos medidas parecieran responder a problemas
-diferentes, wEPTS puede interpretarse como una \textbf{medida de
-contribución total del rendimiento de los jugadores a lo largo de toda
-la temporada}, mientras que EPTS describe principalmente el
-\textbf{rendimiento esperado durante las posesiones en las que el
-jugador se encuentra en cancha}.
+diferentes, wEPTS puede interpretarse como una medida de contribución
+total del rendimiento de los jugadores a lo largo de toda la temporada,
+mientras que EPTS describe principalmente el rendimiento esperado
+durante las posesiones en las que el jugador se encuentra en cancha.
 
 \subsection{Comparación de modelos}\label{comparaciuxf3n-de-modelos-1}
 
@@ -3002,11 +3097,11 @@ utiliza como variable respuesta los puntos anotados en cada posesión y,
 por lo tanto, su asociación con estas medidas descriptivas no constituye
 una validación completamente independiente
 
-\section{Conclusión}\label{conclusiuxf3n}
+\section{Conclusiones}\label{cap:conclusiones}
 
 \ldots{}
 
-\section{Discusión}\label{discusiuxf3n}
+\section{Discusión}\label{cap:discusion}
 
 Los modelos RAPM utilizados en este trabajo, al igual que la literatura
 previa (Rosenbaum, 2004; Sill, 2010; Damoulaki et al., 2025), consideran
@@ -3068,6 +3163,9 @@ with examples in R. Springer.}
 Gong, H., \& Chen, S. (2024). \emph{Estimating positional plus-minus in
 the NBA.} Journal of Quantitative Analysis in Sports.
 
+Hoerl, A. E., \& Kennard, R. W. (1970). \emph{Ridge regression: Biased
+estimation for nonorthogonal problems}. Technometrics, 12(1), 55--67.
+
 Hvattum, L. M. (2019). \emph{A comprehensive review of plus--minus
 ratings for evaluating individual players in team sports.} International
 Journal of Computer Science in Sport, 18, 1--23.
@@ -3100,6 +3198,10 @@ Analytics Conference.
 Tibshirani, R. (1996). \emph{Regression shrinkage and selection via the
 lasso.} Journal of the Royal Statistical Society: Series B
 (Methodological), 58(1), 267--288.
+
+Yuan, M., \& Lin, Y. (2006). \emph{Model selection and estimation in
+regression with grouped variables.} Journal of the Royal Statistical
+Society: Series B, 68(1), 49--67.
 
 Zou, H., \& Hastie, T. (2005). \emph{Regularization and Variable
 Selection via the Elastic Net.} Journal of the Royal Statistical
