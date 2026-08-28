@@ -584,13 +584,14 @@ texto.
 A partir de dicho archivo de texto, se utiliza la librería
 \texttt{BeautifulSoup} de Python para recorrer la estructura del DOM,
 identificando previamente los elementos que contienen los enlaces de
-cada partido. En la Figura 2, esta información se encuentra dentro de
-las clases ``fila-tabla-calendarios datos-estadisticos'', las cuales se
-recorren para obtener los respectivos enlaces a las páginas de
-estadísticas de cada partido, los nombres de los equipos participantes,
-la fecha y hora del encuentro y el resultado final, para cada uno de los
-378 partidos disputados en la temporada regular. Obteniendo finalmente
-un diccionario que contenga toda esta información.
+cada partido. En la Figura 2 se observa que esta información se
+encuentra dentro de las clases ``fila-tabla-calendarios
+datos-estadisticos'', las cuales se recorren para obtener los
+respectivos enlaces a las páginas de estadísticas de cada partido, los
+nombres de los equipos participantes, la fecha y hora del encuentro y el
+resultado final, para cada uno de los 378 partidos disputados en la
+temporada regular. Obteniendo finalmente un diccionario que contenga
+toda esta información.
 
 Dicho diccionario constituyó el insumo básico para el proceso posterior
 de scraping masivo, sobre los cuales se iterará para obtener así la
@@ -607,12 +608,12 @@ Una vez obtenido el listado completo de enlaces correspondientes a cada
 uno de los partidos en el período de estudio, se procedió a la
 extracción del registro de acciones del partido (\emph{play-by-play}).
 Para esto, se accedió individualmente a la página de estadísticas de
-cada encuentro, particularmente a la pestaña denominada ``en vivo'',
+cada encuentro, particularmente a la pestaña denominada ``En vivo'',
 donde se presenta el detalle secuencial de los eventos.
 
-En la Figura 3, esta pestaña del sitio web contiene una tabla que se
-genera dinámicamente y que registra, en orden cronológico, todas las
-acciones ocurridas durante el partido.
+La Figura 3 muestra esta pestaña del sitio web, la cual contiene una
+tabla que se genera dinámicamente donde se registran, en orden
+cronológico, todas las acciones ocurridas durante el partido.
 
 \begin{figure}[H]
 
@@ -636,15 +637,11 @@ Este procedimiento se aplicó de forma idéntica a todos los partidos de
 la temporada analizada, utilizando como insumo los enlaces previamente
 identificados. Finalmente, los registros de acciones obtenidos para cada
 encuentro fueron concatenados en una única base de datos
-\emph{play-by-play}, \textbf{incorporando un identificador de partido
-que permite distinguir y vincular las acciones correspondientes a cada
-juego. Asimismo, a partir de esta clave única asociada al encuentro (por
-ejemplo, GIMNASIA (CR) vs REGATAS (C) (03/05/2025 20:30)), fue posible
-identificar e incorporar a la base el equipo local y visitante
-correspondiente a cada partido. Esta información resultó útil en etapas
-posteriores del procesamiento donde al conocer el equipo asociado a cada
-acción, puede inferirse la condición del mismo (local o
-visitante).}cambiar, que contenga una explicación de como se forma el id
+\emph{play-by-play}. Para conservar la correspondencia entre cada acción
+y su partido de origen, se incorporó un identificador construido a
+partir de los nombres de los equipos participantes y la fecha y hora del
+encuentro. También se añadieron las variables correspondientes al equipo
+local y visitante, obtenidas previamente a partir del fixture.
 
 Es importante destacar que el \emph{dataset} resultante constituye una
 secuencia detallada de eventos, pero en su forma original no incluye una
@@ -734,7 +731,7 @@ Utilizando la tabla jugadores-equipos construida previamente, cada
 jugador en cancha fue asignado al equipo local o visitante, permitiendo
 reconstruir los quintetos de ambos equipos en cada acción del partido.
 Este paso resulta esencial para caracterizar el contexto en el que
-ocurre cada acción, ya que al conocer el equipo al que pertenece el
+ocurre cada acción, ya que, al conocer el equipo al que pertenece el
 jugador que realiza la acción podemos inferir simultáneamente los
 jugadores ofensivos y defensivos presentes en cancha en cada momento.
 
@@ -745,58 +742,30 @@ diez jugadores (cinco por equipo), se podrán identificar aquellas
 acciones en las que la cantidad total de jugadores en cancha fuera
 superior o inferior a dicho umbral.
 
-\subsubsection{Detección de errores: Carga de los
-datos}\label{detecciuxf3n-de-errores-carga-de-los-datos}
-
-Un factor importante a tener en cuenta es que los datos que se
-encuentran en el \emph{play-by-play} son cargados de manera manual por
-las mesas de control a medida que se desarrolla el partido. Esta tarea
-se realiza en el contexto altamente dinámico de un partido, donde las
-acciones se suceden con rapidez, lo que puede dar lugar a ciertos
-errores en la registración de eventos. En consecuencia, el conjunto de
-datos original puede contener inconsistencias que deben ser
-identificadas y corregidas antes de su utilización en este trabajo.
-
-Para intentar detectar posibles errores en la conformación de los
-quintetos en cancha, se construyó , tal como se menciono anteriormente,
-una variable que contabiliza la cantidad de jugadores presentes en cada
-quinteto en cada una de las acciones del partido. Dicha variable debería
-contabilizar un valor menor o igual a cinco para ambos equipos en todas
-las acciones registradas.
-
-De esta manera se detectó un caso puntual en el partido de ZARATE BASKET
-vs ATENAS (C), donde el quinteto local registraba 6 jugadores en cancha.
-Esta inconsistencia se observó desde el inicio del segundo cuarto (con
-10:00 minutos restantes) hasta el minuto 4:42 del mismo período.
-
-Para subsanar este inconveniente, se realizó una revisión manual del
-\emph{play-by-play} original disponible en la página web y se pudo
-identificar que al comienzo del segundo cuarto se había registrado
-incorrectamente el ingreso de seis jugadores en lugar de cinco, lo cual
-constituye un error atribuible a la mesa de control. Una vez
-identificada esta problemática, se reviso el contexto de las siguientes
-jugadas y pudo determinarse que el jugador MERCHANT, EDGAR HENRY no se
-encontraba realmente en cancha durante ese tramo del partido.
-
-En consecuencia, se procedió a corregir el error eliminando al jugador
-mencionado de la variable correspondiente al quinteto local en las
-acciones afectadas, así como ajustando el conteo de jugadores en cancha.
-De esta manera, se restauró la consistencia lógica de los quintetos y se
-garantizó la validez de la información utilizada en las etapas
-posteriores del análisis.
+Una vez reconstruidos los quintetos en cancha para cada acción, se
+realizaron controles de consistencia sobre su conformación, verificando
+que la cantidad de jugadores registrados para cada equipo fuera
+compatible con una situación regular de juego. Estos controles resultan
+especialmente relevantes debido a que la información del
+\emph{play-by-play} es cargada manualmente por las mesas de control
+durante el desarrollo altamente dinámico de un partido los partidos, por
+lo que pueden presentarse errores en la registración de eventos. El
+detalle de los controles realizados y de las inconsistencias detectadas
+y corregidas se presenta en el Anexo.
 
 \subsection{\texorpdfstring{Generación de la base de datos
 \emph{poss-by-poss}}{Generación de la base de datos poss-by-poss}}\label{generaciuxf3n-de-la-base-de-datos-poss-by-poss}
 
-Como resultado de las etapas anteriores, se pudo obtener una base de
-datos unificada donde cada fila se corresponde con cada una de las
-jugadas o acciones que suceden dentro del partido, incluyendo
-información relevante para este trabajo como lo es el marcador del
-partido al momento de la acción, la composición de los quintetos en
-cancha y la condición de local o visitante. Sin embargo, para poder
-aplicar los modelos estadísticos mencionados, resulta necesario agrupar
-estas acciones en \textbf{posesiones}, entendidas como el conjunto de
-acciones ocurridas antes de que cambie el control de la pelota.
+Como resultado del trabajo realizado en la Sección 5.1 y 5.2, se pudo
+obtener una base de datos unificada donde cada fila se corresponde con
+cada una de las jugadas o acciones que suceden dentro del partido,
+incluyendo información relevante para este trabajo como lo es el
+marcador del partido al momento de la acción, la composición de los
+quintetos en cancha y la condición de local o visitante de los equipos.
+Sin embargo, para poder aplicar los modelos estadísticos mencionados,
+resulta necesario agrupar estas acciones en \textbf{posesiones},
+entendidas como el conjunto de acciones ocurridas antes de que cambie el
+control de la pelota.
 
 Para llevar a cabo este proceso fue necesario definir una metodología
 adecuada que permita diferenciar qué acciones pertenecían a una misma
@@ -829,9 +798,7 @@ se llegó a la definición de que el conjunto de acciones presentes en el
 Cuadro 1 suelen ser siempre acciones intrusas o nunca resultan
 informativas para la delimitación de las posesiones. En consecuencia se
 ha decidido eliminar las filas en las que ocurren estas acciones en la
-base de datos.
-
-Estas acciones son:
+base de datos. Estas acciones son:
 
 \begin{table}[H]
 \centering
@@ -948,12 +915,12 @@ evitar errores en el conteo de posesiones.
 \subsubsection{Identificación de la finalización de las
 posesiones}\label{identificaciuxf3n-de-la-finalizaciuxf3n-de-las-posesiones}
 
-Una vez realizada está tarea de preprocesamiento anteriormente
-mencionada, se incorporó un identificador preliminar de posesión, basado
-en dos criterios fundamentales: el cambio de equipo en control del balón
-y el cambio de cuarto. De manera que cada vez que ocurre alguno de estos
-eventos, se identifica como el inicio de una nueva posesión. Esto se
-encuentra ejemplificado en el Cuadro 2.
+Una vez realizadas estas tareas de preprocesamiento, se incorporó un
+identificador preliminar de posesión, basado en dos criterios
+fundamentales: el cambio de equipo en control del balón y el cambio de
+cuarto. De manera que cada vez que ocurre alguno de estos eventos, se
+identifica como el inicio de una nueva posesión. Esto se encuentra
+ejemplificado en el Cuadro 2.
 
 \begin{table}[H]
 \centering
@@ -969,7 +936,6 @@ Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión\\
 1 & 00:09:12 & REBOTE DEFENSIVO \#11 & VILDOZA, JOSE IGNACIO & BOCA &  & 4\\
 1 & 00:09:13 & TIRO DE 3 FALLADO & BUEMO, CARLOS EMANUEL & ATENAS &  & 3\\
 1 & 00:09:18 & FALTA RECIBIDA & BUENDIA, CARLOS MANUEL & ATENAS &  & 3\\
-1 & 00:09:31 & ASISTENCIA & VILDOZA, JOSE IGNACIO & BOCA &  & 2\\
 1 & 00:09:32 & TRIPLE & PIÑERO, FACUNDO & BOCA &  & 2\\
 1 & 00:09:42 & REBOTE DEFENSIVO \#11 & VILDOZA, JOSE IGNACIO & BOCA &  & 2\\
 1 & 00:09:43 & TIRO DE 2 FALLADO & OBERTO, JUAN CRUZ MATEO & ATENAS &  & 1\\
@@ -977,9 +943,10 @@ Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión\\
 \end{tabular}}
 \end{table}
 
-De este modo, se seleccionaron las filas correspondientes a los eventos
-finales de cada posesión, descartando las acciones intermedias que no
-determinan su conclusión.
+Una vez identificadas las posesiones, se conservó para cada una de ellas
+la última acción registrada, correspondiente al cierre de la posesión, y
+se descartaron las acciones intermedias. De esta forma, la base pasó de
+contener una fila por acción a contener una fila por posesión.
 
 \subsubsection{Cálculo y validación de los puntos por
 posesión}\label{cuxe1lculo-y-validaciuxf3n-de-los-puntos-por-posesiuxf3n}
@@ -989,8 +956,10 @@ cada posesión, se calculó la diferencia entre el puntaje acumulado del
 equipo atacante al final de la posesión y el puntaje acumulado
 registrado al cierre de la posesión inmediatamente anterior. De esta
 manera, cada posesión queda caracterizada por una variable discreta que
-representa su resultado ofensivo en términos de puntos anotados. Tal
-como se presenta en el Cuadro 3.
+representa su resultado ofensivo en términos de puntos anotados. El
+Cuadro 3 muestra el resultado de este procedimiento para las mismas
+posesiones presentadas previamente en el Cuadro 2, ahora reducidas a una
+fila por posesión e incorporando la cantidad de puntos anotados.
 
 \begin{table}[H]
 \centering
@@ -1004,7 +973,7 @@ Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión & Puntos\\
 \midrule
 1 & 00:08:54 & TIRO DE 3 FALLADO & STENTA, NICOLAS & BOCA &  & 4 & 0\\
 1 & 00:09:13 & TIRO DE 3 FALLADO & BUEMO, CARLOS EMANUEL & ATENAS &  & 3 & 0\\
-1 & 00:09:31 & ASISTENCIA & VILDOZA, JOSE IGNACIO & BOCA &  & 2 & 3\\
+1 & 00:09:32 & TRIPLE & PIÑERO, FACUNDO & BOCA &  & 2 & 3\\
 1 & 00:09:43 & TIRO DE 2 FALLADO & OBERTO, JUAN CRUZ MATEO & ATENAS &  & 1 & 0\\
 \bottomrule
 \end{tabular}}
@@ -1023,49 +992,8 @@ partidos, el marcador acumulado informado en el código HTML presentaba
 errores de actualización. Como consecuencia, el cálculo inicial de los
 puntos anotados en cada posesión, basado en la diferencia entre los
 marcadores al inicio y al final de la posesión, producía valores
-incorrectos.
-
-Ejemplo: \emph{QUIMSA vs BOCA (019/10/2024 11:30)}
-
-Al revisar uno de los partidos con presencia de puntos incompatibles, se
-detectó que, en el minuto 02:27 del tercer cuarto, el marcador parcial
-reflejaba correctamente el resultado del partido (64 - 42 a favor de
-QUIMSA). Sin embargo, la acción de anotación siguiente, el TIRO LIBRE
-ANOTADO del jugador de BOCA, PIÑERO, FACUNDO, en el minuto 02:21 del
-tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43. Se
-observa entonces que el marcador parcial aumentó en tres puntos para el
-equipo local (QUIMSA) entre una acción y la siguiente, sin que existiera
-ninguna anotación registrada en el \emph{play-by-play} que justificara
-dicha variación (Figura 8).
-
-\begin{figure}[H]
-
-{\centering \includegraphics[width=0.5\linewidth]{img/error_puntos_1_2_} 
-
-}
-
-\caption{Comienzo de secuencia de acciones con errores en la carga del marcador}\label{fig:unnamed-chunk-14}
-\end{figure}
-
-Estos errores siguieron presentandose en las siguientes acciones de
-anotación hasta el minuto 00:40, donde, con el TRIPLE del jugador de
-BOCA, CUELLO, MARTIN NICOLAS, el marcador parcial se reestablece a su
-valor real en ese momento (70 - 50), esta secuencia queda reflejada en
-la Figura 9.
-
-\begin{figure}[H]
-
-{\centering \includegraphics[width=0.5\linewidth]{img/error_puntos_2_2_} 
-
-}
-
-\caption{Fin de secuencia de acciones con errores en la carga del marcador}\label{fig:unnamed-chunk-15}
-\end{figure}
-
-Al presentarse errores en el marcador parcial de cada uno de los
-equipos, los puntos por posesión calculados como la diferencia del
-marcador de cada equipo con respecto al marcador parcial de la posesión
-anterior también eran erróneos.
+incorrectos. En el Anexo se presenta en detalle uno de los casos
+detectados.
 
 Para subsanar estos inconvenientes, se redefinió el procedimiento de
 cálculo de los puntos por posesión. En lugar de utilizar el marcador
@@ -1083,28 +1011,32 @@ Como resultado de esta corrección, la variable puntos por posesión pasó
 a tomar únicamente valores comprendidos entre 0 y 7 puntos, eliminándose
 los valores imposibles detectados inicialmente.
 
-Cabe destacar que las posesiones obtenidas seguían presentando puntos
-inusualmente altos en algunas posesiones, por lo que posteriormente
-también se revisaron los partidos donde esas situaciones sucedían.
-Durante esta revisión se identificaron inconsistencias en la secuencia
-cronológica de algunas acciones registradas en el \emph{play-by-play}.
-En particular, se identificaron situaciones en las que dos acciones de
-anotación del mismo equipo aparecían de manera consecutiva, sin que
-existiera una acción intermedia del equipo rival que justificara la
-continuidad de la posesión. Estas inconsistencias pueden deberse a
-errores en la carga manual de la información realizada durante el
-partido y constituyen una limitación inherente a la calidad de los datos
-disponibles. Si bien estos casos fueron poco frecuentes, generan
-incertidumbre principalmente en las posesiones con cinco, seis o siete
-puntos, cuya ocurrencia es excepcional en condiciones normales de juego.
+Es importante destacar que, aún después de estas correcciones, algunas
+de las posesiones continuaron presentando puntos inusualmente altos, por
+lo que también se realizó una revisión del contexto de aquellas
+posesiones con resultados extremos. Mediante lo cual se identificaron
+inconsistencias en la secuencia cronológica de algunas acciones
+registradas en el \emph{play-by-play}. En particular, se identificaron
+situaciones en las que dos acciones de anotación del mismo equipo
+aparecían de manera consecutiva, sin que existiera una acción intermedia
+del equipo rival que justificara la continuidad de la posesión. Estas
+inconsistencias pueden deberse a errores en la carga manual de la
+información realizada durante el partido y constituyen una limitación
+inherente a la calidad de los datos disponibles. Si bien estos casos
+fueron poco frecuentes, generan incertidumbre principalmente en las
+posesiones con cinco, seis o siete puntos, cuya ocurrencia es muy poco
+común en condiciones normales de juego.
+
 En este sentido, mientras que en la base de datos utilizada por
 Damoulaki et al.~(2025) las posesiones con más de 3 puntos representan
 aproximadamente el 0,1 \% del total, en la base construida para este
-trabajo dicha proporción asciende al 0,3 \%, lo que resulta consistente
-con la presencia de errores de carga no detectados en la totalidad de
-los partidos. Por los alcances de esta tesina, estas observaciones
-fueron conservadas en la base de datos; esta limitación será retomada en
-el capítulo de Discusión.
+trabajo dicha proporción asciende al 0,3 \%, lo que podría ser
+consistente con la presencia de errores de carga no detectados en la
+totalidad de los partidos. Sin embargo, no puede descartarse que también
+responda a la idiosincrasia propia del juego en la Liga Nacional de
+Básquetbol de Argentina, en comparación con la NBA. Por los alcances de
+esta tesina, estas observaciones fueron conservadas en la base de datos;
+esta limitación será retomada en el capítulo de Discusión.
 
 \subsubsection{Identificación de jugadores ofensivos y defensivos en
 cancha}\label{identificaciuxf3n-de-jugadores-ofensivos-y-defensivos-en-cancha}
@@ -1606,7 +1538,7 @@ mismos es mayor.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-16}Pares de jugadores que compartieron la mayor proporción de posesiones durante la temporada regular.}
+\caption{\label{tab:unnamed-chunk-14}Pares de jugadores que compartieron la mayor proporción de posesiones durante la temporada regular.}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{11}{13}\selectfont
@@ -1661,7 +1593,7 @@ más de 4000 posesiones.
 
 }
 
-\caption{Distribución de posesiones disputadas por jugador}\label{fig:unnamed-chunk-17}
+\caption{Distribución de posesiones disputadas por jugador}\label{fig:unnamed-chunk-15}
 \end{figure}
 
 Como se mencionó en la sección 2.3, las estimaciones de los coeficientes
@@ -2159,7 +2091,7 @@ El promedio de puntos por posesión en la temporada fue de 1,04 pts.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-18}Distribución de puntos por posesión}
+\caption{\label{tab:unnamed-chunk-16}Distribución de puntos por posesión}
 \centering
 \fontsize{11}{13}\selectfont
 \begin{tabular}[t]{rrr}
@@ -2190,7 +2122,7 @@ secciones siguientes.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-19}Tabla de posiciones de la Liga Nacional 2024/2025}
+\caption{\label{tab:unnamed-chunk-17}Tabla de posiciones de la Liga Nacional 2024/2025}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{11}{13}\selectfont
@@ -2243,7 +2175,7 @@ mitad de la tabla de posiciones.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-20}Jugadores con mayor plus-minus}
+\caption{\label{tab:unnamed-chunk-18}Jugadores con mayor plus-minus}
 \centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lll}
@@ -2275,7 +2207,7 @@ Cuadro 8.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-21}Jugadores con menor plus-minus}
+\caption{\label{tab:unnamed-chunk-19}Jugadores con menor plus-minus}
 \centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lll}
@@ -2327,7 +2259,7 @@ posesiones en las que participó.
 
 }
 
-\caption{Ranking de plus-minus ponderado por cantidad de posesiones}\label{fig:unnamed-chunk-22}
+\caption{Ranking de plus-minus ponderado por cantidad de posesiones}\label{fig:unnamed-chunk-20}
 \end{figure}
 
 Al observar los resultados, los valores más extremos de la distribución
@@ -2349,7 +2281,7 @@ bajos del plus-minus por cada 100 posesiones bajo esta condición.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-23}Jugadores con mayor plus-minus por cada 100 posesiones}
+\caption{\label{tab:unnamed-chunk-21}Jugadores con mayor plus-minus por cada 100 posesiones}
 \centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{llrrl}
@@ -2377,7 +2309,7 @@ destacando en un equipo de mitad de tabla.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-24}Jugadores con menor plus-minus por cada 100 posesiones}
+\caption{\label{tab:unnamed-chunk-22}Jugadores con menor plus-minus por cada 100 posesiones}
 \centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{llrrl}
@@ -2426,7 +2358,7 @@ presentan, en su mayoría, una valoración negativa.
 
 }
 
-\caption{plus-minus cada 100 posesiones por equipo}\label{fig:unnamed-chunk-25}
+\caption{plus-minus cada 100 posesiones por equipo}\label{fig:unnamed-chunk-23}
 \end{figure}
 
 Pensando en mitigar el efecto, tanto positivo como negativo, que genera
@@ -2450,7 +2382,7 @@ dentro de su equipo.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-26}Jugadores con mayor plus-minus estandarizado}
+\caption{\label{tab:unnamed-chunk-24}Jugadores con mayor plus-minus estandarizado}
 \centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{llrrl}
@@ -2497,7 +2429,7 @@ considerablemente más favorable que el de sus compañeros.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-27}Jugadores con peor plus-minus estandrarizado}
+\caption{\label{tab:unnamed-chunk-25}Jugadores con peor plus-minus estandrarizado}
 \centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{llrrl}
@@ -2563,7 +2495,7 @@ Los resultados obtenidos se presentan en el Cuadro 13.
 
 \begin{table}[!h]
 \centering
-\caption{\label{tab:unnamed-chunk-28}Técnicas de regularización y valores de hiperparámetros.}
+\caption{\label{tab:unnamed-chunk-26}Técnicas de regularización y valores de hiperparámetros.}
 \centering
 \fontsize{11}{13}\selectfont
 \begin{tabular}[t]{>{\raggedright\arraybackslash}p{3.6cm}>{\centering\arraybackslash}p{1.6cm}>{\centering\arraybackslash}p{2.2cm}>{\centering\arraybackslash}p{2.5cm}>{\centering\arraybackslash}p{4.3cm}}
@@ -2610,7 +2542,7 @@ efecto inferior a 0,1 puntos cada 100 posesiones.
 
 }
 
-\caption{Distribución de RAPMs según regularización}\label{fig:unnamed-chunk-29}
+\caption{Distribución de RAPMs según regularización}\label{fig:unnamed-chunk-27}
 \end{figure}
 
 La Figura 14 presenta la distribución de los coeficientes activos luego
@@ -2647,7 +2579,7 @@ simultáneamente para todos los tipos de anotación.
 
 \begin{table}[!h]
 \centering
-\caption{\label{tab:unnamed-chunk-30}Técnicas de regularización y valores de hiperparámetros.}
+\caption{\label{tab:unnamed-chunk-28}Técnicas de regularización y valores de hiperparámetros.}
 \centering
 \fontsize{11}{13}\selectfont
 \begin{tabular}[t]{>{\raggedright\arraybackslash}p{3.6cm}>{\centering\arraybackslash}p{1.6cm}>{\centering\arraybackslash}p{2.2cm}>{\centering\arraybackslash}p{2.5cm}>{\centering\arraybackslash}p{4.3cm}}
@@ -2695,7 +2627,7 @@ Points} (EPTS).
 
 }
 
-\caption{Distribución de EPTS ofensivos y defensivos según regularización}\label{fig:unnamed-chunk-31}
+\caption{Distribución de EPTS ofensivos y defensivos según regularización}\label{fig:unnamed-chunk-29}
 \end{figure}
 
 Al analizar las métricas ofensivas y defensivas generadas por cada
@@ -2734,7 +2666,7 @@ distribuciones de EPTS y wEPTS obtenidas mediante \emph{Ridge}.
 
 }
 
-\caption{Comparación de distribuciones: EPTS vs wEPTS}\label{fig:unnamed-chunk-32}
+\caption{Comparación de distribuciones: EPTS vs wEPTS}\label{fig:unnamed-chunk-30}
 \end{figure}
 
 A través de la Figura 16 se observa que las mayores reducciones
@@ -2769,7 +2701,7 @@ Figura 17 también se observa un comportamiento similar al mencionado.
 
 }
 
-\caption{Comparación de distribuciones: EPTS vs wEPTS}\label{fig:unnamed-chunk-33}
+\caption{Comparación de distribuciones: EPTS vs wEPTS}\label{fig:unnamed-chunk-31}
 \end{figure}
 
 Donde destaca \texttt{SANDERS,\ NAKIE\ GERALD}, jugador que presentó la
@@ -2783,9 +2715,11 @@ encontramos, al igual que sucedió con la métrica ofensiva, al jugador
 al 13vo en el nuevo ranking. Identificandose como uno de los jugadores
 más afectados por esta nueva métrica ponderada.
 
-Este resultado se explica porque la magnitud absoluta del ajuste depende
-conjuntamente de la participación y de la distancia entre el EPTS
-original y el valor de referencia. Por definición:
+Vemos que los jugadores más afectados en términos absolutos son los que
+están en las primeras posiciones de los rankingg, esto se debe a
+que\ldots{} Este resultado se explica porque la magnitud absoluta del
+ajuste depende conjuntamente de la participación y de la distancia entre
+el EPTS original y el valor de referencia. Por definición:
 
 \[wEPTS_k-EPTS_0=W_k(EPTS_k-EPTS_0)\]
 
@@ -2826,7 +2760,7 @@ Los resultados fueron los siguientes:
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-34}RMSE out-of-fold para cada modelo}
+\caption{\label{tab:unnamed-chunk-32}RMSE out-of-fold para cada modelo}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{11}{13}\selectfont
@@ -2864,7 +2798,7 @@ simulaciones del modelo multinomial.
 
 }
 
-\caption{Simulación de distribución empírica}\label{fig:unnamed-chunk-35}
+\caption{Simulación de distribución empírica}\label{fig:unnamed-chunk-33}
 \end{figure}
 
 Para cada categoría de anotación se representó la distribución de las
@@ -2906,7 +2840,7 @@ sobre un escenario base.
 
 }
 
-\caption{Análisis de consistencia de los rankings}\label{fig:unnamed-chunk-36}
+\caption{Análisis de consistencia de los rankings}\label{fig:unnamed-chunk-34}
 \end{figure}
 
 Las correlaciones de Pearson obtenidas entre los rankings estimados en
@@ -2955,7 +2889,7 @@ criterios mencionados en el apartado metodológico:
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-37}Comparación de rankings según criterios de validación externa}
+\caption{\label{tab:unnamed-chunk-35}Comparación de rankings según criterios de validación externa}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{11}{13}\selectfont
@@ -2994,7 +2928,7 @@ los galardonados tanto en los rankings EPTS como en los wEPTS.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-38}Comparación de los rankings según estadísticas tradicionales del box score}
+\caption{\label{tab:unnamed-chunk-36}Comparación de los rankings según estadísticas tradicionales del box score}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{11}{13}\selectfont
@@ -3056,7 +2990,7 @@ resultados obtenidos se presentan en el Cuadro 18.
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-39}Concordancia entre los rankings estimados y las medidas descriptivas basadas en plus-minus}
+\caption{\label{tab:unnamed-chunk-37}Concordancia entre los rankings estimados y las medidas descriptivas basadas en plus-minus}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{11}{13}\selectfont
@@ -3206,5 +3140,92 @@ Society: Series B, 68(1), 49--67.
 Zou, H., \& Hastie, T. (2005). \emph{Regularization and Variable
 Selection via the Elastic Net.} Journal of the Royal Statistical
 Society: Series B, 67(2), 301--320.
+
+\section{Anexo}\label{anexo}
+
+\subsection{Controles de consistencia y corrección de errores en la base
+de
+datos}\label{controles-de-consistencia-y-correcciuxf3n-de-errores-en-la-base-de-datos}
+
+Durante el proceso de generación y preprocesamiento de la base de datos
+se implementaron distintos controles de consistencia con el objetivo de
+detectar posibles errores en la información obtenida mediante \emph{web
+scraping}. Debido a que los registros del \emph{play-by-play} son
+cargados manualmente por las mesas de control durante el desarrollo de
+los partidos, la fuente original puede presentar inconsistencias que
+requieren ser identificadas y, cuando resulte posible, corregidas antes
+de su utilización.
+
+Para detectar posibles errores en la conformación de los quintetos en
+cancha, se construyó una variable que contabiliza la cantidad de
+jugadores presentes en cada quinteto para cada una de las acciones del
+partido. Dicha variable debería contabilizar un valor menor o igual a
+cinco para ambos equipos en todas las acciones registradas.
+
+De esta manera se detectó un caso puntual en el partido de ZARATE BASKET
+vs ATENAS (C), donde el quinteto local registraba seis jugadores en
+cancha. Esta inconsistencia se observó desde el inicio del segundo
+cuarto, con 10:00 minutos restantes, hasta el minuto 4:42 del mismo
+período.
+
+Para subsanar este inconveniente, se realizó una revisión manual del
+\emph{play-by-play} original disponible en la página web y se pudo
+identificar que al comienzo del segundo cuarto se había registrado
+incorrectamente el ingreso de seis jugadores en lugar de cinco, lo cual
+constituye un error atribuible a la mesa de control. Una vez
+identificada esta problemática, se reviso el contexto de las siguientes
+jugadas y pudo determinarse que el jugador MERCHANT, EDGAR HENRY no se
+encontraba realmente en cancha durante ese tramo del partido.
+
+En consecuencia, se procedió a corregir el error eliminando al jugador
+mencionado de la variable correspondiente al quinteto local en las
+acciones afectadas, así como ajustando el conteo de jugadores en cancha.
+De esta manera, se restauró la consistencia lógica de los quintetos y se
+garantizó la validez de la información utilizada en las etapas
+posteriores del análisis.
+
+\subsection{\texorpdfstring{Detección de errores en el marcador parcial:
+caso \emph{QUIMSA vs BOCA (019/10/2024
+11:30)}}{Detección de errores en el marcador parcial: caso QUIMSA vs BOCA (019/10/2024 11:30)}}\label{detecciuxf3n-de-errores-en-el-marcador-parcial-caso-quimsa-vs-boca-019102024-1130}
+
+Al revisar uno de los partidos con presencia de puntos incompatibles, se
+detectó que en el minuto 02:27 del tercer cuarto, el marcador parcial
+reflejaba correctamente el resultado del partido (64 - 42 a favor de
+QUIMSA). Sin embargo, la acción de anotación siguiente, el TIRO LIBRE
+ANOTADO del jugador de BOCA, PIÑERO, FACUNDO, en el minuto 02:21 del
+tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43. Se
+observa entonces que el marcador parcial aumentó en tres puntos para el
+equipo local (QUIMSA) entre una acción y la siguiente, sin que existiera
+ninguna anotación registrada en el \emph{play-by-play} que justificara
+dicha variación (Figura 8).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.5\linewidth]{img/error_puntos_1_2_} 
+
+}
+
+\caption{Comienzo de secuencia de acciones con errores en la carga del marcador}\label{fig:unnamed-chunk-38}
+\end{figure}
+
+Estos errores siguieron presentandose en las siguientes acciones de
+anotación hasta el minuto 00:40, donde, con el TRIPLE del jugador de
+BOCA, CUELLO, MARTIN NICOLAS, el marcador parcial se reestablece a su
+valor real en ese momento (70 - 50), esta secuencia queda reflejada en
+la Figura 9.
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.5\linewidth]{img/error_puntos_2_2_} 
+
+}
+
+\caption{Fin de secuencia de acciones con errores en la carga del marcador}\label{fig:unnamed-chunk-39}
+\end{figure}
+
+Al presentarse errores en el marcador parcial de cada uno de los
+equipos, los puntos por posesión calculados como la diferencia del
+marcador de cada equipo con respecto al marcador parcial de la posesión
+anterior también eran erróneos.
 
 \end{document}
