@@ -3462,6 +3462,7 @@ freq_empirica <- as.numeric(prop.table(table(factor(y_multi, levels = valores)))
 
 
 ```
+
 ```{r}
 
 df_plot <- tibble(
