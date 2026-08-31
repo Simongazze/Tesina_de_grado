@@ -1819,13 +1819,12 @@ entre contracción y selección de variables.
 \subsection{Selección de hiperparámetros
 óptimos}\label{selecciuxf3n-de-hiperparuxe1metros-uxf3ptimos}
 
-Los modelos que incorporan técnicas de regularización (\emph{Ridge},
-\emph{Lasso} y \emph{Elastic Net}) requieren la selección de uno o más
-hiperparámetros que controlan la intensidad de la penalización. En
-particular, \emph{Ridge} y \emph{Lasso} dependen únicamente del
-parámetro de regularización \(\lambda\), mientras que \emph{Elastic Net}
-incorpora además el parámetro \(\alpha\), que determina la combinación
-entre las penalizaciones \(L_1\) y \(L_2\).
+Los modelos que incorporan técnicas de regularización (Ridge, Lasso y
+Elastic Net) requieren la selección de uno o más hiperparámetros que
+controlan la intensidad de la penalización. En particular, Ridge y Lasso
+dependen únicamente del parámetro de regularización \(\lambda\),
+mientras que Elastic Net incorpora además el parámetro \(\alpha\), que
+determina la combinación entre las penalizaciones \(L_1\) y \(L_2\).
 
 La selección de estos hiperparámetros se realizó mediante una búsqueda
 exhaustiva (\emph{Grid Search}) sobre un conjunto predefinido de valores
@@ -1835,6 +1834,11 @@ Cross-Validation}), seleccionándose aquella que minimizó el error
 cuadrático medio en la regresión lineal múltiple y el \emph{deviance} en
 la regresión logística multinomial, calculados como el promedio de
 dichas métricas sobre los conjuntos de validación.
+
+La \emph{deviance} es una medida de discrepancia basada en la
+log-verosimilitud, que compara el ajuste del modelo estimado con el de
+un modelo saturado. Valores menores indican una menor discrepancia
+respecto de los resultados observados y, por lo tanto, un mejor ajuste.
 
 Es importante resaltar que se decidió asignar \textbf{partidos
 completos} dentro de cada partición. De este modo, las posesiones de un
@@ -1997,12 +2001,14 @@ Fuente: Hvattum (2023), \textit{How to evaluate football player ratings?} [Video
 externa}\label{criterios-de-validaciuxf3n-externa}
 
 Con el objetivo de evaluar la validez de los rankings obtenidos mediante
-los distintos modelos, se utilizaron una serie de criterios de
-validación externa. Estos criterios se consideran externos y
-``objetivos'' debido a que se construyen a partir de información
-independiente de la utilizada para el ajuste de los modelos, por lo que
-permiten evaluar la capacidad de las métricas para identificar a
-jugadores reconocidos por su buen desempeño.
+los distintos modelos, se evaluaron distintos criterios externos basados
+en la propuesta de Damoulaki et al.~(2025), adaptados a la información
+disponible para la Liga Nacional de Básquetbol. Estos criterios no
+intervienen directamente en la estimación de los coeficientes de los
+modelos y permiten contrastar los rankings obtenidos con reconocimientos
+individuales, niveles de participación y estadísticas tradicionales de
+los jugadores, por lo que permiten evaluar la capacidad de las métricas
+para identificar a jugadores reconocidos por su buen desempeño.
 
 El conjunto de criterios elegidos fue el siguiente:
 
@@ -2023,35 +2029,42 @@ El conjunto de criterios elegidos fue el siguiente:
 \end{itemize}
 
 En total, se identificaron 81 jugadores que recibieron al menos un
-galardón o que integraron alguna terna durante la temporada en estudio,
-de los cuales 14 obtuvieron alguno de los premios de mayor relevancia.
-Como medida de validación se calculó el porcentaje de jugadores ubicados
-en el top 50 de cada ranking RAPM que recibieron al menos un galardón o
-integraron alguna terna.
+galardón o que integraron alguna terna durante la temporada en estudio.
+Como medida de validación, se consideró para cada modelo a los 50
+primeros jugadores del ranking ofensivo y los 50 primeros del defensivo
+de manera conjunta, y se identificó cuántos de los 81 jugadores
+galardonados aparecían en al menos uno de estos rankings.
 
 \begin{itemize}
 \item
   \emph{Criterio de jugadores con poco tiempo de juego}: Se
   identificaron los 50 jugadores con menor cantidad de minutos
-  disputados durante la temporada y se calculó la proporción de ellos
-  que aparecían entre los 50 mejores jugadores según cada ranking
-  ofensivo y defensivo. Dado que la escasa participación suele generar
-  estimaciones inestables, se espera que un modelo con mejor desempeño
-  ubique a una menor cantidad de estos jugadores en las primeras
-  posiciones del ranking.
+  disputados entre los jugadores incluidos en los modelos y se calculó
+  la proporción de ellos que aparecían entre los 50 mejores jugadores
+  según cada ranking ofensivo y defensivo. Dado que la escasa
+  participación suele generar estimaciones inestables, se espera que un
+  modelo con mejor desempeño ubique a una menor cantidad de estos
+  jugadores en las primeras posiciones de los rankings.
 \item
-  \emph{Criterio de jugadores titulares}: Se calculó la proporción de
-  jugadores ubicados en el top 50 de cada ranking RAPM que formaban
-  parte del grupo de titulares de sus respectivos equipos, definidos
-  como los seis jugadores con mayor cantidad de minutos disputados
-  durante la temporada.
+  \emph{Criterio de jugadores titulares}: Se definieron como titulares a
+  los seis jugadores con mayor cantidad de minutos disputados de cada
+  equipo. Para cada modelo se calculó la proporción de las 100
+  posiciones correspondientes al top 50 ofensivo y al top 50 defensivo
+  que estaban ocupadas por jugadores pertenecientes a este grupo. Una
+  mayor proporción indica una mayor presencia de jugadores con alto
+  volumen de juego entre los mejor valorados. También se calculó, de
+  manera complementaria, la proporción de las 100 posiciones
+  correspondientes a los últimos 50 puestos de cada ranking que estaban
+  ocupadas por jugadores titulares, con el objetivo de evaluar su
+  presencia entre los jugadores a los que los modelos asignan las
+  valoraciones más bajas.
 \item
   \emph{Criterio del box score}: Se identificaron los 50 mejores
   jugadores según distintas estadísticas tradicionales del \emph{box
   score}. Para la evaluación ofensiva se consideraron los puntos, las
   asistencias y los rebotes ofensivos, mientras que para la evaluación
   defensiva se utilizaron los rebotes defensivos, los recuperos y las
-  tapas. Posteriormente, se calculó la proporción de coincidencia entre
+  tapas. Posteriormente, se calculó la proporción de coincidencias entre
   estos grupos de jugadores y el top 50 de los rankings ofensivos y
   defensivos, respectivamente.
 \end{itemize}
@@ -2843,16 +2856,24 @@ niveles de consistencia.
 
 \subsubsection{Validación externa}\label{validaciuxf3n-externa}
 
-Las evaluaciones anteriores permitieron analizar la capacidad de ajuste
-de los modelos y la estabilidad de las valoraciones obtenidas ante
-cambios en la muestra utilizada. Sin embargo, resulta importante
-complementar estos criterios con validaciones externas que permitan
-determinar en qué medida los rankings representan adecuadamente el
-rendimiento de los jugadores, o la percepción del rendimiento que los
-especialistas tienen sobre los mismos.
+Las evaluaciones realizadas a lo largo de la Sección 5.2 permitieron
+analizar la capacidad de ajuste de los modelos y la estabilidad de las
+valoraciones obtenidas ante cambios en la muestra utilizada. Sin
+embargo, resulta importante complementar estos criterios con
+validaciones externas que permitan determinar en qué medida los rankings
+representan adecuadamente el rendimiento de los jugadores, o la
+percepción del rendimiento que los especialistas tienen sobre los
+mismos. Por este motivo, la evaluación se complementa mediante los
+criterios de validación externa definidos en la Sección 5.3.3.
 
-En un primer paso vamos a comparar las métricas con los primeros tres
-criterios mencionados en el apartado metodológico:
+Estos criterios comparan a los rankings obtenidos con distintas
+referencias vinculadas al desempeño de los jugadores, como los
+reconocimientos recibidos durante la temporada, su nivel de
+participación y las estadísticas tradicionales del box score. Si bien
+estas referencias no constituyen una medida definitiva del verdadero
+aporte individual, permiten evaluar la concordancia de las distintas
+métricas con otras que referencias vinculados al rendimiento de los
+jugadores.
 
 \begin{table}[H]
 \centering
@@ -2877,21 +2898,29 @@ wEPTS - Elastic Net & 53.1 & \textbf{2.0} & 77.0 & 72.0\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}[para]
-\item Los porcentajes se calcularon sobre 100 posiciones: las 50 primeras o últimas de los rankings ofensivos y las 50 primeras o últimas de los rankings defensivos. Criterio 1: jugadores galardonados incluidos en el top 100. Criterio 2: jugadores con menor participación incluidos en el top 100. Criterio 3a: titulares incluidos en el top 100. Criterio 3b: titulares incluidos en el bottom 100.
+\item Para el criterio de galardonados (1), la proporción corresponde al número de jugadores reconocidos identificados entre los top 50 ofensivo y defensivo, sobre un total de 81 jugadores galardonados. Para los criterios de poco tiempo de juego y titulares (2 y 3), las proporción se calculan sobre 100 posiciones de ranking: 50 ofensivas y 50 defensivas.
 \end{tablenotes}
 \end{threeparttable}}
 \end{table}
 
-Al analizar el Cuadro 16, puede identificarse que los criterios basados
-en el tiempo de juego de los jugadores mejor calificados presentan
-mejores desempeños en las métricas wEPTS, de manera lógica debido a su
-formulación. Dentro de estas medidas, la que se destacó por sobre las
-demás fue la producida mediante regularización \emph{Ridge}. Por otro
-lado, al observar la proporción de jugadores premiados a lo largo de la
-temporada en las posiciones altas de los rankings, los desempeños fueron
-más similares, siendo el modelo multinomial estimado mediante
-\emph{LASSO} el que produzco el mejor resultado, alcanzando a un 54,3 de
-los galardonados tanto en los rankings EPTS como en los wEPTS.
+Los resultados del Cuadro 16 muestran un patrón favorable para las
+métricas derivadas del modelo logístico multinomial. En los todos los
+criterios, los valores más favorables fueron alcanzados por EPTS o
+wEPTS. En particular, EPTS y wEPTS estimados mediante LASSO
+identificaron al 54,3 \% de los 81 jugadores galardonados, mientras que
+los wEPTS estimados mediante Ridge y Elastic Net presentaron la menor
+presencia de jugadores con poco tiempo de juego entre las posiciones
+superiores, con apenas 2 de las 100 posiciones consideradas. A su vez,
+wEPTS estimado con Ridge registró la mayor presencia de titulares en
+estas posiciones, alcanzando 78 de las 100.
+
+Las diferencias favorables observadas en los criterios vinculados con la
+participación para las métricas de wEPTS resultan esperables, dado que
+esta métrica incorpora explícitamente la proporción de posesiones
+disputadas por cada jugador. Por lo tanto, estos resultados muestran que
+la ponderación cumple efectivamente con el objetivo de reducir la
+presencia de jugadores con escasa participación en los extremos
+superiores del ranking.
 
 \begin{table}[H]
 \centering
@@ -2923,37 +2952,46 @@ wEPTS - Elastic Net & \textbf{48.0} & \textbf{40.0} & 40.0 & 30.0 & \textbf{36.0
 \end{threeparttable}}
 \end{table}
 
-Analizando las estadísticas del \emph{box score}, vuelven a encontrarse
-mejores resultados en los modelos wEPTS estimados mediante \emph{Elastic
-Net} y \emph{Ridge}, especialmente al realizar comparaciones a través de
-las estadísticas ofensivas, donde dichas métricas dominan en todos los
-casos. En las variables defensivas no se observó un modelo claramente
-dominante. Los rankings wEPTS estimados mediante \emph{Ridge} y
-\emph{Elastic Net} alcanzaron la mayor coincidencia en rebotes
-defensivos (32\%), mientras que los mayores porcentajes en recuperos y
-tapas correspondieron a distintas variantes de RAPM.
+El patrón observado en el Cuadro 16 se mantiene al comparar los rankings
+con las estadísticas tradicionales del box score. En las seis variables
+consideradas, el mayor porcentaje de coincidencia fue alcanzado por al
+menos una de las métricas derivadas del modelo logístico multinomial.
+Por otra parte, al analizar las distintas técnicas de regularización
+implementadas, se encontraron mejores resultados en los wEPTS estimados
+mediante Ridge y Elastic Net. Particularmente al centrarse en las
+medidas ofensivas, donde presentaron los mayores niveles de concordancia
+en puntos, asistencias y rebotes ofensivos.
 
-En términos generales, las coincidencias fueron superiores para las
-estadísticas ofensivas: el promedio entre modelos fue de 36,1\%, frente
-al 22,3\% registrado en las defensivas. Este patrón coincide con lo
-señalado por Damoulaki et al.~(2025), donde se sostiene que el
-rendimiento ofensivo puede asociarse más con la habilidad individual de
-los jugadores, mientras que el éxito defensivo depende en mayor medida
-de la coordinación y cooperación colectiva. Sin embargo, se considera
-que el planteo realizado por Damoulaki resulta parcial o incompleto,
-debido a que la menor coincidencia observada no debe atribuirse
-exclusivamente a una limitación de los modelos, sino a una limitación
-propia de las medidas tradicionales defensivas como los rebotes
-defensivos, los recuperos y las tapas las cuales no cuantifican de
-manera adecuada el aporte defensivo defensivo del jugador y no capturan
-aspectos importantes como el posicionamiento, las rotaciones o la
-intensidad.
+En las estadísticas defensivas las diferencias entre métricas fueron
+menos marcadas y no se identificó una única combinación dominante. No
+obstante, los máximos observados en rebotes defensivos, recuperos y
+tapas también incluyeron en todos los casos a alguna variante de EPTS o
+wEPTS.
 
-Adicionalmente, se incorporaron comparaciones con los rankings generados
-mediante las métricas descriptivas basadas en el \emph{plus-minus}, lo
-que permite evaluar si los modelos propuestos generan valoraciones
-similares con otras medidas que buscan explicar el mismo fenómeno. Los
-resultados obtenidos se presentan en el Cuadro 18.
+En términos generales, la coincidencia promedio fue mayor para las
+estadísticas ofensivas (36,1 \%) que para las defensivas (28,4 \%). Este
+patrón coincide con lo señalado por Damoulaki et al.~(2025), donde se
+sostiene que el rendimiento ofensivo puede asociarse más con la
+habilidad individual de los jugadores, mientras que el éxito defensivo
+depende en mayor medida de la coordinación y cooperación colectiva. Sin
+embargo, se considera que el planteo realizado por Damoulaki resulta
+parcial o incompleto, debido a que la menor coincidencia observada no
+debe atribuirse exclusivamente a una limitación de los modelos, sino a
+una limitación propia de las medidas tradicionales defensivas como los
+rebotes defensivos, los recuperos y las tapas las cuales no cuantifican
+de manera adecuada el aporte defensivo defensivo del jugador y no
+capturan aspectos importantes como el posicionamiento, las rotaciones o
+la intensidad.
+
+Como análisis complementario, se compararon los rankings estimados con
+las medidas descriptivas basadas en \emph{plus-minus} presentadas en las
+Secciones 5.1.4 y 5.1.5. A diferencia de los criterios anteriores, esta
+comparación no constituye una validación externa en sentido estricto,
+dado que ambas medidas se construyen a partir del rendimiento del equipo
+en términos de puntos anotados y recibidos durante las posesiones. El
+objetivo de la comparación es evaluar en qué medida los modelos
+reproducen los ordenamientos que se obtendrían mediante medidas más
+simples que buscan explicar el mismo fenómeno.
 
 \begin{table}[H]
 \centering
@@ -2985,85 +3023,256 @@ wEPTS - Elastic Net & 74 & 52 & 62 & 58\\
 \end{threeparttable}}
 \end{table}
 
-Los rankings estimados mediante \emph{Ridge} y \emph{Elastic Net}
-mostraron una mayor concordancia con las medidas basadas en
-\emph{plus-minus} en comparación con los rankings producidos mediante
-\emph{LASSO}. Este menor grado de coincidencia podría relacionarse con
-la mayor contracción ejercida por LASSO, que lleva a cero una proporción
-considerable de los coeficientes. Por otro lado, los rankings RAPM
-tendieron a presentar una mayor concordancia que los derivados de los
-modelos multinomiales, particularmente en las medidas por posesión. Sin
-embargo, este resultado debe interpretarse con cautela, dado que el RAPM
-utiliza como variable respuesta los puntos anotados en cada posesión y,
-por lo tanto, su asociación con estas medidas descriptivas no constituye
-una validación completamente independiente
+A diferencia de lo observado en los criterios de validación externa, los
+rankings RAPM derivados del modelo normal mostraron una mayor
+concordancia con las medidas descriptivas basadas en plus-minus,
+particularmente con aquellas calculadas por posesión. A su vez, los
+modelos estimados mediante Ridge y Elastic Net presentaron mayores
+porcentajes de coincidencia que los obtenidos mediante LASSO.
+
+Esta mayor concordancia de los RAPM con estas métricas podría estar
+relacionada con una mayor proximidad entre sus formas de construcción.
+Tanto el \emph{plus-minus} como el RAPM obtenido mediante el modelo
+normal se encuentran expresados en términos de los puntos anotados o
+recibidos durante las posesiones. Las métricas basadas en el modelo
+multinomial, en cambio, obtienen los puntos esperados a partir de las
+probabilidades estimadas para cada tipo de anotación.
 
 \section{Conclusiones}\label{cap:conclusiones}
 
-poner las comparación entre epts y wepts, mientras que epts podría
-reflejear el impacto del jugador en el tiempo que estuvo en cancha, el
-wepts al penalizar a los jugadores que jugaron poco, da como una medida
-de quien fue mejor en toda la temporada. son medidas que a priori se
-comparan y ambas buscan medir cual es el mejor jugador, pero pueden ser
-complementarias, mientras que epts puede servir a la hora de hacer
-scouting y ver que jugador rindió mejor en la cantidad de posesiones que
-le tocó jugar, wepts puede servir para definir la premiación de los
-jugadores de la temporada, dando más valor a los que más jugadoron,
-tomando a la temporada como un todo y el aporte que hacen los jugadores
-a ese todo.
+El presente trabajo permitió desarrollar una metodología para la
+construcción de rankings de desempeño ofensivo y defensivo de los
+jugadores que participaron de la temporada 2024/2025 de la Liga Nacional
+de Básquetbol, mediante modelos lineales generalizados en los que se
+utilizó la posesión como unidad de análisis.
 
-En conclusión, wEPTS no solo estabiliza las estimaciones de jugadores
-con escasa presencia, sino que modifica la interpretación del ranking.
-Esto se debe a que las dos medidas parecieran responder a problemas
-diferentes, wEPTS puede interpretarse como una medida de contribución
-total del rendimiento de los jugadores a lo largo de toda la temporada,
-mientras que EPTS describe principalmente el rendimiento esperado
-durante las posesiones en las que el jugador se encuentra en cancha.
+La comparación de los modelos mostró, en primer lugar, que las
+diferencias en capacidad predictiva fueron prácticamente inexistentes.
+Los valores de RMSE obtenidos mediante predicciones \emph{out-of-fold}
+se ubicaron entre 1,185344 y 1,185505, por lo que ninguna combinación de
+modelo y técnica de regularización presentó una ventaja relevante bajo
+este criterio. Sin embargo, puede destacarse que, a pesar de que las
+diferencias fueron mínimas, LASSO registró el mayor error tanto en el
+modelo normal como en el multinomial. Por otro lado, el análisis de
+consistencia permitió identificar diferencias más claras entre las
+técnicas de regularización. Los rankings estimados mediante Ridge y
+Elastic Net presentaron, en términos generales, una mayor estabilidad
+ante cambios en los partidos utilizados para ajustar los modelos,
+mientras que LASSO registró sistemáticamente los menores niveles de
+correlación entre particiones.
+
+Las diferencias entre los enfoques resultaron más visibles al incorporar
+criterios de validación externa. En términos generales, los rankings
+derivados del modelo multinomial, mediante EPTS y especialmente wEPTS,
+presentaron una mayor concordancia con los criterios externos
+considerados que los RAPM obtenidos a partir del modelo normal, lo que
+aporta evidencia favorable para la utilización de estas nuevas métricas
+en la evaluación del desempeño de los jugadores. Dentro de estas, los
+rankings wEPTS estimados mediante Ridge y Elastic Net mostraron los
+resultados más favorables entre todas las alternativas, destacando
+particularmente en los criterios vinculados con la participación de los
+jugadores y con las estadísticas ofensivas del \emph{box score}. Por
+otra parte, la concordancia con las estadísticas tradicionales resultó
+mayor para el componente ofensivo que para el defensivo. Como se
+menciona en la Sección 5.3.3, esta diferencia podría estar vinculada a
+que las medidas defensivas tradicionales utilizadas en la comparación no
+necesariamente representan de manera adecuada la contribución defensiva
+del jugador. En conclusión, si bien los resultados no permiten
+establecer una superioridad absoluta de un modelo bajo todos los
+criterios, sí muestran un comportamiento favorable de los wEPTS
+estimados mediante Ridge y Elastic Net.
+
+El resultado menos favorable de LASSO difiere del obtenido por Damoulaki
+et al.~(2025), quienes encontraron mejores resultados mediante esta
+técnica y propusieron finalmente al wEPTS construido a partir de esta
+penalización como la alternativa preferida. Una posible explicación se
+encuentra en las diferencias entre las bases analizadas: la menor
+cantidad de información disponible en este trabajo, junto con la elevada
+correlación existente entre las variables indicadoras de jugadores que
+comparten gran parte de sus minutos, podría incrementar la inestabilidad
+asociada a la selección realizada por LASSO.
+
+Otro análisis de interés surge de la comparación entre EPTS y wEPTS,
+donde la variación en los puestos altos del ranking de estas medidas
+deja entrever una diferencia muy interesante en su interpretación. El
+EPTS describe principalmente el rendimiento esperado del jugador durante
+las posesiones en las que participa, sin incorporar directamente cuánto
+intervino a lo largo de la temporada. El wEPTS, en cambio, penaliza esta
+valoración en función de su participación durante la temporada,
+puediendo interpretarse como una medida de contribución total del
+rendimiento de los jugadores sobre toda la temporada.
+
+En este sentido, EPTS y wEPTS pueden entenderse como medidas que
+responden a distintos objetivos y que, por lo tanto, pueden ser
+utilizadas de manera complementaria. Mientras que el EPTS puede resultar
+útil cuando el interés se encuentra en evaluar el rendimiento del
+jugador durante los minutos que disputó y ser utilizado, por ejemplo,
+para el \emph{scouting} de los equipos, el wEPTS puede utilizarse para
+evaluar qué jugador fue el que más aportó a lo largo de la temporada en
+su conjunto y ser utilizado para la elección de premios.
+
+Finalmente, los resultados obtenidos llevan entonces a priorizar las
+métricas EPTS y wEPTS estimadas mediante Ridge o Elastic Net. Ambas
+técnicas produjeron ordenamientos prácticamente idénticos (las
+correlaciones de Spearman entre sus rankings superaron 0,998 tanto en
+ataque como en defensa) y fueron las que mostraron los resultados más
+favorables en gran parte de los criterios considerados. Dado que el
+valor de \(\alpha\) seleccionado para Elastic Net fue de apenas 0,005,
+su comportamiento resultó muy próximo al de Ridge. En consecuencia, más
+que identificar una diferencia sustantiva entre ambas técnicas, los
+resultados respaldan la utilización de cualquiera de ellas frente a
+LASSO para los datos disponibles en esta aplicación.
 
 \section{Discusión}\label{cap:discusion}
 
-Los modelos RAPM utilizados en este trabajo, al igual que la literatura
-previa (Rosenbaum, 2004; Sill, 2010; Damoulaki et al., 2025), consideran
-cada posesión como una observación independiente. Sin embargo, esta
-hipótesis puede resultar discutible, dado que las posesiones
-pertenecientes a un mismo partido presentan dependencia temporal
-derivada de factores como el ritmo de juego, los ajustes tácticos, la
-fatiga y el contexto competitivo. Aunque esta dependencia no
-necesariamente sesga las estimaciones de los coeficientes bajo la
-hipótesis de exogeneidad de los errores, sí podría afectar su eficiencia
-y la correcta cuantificación de la incertidumbre. El desarrollo de
-modelos RAPM que incorporen explícitamente la correlación intra-partido
-constituye una línea de investigación aún poco explorada.
+No existe un ``Santo Grial'' entre las métricas de evaluación de
+jugadores, difícilmente una única medida permita representar a todos los
+aspectos del juego de manera conjunta y definir, de manera definitiva,
+qué un jugador es mejor que otro. Bajo esta perspectiva, los rankings
+obtenidos en este trabajo no pretenden proporcionar una valoración
+definitiva del rendimiento de los jugadores, sino constituir una fuente
+adicional de información que complemente las estadísticas tradicionales
+y sea de utilidad para los cuerpos técnicos.
 
-\href{https://rephip.unr.edu.ar/server/api/core/bitstreams/a4c018fe-9f41-44ee-8d53-d554e3473bb0/content}{INTERPRETACIÓN
-Y COMPARACIÓN DE MODELOS DE REGRESIÓN LOGÍSTICA PARA EL ESTUDIO DE LA
-DESOCUPACIÓN} (regresión logística con correlación, aplicación de
-modelos gee)
+En este marco, resulta importante considerar tanto las fortalezas de la
+metodología desarrollada como las limitaciones que pueden haber
+condicionado los resultados obtenidos.
 
-comparar lo escrito en este rmd con el que escribi para el anteproyecto,
-quizas este era una versión anterior y le faltan correcciones
+\subsection{Fortalezas del trabajo}\label{fortalezas-del-trabajo}
 
-evaluación de modelos de regresión lineal múltiple
+Más allá de los rankings, una de las principales fortalezas del trabajo
+se encuentra en la construcción de los datos necesarios para realizar
+este tipo de análisis. Debido a que la información del
+\emph{play-by-play} y del \emph{box score} de la Liga Nacional no se
+encontraban disponibles como bases estructuradas y descargables para su
+análisis, fue necesario desarrollar procedimientos para su extracción,
+procesamiento y depuración. A partir de estas fuentes se construyó,
+además, la base \emph{poss-by-poss} utilizada para la estimación de los
+modelos, que resume las posesiones disputadas e identifica los jugadores
+presentes en ataque y defensa. La disponibilidad pública tanto de estas
+bases como de los procedimientos utilizados para generarlas permite que
+los resultados puedan ser reproducidos en futuras temporadas.
 
-El punto de corte utilizado para definir a los LTPs estuvo basado en el
-criterio que utilizó Damoulaki en su artículo, pero no deja de ser algo
-``arbitrario''. Podría analizarse distintos escenarios, con distintos
-puntos de corte y evaluar los resultados de cada modelo.
+Otra fortaleza del trabajo reside en la incorporación de Elastic Net
+dentro de la comparación de técnicas de regularización, una alternativa
+poco explorada en la literatura de métricas RAPM aplicada al básquetbol.
+Su inclusión permitió ampliar el análisis más allá de Ridge y LASSO y
+evaluar el comportamiento de una penalización que combina
+características de ambas.
 
-Ponderar los distintos momentos del partido de diferente manera (más
-peso a las situaciones clutch y menos a los garbage minutes), estaría
-bueno citar a algún artículo que haya realizado esto
+También se considera una fortaleza la utilización de distintos criterios
+para evaluar los rankings obtenidos. La capacidad predictiva fue
+complementada con un análisis de consistencia frente a modificaciones en
+los partidos utilizados para estimar las métricas y con criterios de
+validación externa basados en información independiente de los modelos.
+Esta combinación resulta especialmente relevante dado que una buena
+capacidad de ajuste o predicción no garantiza que las valoraciones
+individuales obtenidas sean estables o representen adecuadamente el
+desempeño de los jugadores. Evaluar distintos criterios toma
+importancia, ya que, como señala Hvattum (2019), no existe un criterio
+universalmente aceptado para determinar la calidad de las distintas
+métricas RAPM.
 
-Utilizar datos de varias temporadas dando más peso a las temporadas más
-actuales
+Por último, se considera como aporte de valor el haber realizado una
+primera aplicación sistemática de este tipo de modelos en la Liga
+Nacional de Básquetbol de Argentina. En un contexto donde la
+disponibilidad pública de datos y de métricas avanzadas es
+considerablemente menor que en competencias como la NBA, la adaptación
+de estas metodologías al básquetbol argentino permite establecer una
+base sobre la cual puedan desarrollarse análisis posteriores y nuevas
+aplicaciones orientadas al estudio del rendimiento individual.
 
-Una de las motivaciones para desarrollar métricas RAPM consiste en
-superar este reduccionismo del box score y estimar contribuciones que no
-quedan registradas en las estadísticas individuales. Por lo tanto, una
-menor concordancia con estas medidas no debería interpretarse
-automáticamente como evidencia de menor validez del modelo, sino como
-una posible divergencia entre distintas formas de conceptualizar y medir
-el aporte defensivo.
+\subsection{Debilidades del trabajo}\label{debilidades-del-trabajo}
+
+La principal limitación del estudio se encuentra asociada a la calidad
+de los datos disponibles. El \emph{play-by-play} utilizado fue
+construido a partir de registros que presentaban errores e
+inconsistencias. Si bien durante el procesamiento se implementaron
+numerosos controles y correcciones con el objetivo de reducir estos
+problemas, no puede garantizarse la detección de la totalidad de los
+errores. En consecuencia, la base de datos utilizada pueden contener una
+incorrecta cantidad de posesiones registradas o errores en la cantidad
+de puntos realizados en las mismas, introduciendo ruido adicional en la
+información utilizada para estimar los modelos.
+
+Una segunda limitación está relacionada con la propia construcción de la
+base a nivel de posesión. El registro original se encuentra estructurado
+como una sucesión de acciones y no identifica explícitamente el inicio y
+el final de cada posesión, por lo que fue necesario definir un conjunto
+de reglas que permitiera realizar esta transformación. Las decisiones
+adoptadas fueron seleccionadas luego de evaluar distintas alternativas y
+buscando minimizar las inconsistencias detectadas, pero no
+necesariamente constituyen una identificación perfecta de todas las
+posesiones. Esto podría explicar por qué en buena parte de la literatura
+tradicional de RAPM se utiliza como unidad de análisis a los segmentos
+sin sustituciones, lo cual puede obtenerse de manera mucho más directa.
+
+Una última limitación importante corresponde a la cantidad de
+información disponible en la base de datos utilizada. El análisis se
+realizó utilizando únicamente una temporada de la Liga Nacional, con una
+cantidad de posesiones considerablemente inferior a la disponible en
+estudios realizados sobre la NBA. Artículos sobre esta área de estudio
+enfatizan en la importancia de la adhisión de varias temporadas.
+
+\subsection{Propuestas de extensión del
+trabajo}\label{propuestas-de-extensiuxf3n-del-trabajo}
+
+Los resultados obtenidos en este trabajo constituyen una primera
+aproximación a la construcción de métricas RAPM ajustadas para la Liga
+Nacional de Básquetbol de Argentina y sientan un precedente para un
+amplio conjunto de posibles investigaciones futuras. A continuación, se
+proponen algunas extensiones que podrían contribuir a mejorar la
+metodología desarrollada:
+
+\begin{itemize}
+\item
+  Los modelos utilizados estiman efectos individuales de los jugadores.
+  Sin embargo, el rendimiento de un jugador puede depender de los
+  compañeros con los que comparte cancha. La incorporación de efectos de
+  interacción o de quinteto permitiría representar posibles sinergias
+  entre jugadores, tal como se propone en Grassetti et al.~(2021).
+\item
+  La incorporación de otros indicadores defensivos que representen de
+  mejor manera el aporte de los jugadores permitiría, en futuros
+  análisis, evaluar nuevamente la validez externa de los rankings
+  defensivos.
+\item
+  Los modelos RAPM utilizados en este trabajo consideran cada posesión
+  como una observación independiente. Sin embargo, las posesiones
+  pertenecientes a un mismo partido podrían presentar dependencia
+  asociada a factores como el ritmo de juego, los ajustes tácticos, la
+  fatiga o el contexto competitivo. Una posible extensión consistiría en
+  desarrollar modelos que incorporen explícitamente esta correlación
+  intrapartido.
+\end{itemize}
+
+\begin{itemize}
+\item
+  Podría considerarse la incorporación de otras covariables en el modelo
+  que ayuden a mejorar la predicción del resultado final de cada
+  posesión. Como podría ser la condición de localía del equipo que
+  ataca, el tiempo restante en el cuerto, la diferencia en el marcador o
+  la importancia del momento del partido.
+\item
+  El punto de corte utilizado para identificar a los LTPs responde a una
+  decisión metodológica, pero no deja de ser algo un poco arbitrario.
+  Podría analizarse escenarios con distintos puntos de corte y evaluar
+  los resultados de cada modelo.
+\item
+  Podría evaluarse la utilización de ponderaciones diferentes en cada
+  posesión según la relevancia del momento del partido, asignando mayor
+  peso a situaciones decisivas (\emph{clutch time}) y menor peso a
+  posesiones disputadas cuando el resultado se encuentra prácticamente
+  definido (\emph{garbage time}), siguiendo una estrategia similar a la
+  utilizada por Rosenbaum (2004).
+\item
+  La incorporación de información correspondiente a nuevas temporadas
+  permitiría aumentar la cantidad de observaciones disponibles y podría
+  contribuir a obtener estimaciones más estables. Para conservar una
+  mayor representatividad del rendimiento reciente, podría asignarse un
+  peso mayor a las temporadas más actuales, siguiendo estrategias
+  utilizadas previamente en la literatura.
+\end{itemize}
 
 \newpage
 
