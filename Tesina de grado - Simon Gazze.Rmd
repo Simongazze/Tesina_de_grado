@@ -40,7 +40,7 @@ lang: es
 \vspace{2cm}
 
 % --- Fecha ---
-{\Large Fecha: 18 de febrero de 2026\par}
+{\Large Fecha: 31 de agosto de 2026\par}
 
 \vfill
 
@@ -74,7 +74,7 @@ library(scales)
 library(stringr)
 ```
 
-# Resumen
+# Resumen {-}
 
 El crecimiento de la analítica deportiva ha impulsado el desarrollo de métricas destinadas a evaluar con mayor precisión la contribución de los jugadores al rendimiento de sus equipos. Particularmente en el básquetbol, las estadísticas individuales derivadas del box score presentan limitaciones para capturar el impacto real de los jugadores sobre el resultado del juego. Una de las medidas desarrolladas con este propósito es el *plus-minus*, que registra la diferencia de puntos generada mientras un jugador permanece en cancha. Sin embargo, esta métrica presenta dificultades para aislar el efecto propio de cada jugador respecto del contexto en el que participa. En respuesta a esta problemática surge el *Regularized Adjusted Plus Minus* (RAPM), una medida basada en modelos estadísticos que estima el impacto ofensivo y defensivo de cada jugador controlando simultáneamente la presencia de compañeros y rivales en cancha.
 
@@ -107,9 +107,9 @@ A pesar de que las primeras aplicaciones al análisis de datos al deporte se rem
 
 El básquetbol es uno de los deportes que más ha incorporado el análisis estadístico en su evolución reciente. Desde las primeras métricas derivadas del *box score* (resumen estructurado de los resultados de un partido), el desarrollo de bases de datos *play-by-play* (registro de cada una de las acciones del partido) a partir de la década del 2000 hasta la incorporación más reciente de tecnologías de *player tracking* (sistema que utiliza cámaras y software de visión artificial en los estadios para registrar los movimientos de jugadores y pelotas en tiempo real). A partir de esta información, se han desarrollado distintas herramientas estadísticas para poder estudiar la eficiencia de los jugadores, la eficiencia de los lanzamientos al aro, el desempeño de los equipos, la importancia en la creación de espacios, entre otras cosas.
 
-### Análitica deportiva en el básquetbol argentino {-}
+### Analítica deportiva en el básquetbol argentino {-}
 
-El creciente interés por la analítica deportiva que se ha evidenciado en los últimos años en distintos paises del mundo, ha empezado a captar la atención de las entidades deportivas en Argentina. Particularmente este año la Confederación Argentina de Básquetbol (CABB) y la Asociación de Clubes (AdC) anunciaron en octubre la ampliación de su alianza con Catapult (empresa australiana de tecnología deportiva), integrando equipamiento de *wearables* (GPS) y software de videoanálisis para las 19 franquicias de la Liga Nacional, las 34 de la Liga Argentina y las selecciones nacionales en todas las ramas. Mientras que en el ámbito educativo, el Instituto CAB (creado en 2023) realizó un convenio con Sports Data Campus (España) para ofrecer, en agosto de este año, el primer curso de *Big Data aplicado al básquetbol* en Argentina, con el objetivo de que entrenadores y *staff* técnico colaboren en proyectos reales de la CABB, aportando soluciones basadas en datos sobre rendimiento, *scouting* y optimización de procesos[^2].
+El creciente interés por la analítica deportiva que se ha evidenciado en los últimos años en distintos paises del mundo, ha empezado a captar la atención de las entidades deportivas en Argentina. En particular, durante 2025, la Confederación Argentina de Básquetbol (CABB) y la Asociación de Clubes (AdC) anunciaron en octubre la ampliación de su alianza con Catapult (empresa australiana de tecnología deportiva), integrando equipamiento de *wearables* (GPS) y software de videoanálisis para las 19 franquicias de la Liga Nacional, las 34 de la Liga Argentina y las selecciones nacionales en todas las ramas. Mientras que en el ámbito educativo, el Instituto CAB (creado en 2023) realizó un convenio con Sports Data Campus (España) para ofrecer, en agosto de este año, el primer curso de *Big Data aplicado al básquetbol* en Argentina, con el objetivo de que entrenadores y *staff* técnico colaboren en proyectos reales de la CABB, aportando soluciones basadas en datos sobre rendimiento, *scouting* y optimización de procesos[^2].
 
 [^2]: Confederación Argentina de Básquetbol (2025). *La Confederación Argentina de Básquet y Sports Data Campus firman un acuerdo de colaboración*. [Link al artículo](https://www.argentina.basketball/ver/noticia/la-confederacion-argentina-de-basquet-y-sports-data-campus-firman-un-acuerdo-de-colaboracion).
 
@@ -121,7 +121,7 @@ En este marco, y con el fin de caracterizar el estado de situación del análisi
 
 -   *Básquet Advance*, dirigido por el entrenador Cristian Sánchez, ofrece informes pre/post partido con estadísticas avanzadas y tendencias clave para entrenadores y scouts.
 
-Ambos proyectos ofrecen herramientas muy importantes y de gran valor tanto para los equipos como para el desarrollo del análisis de datos en el deporte. Pero particularmente en ambos casos, los que llevan adelante estos proyectos son entrenadores de básquetbol, los cuales a pesar de que pueden contar con una sólida formación técnica, no son profesionales de ciencias estadística o matemática.
+Ambos proyectos ofrecen herramientas muy importantes y de gran valor tanto para los equipos como para el desarrollo del análisis de datos en el deporte. Pero en ambos casos, los que llevan adelante estos proyectos son entrenadores de básquetbol, los cuales a pesar de que pueden contar con una sólida formación técnica, no son profesionales de ciencias estadística o matemática.
 
 Por este motivo, resulta fundamental la incorporación de profesionales en carreras de ciencias exactas, que trabajen en conjunto con los entrenadores y cuerpos técnicos, para de esta manera poder ofrecer nuevos análisis más rigurosos y profundos, así como mejorar las herramientas actualmente disponibles. Esta correspondencia entre el conocimiento técnico-deportivo y el enfoque estadístico permitiría potenciar el desarrollo del básquet argentino y contribuir a elevar su nivel competitivo en un futuro.
 
@@ -131,19 +131,19 @@ Desde la consolidación del *box-score* en el básquetbol profesional, durante l
 
 Por otra parte, las medidas *top-down* se basan en el rendimiento del equipo en su conjunto, y el crédito por dicho rendimiento se distribuye entre los jugadores que estuvieron involucrados en el partido, sin importar qué acciones puntuales hayan realizado.
 
-Con la idea de que lo más importante en un partido es ganar, y entendiendo que las estadísticas tradicionales son solo una medida imperfecta de muchas de las contribuciones que realizan los jugadores a la victoria, en este trabajo buscaremos “pensar más allá del *box score*” y nos centraremos en estadísticas *top-down*, más precisamente en la medida *plus-minus*. Esta estadística registra los cambios que se producen en el marcador durante los minutos en que el jugador de interés está en cancha, partiendo de la idea de que los equipos deberían rendir mejor (reflejado en un *plus-minus* más alto) cuando sus buenos jugadores están en cancha que cuando no lo están. Sin embargo esta métrica posee una deficiencia clave: **la calificación de cada jugador va a depender en gran medida de la calidad de sus compañeros en el campo**. Por ejemplo: un jugador de rol dentro de un gran equipo va a tener un mayor *plus-minus* que una superestrella en un equipo con mal desempeño.
+Con la idea de que lo más importante en un partido es ganar, y entendiendo que las estadísticas tradicionales son solo una medida imperfecta de muchas de las contribuciones que realizan los jugadores a la victoria, en este trabajo se busca “pensar más allá del *box score*” y se centra en estadísticas *top-down*, más precisamente en la medida *plus-minus*. Esta estadística registra los cambios que se producen en el marcador durante los minutos en que el jugador de interés está en cancha, partiendo de la idea de que los equipos deberían rendir mejor (reflejado en un *plus-minus* más alto) cuando sus buenos jugadores están en cancha que cuando no lo están. Sin embargo esta métrica posee una deficiencia clave: **la calificación de cada jugador depende en gran medida de la calidad de sus compañeros en el campo**. Por ejemplo: un jugador de rol dentro de un gran equipo tendrá un mayor *plus-minus* que una superestrella en un equipo con mal desempeño.
 
 ### *Regularized Adjusted Plus Minus* (RAPM) {-}
 
-La deficiencia anteriormente mencionada se ha intentado solucionar implementando modelos matemáticos que incorporen los efectos tanto de los compañeros presentes en cancha como de los rivales en ese momento, buscando aislar el efecto real de los jugadores en la cancha. El primero en realizar una publicación sobre el tema fue Dan Rosenbaum (2004), el cual planteó un modelo de regresión lineal múltiple en base a observaciones provenientes de partidos de las temporadas 2002-2003 y 2003-2004 de la *National Basketball Association* (NBA). Como unidad de análisis se utilizaron segmentos de partidos donde no ocurrian sustituciones, la variable respuesta fue la diferencia en el marcador entre el equipo local y el visitante en ese segmento; y como variables explicativas se postularon variables dicotómicas para cada uno de los jugadores que hayan jugado al menos un partido en esas temporadas. Finalmente las métricas de desempeño se correspondían con los coeficientes estimados que acompañaban a las "Dummies" de cada jugador, dichas estimaciones se realizaron mediante la técnica de Mínimos Cuadrados Ordinarios. Estas estadísticas se conocen como *Adjusted Plus Minus* (APM).
+La deficiencia anteriormente mencionada se ha intentado solucionar implementando modelos matemáticos que incorporen los efectos tanto de los compañeros presentes en cancha como de los rivales en ese momento, buscando aislar el efecto real de los jugadores en la cancha. El primero en realizar una publicación sobre el tema fue Dan Rosenbaum (2004), el cual planteó un modelo de regresión lineal múltiple en base a observaciones provenientes de partidos de las temporadas 2002-2003 y 2003-2004 de la *National Basketball Association* (NBA). Como unidad de análisis se utilizaron segmentos de partidos donde no ocurrían sustituciones, la variable respuesta fue la diferencia en el marcador entre el equipo local y el visitante en ese segmento; y como variables explicativas se postularon variables dicotómicas para cada uno de los jugadores que hayan jugado al menos un partido en esas temporadas. Finalmente las métricas de desempeño se correspondían con los coeficientes estimados que acompañaban a las "Dummies" de cada jugador, dichas estimaciones se realizaron mediante la técnica de Mínimos Cuadrados Ordinarios. Estas estadísticas se conocen como *Adjusted Plus Minus* (APM).
 
-A pesar de que estas métricas presentaban una solución innovadora a la problematica inicial, Rosenbaum señaló que las estimaciones obtenidas no resultaron muy precisas. El modelo propuesto presentaba estimaciones con mucho error, debido a un claro problema de multicolinealidad ya que muchos de los jugadores compartían una gran cantidad de minutos juntos en cancha, y se necesitaba de una gran cantidad observaciones de varias temporadas para que el modelo pudiera separar el efecto propio de cada jugador.
+A pesar de que estas métricas presentaban una solución innovadora a la problemática inicial, Rosenbaum señaló que las estimaciones obtenidas no resultaron muy precisas. El modelo propuesto presentaba estimaciones con mucho error, debido a un claro problema de multicolinealidad ya que muchos de los jugadores compartían una gran cantidad de minutos juntos en cancha, y se necesitaba de una gran cantidad observaciones de varias temporadas para que el modelo pudiera separar el efecto propio de cada jugador.
 
-Para solucionar está problemática, se plantea la métrica RAPM introducida por Sill (2010) en la cual se aborda el problema de la multicolinealidad mediante estimaciones de los parámetros realizadas con métodos de regularización, particularmente utilizando la Regresión Ridge. Esté método de regularización es el más abordado a lo largo de toda la literatura relevante sobre RAPM hasta la fecha.
+Para solucionar esta problemática, se plantea la métrica RAPM introducida por Sill (2010) en la cual se aborda el problema de la multicolinealidad mediante estimaciones de los parámetros realizadas con métodos de regularización, particularmente utilizando la Regresión Ridge. Este método de regularización es el más abordado a lo largo de toda la literatura relevante sobre RAPM hasta la fecha.
 
-Otro de los problemas recurrentes en estos modelos esta relacionado con la inclusión de jugadores que participan muy pocos minutos en cancha (*LTPs - Low time Players*). Cuando un jugador juega muy poco, el modelo solo tiene unas pocas observaciones (segmentos) para evaluarlo, y si particularmente en esas observaciones el equipo tiene un muy buen desempeño (probablemente por casualidad); entonces el modelo no puede diferenciar si el efecto es propio del jugador y estima coeficientes extremos. Para solucionar estos casos se han contemplado las siguientes alternativas: 1) excluir a los jugadores con pocos minutos dentro de las temporadas (por ejemplo: Rosembaum (2004) excluye a lo jugadores con menos de 250 minutos, Ilardi (2007) excluyen a lo jugadores con menos de 400 minutos, etc), 2) utilizar una gran cantidad de observaciones (Ilardi & Barzilai (2008) incorpora información de 5 temporadas), 3) plantear métodos de estimación de los parámetros que penalicen a este tipo de jugadores.
+Otro de los problemas recurrentes en estos modelos está relacionado con la inclusión de jugadores que participan muy pocos minutos en cancha (*LTPs - Low time Players*). Cuando un jugador juega muy poco, el modelo solo tiene unas pocas observaciones (segmentos) para evaluarlo, y si particularmente en esas observaciones el equipo tiene un muy buen desempeño (probablemente por casualidad); entonces el modelo no puede diferenciar si el efecto es propio del jugador y estima coeficientes extremos. Para solucionar estos casos se han contemplado las siguientes alternativas: 1) excluir a los jugadores con pocos minutos dentro de las temporadas (por ejemplo: Rosenbaum (2004) excluye a los jugadores con menos de 250 minutos, Ilardi (2007) excluye a lo jugadores con menos de 400 minutos, etc), 2) utilizar una gran cantidad de observaciones (Ilardi & Barzilai (2008) incorpora información de 5 temporadas), 3) plantear métodos de estimación de los parámetros que penalicen a este tipo de jugadores.
 
-En los últimos años, muchos investigadores han publicado trabajos orientados a mejorar los resultados de las métricas RAPM. Particularmente en este trabajo se usa como referencia central al artículo titulado **Lasso multinomial performance indicators for in‑play basketball data** (Damoulaki et al. , 2025), el cual presenta diferencias importantes respecto de los estudios previos. Dicho artículo utiliza posesiones (definidas, según Kubatko et al. (2007), como el periodo que comienza cuando un equipo obtiene el control de la pelota y termina cuando cede su control al rival) como unidad de análisis, puntos en esas posesiones como variable respuesta y emplea modelos logísticos multinomiales que representan de manera más adecuada la naturaleza de la respuesta.
+En los últimos años, muchos investigadores han publicado trabajos orientados a mejorar los resultados de las métricas RAPM. En este trabajo se toma como referencia central al artículo titulado **Lasso multinomial performance indicators for in‑play basketball data** (Damoulaki et al. , 2025), el cual presenta diferencias importantes respecto de los estudios previos. Dicho artículo utiliza posesiones (definidas, según Kubatko et al. (2007), como el periodo que comienza cuando un equipo obtiene el control de la pelota y termina cuando cede su control al rival) como unidad de análisis, puntos en esas posesiones como variable respuesta y emplea modelos logísticos multinomiales que representan de manera más adecuada la naturaleza de la respuesta.
 
 <!-- Además de calcular estas métricas por primera vez para jugadores de Liga Nacional de Básquetbol de Argentina, se implementaran modificaciones con el objetivo de mejorar las estimaciones de nuestro modelo. Entre ellas, se propone asignar mayor peso a las observaciones que ocurren en momentos verdaderamente relevantes del partido, incorporar variables explicativas de interés y comparar diferentes métodos de estimación de los parámetros, entre otros ajustes. -->
 
@@ -163,7 +163,7 @@ El objetivo general de esta tesina es estimar el aporte individual de los jugado
 
 3)  Desarrollar una metodología adecuada que permita solucionar el problema de los coeficientes extremos asociados a los jugadores con pocos minutos de juego (*LTPs Players*) durante la temporada.
 
-4)  Comparar modelos en base a distintos criterios de evaluación, para poder determinar cual de ellos proporciona mejores métricas, debiendo resumir de manera consistente y precisa el aporte ofensivo y defensivo de cada jugador en relación al desempeño de su equipo.
+4)  Comparar modelos en base a distintos criterios de evaluación, para poder determinar cuál de ellos proporciona mejores métricas, debiendo resumir de manera consistente y precisa el aporte ofensivo y defensivo de cada jugador en relación al desempeño de su equipo.
 
 <!-- ----- Modificación del objetivo ------ -->
 
@@ -197,9 +197,9 @@ Finalmente, en el \hyperref[cap:discusion]{Capítulo 6} se discuten los alcances
 
 # Datos {#cap:datos}
 
-Una parte central de esta tesina estará dedicada a la construcción de una base de datos *play-by-play* correspondiente a la temporada 2024/2025 de la Liga Nacional de Básquetbol de Argentina (LNB). Este tipo de base registra de manera secuencial todas las acciones ocurridas dentro de un partido. Dado que no existe una fuente oficial que provea los datos en formato estructurado y descargable para su análisis estadístico, fue necesario diseñar y ejecutar un proceso de *web scraping* que permita recolectar, integrar y depurar la información de manera sistemática y reproducible. Los datos necesarios se extrajeron del [Sitio Oficial de la Liga Nacional de Básquet](https://www.laliganacional.com.ar/laliga/) , utilizando librerías de Python como `Selenium` y `BeautifulSoup`.
+Una parte central de esta tesina está dedicada a la construcción de una base de datos *play-by-play* correspondiente a la temporada 2024/2025 de la Liga Nacional de Básquetbol de Argentina (LNB). Este tipo de base registra de manera secuencial todas las acciones ocurridas dentro de un partido. Dado que no existe una fuente oficial que provea los datos en formato estructurado y descargable para su análisis estadístico, fue necesario diseñar y ejecutar un proceso de *web scraping* que permita recolectar, integrar y depurar la información de manera sistemática y reproducible. Los datos necesarios se extrajeron del [Sitio Oficial de la Liga Nacional de Básquet](https://www.laliganacional.com.ar/laliga/) , utilizando librerías de Python como `Selenium` y `BeautifulSoup`.
 
-Posteriormente, se realizó un preprocesamiento orientado a transformar los eventos crudos en un *dataset* apto para cumplir los objetivos específicos de este trabajo. Como resultado, se obtuvo una base de datos ordenada cronológicamente en la cual cada fila corresponde a una posesión del partido, contabilizando los puntos anotados durante esa posesión y los jugadores que formaron parte de la misma, diferenciando sus roles ofensivos y defensivos. Debido a que bajo está metodología se registran cada una de las posesiones del partido de manera secuencial, se denominó a esta estructura final como: base de datos *poss-by-poss*.
+Posteriormente, se realizó un preprocesamiento orientado a transformar los eventos crudos en un *dataset* apto para cumplir los objetivos específicos de este trabajo. Como resultado, se obtuvo una base de datos ordenada cronológicamente en la cual cada fila corresponde a una posesión del partido, contabilizando los puntos anotados durante esa posesión y los jugadores que formaron parte de la misma, diferenciando sus roles ofensivos y defensivos. Debido a que bajo esta metodología se registran cada una de las posesiones del partido de manera secuencial, se denominó a esta estructura final como: base de datos *poss-by-poss*.
 
 ## Generación de la base de datos a partir de técnicas de Web Scraping
 
@@ -219,9 +219,9 @@ En la Figura 1 se muestra la interfaz del sitio web, donde se visualiza el lista
 knitr::include_graphics("img/Captura DOM.png")
 ```
 
-A partir de dicho archivo de texto, se utiliza la librería `BeautifulSoup` de Python para recorrer la estructura del DOM, identificando previamente los elementos que contienen los enlaces de cada partido. En la Figura 2 se observa que esta información se encuentra dentro de las clases “fila-tabla-calendarios datos-estadisticos”, las cuales se recorren para obtener los respectivos enlaces a las páginas de estadísticas de cada partido, los nombres de los equipos participantes, la fecha y hora del encuentro y el resultado final, para cada uno de los 378 partidos disputados en la temporada regular. Obteniendo finalmente un diccionario que contenga toda esta información.
+A partir de dicho archivo de texto, se utilizó la librería `BeautifulSoup` de Python para recorrer la estructura del DOM, identificando previamente los elementos que contienen los enlaces de cada partido. En la Figura 2 se observa que esta información se encuentra dentro de las clases “fila-tabla-calendarios datos-estadisticos”, las cuales se recorren para obtener los respectivos enlaces a las páginas de estadísticas de cada partido, los nombres de los equipos participantes, la fecha y hora del encuentro y el resultado final, para cada uno de los 378 partidos disputados en la temporada regular. Obteniendo finalmente un diccionario que contenga toda esta información.
 
-Dicho diccionario constituyó el insumo básico para el proceso posterior de scraping masivo, sobre los cuales se iterará para obtener así la información correspondiente a cada una de las acciones registradas en cada partido. Esta estrategia permitió, además, asegurar la reproducibilidad del proceso, ya que el listado de partidos es eliminado de la página web una vez terminada la temporada, quedando fijado y documentado de manera explícita para su uso, en caso de ser requerido.
+Dicho diccionario constituyó el insumo básico para el proceso posterior de scraping masivo, sobre el cual se iteró para obtener así la información correspondiente a cada una de las acciones registradas en cada partido. Esta estrategia permitió, además, asegurar la reproducibilidad del proceso, ya que el listado de partidos es eliminado de la página web una vez terminada la temporada, quedando fijado y documentado de manera explícita para su uso, en caso de ser requerido.
 
 ### Base de datos *play-by-play*
 
@@ -294,7 +294,7 @@ Es importante destacar que el *dataset* resultante constituye una secuencia deta
 
 ### Tabla de jugadores-equipos
 
-Para resolver este problema, se obtuvo dicha información a partir de los datos provenientes del *Box Score*, localizados en la pestaña "Estadísticas" de la página web del partido (Figura 4). Aquí encontraremos información referida a cada uno de los jugadores anotados en la planilla de ambos equipos.
+Para resolver este problema, se obtuvo dicha información a partir de los datos provenientes del *Box Score*, localizados en la pestaña "Estadísticas" de la página web del partido (Figura 4). Aquí se encuentra información referida a cada uno de los jugadores anotados en la planilla de ambos equipos.
 
 ```{r, echo=FALSE, fig.cap="Ejemplo del Box Score de un partido", out.width="70%", fig.align="center"}
 knitr::include_graphics("img/imagen box score.png")
@@ -312,7 +312,7 @@ Esta tabla constituye un diccionario que permite asociar a cada jugador con su r
 
 Una vez construida la tabla jugadores-equipos, se procedió a integrar dicha información con la base de datos *play-by-play*. Para ello, los nombres de los jugadores fueron previamente normalizados con el objetivo de reducir posibles inconsistencias de formato (espacios adicionales, diferencias menores de escritura), y luego se utilizó la correspondencia jugador–equipo para asignar a cada acción del *play-by-play* el equipo del jugador involucrado.
 
-De este modo, cada acción queda asociada explícitamente a uno de los dos equipos del partido, aun cuando dicha información no se encuentre disponible de forma directa en el registro original del *play-by-play*. Este procedimiento permite identificar qué jugadores estarán en cancha para cada uno de los equipos, permitiendo construir los quintetos en cada momento del partido.
+De este modo, cada acción queda asociada explícitamente a uno de los dos equipos del partido, aun cuando dicha información no se encuentre disponible de forma directa en el registro original del *play-by-play*. Este procedimiento permite identificar qué jugadores se encontraban en cancha para cada uno de los equipos, permitiendo construir los quintetos en cada momento del partido.
 
 ### Identificación de los quintetos en cancha al momento de la acción
 
@@ -328,15 +328,13 @@ El conjunto de jugadores en cancha se actualiza a medida que se recorren las acc
 
 Utilizando la tabla jugadores-equipos construida previamente, cada jugador en cancha fue asignado al equipo local o visitante, permitiendo reconstruir los quintetos de ambos equipos en cada acción del partido. Este paso resulta esencial para caracterizar el contexto en el que ocurre cada acción, ya que, al conocer el equipo al que pertenece el jugador que realiza la acción podemos inferir simultáneamente los jugadores ofensivos y defensivos presentes en cancha en cada momento.
 
-Una vez reconstruidos los quintetos en cancha para cada acción, se incorporó un control de consistencia basado en la cantidad total de jugadores activos. Dado que una situación de juego regular involucra diez jugadores (cinco por equipo), se podrán identificar aquellas acciones en las que la cantidad total de jugadores en cancha fuera superior o inferior a dicho umbral.
-
-Una vez reconstruidos los quintetos en cancha para cada acción, se realizaron controles de consistencia sobre su conformación, verificando que la cantidad de jugadores registrados para cada equipo fuera compatible con una situación regular de juego. Estos controles resultan especialmente relevantes debido a que la información del *play-by-play* es cargada manualmente por las mesas de control durante el desarrollo altamente dinámico de un partido los partidos, por lo que pueden presentarse errores en la registración de eventos. El detalle de los controles realizados y de las inconsistencias detectadas y corregidas se presenta en el Anexo.
+Una vez reconstruidos los quintetos en cancha para cada acción, se realizaron controles de consistencia sobre su conformación, verificando que la cantidad de jugadores registrados para cada equipo fuera compatible con una situación regular de juego. Estos controles resultan especialmente relevantes debido a que la información del *play-by-play* es cargada manualmente por las mesas de control durante el desarrollo altamente dinámico de un partido de los partidos, por lo que pueden presentarse errores en la registración de eventos. El detalle de los controles realizados y de las inconsistencias detectadas y corregidas se presenta en el Anexo.
 
 ## Generación de la base de datos *poss-by-poss*
 
-Como resultado del trabajo realizado en la Sección 5.1 y 5.2, se pudo obtener una base de datos unificada donde cada fila se corresponde con cada una de las jugadas o acciones que suceden dentro del partido, incluyendo información relevante para este trabajo como lo es el marcador del partido al momento de la acción, la composición de los quintetos en cancha y la condición de local o visitante de los equipos. Sin embargo, para poder aplicar los modelos estadísticos mencionados, resulta necesario agrupar estas acciones en **posesiones**, entendidas como el conjunto de acciones ocurridas antes de que cambie el control de la pelota.
+Como resultado del trabajo realizado en la Sección 2.1 y 2.2, se pudo obtener una base de datos unificada donde cada fila se corresponde con cada una de las jugadas o acciones que suceden dentro del partido, incluyendo información relevante para este trabajo como lo es el marcador del partido al momento de la acción, la composición de los quintetos en cancha y la condición de local o visitante de los equipos. Sin embargo, para poder aplicar los modelos estadísticos mencionados, resulta necesario agrupar estas acciones en **posesiones**, entendidas como el conjunto de acciones ocurridas antes de que cambie el control de la pelota.
 
-Para llevar a cabo este proceso fue necesario definir una metodología adecuada que permita diferenciar qué acciones pertenecían a una misma posesión, y en qué momento comenzaba una distinta.
+Para llevar a cabo este proceso fue necesario definir una metodología adecuada que permitiera diferenciar qué acciones pertenecían a una misma posesión, y en qué momento comenzaba una distinta.
 
 ### Eliminación de acciones no relevantes para la posesión
 
@@ -346,7 +344,7 @@ Este procedimiento no pudo realizarse de manera directa, ya que, a pesar de cont
 knitr::include_graphics("img/acciones intrusas.png")
 ```
 
-Luego de hacer una revisión manual en un conjunto limitado de partidos, se llegó a la definición de que el conjunto de acciones presentes en el Cuadro 1 suelen ser siempre acciones intrusas o nunca resultan informativas para la delimitación de las posesiones. En consecuencia se ha decidido eliminar las filas en las que ocurren estas acciones en la base de datos. Estas acciones son:
+Luego de hacer una revisión manual en un conjunto limitado de partidos, se llegó a la definición de que el conjunto de acciones presentes en el Cuadro 1 suelen ser siempre acciones intrusas o nunca resultan informativas para la delimitación de las posesiones. En consecuencia se decidió eliminar las filas en las que ocurren estas acciones en la base de datos. Estas acciones son:
 
 ```{r, echo=FALSE,message=FALSE}
 # 1. Crear el dataframe con las acciones
@@ -427,7 +425,7 @@ knitr::include_graphics("img/falta ofensiva.png")
 
 ### Identificación de la finalización de las posesiones
 
-Una vez realizadas estas tareas de preprocesamiento, se incorporó un identificador preliminar de posesión, basado en dos criterios fundamentales: el cambio de equipo en control del balón y el cambio de cuarto. De manera que cada vez que ocurre alguno de estos eventos, se identifica como el inicio de una nueva posesión. Esto se encuentra ejemplificado en el Cuadro 2.
+Una vez realizadas estas tareas de preprocesamiento, se incorporó un identificador preliminar de posesión, basado en dos criterios fundamentales: el cambio de equipo en control del balón y el cambio de cuarto. De manera que cada vez que ocurría alguno de estos eventos, se identificaba el inicio de una nueva posesión. Esto se encuentra ejemplificado en el Cuadro 2.
 
 ```{r,echo=FALSE}
 
@@ -507,29 +505,29 @@ Como resultado de esta corrección, la variable puntos por posesión pasó a tom
 
 Es importante destacar que, aún después de estas correcciones, algunas de las posesiones continuaron presentando puntos inusualmente altos, por lo que también se realizó una revisión del contexto de aquellas posesiones con resultados extremos. Mediante lo cual se identificaron inconsistencias en la secuencia cronológica de algunas acciones registradas en el *play-by-play*. En particular, se identificaron situaciones en las que dos acciones de anotación del mismo equipo aparecían de manera consecutiva, sin que existiera una acción intermedia del equipo rival que justificara la continuidad de la posesión. Estas inconsistencias pueden deberse a errores en la carga manual de la información realizada durante el partido y constituyen una limitación inherente a la calidad de los datos disponibles. Si bien estos casos fueron poco frecuentes, generan incertidumbre principalmente en las posesiones con cinco, seis o siete puntos, cuya ocurrencia es muy poco común en condiciones normales de juego. 
 
-En este sentido, mientras que en la base de datos utilizada por Damoulaki et al. (2025) las posesiones con más de 3 puntos representan aproximadamente el 0,1 % del total, en la base construida para este trabajo dicha proporción asciende al 0,3 %, lo que podría ser consistente con la presencia de errores de carga no detectados en la totalidad de los partidos. Sin embargo, no puede descartarse que también responda a la idiosincrasia propia del juego en la Liga Nacional de Básquetbol de Argentina, en comparación con la NBA. Por los alcances de esta tesina, estas observaciones fueron conservadas en la base de datos; esta limitación será retomada en el capítulo de Discusión.
+En este sentido, mientras que en la base de datos utilizada por Damoulaki et al. (2025) las posesiones con más de 3 puntos representan aproximadamente el 0,1 % del total, en la base construida para este trabajo dicha proporción asciende al 0,3 %, lo que podría ser consistente con la presencia de errores de carga no detectados en la totalidad de los partidos. Sin embargo, no puede descartarse que también responda a la idiosincrasia propia del juego en la Liga Nacional de Básquetbol de Argentina, en comparación con la NBA. Por los alcances de esta tesina, estas observaciones fueron conservadas en la base de datos.<!-- ; esta limitación se retoma en el capítulo de Discusión. -->
 
 ### Identificación de jugadores ofensivos y defensivos en cancha
 
 Con el objetivo de poder distinguir la participación individual de los jugadores en cada posesión, se utilizó la información de los quintetos en cancha previamente reconstruidos durante el preprocesamiento. Para cada posesión se identificaron los cinco jugadores del equipo atacante y los cinco jugadores del equipo defensor.
 
-A partir de esta información se construyó una representación matricial de jugadores por posesión, donde cada jugador de la temporada cuenta con dos variables indicadoras. Donde, la primer variable dummy asigna a cada jugador un 1 si el jugador forma parte del quinteto ofensivo y 0 en caso contratrio; mientras que la segunda variable dummy asigna un -1 si el jugador forma parte del quinteto defensivo, y 0 en otro caso. Este esquema permite modelar de manera explícita la contribución ofensiva y defensiva de manera independiente para cada uno de los jugadores que han participado en al menos un partido dentro de la temporada en estudio.
+A partir de esta información se construyó una representación matricial de jugadores por posesión, donde cada jugador de la temporada cuenta con dos variables indicadoras. Donde, la primer variable dummy asigna a cada jugador un 1 si el jugador forma parte del quinteto ofensivo y 0 en caso contrario; mientras que la segunda variable dummy asigna un -1 si el jugador forma parte del quinteto defensivo, y 0 en otro caso. Este esquema permite modelar de manera explícita la contribución ofensiva y defensiva de manera independiente para cada uno de los jugadores que han participado en al menos un partido dentro de la temporada en estudio.
 
 ## Base de datos final: *poss-by-poss*
 
-A través de este proceso, se generó una base de datos que permitirá modelar la cantidad de puntos por posesión teniendo en cuenta los jugadores presentes en cancha, dicha base cuenta con la información correspondiente a 58.625 posesiones, asociadas a 378 partidos disputados en la temporada en estudio.
+A través de este proceso, se generó una base de datos que permite modelar la cantidad de puntos por posesión teniendo en cuenta los jugadores presentes en cancha, dicha base cuenta con la información correspondiente a 58.625 posesiones, asociadas a 378 partidos disputados en la temporada en estudio.
 
 Las variables presentes son las siguientes:
 
 `puntos` = Cantidad de puntos en la posesión.
 
-`cuarto` = Cuarto en el que se desarrollo la posesión.
+`cuarto` = Cuarto en el que se desarrolló la posesión.
 
 `tiempo` = Tiempo restante del cuarto en el momento que finaliza la acción.
 
 `equipo` = Nombre del equipo que está atacando en la posesión.
 
-`condicion` = Condición de localia del equipo que está atacando en la posesión.
+`condicion` = Condición de localía del equipo que está atacando en la posesión.
 
 Y se cuenta con variables indicadoras referentes a las presencias ofensivas y defensivas al momento de la posesión para cada uno de los jugadores que hayan completado al menos una posesión a lo largo de la temporada. Se encontraron 346 jugadores que cumplían esa condición en esta temporada, contabilizando de esta manera otras 692 (346 indicadoras ofensivas y 346 indicadoras defensivas) variables adicionales dentro del dataset.
 
@@ -547,7 +545,7 @@ Con el fin de sintetizar adecuadamente la contribución ofensiva y defensiva de 
 
 ### Modelo de regresión lineal múltiple
 
-Los modelos más utilizados en la literatura relevante sobre RAPMs son los **modelos de regresión lineal múltiple**, los cuales van a modelar el comportamiento de la variable respuesta *puntos en la posesión i* ($Y_i$) en función de P = 2K variables explicativas dicotómicas, correspondientes a las apariciones ofensivas y defensivas de K jugadores.
+Los modelos más utilizados en la literatura relevante sobre RAPMs son los **modelos de regresión lineal múltiple**, los cuales modelan el comportamiento de la variable respuesta *puntos en la posesión i* ($Y_i$) en función de P = 2K variables explicativas dicotómicas, correspondientes a las apariciones ofensivas y defensivas de K jugadores.
 
 El componente aleatorio supone que las variables respuesta $Y_i$ tienen variancia constante $\sigma^2$. De esta manera tenemos que,
 
@@ -558,7 +556,7 @@ Y_i \sim N(\mu_i  , \sigma^2), \\
 \end{cases}
 \end{equation}
 
-para $i = 1,...,n$, donde, $n$: es el número total de posesiones disputadas, $K$ es el número total de jugadores en el análisis, $Y_i$ es la variable respuesta correspondiente al número de puntos realizados en la posesión $i$, $\mu_i$ es la cantidad esperada de puntos anotados en la posesión $i$, $x^o_{ik}$ es la indicadora ofensiva del jugador $k$ en la posesión $i$ ($1$ si el jugador $k$ estaba jugando en ataque en la posesión $i$, $0$ en otro caso), $x^d_{ik}$ es la indicadora defensiva del jugador $k$ en la posesión $i$ ($-1$ si el jugador $k$ estaba jugando en defensa en la posesión $i$, $0$ en otro caso), $\beta_0$ es el intercepto del modelo, $\beta^o_k$ es elcoeficiente ofensivo del jugador $k$ (ORAPM), $\beta^d_k$ es el coeficiente defensivo del jugador $k$ (DRAPM).
+para $i = 1,...,n$, donde, $n$: es el número total de posesiones disputadas, $K$ es el número total de jugadores en el análisis, $Y_i$ es la variable respuesta correspondiente al número de puntos realizados en la posesión $i$, $\mu_i$ es la cantidad esperada de puntos anotados en la posesión $i$, $x^o_{ik}$ es la indicadora ofensiva del jugador $k$ en la posesión $i$ ($1$ si el jugador $k$ estaba jugando en ataque en la posesión $i$, $0$ en otro caso), $x^d_{ik}$ es la indicadora defensiva del jugador $k$ en la posesión $i$ ($-1$ si el jugador $k$ estaba jugando en defensa en la posesión $i$, $0$ en otro caso), $\beta_0$ es el intercepto del modelo, $\beta^o_k$ es el coeficiente ofensivo del jugador $k$ (ORAPM), $\beta^d_k$ es el coeficiente defensivo del jugador $k$ (DRAPM).
 
 <!-- Como $\hat{\beta}_k$ es una combinación lineal de $Y_i$ , entonces la distribución de estos estimadores es conocida. Tenemos que: -->
 
@@ -681,7 +679,7 @@ Las probabilidades multinomiales vienen dadas por las siguientes ecuaciones
 
 con $\boldsymbol{\beta}_0 = \boldsymbol{0}$.
 
-#### Interpretación de los coeficientesREVISAR
+#### Interpretación de los coeficientes
 
 Para cada jugador $k$, un mayor valor en alguno de los coeficientes ofensivos ($\beta_{k1}^o$,$\beta_{k2}^o$,$\beta_{k3}^o$) se encuentra asociado a un mayor valor en la razón de *odds* de anotar 1, 2 o 3 puntos o más, respecto de no anotar. Mientras que, a valores más grandes en los coeficientes defensivos ($\beta_{k1}^d$,$\beta_{k2}^d$,$\beta_{k3}^d$), menor será cada una de las respectivas razones de *odds* correspondientes.
 
@@ -689,15 +687,15 @@ De igual manera, como el objetivo de esta tesina está centrado en obtener una m
 
 ## EPTS y wEPTS
 
-El modelo logístico multinomial proporciona, para cada jugador, tres coeficientes ofensivos y tres defensivos, correspondientes a su contribución sobre las razones de odds de anotar uno, dos y tres puntos o más, respectivamente, en comparación con no anotar. Si bien estos coeficientes permiten analizar por separado el efecto de cada jugador sobre los distintos tipos de anotación, el objetivo de esta tesina es obtener una medida única que resuma su contribución al desempeño ofensivo y defensivo de su equipo. Con este propósito, a partir de las probabilidades estimadas por el modelo, se construyen las métricas EPTS y wEPTS.REVISAR
+El modelo logístico multinomial proporciona, para cada jugador, tres coeficientes ofensivos y tres defensivos, correspondientes a su contribución sobre las razones de odds de anotar uno, dos y tres puntos o más, respectivamente, en comparación con no anotar. Si bien estos coeficientes permiten analizar por separado el efecto de cada jugador sobre los distintos tipos de anotación, el objetivo de esta tesina es obtener una medida única que resuma su contribución al desempeño ofensivo y defensivo de su equipo. Con este propósito, a partir de las probabilidades estimadas por el modelo, se construyen las métricas EPTS y wEPTS.
 
 ### *Expected points* (EPTS)
 
-En el el modelo expuesto en la Sección 4.1.2, los coeficientes <!--{$\beta_1^o$,$\beta_2^o$,$\beta_3^o$} y {$\beta_1^d$,$\beta_2^d$,$\beta_3^d$}--> representan las contribuciones de cada jugador en los distintos tipos de anotación. Aunque puede resultar interesante y permita realizar diversos tipos de análisis, el objetivo final de este estudio es obtener una métrica que unifique la contribución ofensiva y defensiva en una única medida general.REVISAR
+<!-- En el modelo expuesto en la Sección 3.1.2, los coeficientes <!--{$\beta_1^o$,$\beta_2^o$,$\beta_3^o$} y {$\beta_1^d$,$\beta_2^d$,$\beta_3^d$}--> representan las contribuciones de cada jugador en los distintos tipos de anotación. Aunque puede resultar interesante y permita realizar diversos tipos de análisis, el objetivo final de este estudio es obtener una métrica que unifique la contribución ofensiva y defensiva en una única medida general. -->
 
 A diferencia del modelo de regresión lineal múltiple, el cambio en la cantidad esperada de puntos al sustituir un jugador por otro no sólo está determinado por los coeficientes de ambos jugadores, sino también por los coeficientes de sus cuatro compañeros y de los cinco jugadores rivales. Por lo tanto, siguiendo la estrategia propuesta por Damoulaki et al. (2025), se evalúa a cada jugador bajo un escenario simplificado. En este escenario, el único jugador con coeficiente distinto de cero es el jugador de interés, mientras que todos los demás jugadores presentes en cancha pertenecen al grupo de referencia, es decir, poseen coeficientes iguales a cero. De este modo, la cantidad esperada de puntos por posesión refleja exclusivamente la contribución ofensiva o defensiva del jugador evaluado.
 
-La contribución ofensiva se obtiene calculando la cantidad de puntos esperada por posesión que anota el equipo de dicho jugador cuando él está incluido ofensivamente, bajo el escenario simplificado. De manera similar, la contribución defensiva de un jugador se obtiene mediante la cantidad esperada de puntos concedidos por posesión por el equipo de dicho jugador cuando él está en el quinteto y todos los demás jugadores en cancha pertenecen al grupo de referencia. A esta nueva métrica la denominamos *Expected Points* (EPTS).
+La contribución ofensiva se obtiene calculando la cantidad de puntos esperada por posesión que anota el equipo de dicho jugador cuando él está incluido ofensivamente, bajo el escenario simplificado. De manera similar, la contribución defensiva de un jugador se obtiene mediante la cantidad esperada de puntos concedidos por posesión por el equipo de dicho jugador cuando él está en el quinteto y todos los demás jugadores en cancha pertenecen al grupo de referencia. A esta nueva métrica se la denomina *Expected Points* (EPTS).
 
 \begin{equation}
 EPTS_k^r= E(Y_i \mid X_{ik}^r \ne 0,\, \boldsymbol{X}_{{i\setminus{k}}}^r = \boldsymbol{0},\, \boldsymbol{X}_i^{\overline{r}} = \boldsymbol{0}), \quad r \in \{o, d\}.
@@ -766,7 +764,7 @@ donde $\mathcal{I}(A)$ es una variable indicadora que vale 1 en caso de que A se
 
 ### Método de mínimos cuadrados
 
-En el modelo de regresión lineal múltiple, los parámetros se van a estimar mediante el método de mínimos cuadrados, siendo la función a minimizar:
+En el modelo de regresión lineal múltiple, los parámetros se estiman mediante el método de mínimos cuadrados, siendo la función a minimizar:
 
 \begin{equation}
 S = \sum_{i=1}^n (y_i-\mu_i)^2.
@@ -796,7 +794,7 @@ A diferencia del modelo lineal estimado mediante mínimos cuadrados ordinarios, 
 
 ## Multicolinealidad
 
-En los modelos de regresión múltiple, la multicolinealidad hace referencia a la existencia de dependencias lineales o casi lineales entre las columnas de la matriz de diseño. Cuando estas dependencias son exactas, la matriz $X'X$ resulta singular y los parámetros no pueden estimarse mediante mínimos cuadrados ordinarios. Cuando las dependencias son aproximadas, las estimaciones pueden calculares, pero presentando variancias grandes, dando lugar a coeficientes muy sensibles a cambios relativamente pequeños en los datos.
+En los modelos de regresión múltiple, la multicolinealidad hace referencia a la existencia de dependencias lineales o casi lineales entre las columnas de la matriz de diseño. Cuando estas dependencias son exactas, la matriz $X'X$ resulta singular y los parámetros no pueden estimarse mediante mínimos cuadrados ordinarios. Cuando las dependencias son aproximadas, las estimaciones pueden calcularse, pero presentan variancia grande, dando lugar a coeficientes muy sensibles a cambios relativamente pequeños en los datos.
 
 En los modelos RAPM la multicolinealidad aparece de manera natural debido a la estructura propia del juego. <!--Cada jugador es representado mediante una variable indicadora que toma el valor 1 cuando participa ofensivamente en una posesión, -1 cuando participa defensivamente y 0 en caso contrario. Por este motivo, a -->Esto se debe a que, al tener muchos jugadores que comparten una gran proporción de sus minutos en cancha con los mismos compañeros, existe una fuerte dependencia entre las columnas correspondientes a la matriz de diseño, como puede identificarse en el Cuadro 4. Como resultado, el modelo dispone de poca información para distinguir cuál de los jugadores es realmente responsable del rendimiento observado durante esas posesiones.
 
@@ -839,17 +837,17 @@ tabla_multicol %>%
   )
 ```
 
-Para abordar este problema, tal como se mencionó en la Sección 2.3, distintos autores recurrieron a estimaciones basadas en métodos de regularización mediante los cuales se introduce deliberadamente un pequeño sesgo en las estimaciones con el objetivo de reducir su varianza. Este compromiso entre sesgo y varianza suele traducirse en una disminución del error de predicción y en estimaciones considerablemente más estables. Por otra parte, diversos autores destacaron las ventajas de disponer de una mayor cantidad de datos, incorporando en muchos casos información de varias temporadas. Sin embargo, esta estrategia no pudo implementarse en el presente trabajo, ya que, una vez finalizada cada temporada de la Liga Nacional de Básquetbol de Argentina, los enlaces a los partidos dejan de estar disponibles, imposibilitando el acceso a la información histórica necesaria para reconstruir las bases de datos.
+Para abordar este problema, distintos autores recurrieron a estimaciones basadas en métodos de regularización mediante los cuales se introduce deliberadamente un pequeño sesgo en las estimaciones con el objetivo de reducir su varianza. Este compromiso entre sesgo y varianza suele traducirse en una disminución del error de predicción y en estimaciones considerablemente más estables. Por otra parte, diversos autores destacaron las ventajas de disponer de una mayor cantidad de datos, incorporando en muchos casos información de varias temporadas. Sin embargo, esta estrategia no pudo implementarse en el presente trabajo, ya que, una vez finalizada cada temporada de la Liga Nacional de Básquetbol de Argentina, los enlaces a los partidos dejan de estar disponibles, imposibilitando el acceso a la información histórica necesaria para reconstruir las bases de datos.
 
 ## Tratamiento de los jugadores con poco tiempo de juego (*Low time players - LTP*)
 
-En el presente trabajo se identificaron 346 jugadores que participaron en al menos una posesión a lo largo de la temporada, lo que representa un promedio de 17,3 jugadores utilizados por equipo. La distribución de posesiones presenta una marcada asimetría, tal como se observa en la Figura 10, observándose jugadores que participaron en apenas una o dos posesiones, mientras que otros, titulares indiscutibles, participaron en más de 4000 posesiones.
+En el presente trabajo se identificaron 346 jugadores que participaron en al menos una posesión a lo largo de la temporada, lo que representa un promedio de 17,3 jugadores utilizados por equipo. En la FIgura 8 se observa que la distribución de posesiones presenta una marcada asimetría, con jugadores que participaron en apenas una o dos posesiones, mientras que otros, titulares indiscutibles, participaron en más de 4000 posesiones.
 
 ```{r, fig.cap="Distribución de posesiones disputadas por jugador", out.width="80%", fig.align="center"}
 knitr::include_graphics("img/distribucion_posesiones.pdf")
 ```
 
-Como se mencionó en la Sección 2.3, las estimaciones de los coeficientes de jugadores que juegan muy poco, y por lo tanto, cuentan con muy pocas observaciones en la base, se ven fuertemente afectadas y presentan coeficientes extremos. Para intentar solucionar esta problemática, dentro de la literatura relevante sobre RAPM, se han definido distintos criterios de exclusión de jugadores en base a la cantidad de minutos que disputaron en las temporadas analizadas.
+las estimaciones de los coeficientes de jugadores que juegan muy poco, y por lo tanto, cuentan con muy pocas observaciones en la base, se ven fuertemente afectadas y presentan coeficientes extremos. Para intentar solucionar esta problemática, dentro de la literatura relevante sobre RAPM, se han definido distintos criterios de exclusión de jugadores en base a la cantidad de minutos que disputaron en las temporadas analizadas.
 
 Rosenbaum (2004) propone excluir a los jugadores con menos de 250 minutos disputados, mientras que Ilardi (2007) e Ilardi y Barzilai (2008) utilizan un umbral de 400 minutos. Sill (2010) evalúa distintos puntos de corte, comprendidos entre 800 y 1200 minutos, seleccionando el más adecuado mediante validación cruzada. En un enfoque diferente, Gong y Chen (2024) no eliminan a estos jugadores, sino que agrupan a aquellos con menos de 10 minutos por partido en una categoría específica, representando al 20% del total de jugadores, y les asignan un prior particular dentro de su modelo bayesiano. Mientras que en el artículo de referencia de este trabajo, Damoulaki et al. (2025) excluye a los jugadores con menos de 200 minutos, lo que representa el 32% de los jugadores de su base de datos.
 
@@ -895,9 +893,9 @@ Por otro lado, en el caso del modelo logístico multinomial, el parámetro de pe
 L^*_m(\boldsymbol{\beta},\boldsymbol{y})= -\sum_{i=1}^n\sum_{c=0}^3y_{ic}log(\pi_{ic}) + \lambda \sum_{l=1}^P\sum_{c=1}^3 \beta_{lc}^2= - L_m(\boldsymbol{\beta},\boldsymbol{y}) + \lambda \sum_{l=1}^P\sum_{c=1}^3 \beta_{lc}^2,
 \end{equation}
 
-en ambos casos el valor del $\lambda$ se selecciona mediante validación cruzada. Cabe destacar que, a diferencia de lo que ocurre con la penalización L1 (Sección 6.6.2), la agrupación de los tres coeficientes de un mismo jugador no introducen ninguna diferencia en la penalización Ridge.
+en ambos casos el valor del $\lambda$ se selecciona mediante validación cruzada. Cabe destacar que, a diferencia de lo que ocurre con la penalización L1 (Sección 3.6.2), la agrupación de los tres coeficientes de un mismo jugador no introduce ninguna diferencia en la penalización Ridge.
 
-Una característica de la penalización $L_2$ es que, en general, no produce coeficientes exactamente iguales a cero para valores finitos de $\lambda$. Esto se debe a que la función de penalización $(\beta_l^2)$ es suave y diferenciable en cero, por lo que no existe un cambio abrupto en el criterio de optimización cuando un coeficiente alcanza dicho valor. En consecuencia, Ridge reduce la magnitud de los efectos estimados pero conserva habitualmente a todos los predictores dentro del modelo.
+Una característica de la penalización $L_2$ es que, en general, no produce coeficientes exactamente iguales a cero para valores finitos de $\lambda$. Esto se debe a que el término de penalización asociado a cada coeficiente $(\beta_l^2)$ es suave y diferenciable en cero, por lo que no existe un cambio abrupto en el criterio de optimización cuando un coeficiente alcanza dicho valor. En consecuencia, Ridge reduce la magnitud de los efectos estimados pero conserva habitualmente a todos los predictores dentro del modelo.
 
 ### Lasso o Regularización $L_1$
 
@@ -956,7 +954,7 @@ Una vez obtenidos los rankings de jugadores a través de las distintas técnicas
 
 En primera instancia, se evalúa la bondad de ajuste de los distintos modelos mediante medidas de error y procedimientos de validación basados en simulación. De manera complementaria, se realizan comparaciones a través de estrategias propuestas en artículos relevantes dentro de la literatura de RAPM, buscando evaluar la **consistencia** y la **validez** de los rankings generados.
 
-Particularmente, en el ámbito del fútbol, Lars Magnus Hvattum, quien ha desarrollado una extensa línea de investigación sobre métricas *plus-minus* para la evaluación de jugadores, plantea distintas propuestas metodológicas para la comparación de modelos, las cuales no parecen haber sido implementada en básquetbol hasta la fecha. En el artículo *Modelling the financial contribution of soccer players to their clubs* (Sæbø & Hvattum, 2019) y en videos de su canal de YouTube [Football Player Ratings](https://www.youtube.com/@footballplayerratings) se definen dos criterios para medir los distintos sistemas de rankings. Esta metodología es resplicada para medir la consistencia de los modelos realizados, mientras que, para evaluar su validez, se recurre a criterios de validación externa, tomando como referencia la propuesta de Damoulaki et al. (2025) pero adaptándola a la información disponible en la Liga Nacional de Básquet Argentina.
+Particularmente, en el ámbito del fútbol, Lars Magnus Hvattum, quien ha desarrollado una extensa línea de investigación sobre métricas *plus-minus* para la evaluación de jugadores, plantea distintas propuestas metodológicas para la comparación de modelos, las cuales no parecen haber sido implementadas en básquetbol hasta la fecha. En el artículo *Modelling the financial contribution of soccer players to their clubs* (Sæbø & Hvattum, 2019) y en videos de su canal de YouTube [Football Player Ratings](https://www.youtube.com/@footballplayerratings) se definen dos criterios para medir los distintos sistemas de rankings. Esta metodología es se replica para medir la consistencia de los modelos realizados, mientras que, para evaluar su validez, se recurre a criterios de validación externa, tomando como referencia la propuesta de Damoulaki et al. (2025) pero adaptándola a la información disponible en la Liga Nacional de Básquet Argentina.
 
 ### Bondad de ajuste
 
@@ -981,7 +979,7 @@ En el enfoque clásico basado en regresión normal, la cantidad de puntos por po
 
 $$\hat{y}_i = \hat{\mu}_i$$.
 
-En cambio, el modelo logístico multinomial considera a los puntos por posesión como variable categórica, permitiendo estimar las probabilidades $\hat{\pi}_{ic}$ para cada categoría de anotación. Para obtener una predicción puntual en la escala original de puntos, se utiliza una ponderación análoga a la definida en la Sección 4.2.1 para la construcción del EPTS, pero calculando las probabilidades sobre el conjunto de jugadores presentes en la posesión $i$:
+En cambio, el modelo logístico multinomial considera a los puntos por posesión como variable categórica, permitiendo estimar las probabilidades $\hat{\pi}_{ic}$ para cada categoría de anotación. Para obtener una predicción puntual en la escala original de puntos, se utiliza una ponderación análoga a la definida en la Sección 3.2.1 para la construcción del EPTS, pero calculando las probabilidades sobre el conjunto de jugadores presentes en la posesión $i$:
 
 $$
 \hat{y_i} = 
@@ -1059,9 +1057,9 @@ Con el objetivo de evaluar la validez de los rankings obtenidos mediante los dis
 
 El conjunto de criterios elegidos fue el siguiente:
 
--   *Criterio de jugadores galardonados*: A lo largo de la temporada la LNB premia a los integrantes del quinteto ideal de la semana (durante las 28 semanas de temporada regular), así como también a los mejores quintetos de las distintas instancias de post-temporada. Por otro lado, al finalizar la temporada regular, se otorgan los principales premios individuales de desempeño (Jugador Más Valioso, Mejor Jugador Nacional, Mejor Jugador Extranjero, Mejor Defensor, Jugador Revelación, Sexto Hombre y Jugador de Mayor Progresión), donde para cada uno de estos premios se selecciona previamente una terna de tres jugadores. Dentro de esta ceremonia se premia también al quinteto ideal de toda la temporada.
+-   *Criterio de jugadores galardonados*: A lo largo de la temporada la LNB premia a los integrantes del quinteto ideal de la semana (durante las 28 semanas de temporada regular), así como también a los mejores quintetos de las distintas instancias de post-temporada. Por otro lado, al finalizar la temporada regular, se otorgan los principales premios individuales de desempeño (Jugador Más Valioso, Mejor Jugador Nacional, Mejor Jugador Extranjero, Mejor Defensor, Jugador Revelación, Sexto Hombre y Jugador de Mayor Progresión), donde para cada uno de estos premios se selecciona previamente una terna de tres jugadores. Dentro de esta ceremonia se premia también al quinteto ideal de toda la temporada.En total, se identificaron 81 jugadores que recibieron al menos un galardón o que integraron alguna terna durante la temporada en  estudio. 
 
-En total, se identificaron 81 jugadores que recibieron al menos un galardón o que integraron alguna terna durante la temporada en estudio. Como medida de validación, se consideró para cada modelo a los 50 primeros jugadores del ranking ofensivo y los 50 primeros del defensivo de manera conjunta, y se identificó cuántos de los 81 jugadores galardonados aparecían en al menos uno de estos rankings.<!--Adicionalmente, se analizaron mediante distintas visualizaciones las posiciones alcanzadas por los jugadores más distinguidos de la temporada. -->
+  Como medida de validación, se consideró para cada modelo a los 50 primeros jugadores del ranking ofensivo y los 50 primeros del defensivo de manera conjunta, y se identificó cuántos de los 81 jugadores galardonados aparecían en al menos uno de estos rankings.<!--Adicionalmente, se analizaron mediante distintas visualizaciones las posiciones alcanzadas por los jugadores más distinguidos de la temporada. -->
 
 -   *Criterio de jugadores con poco tiempo de juego*: Se identificaron los 50 jugadores con menor cantidad de minutos disputados entre los jugadores incluidos en los modelos y se calculó la proporción de ellos que aparecían entre los 50 mejores jugadores según cada ranking ofensivo y defensivo. Dado que la escasa participación suele generar estimaciones inestables, se espera que un modelo con mejor desempeño ubique a una menor cantidad de estos jugadores en las primeras posiciones de los rankings.
 
@@ -1306,7 +1304,7 @@ De igual manera, esta normalización de la métrica tradicional no elimina todas
 
 ### Análisis del *plus-minus* estandarizado por equipo
 
-Como se mencionó en la Sección 5.1.4, el cálculo de +/- por posesión resulta muy informativo, pero lo es más si se piensa dentro del contexto del equipo. Tal como se evidencia en la Figura 13, los valores presentados en dicha métrica dependen fuertemente del desempeño de cada equipo, donde equipos clasificados a *playoffs* presentan jugadores con valoración generalmente positiva y equipos ubicados en las últimas posiciones de la tabla presentan, en su mayoría, una valoración negativa.
+Como se mencionó en la Sección 4.1.4, el cálculo de +/- por posesión resulta muy informativo, pero lo es más si se piensa dentro del contexto del equipo. Tal como se evidencia en la Figura 11, los valores presentados en dicha métrica dependen fuertemente del desempeño de cada equipo, donde equipos clasificados a *playoffs* presentan jugadores con valoración generalmente positiva y equipos ubicados en las últimas posiciones de la tabla presentan, en su mayoría, una valoración negativa.
 
 ```{r, echo=FALSE, fig.cap="plus-minus cada 100 posesiones por equipo", out.width="85%", fig.align="center"}
 knitr::include_graphics("img/distribucion_pm100_por_equipo.pdf")
@@ -1396,13 +1394,13 @@ Esta medida complementa el análisis del +/- por 100 posesiones al identificar l
 
 ## Métricas basadas en modelos estadísticos
 
-Las métricas descriptivas analizadas en la sección anterior permiten cuantificar el rendimiento observado de los equipos durante las posesiones en las que participa cada jugador, pero no aislar su contribución individual del contexto en el que se produce. Para abordar esta limitación, a continuación se presentan los resultados obtenidos mediante los modelos estadísticos desarrollados en el Capítulo 4: RAPM, EPTS y wEPTS.
+Las métricas descriptivas analizadas en la sección anterior permiten cuantificar el rendimiento observado de los equipos durante las posesiones en las que participa cada jugador, pero no aislar su contribución individual del contexto en el que se produce. Para abordar esta limitación, a continuación se presentan los resultados obtenidos mediante los modelos estadísticos desarrollados en el Capítulo 3: RAPM, EPTS y wEPTS.
 
 ### RAPM
 
-Como primera medida estándar a evaluar, se estimó el RAPM mediante un modelo de regresión lineal múltiple normal presentado en la Sección 4.1.1. Se consideraron $K$ = 229 jugadores (66,1% del total) que superaron el criterio mínimo de participación, por lo que se incluyeron 458 indicadores de presencia, 229 ofensivos y 229 defensivos. Los coeficientes se estimaron mediante Ridge, Lasso y Elastic Net para reducir la inestabilidad generada por la multicolinealidad y la escasa cantidad de observaciones de algunos jugadores.
+Como primera medida estándar a evaluar, se estimó el RAPM mediante un modelo de regresión lineal múltiple normal presentado en la Sección 3.1.1. Se consideraron $K$ = 229 jugadores (66,1% del total) que superaron el criterio mínimo de participación, por lo que se incluyeron 458 indicadores de presencia, 229 ofensivos y 229 defensivos. Los coeficientes se estimaron mediante Ridge, Lasso y Elastic Net para reducir la inestabilidad generada por la multicolinealidad y la escasa cantidad de observaciones de algunos jugadores.
 
-Los hiperparámetros de cada técnica de regularización se seleccionaron mediante el procedimiento de validación cruzada descrito en la Sección 4.7. Los valores seleccionados y los correspondientes errores cuadráticos medios de validación cruzada se presentan en el Cuadro 13.
+Los hiperparámetros de cada técnica de regularización se seleccionaron mediante el procedimiento de validación cruzada descrito en la Sección 3.7. Los valores seleccionados y los correspondientes errores cuadráticos medios de validación cruzada se presentan en el Cuadro 13.
 
 ```{r}
 tabla_penalizacion <- data.frame(
@@ -1445,7 +1443,7 @@ Las distintas regularizaciones presentaron medidas de error muy similares, siend
 
 Al analizar estos resultados a nivel de jugador, de los 229 jugadores que ingresaron en el modelo, 144 presentaron ambos coeficientes iguales a cero en el modelo LASSO, mientras que solo 22 cumplieron esa condición con Elastic Net. En estos casos, la anulación de un coeficiente no implica necesariamente que un jugador carezca de impacto, sino que, a partir de la información aportada por el resto de los predictores, su efecto ofensivo o defensivo no resultó suficientemente distinguible. Esta anulación puede estar asociada tanto con la cantidad de posesiones disputadas como con la elevada correlación existente entre jugadores que comparten frecuentemente sus minutos en cancha.
 
-Por otro lado, el modelo Ridge o reduce los coeficientes exactamente hasta 0, pero sí los contrae hacia ese valor: 51 coeficientes presentaron una magnitud inferior a 0,001 puntos por posesión, equivalente a un efecto inferior a 0,1 puntos cada 100 posesiones.
+Por otro lado, el modelo Ridge no reduce los coeficientes exactamente hasta 0, pero sí los contrae hacia ese valor: 51 coeficientes presentaron una magnitud inferior a 0,001 puntos por posesión, equivalente a un efecto inferior a 0,1 puntos cada 100 posesiones.
 
 ```{r, echo=FALSE, fig.cap="Distribución de los coeficientes RAPM activos según regularización", out.width="90%", fig.align="center"}
 knitr::include_graphics("img/dist_betas_normal.pdf")
@@ -1457,7 +1455,7 @@ Una limitación de estos modelos es que suponen una distribución normal para lo
 
 ### EPTS
 
-Se ajustaron los modelos de regresión logística multinomial presentados en la Sección 4.1.2 para estimar la probabilidad de cada tipo de anotación, mediante las distintas técnicas de regularización consideradas para la estimación de sus coeficientes. La elección de los hiperparámetros se realizó a través del procedimiento de validación cruzada descrito en la Sección 4.7, utilizando la *deviance* como medida de error a minimizar. Los resultados de este proceso se presentan en el Cuadro 14.
+Se ajustaron los modelos de regresión logística multinomial presentados en la Sección 3.1.2 para estimar la probabilidad de cada tipo de anotación, mediante las distintas técnicas de regularización consideradas para la estimación de sus coeficientes. La elección de los hiperparámetros se realizó a través del procedimiento de validación cruzada, utilizando la *deviance* como medida de error a minimizar. Los resultados de este proceso se presentan en el Cuadro 14.
 
 
 ```{r}
@@ -1497,21 +1495,21 @@ tabla_penalizacion %>%
   column_spec(5, width = "4.3cm")
 ```
 
-Al igual que en los modelos normales (Sección 5.2.1), las tres técnicas de regularización presentaron valores de *deviance* de validación cruzada muy similares entre sí, por lo que estas diferencias no permiten concluir que una penalización sea claramente superior a las demás en términos de bondad de ajuste. A pesar de que las diferencias fueron mínimas, en la grilla evaluada se observó un incremento en la *deviance* a medida que aumentó el valor de $\alpha$, obteniéndose el menor valor para Ridge ($\alpha=0$). Para Elastic Net, se conservó la configuración con menor deviance entre aquellas con $\alpha>0$, correspondiente a $\alpha$=0,005, con el objetivo de comparar el comportamiento de las tres técnicas de regularización.
+Al igual que en los modelos normales (Sección 4.2.1), las tres técnicas de regularización presentaron valores de *deviance* de validación cruzada muy similares entre sí, por lo que estas diferencias no permiten concluir que una penalización sea claramente superior a las demás en términos de bondad de ajuste. A pesar de que las diferencias fueron mínimas, en la grilla evaluada se observó un incremento en la *deviance* a medida que aumentó el valor de $\alpha$, obteniéndose el menor valor para Ridge ($\alpha=0$). Para Elastic Net, se conservó la configuración con menor deviance entre aquellas con $\alpha>0$, correspondiente a $\alpha$=0,005, con el objetivo de comparar el comportamiento de las tres técnicas de regularización.
 
 Al analizar la reducción de coeficientes de los distintos modelos, se observa que el modelo Elastic Net seleccionado solo anuló un predictor defensivo, debido al reducido peso asignado a la componente $L_1$. Mientras que el modelo LASSO redujo 259 coeficientes a cero, de los cuales se desprende que 82 jugadores presentan los dos coeficientes nulos, 49 solo anulan el coeficiente ofensivo y 46 solo el defensivo.
 
-A partir de los coeficientes estimados se calcularon los EPTS ofensivos y defensivos según la definición presentada en la Sección 4.2.1. La Figura 15 muestra la distribución de estas métricas para las tres técnicas de regularización.
+A partir de los coeficientes estimados se calcularon los EPTS ofensivos y defensivos según la definición presentada en la Sección 3.2.1. La Figura 13 muestra la distribución de estas métricas para las tres técnicas de regularización.
 
 ```{r, echo=FALSE, fig.cap="Distribución de EPTS ofensivos y defensivos según regularización", out.width="90%", fig.align="center"}
 knitr::include_graphics("img/dist_betas_multi.pdf")
 ```
 
-Al analizar las métricas ofensivas y defensivas generadas por cada modelo, se puede identificar una similitud muy marcada entre los resultados provistos por Ridge y Elastic Net (Figura 13). Para evaluar específicamente la concordancia entre sus rankings, se calculó el coeficiente de correlación de Spearman, obteniéndose valores de 0,9988 para el componente ofensivo y 0,9987 para el defensivo. Estos resultados indican que ambos modelos producen ordenamientos prácticamente idénticos, lo que resulta coherente con el bajo valor de $\alpha$ seleccionado para Elastic Net ($\alpha$ = 0,005). Mientras que para LASSO se observa que, al igual que en los modelos normales, la distribución de las métricas es más dispersa, con colas más pronunciadas.
+Al analizar las métricas ofensivas y defensivas generadas por cada modelo, se puede identificar una similitud muy marcada entre los resultados provistos por Ridge y Elastic Net. Para evaluar específicamente la concordancia entre sus rankings, se calculó el coeficiente de correlación de Spearman, obteniéndose valores de 0,9988 para el componente ofensivo y 0,9987 para el defensivo. Estos resultados indican que ambos modelos producen ordenamientos prácticamente idénticos, lo que resulta coherente con el bajo valor de $\alpha$ seleccionado para Elastic Net ($\alpha$ = 0,005). Mientras que para LASSO se observa que, al igual que en los modelos normales, la distribución de las métricas es más dispersa, con colas más pronunciadas.
 
 ### wEPTS
 
-Una vez obtenidos los EPTS, se calcula su versión ponderada según la proporción de posesiones de su equipo en las que participó cada jugador. Esta ponderación contrae los EPTS hacia el valor correspondiente al grupo de referencia ($EPTS_0$), siendo la contracción proporcionalmente mayor cuanto menor es la participación del jugador. Si un jugador participara en todas las posesiones de su equipo, su wEPTS coincidiría con el EPTS.
+Una vez obtenidos los EPTS, se calculó su versión ponderada según la proporción de posesiones de su equipo en las que participó cada jugador. Esta ponderación contrae los EPTS hacia el valor correspondiente al grupo de referencia ($EPTS_0$), siendo la contracción proporcionalmente mayor cuanto menor es la participación del jugador. Si un jugador participara en todas las posesiones de su equipo, su wEPTS coincidiría con el EPTS.
 
 Para evidenciar el efecto de la ponderación, se compararon las distribuciones de EPTS y wEPTS obtenidas mediante Ridge. En cada componente se resaltan los cinco jugadores que presentaron la mayor variación absoluta entre ambas métricas, los segmentos unen el EPTS original de cada jugador con su correspondiente wEPTS, mientras que la línea vertical punteada representa el valor $EPTS_0$ del grupo de referencia.
 
@@ -1537,7 +1535,7 @@ knitr::include_graphics("img/grafico_defensivo_wepts.pdf")
 
 Donde destaca `SANDERS, NAKIE GERALD`, quien presentó la mayor variación absoluta entre EPTS y wEPTS entre todos los jugadores, con una diferencia de 0,02215 puntos esperados por posesión. Como consecuencia, pasó del 9.º al 39.º puesto del ranking defensivo. Entre los cinco jugadores con mayor penalización en la métrica defensiva vuelve a aparecer `CHACON TIRADO, MARCOS`, quien pasó del 7.º al 13.º puesto. Sumado a que presentó la mayor penalización en el componente ofensivo, este resultado lo identifica como uno de los jugadores cuya valoración se ve más afectada por la incorporación de la ponderación.
 
-Estos resultados muestran que los mayores cambios absolutos no corresponden necesariamente a los jugadores con menor participación. Aunque una menor participación implica una mayor contracción proporcional hacia $EPTS_0$, la magnitud absoluta del cambio también depende de la distancia entre el EPTS original del jugador y dicho valor de referencia. En consecuencia, jugadores que originalmente presentaban valores muy elevados de EPTS pueden verse muy pejudicados,modificando de manera sustancial las posiciones superiores del ranking.
+Estos resultados muestran que los mayores cambios absolutos no corresponden necesariamente a los jugadores con menor participación. Aunque una menor participación implica una mayor contracción proporcional hacia $EPTS_0$, la magnitud absoluta del cambio también depende de la distancia entre el EPTS original del jugador y dicho valor de referencia. En consecuencia, jugadores que originalmente presentaban valores muy elevados de EPTS pueden verse muy pejudicados, modificando de manera sustancial las posiciones superiores del ranking.
 
 <!-- Vemos que los jugadores más afectados en términos absolutos son los que están en las primeras posiciones de los rankingg, esto se debe a que... Este resultado se explica porque la magnitud absoluta del ajuste depende conjuntamente de la participación y de la distancia entre el EPTS original y el valor de referencia. Por definición: -->
 
@@ -1553,7 +1551,7 @@ Estos resultados muestran que los mayores cambios absolutos no corresponden nece
 
 ### Bondad de ajuste
 
-La capacidad predictiva de estos modelos se compara, al igual que en el artículo de referencia, mediante el RMSE. Las predicciones utilizadas para calcular esta medida fueron generadas a partir de un nuevo ajuste de los modelos, para lo cual se dividió la base de datos en diez particiones, se entrenó el modelo con nueve de ellas y se predijeron las posesiones pertenecientes a la partición restante. Este procedimiento se repitió dejando sucesivamente cada una de las particiones fuera del entrenamiento, de manera de obtener predicciones *out-of-fold* para todas las posesiones de la base de datos. Luego, a partir de estas predicciones se calculó el RMSE de cada modelo.
+La capacidad predictiva de estos modelos se comparó, al igual que en el artículo de referencia, mediante el RMSE. Las predicciones utilizadas para calcular esta medida fueron generadas a partir de un nuevo ajuste de los modelos, para lo cual se dividió la base de datos en diez particiones, se entrenó el modelo con nueve de ellas y se predijeron las posesiones pertenecientes a la partición restante. Este procedimiento se repitió dejando sucesivamente cada una de las particiones fuera del entrenamiento, de manera de obtener predicciones *out-of-fold* para todas las posesiones de la base de datos. Luego, a partir de estas predicciones se calculó el RMSE de cada modelo.
 
 ```{r}
 resultados_rmse <- tibble(
@@ -1599,7 +1597,7 @@ Dado que el RMSE evalúa únicamente la precisión del valor esperado de puntos,
 knitr::include_graphics("img/simulacion_proporcion_empirica.pdf")
 ```
 
-Para cada categoría de anotación se representó la distribución de las proporciones obtenidas en 1.000 simulaciones. En la Figura 16 se observa que las distribuciones se concentraron alrededor del valor empírico y fueron prácticamente iguales entre las tres técnicas de regularización, lo que indica que los modelos multinomiales reproducen de manera adecuada, y similar entre si, la distribución marginal observada de los puntos por posesión.
+Para cada categoría de anotación se representó la distribución de las proporciones obtenidas en 1.000 simulaciones. En la Figura 16 se observa que las distribuciones se concentraron alrededor del valor empírico y fueron prácticamente iguales entre las tres técnicas de regularización, lo que indica que los modelos multinomiales reproducen de manera adecuada, y similar entre sí, la distribución marginal observada de los puntos por posesión.
 
 <!-- ### Comparación con medidas descriptivas -->
 
@@ -1609,9 +1607,9 @@ Para cada categoría de anotación se representó la distribución de las propor
 
 ### Consistencia
 
-Los resultados provistos en la Sección 5.3.1 mostraron que las distintas combinaciones de distribución y técnica de regularización presentaron una capacidad predictiva prácticamente equivalente. Sin embargo, una bondad de ajuste similar no implica necesariamente que los rankings estimados sean igualmente confiables. Un modelo puede reproducir adecuadamente los resultados observados y, al mismo tiempo, generar métricas muy sensibles a los partidos incluidos en el conjunto de datos.
+Los resultados provistos en la Sección 4.3.1 mostraron que las distintas combinaciones de distribución y técnica de regularización presentaron una capacidad predictiva prácticamente equivalente. Sin embargo, una bondad de ajuste similar no implica necesariamente que los rankings estimados sean igualmente confiables. Un modelo puede reproducir adecuadamente los resultados observados y, al mismo tiempo, generar métricas muy sensibles a los partidos incluidos en el conjunto de datos.
 
-Siguiendo el enfoque comentado en el apartado metodológico (Sección 4.8.2), se evaluó entonces la consistencia de los modelos, entendida como su capacidad para producir valoraciones similares al ser ajustados sobre muestras diferentes. Para ello, los partidos fueron distribuidos aleatoriamente en dos particiones con cantidades similares de posesiones, manteniendo todas las posesiones de un mismo encuentro dentro de una única partición. Posteriormente, cada modelo fue reajustado de manera independiente y se calculó la correlación de Pearson entre los rankings obtenidos para los jugadores presentes en ambas muestras.
+Siguiendo el enfoque comentado en el apartado metodológico (Sección 3.8.2), se evaluó entonces la consistencia de los modelos, entendida como su capacidad para producir valoraciones similares al ser ajustados sobre muestras diferentes. Para ello, los partidos fueron distribuidos aleatoriamente en dos particiones con cantidades similares de posesiones, manteniendo todas las posesiones de un mismo encuentro dentro de una única partición. Posteriormente, cada modelo fue reajustado de manera independiente y se calculó la correlación de Pearson entre los rankings obtenidos para los jugadores presentes en ambas muestras.
 
 El análisis se realizó separadamente para las contribuciones ofensivas y defensivas. Como referencia adicional, las correlaciones observadas se compararon con rankings generados aleatoriamente para evidenciar mejoras sobre un escenario base.
 
@@ -1619,7 +1617,7 @@ El análisis se realizó separadamente para las contribuciones ofensivas y defen
 knitr::include_graphics("img/consistencia_modelos.pdf")
 ```
 
-Las correlaciones de Pearson obtenidas entre los rankings estimados en ambas particiones fueron positivas en todas las combinaciones analizadas, aunque de magnitud baja a moderada, con valores comprendidos entre 0,116 y 0,345. Si bien estos resultados evidencian cierta sensibilidad de las valoraciones a los partidos utilizados para su estimación, deben interpretarse considerando que cada modelo fue ajustado utilizando aproximadamente la mitad de una temporada de la Liga Nacional de Básquetbol. Esto implica una cantidad relativamente baja de partidos y, en consecuencia, de posesiones disponibles para estimar la contribución de cada jugador, lo que podría dificultar la obtención de valoraciones estables entre ambas muestras. Bajo estas condiciones, el hecho de que la mayoría supere lo esperable bajo rankings aleatorios ya constituye resultados alentadores.
+Las correlaciones de Pearson obtenidas entre los rankings estimados en ambas particiones fueron positivas en todas las combinaciones analizadas, aunque de magnitud baja a moderada, con valores comprendidos entre 0,116 y 0,345. Si bien estos resultados evidencian cierta sensibilidad de las valoraciones a los partidos utilizados para su estimación, deben interpretarse considerando que cada modelo fue ajustado utilizando aproximadamente la mitad de una temporada de la Liga Nacional de Básquetbol. Esto implica una cantidad relativamente baja de partidos y, en consecuencia, de posesiones disponibles para estimar la contribución de cada jugador, lo que podría dificultar la obtención de valoraciones estables entre ambas muestras. Bajo estas condiciones, el hecho de que la mayoría supere lo esperable bajo rankings aleatorios ya constituye un resultado alentador.
 
 En términos generales, las contribuciones defensivas mostraron una mayor consistencia que las ofensivas. Los valores más elevados correspondieron al wEPTS defensivo estimado mediante Elastic Net y Ridge, con correlaciones de 0,345 y 0,337, respectivamente. A su vez, Elastic Net presentó la mayor correlación en cinco de las seis combinaciones de métricas ofensivas y defensivas consideradas, aunque con resultados muy próximos a los obtenidos mediante Ridge. En contraste, LASSO registró sistemáticamente las correlaciones más bajas y, en algunos casos, estas no lograron superar los valores esperables bajo rankings generados aleatoriamente.
 
@@ -1627,9 +1625,9 @@ A pesar de la magnitud baja a moderada de las correlaciones, 16 de las 18 combin
 
 ### Validación externa
 
-Las evaluaciones realizadas a lo largo de la Sección 5.2 permitieron analizar la capacidad de ajuste de los modelos y la estabilidad de las valoraciones obtenidas ante cambios en la muestra utilizada. Sin embargo, resulta importante complementar estos criterios con validaciones externas que permitan determinar en qué medida los rankings representan adecuadamente el rendimiento de los jugadores, o la percepción del rendimiento que los especialistas tienen sobre los mismos. Por este motivo, la evaluación se complementa mediante los criterios de validación externa definidos en la Sección 5.3.3.
+Las evaluaciones realizadas en las Secciones 4.3.1 y 4.3.2 permitieron analizar la capacidad de ajuste de los modelos y la estabilidad de las valoraciones obtenidas ante cambios en la muestra utilizada. Sin embargo, resulta importante complementar estos criterios con validaciones externas que permitan determinar en qué medida los rankings representan adecuadamente el rendimiento de los jugadores, o la percepción del rendimiento que los especialistas tienen sobre los mismos. Por este motivo, la evaluación se complementó mediante los criterios de validación externa definidos en la Sección 3.8.3.
 
-Estos criterios comparan a los rankings obtenidos con distintas referencias vinculadas al desempeño de los jugadores, como los reconocimientos recibidos durante la temporada, su nivel de participación y las estadísticas tradicionales del box score. Si bien estas referencias no constituyen una medida definitiva del verdadero aporte individual, permiten evaluar la concordancia de las distintas métricas con otras que referencias vinculados al rendimiento de los jugadores.
+Estos criterios comparan a los rankings obtenidos con distintas referencias vinculadas al desempeño de los jugadores, como los reconocimientos recibidos durante la temporada, su nivel de participación y las estadísticas tradicionales del box score. Si bien estas referencias no constituyen una medida definitiva del verdadero aporte individual, permiten evaluar la concordancia de las distintas métricas con otras referencias vinculadas al rendimiento de los jugadores.
 
 ```{r}
 tabla_criterios <- readRDS(
@@ -1716,7 +1714,7 @@ tabla_criterios_formato %>%
   ) %>%
   footnote(
     general = paste(
-      "Para el criterio de galardonados (1), la proporción corresponde al número de jugadores reconocidos identificados entre los top 50 ofensivo y defensivo, sobre un total de 81 jugadores galardonados. Para los criterios de poco tiempo de juego y titulares (2 y 3), las proporción se calculan sobre 100 posiciones de ranking: 50 ofensivas y 50 defensivas."
+      "Para el criterio de galardonados (1), la proporción corresponde al número de jugadores reconocidos identificados entre los top 50 ofensivo y defensivo, sobre un total de 81 jugadores galardonados. Para los criterios de poco tiempo de juego y titulares (2 y 3), las proporciones se calculan sobre 100 posiciones de ranking: 50 ofensivas y 50 defensivas."
     ),
     general_title = "",
     footnote_as_chunk = TRUE,
@@ -1724,7 +1722,7 @@ tabla_criterios_formato %>%
   )
 ```
 
-Los resultados del Cuadro 16 muestran un patrón favorable para las métricas derivadas del modelo logístico multinomial. En los todos los criterios, los valores más favorables fueron alcanzados por EPTS o wEPTS. En particular, EPTS y wEPTS estimados mediante LASSO identificaron al 54,3 % de los 81 jugadores galardonados, mientras que los wEPTS estimados mediante Ridge y Elastic Net presentaron la menor presencia de jugadores con poco tiempo de juego entre las posiciones superiores, con apenas 2 de las 100 posiciones consideradas. A su vez, wEPTS estimado con Ridge registró la mayor presencia de titulares en estas posiciones, alcanzando 78 de las 100.
+Los resultados del Cuadro 16 muestran un patrón favorable para las métricas derivadas del modelo logístico multinomial. En todos los criterios, los valores más favorables fueron alcanzados por EPTS o wEPTS. En particular, EPTS y wEPTS estimados mediante LASSO identificaron al 54,3 % de los 81 jugadores galardonados, mientras que los wEPTS estimados mediante Ridge y Elastic Net presentaron la menor presencia de jugadores con poco tiempo de juego entre las posiciones superiores, con apenas 2 de las 100 posiciones consideradas. A su vez, wEPTS estimado con Ridge registró la mayor presencia de titulares en estas posiciones, alcanzando 78 de las 100.
 
 Las diferencias favorables observadas en los criterios vinculados con la participación para las métricas de wEPTS resultan esperables, dado que esta métrica incorpora explícitamente la proporción de posesiones disputadas por cada jugador. Por lo tanto, estos resultados muestran que la ponderación cumple efectivamente con el objetivo de reducir la presencia de jugadores con escasa participación en los extremos superiores del ranking.
 
@@ -1793,12 +1791,7 @@ tabla_boxscore_formato %>%
   ) %>%
   footnote(
     general = paste(
-      "PTS: puntos totales;",
-      "AST: asistencias totales;",
-      "OREB: rebotes ofensivos totales;",
-      "DREB: rebotes defensivos totales;",
-      "STL: recuperos totales;",
-      "BLK: tapas totales."
+      "Cada celda indica el porcentaje de jugadores del top 50 del ranking estimado que también pertenece al top 50 de la correspondiente estadística del box score. Para PTS, AST y OREB se consideran los rankings ofensivos, mientras que para DREB, STL y BLK se consideran los defensivos."
     ),
     general_title = "",
     footnote_as_chunk = TRUE,
@@ -1810,9 +1803,9 @@ El patrón observado en el Cuadro 16 se mantiene al comparar los rankings con la
 
 En las estadísticas defensivas las diferencias entre métricas fueron menos marcadas y no se identificó una única combinación dominante. No obstante, los máximos observados en rebotes defensivos, recuperos y tapas también incluyeron en todos los casos a alguna variante de EPTS o wEPTS. 
 
-En términos generales, la coincidencia promedio fue mayor para las estadísticas ofensivas (36,1 %) que para las defensivas (28,4 %). Este patrón coincide con lo señalado por Damoulaki et al. (2025), donde se sostiene que el rendimiento ofensivo puede asociarse más con la habilidad individual de los jugadores, mientras que el éxito defensivo depende en mayor medida de la coordinación y cooperación colectiva. Sin embargo, se considera que el planteo realizado por Damoulaki resulta parcial o incompleto, debido a que la menor coincidencia observada no debe atribuirse exclusivamente a una limitación de los modelos, sino a una limitación propia de las medidas tradicionales defensivas como los rebotes defensivos, los recuperos y las tapas las cuales no cuantifican de manera adecuada el aporte defensivo defensivo del jugador y no capturan aspectos importantes como el posicionamiento, las rotaciones o la intensidad.
+En términos generales, la coincidencia promedio fue mayor para las estadísticas ofensivas (36,1 %) que para las defensivas (28,4 %). Este patrón coincide con lo señalado por Damoulaki et al. (2025), donde se sostiene que el rendimiento ofensivo puede asociarse más con la habilidad individual de los jugadores, mientras que el éxito defensivo depende en mayor medida de la coordinación y cooperación colectiva. Sin embargo, se considera que el planteo realizado por Damoulaki resulta parcial o incompleto, debido a que la menor coincidencia observada no debe atribuirse exclusivamente a una limitación de los modelos, sino a una limitación propia de las medidas tradicionales defensivas como los rebotes defensivos, los recuperos y las tapas las cuales no cuantifican de manera adecuada el aporte defensivo del jugador y no capturan aspectos importantes como el posicionamiento, las rotaciones o la intensidad.
 
-Como análisis complementario, se compararon los rankings estimados con las medidas descriptivas basadas en *plus-minus* presentadas en las Secciones 5.1.4 y 5.1.5. A diferencia de los criterios anteriores, esta comparación no constituye una validación externa en sentido estricto, dado que ambas medidas se construyen a partir del rendimiento del equipo en términos de puntos anotados y recibidos durante las posesiones. El objetivo de la comparación es evaluar en qué medida los modelos reproducen los ordenamientos que se obtendrían mediante medidas más simples que buscan explicar el mismo fenómeno.
+Como análisis complementario, se compararon los rankings estimados con las medidas descriptivas basadas en *plus-minus* presentadas en las Secciones 4.1.4 y 4.1.5. A diferencia de los criterios anteriores, esta comparación no constituye una validación externa en sentido estricto, dado que ambas medidas se construyen a partir del rendimiento del equipo en términos de puntos anotados y recibidos durante las posesiones. El objetivo de la comparación es evaluar en qué medida los modelos reproducen los ordenamientos que se obtendrían mediante medidas más simples que buscan explicar el mismo fenómeno.
 
 ```{r}
 # ── Tabla para la tesina: concordancia con métricas descriptivas ──────────────
@@ -1903,21 +1896,21 @@ Esta mayor concordancia de los RAPM con estas métricas podría estar relacionad
 
 El presente trabajo permitió desarrollar una metodología para la construcción de rankings de desempeño ofensivo y defensivo de los jugadores que participaron de la temporada 2024/2025 de la Liga Nacional de Básquetbol, mediante modelos lineales generalizados en los que se utilizó la posesión como unidad de análisis.
 
-La comparación de los modelos mostró, en primer lugar, que las diferencias en capacidad predictiva fueron prácticamente inexistentes. Los valores de RMSE obtenidos mediante predicciones *out-of-fold* se ubicaron entre 1,185344 y 1,185505, por lo que ninguna combinación de modelo y técnica de regularización presentó una ventaja relevante bajo este criterio. Sin embargo, puede destacarse que, a pesar de que las diferencias fueron mínimas, LASSO registró el mayor error tanto en el modelo normal como en el multinomial. Por otro lado, el análisis de consistencia permitió identificar diferencias más claras entre las técnicas de regularización. Los rankings estimados mediante Ridge y Elastic Net presentaron, en términos generales, una mayor estabilidad ante cambios en los partidos utilizados para ajustar los modelos, mientras que LASSO registró sistemáticamente los menores niveles de correlación entre particiones.
+La comparación de los modelos mostró, en primer lugar, que las diferencias en la capacidad predictiva fueron prácticamente inexistentes. Los valores de RMSE obtenidos mediante predicciones *out-of-fold* se ubicaron entre 1,185344 y 1,185505, por lo que ninguna combinación de modelo y técnica de regularización presentó una ventaja relevante bajo este criterio. Sin embargo, puede destacarse que, a pesar de que las diferencias fueron mínimas, LASSO registró el mayor error tanto en el modelo normal como en el multinomial. Por otro lado, el análisis de consistencia permitió identificar diferencias más claras entre las técnicas de regularización. Los rankings estimados mediante Ridge y Elastic Net presentaron, en términos generales, una mayor estabilidad ante cambios en los partidos utilizados para ajustar los modelos, mientras que LASSO registró sistemáticamente los menores niveles de correlación entre particiones.
 
-Las diferencias entre los enfoques resultaron más visibles al incorporar criterios de validación externa. En términos generales, los rankings derivados del modelo multinomial, mediante EPTS y especialmente wEPTS, presentaron una mayor concordancia con los criterios externos considerados que los RAPM obtenidos a partir del modelo normal, lo que aporta evidencia favorable para la utilización de estas nuevas métricas en la evaluación del desempeño de los jugadores. Dentro de estas, los rankings wEPTS estimados mediante Ridge y Elastic Net mostraron los resultados más favorables entre todas las alternativas, destacando particularmente en los criterios vinculados con la participación de los jugadores y con las estadísticas ofensivas del *box score*. Por otra parte, la concordancia con las estadísticas tradicionales resultó mayor para el componente ofensivo que para el defensivo. Como se menciona en la Sección 5.3.3, esta diferencia podría estar vinculada a que las medidas defensivas tradicionales utilizadas en la comparación no necesariamente representan de manera adecuada la contribución defensiva del jugador. En conclusión, si bien los resultados no permiten establecer una superioridad absoluta de un modelo bajo todos los criterios, sí muestran un comportamiento favorable de los wEPTS estimados mediante Ridge y Elastic Net.
+Las diferencias entre los enfoques resultaron más visibles al incorporar criterios de validación externa. En términos generales, los rankings derivados del modelo multinomial, mediante EPTS y especialmente wEPTS, presentaron una mayor concordancia con los criterios externos considerados que los RAPM obtenidos a partir del modelo normal, lo que aporta evidencia favorable para la utilización de estas nuevas métricas en la evaluación del desempeño de los jugadores. Dentro de estas, los rankings wEPTS estimados mediante Ridge y Elastic Net mostraron los resultados más favorables entre todas las alternativas, destacando particularmente en los criterios vinculados con la participación de los jugadores y con las estadísticas ofensivas del *box score*. Por otra parte, la concordancia de los rankings generados con las estadísticas tradicionales resultó mayor para el componente ofensivo que para el defensivo. Como se menciona en la Sección 4.3.3, esta diferencia podría estar vinculada a que las medidas defensivas tradicionales utilizadas en la comparación no necesariamente representan de manera adecuada la contribución defensiva del jugador.
 
-El resultado menos favorable de LASSO difiere del obtenido por Damoulaki et al. (2025), quienes encontraron mejores resultados mediante esta técnica y propusieron finalmente al wEPTS construido a partir de esta penalización como la alternativa preferida. Una posible explicación se encuentra en las diferencias entre las bases analizadas: la menor cantidad de información disponible en este trabajo, junto con la elevada correlación existente entre las variables indicadoras de jugadores que comparten gran parte de sus minutos, podría incrementar la inestabilidad asociada a la selección realizada por LASSO.
+En términos generales, puede evidenciarse un resultado menos favorable de LASSO, el cual difiere del obtenido por Damoulaki et al. (2025), quienes encontraron mejores resultados mediante esta técnica y propusieron finalmente al wEPTS construido a partir de esta penalización como la alternativa preferida. Una posible explicación se encuentra en las diferencias entre las bases analizadas: la menor cantidad de información disponible en este trabajo, junto con la elevada correlación existente entre las variables indicadoras de jugadores que comparten gran parte de sus minutos, podría incrementar la inestabilidad asociada a la selección realizada por LASSO.
 
-Otro análisis de interés surge de la comparación entre EPTS y wEPTS, donde la variación en los puestos altos del ranking de estas medidas deja entrever una diferencia muy interesante en su interpretación. El EPTS describe principalmente el rendimiento esperado del jugador durante las posesiones en las que participa, sin incorporar directamente cuánto intervino a lo largo de la temporada. El wEPTS, en cambio, penaliza esta valoración en función de su participación durante la temporada, puediendo interpretarse como una medida de contribución total del rendimiento de los jugadores sobre toda la temporada.
+Otro análisis de interés surge de la comparación entre EPTS y wEPTS, donde la variación en los puestos altos del ranking de estas medidas deja entrever una diferencia muy interesante en su interpretación. El EPTS describe principalmente el rendimiento esperado del jugador durante las posesiones en las que participa, sin incorporar directamente cuánto intervino a lo largo de la temporada. El wEPTS, en cambio, penaliza esta valoración en función de su participación durante la temporada, pudiendo interpretarse como una medida de contribución total del rendimiento de los jugadores sobre toda la temporada.
 
 En este sentido, EPTS y wEPTS pueden entenderse como medidas que responden a distintos objetivos y que, por lo tanto, pueden ser utilizadas de manera complementaria. Mientras que el EPTS puede resultar útil cuando el interés se encuentra en evaluar el rendimiento del jugador durante los minutos que disputó y ser utilizado, por ejemplo, para el *scouting* de los equipos, el wEPTS puede utilizarse para evaluar qué jugador fue el que más aportó a lo largo de la temporada en su conjunto y ser utilizado para la elección de premios.
 
-Finalmente, los resultados obtenidos llevan entonces a priorizar las métricas EPTS y wEPTS estimadas mediante Ridge o Elastic Net. Ambas técnicas produjeron ordenamientos prácticamente idénticos (las correlaciones de Spearman entre sus rankings superaron 0,998 tanto en ataque como en defensa) y fueron las que mostraron los resultados más favorables en gran parte de los criterios considerados. Dado que el valor de $\alpha$ seleccionado para Elastic Net fue de apenas 0,005, su comportamiento resultó muy próximo al de Ridge. En consecuencia, más que identificar una diferencia sustantiva entre ambas técnicas, los resultados respaldan la utilización de cualquiera de ellas frente a LASSO para los datos disponibles en esta aplicación.
+Como conclusión general, si bien los resultados no permiten establecer una superioridad absoluta de un modelo bajo todos los criterios, los resultados obtenidos llevan a priorizar las métricas EPTS y wEPTS estimadas mediante Ridge o Elastic Net. Ambas técnicas produjeron ordenamientos prácticamente idénticos (las correlaciones de Spearman entre sus rankings superaron 0,998 tanto en ataque como en defensa) y fueron las que mostraron los resultados más favorables en gran parte de los criterios considerados. Dado que el valor de $\alpha$ seleccionado para Elastic Net fue de apenas 0,005, su comportamiento resultó muy próximo al de Ridge. En consecuencia, más que identificar una diferencia sustantiva entre ambas técnicas, los resultados respaldan la utilización de cualquiera de ellas frente a LASSO para los datos disponibles en esta aplicación.
 
 # Discusión {#cap:discusion}
 
-No existe un “Santo Grial” entre las métricas de evaluación de jugadores, difícilmente una única medida permita representar a todos los aspectos del juego de manera conjunta y definir, de manera definitiva, qué un jugador es mejor que otro. Bajo esta perspectiva, los rankings obtenidos en este trabajo no pretenden proporcionar una valoración definitiva del rendimiento de los jugadores, sino constituir una fuente adicional de información que complemente las estadísticas tradicionales y sea de utilidad para los cuerpos técnicos.
+No existe un “Santo Grial” entre las métricas de evaluación de jugadores, difícilmente una única medida permita representar a todos los aspectos del juego de manera conjunta y definir, de manera definitiva, que un jugador es mejor que otro. Bajo esta perspectiva, los rankings obtenidos en este trabajo no pretenden proporcionar una valoración definitiva del rendimiento de los jugadores, sino constituir una fuente adicional de información que complemente las estadísticas tradicionales y sea de utilidad para los cuerpos técnicos.
 
 En este marco, resulta importante considerar tanto las fortalezas de la metodología desarrollada como las limitaciones que pueden haber condicionado los resultados obtenidos.
 
@@ -1933,25 +1926,25 @@ Por último, se considera como aporte de valor el haber realizado una primera ap
 
 ## Debilidades del trabajo
 
-La principal limitación del estudio se encuentra asociada a la calidad de los datos disponibles. El *play-by-play* utilizado fue construido a partir de registros que presentaban errores e inconsistencias. Si bien durante el procesamiento se implementaron numerosos controles y correcciones con el objetivo de reducir estos problemas, no puede garantizarse la detección de la totalidad de los errores. En consecuencia, la base de datos utilizada pueden contener una incorrecta cantidad de posesiones registradas o errores en la cantidad de puntos realizados en las mismas, introduciendo ruido adicional en la información utilizada para estimar los modelos.
+La principal limitación del estudio se encuentra asociada a la calidad de los datos disponibles. El *play-by-play* utilizado fue construido a partir de registros que presentaban errores e inconsistencias. Si bien durante el procesamiento se implementaron numerosos controles y correcciones con el objetivo de reducir estos problemas, no puede garantizarse la detección de la totalidad de los errores. En consecuencia, la base de datos utilizada puede contener una incorrecta cantidad de posesiones registradas o errores en la cantidad de puntos realizados en las mismas, introduciendo ruido adicional en la información utilizada para estimar los modelos.
 
 Una segunda limitación está relacionada con la propia construcción de la base a nivel de posesión. El registro original se encuentra estructurado como una sucesión de acciones y no identifica explícitamente el inicio y el final de cada posesión, por lo que fue necesario definir un conjunto de reglas que permitiera realizar esta transformación. Las decisiones adoptadas fueron seleccionadas luego de evaluar distintas alternativas y buscando minimizar las inconsistencias detectadas, pero no necesariamente constituyen una identificación perfecta de todas las posesiones. Esto podría explicar por qué en buena parte de la literatura tradicional de RAPM se utiliza como unidad de análisis a los segmentos sin sustituciones, lo cual puede obtenerse de manera mucho más directa.
 
-Una última limitación importante corresponde a la cantidad de información disponible en la base de datos utilizada. El análisis se realizó utilizando únicamente una temporada de la Liga Nacional, con una cantidad de posesiones considerablemente inferior a la disponible en estudios realizados sobre la NBA. Artículos sobre esta área de estudio enfatizan en la importancia de la adhisión de varias temporadas.
+Una última limitación importante corresponde a la cantidad de información disponible en la base de datos utilizada. El análisis se realizó utilizando únicamente una temporada de la Liga Nacional, con una cantidad de posesiones considerablemente inferior a la disponible en estudios realizados sobre la NBA. Artículos sobre esta área de estudio enfatizan en la importancia de la adhesión de varias temporadas.
 
 ## Propuestas de extensión del trabajo
 
 Los resultados obtenidos en este trabajo constituyen una primera aproximación a la construcción de métricas RAPM ajustadas para la Liga Nacional de Básquetbol de Argentina y sientan un precedente para un amplio conjunto de posibles investigaciones futuras. A continuación, se proponen algunas extensiones que podrían contribuir a mejorar la metodología desarrollada:
 
-- Los modelos utilizados estiman efectos individuales de los jugadores. Sin embargo, el rendimiento de un jugador puede depender de los compañeros con los que comparte cancha. La incorporación de efectos de interacción o de quinteto permitiría representar posibles sinergias entre jugadores, tal como se propone en Grassetti et al. (2021).
+- Los modelos utilizados estiman efectos individuales de los jugadores. Sin embargo, el rendimiento de un jugador puede depender de los compañeros con los que comparte cancha. La incorporación de efectos de interacción entre jugadores permitiría representar posibles sinergias entre jugadores, tal como se propone en Grassetti et al. (2021).
 
-- La incorporación de otros indicadores defensivos que representen de mejor manera el aporte de los jugadores permitiría, en futuros análisis, evaluar nuevamente la validez externa de los rankings defensivos.
+<!-- - La incorporación de otros indicadores defensivos que representen de mejor manera el aporte de los jugadores permitiría evaluar de mejor manera la validez externa de los rankings defensivos. -->
 
 - Los modelos RAPM utilizados en este trabajo consideran cada posesión como una observación independiente. Sin embargo, las posesiones pertenecientes a un mismo partido podrían presentar dependencia asociada a factores como el ritmo de juego, los ajustes tácticos, la fatiga o el contexto competitivo. Una posible extensión consistiría en desarrollar modelos que incorporen explícitamente esta correlación intrapartido.
 
 <!-- [INTERPRETACIÓN Y COMPARACIÓN DE MODELOS DE REGRESIÓN LOGÍSTICA PARA EL ESTUDIO DE LA DESOCUPACIÓN](https://rephip.unr.edu.ar/server/api/core/bitstreams/a4c018fe-9f41-44ee-8d53-d554e3473bb0/content) (regresión logística con correlación, aplicación de modelos gee) -->
 
-- Podría considerarse la incorporación de otras covariables en el modelo que ayuden a mejorar la predicción del resultado final de cada posesión. Como podría ser la condición de localía del equipo que ataca, el tiempo restante en el cuerto, la diferencia en el marcador o la importancia del momento del partido.
+- Podría considerarse la incorporación de otras covariables en el modelo que ayuden a mejorar la predicción del resultado final de cada posesión. Como podría ser la condición de localía del equipo que ataca, el tiempo restante en el cuarto, la diferencia en el marcador o la importancia del momento del partido.
 
 - El punto de corte utilizado para identificar a los LTPs responde a una decisión metodológica, pero no deja de ser algo un poco arbitrario. Podría analizarse escenarios con distintos puntos de corte y evaluar los resultados de cada modelo.
 
@@ -2166,19 +2159,19 @@ Para detectar posibles errores en la conformación de los quintetos en cancha, s
 
 De esta manera se detectó un caso puntual en el partido de ZARATE BASKET vs ATENAS (C), donde el quinteto local registraba seis jugadores en cancha. Esta inconsistencia se observó desde el inicio del segundo cuarto, con 10:00 minutos restantes, hasta el minuto 4:42 del mismo período.
 
-Para subsanar este inconveniente, se realizó una revisión manual del *play-by-play* original disponible en la página web y se pudo identificar que al comienzo del segundo cuarto se había registrado incorrectamente el ingreso de seis jugadores en lugar de cinco, lo cual constituye un error atribuible a la mesa de control. Una vez identificada esta problemática, se reviso el contexto de las siguientes jugadas y pudo determinarse que el jugador MERCHANT, EDGAR HENRY no se encontraba realmente en cancha durante ese tramo del partido.
+Para subsanar este inconveniente, se realizó una revisión manual del *play-by-play* original disponible en la página web y se pudo identificar que al comienzo del segundo cuarto se había registrado incorrectamente el ingreso de seis jugadores en lugar de cinco, lo cual constituye un error atribuible a la mesa de control. Una vez identificada esta problemática, se revisó el contexto de las siguientes jugadas y pudo determinarse que el jugador MERCHANT, EDGAR HENRY no se encontraba realmente en cancha durante ese tramo del partido.
 
 En consecuencia, se procedió a corregir el error eliminando al jugador mencionado de la variable correspondiente al quinteto local en las acciones afectadas, así como ajustando el conteo de jugadores en cancha. De esta manera, se restauró la consistencia lógica de los quintetos y se garantizó la validez de la información utilizada en las etapas posteriores del análisis.
 
 ## Detección de errores en el marcador parcial: caso *QUIMSA vs BOCA (019/10/2024 11:30)*
 
-Al revisar uno de los partidos con presencia de puntos incompatibles, se detectó que en el minuto 02:27 del tercer cuarto, el marcador parcial reflejaba correctamente el resultado del partido (64 - 42 a favor de QUIMSA). Sin embargo, la acción de anotación siguiente, el TIRO LIBRE ANOTADO del jugador de BOCA, PIÑERO, FACUNDO, en el minuto 02:21 del tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43. Se observa entonces que el marcador parcial aumentó en tres puntos para el equipo local (QUIMSA) entre una acción y la siguiente, sin que existiera ninguna anotación registrada en el *play-by-play* que justificara dicha variación (Figura 8).
+Al revisar uno de los partidos con presencia de puntos incompatibles, se detectó que en el minuto 02:27 del tercer cuarto, el marcador parcial reflejaba correctamente el resultado del partido (64 - 42 a favor de QUIMSA). Sin embargo, la acción de anotación siguiente, el TIRO LIBRE ANOTADO del jugador de BOCA, PIÑERO, FACUNDO, en el minuto 02:21 del tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43. Se observa entonces que el marcador parcial aumentó en tres puntos para el equipo local (QUIMSA) entre una acción y la siguiente, sin que existiera ninguna anotación registrada en el *play-by-play* que justificara dicha variación (Figura 18).
 
 ```{r, echo=FALSE, fig.cap="Comienzo de secuencia de acciones con errores en la carga del marcador", out.width="50%", fig.align="center"}
 knitr::include_graphics("img/error_puntos_1_2_.png")
 ```
 
-Estos errores siguieron presentandose en las siguientes acciones de anotación hasta el minuto 00:40, donde, con el TRIPLE del jugador de BOCA, CUELLO, MARTIN NICOLAS, el marcador parcial se reestablece a su valor real en ese momento (70 - 50), esta secuencia queda reflejada en la Figura 9.
+Estos errores siguieron presentándose en las siguientes acciones de anotación hasta el minuto 00:40, donde, con el TRIPLE del jugador de BOCA, CUELLO, MARTIN NICOLAS, el marcador parcial se reestableció a su valor real en ese momento (70 - 50), esta secuencia queda reflejada en la Figura 19.
 
 ```{r, echo=FALSE, fig.cap="Fin de secuencia de acciones con errores en la carga del marcador", out.width="50%", fig.align="center"}
 knitr::include_graphics("img/error_puntos_2_2_.png")

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.23)  31 AUG 2026 02:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.23)  31 AUG 2026 11:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -597,7 +597,7 @@ Package pdftex.def Info: Logo-unr.png  used on input line 150.
 
 
 {c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc} <./Logo-unr.png>]
-Underfull \hbox (badness 1292) in paragraph at lines 189--204
+Underfull \hbox (badness 1292) in paragraph at lines 190--205
 \T1/lmr/m/n/12 modelos de regresi髇 lineal m鷏tiple, incorporando distintas t閏nicas de regularizaci髇.
  []
 
@@ -607,7 +607,7 @@ Underfull \hbox (badness 1292) in paragraph at lines 189--204
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.215 \newpage
+l.216 \newpage
                [2] (./Tesina-de-grado---Simon-Gazze.toc
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 4.
 (c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
@@ -642,17 +642,17 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.24 ...os por posesi贸n}{21}{subsubsection.3.3.4}
+l.24 ...os por posesi贸n}{21}{subsubsection.2.3.4}
                                                   % [3]
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.50 ...e los resultados}{44}{subsubsection.4.8.2}
+l.50 ...e los resultados}{44}{subsubsection.3.8.2}
                                                   % [4{c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}]
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.71 ...xtensi贸n del trabajo}{78}{subsection.7.3}
+l.71 ...xtensi贸n del trabajo}{78}{subsection.6.3}
                                                   % [5]
 Underfull \hbox (badness 2285) in paragraph at lines 75--75
  [][] [][]\T1/lmr/m/n/12 Detecci髇 de errores en el marcador parcial: caso \T1/lmr/m/it/12 QUIMSA vs BOCA 
@@ -666,113 +666,113 @@ Underfull \hbox (badness 2285) in paragraph at lines 75--75
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.218 \newpage
+l.219 \newpage
                [6]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 242.
+(Font)              <10> on input line 243.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 242.
+(Font)              <7> on input line 243.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 242.
+(Font)              <5> on input line 243.
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.288 
+l.290 
        [1]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 305.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 307.
 (c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [2{c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}] [3] [4] [5] [6] [7]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 531.
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 533.
 (c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [8]
 <img/imagen links partidos.png, id=236, 1004.25188pt x 428.35031pt>
 File: img/imagen links partidos.png Graphic file (type png)
 <use img/imagen links partidos.png>
-Package pdftex.def Info: img/imagen links partidos.png  used on input line 561.
+Package pdftex.def Info: img/imagen links partidos.png  used on input line 563.
 (pdftex.def)             Requested size: 389.00568pt x 165.9252pt.
 [9 <./img/Imagen links partidos.PNG>]
 <img/Captura DOM.png, id=244, 1024.57782pt x 365.86688pt>
 File: img/Captura DOM.png Graphic file (type png)
 <use img/Captura DOM.png>
-Package pdftex.def Info: img/Captura DOM.png  used on input line 577.
+Package pdftex.def Info: img/Captura DOM.png  used on input line 579.
 (pdftex.def)             Requested size: 486.25742pt x 173.63783pt.
 [10 <./img/Captura DOM.png>]
 <img/imagen play by play_1.png, id=251, 611.28375pt x 578.16pt>
 File: img/imagen play by play_1.png Graphic file (type png)
 <use img/imagen play by play_1.png>
-Package pdftex.def Info: img/imagen play by play_1.png  used on input line 620.
+Package pdftex.def Info: img/imagen play by play_1.png  used on input line 622.
 (pdftex.def)             Requested size: 340.37646pt x 321.93242pt.
 [11 <./img/imagen play by play_1.png>]
 <img/imagen box score.png, id=258, 600.74437pt x 578.16pt>
 File: img/imagen box score.png Graphic file (type png)
 <use img/imagen box score.png>
-Package pdftex.def Info: img/imagen box score.png  used on input line 662.
+Package pdftex.def Info: img/imagen box score.png  used on input line 664.
 (pdftex.def)             Requested size: 340.3837pt x 327.58731pt.
 [12] [13 <./img/imagen box score.png>]
 <img/imagen sustitucion.png, id=270, 248.42813pt x 412.54124pt>
 File: img/imagen sustitucion.png Graphic file (type png)
 <use img/imagen sustitucion.png>
-Package pdftex.def Info: img/imagen sustitucion.png  used on input line 716.
+Package pdftex.def Info: img/imagen sustitucion.png  used on input line 718.
 (pdftex.def)             Requested size: 243.1319pt x 403.7463pt.
 [14] [15 <./img/imagen sustitucion.PNG>] [16]
 <img/acciones intrusas.png, id=285, 1445.4pt x 598.48593pt>
 File: img/acciones intrusas.png Graphic file (type png)
 <use img/acciones intrusas.png>
-Package pdftex.def Info: img/acciones intrusas.png  used on input line 789.
+Package pdftex.def Info: img/acciones intrusas.png  used on input line 784.
 (pdftex.def)             Requested size: 340.3748pt x 140.93643pt.
 [17 <./img/acciones intrusas.png>] [18]
 <img/falta ofensiva.png, id=301, 414.04688pt x 349.305pt>
 File: img/falta ofensiva.png Graphic file (type png)
 <use img/falta ofensiva.png>
-Package pdftex.def Info: img/falta ofensiva.png  used on input line 908.
+Package pdftex.def Info: img/falta ofensiva.png  used on input line 903.
 (pdftex.def)             Requested size: 340.38617pt x 287.16216pt.
 [19] [20 <./img/falta ofensiva.PNG>] [21] [22] [23] [24] [25{c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}] [26] [27] [28] [29] [30] [31] [32] [33] [34]
 <img/distribucion_posesiones.pdf, id=402, 505.89pt x 361.35pt>
 File: img/distribucion_posesiones.pdf Graphic file (type pdf)
 <use img/distribucion_posesiones.pdf>
-Package pdftex.def Info: img/distribucion_posesiones.pdf  used on input line 1604.
+Package pdftex.def Info: img/distribucion_posesiones.pdf  used on input line 1596.
 (pdftex.def)             Requested size: 389.01158pt x 277.86542pt.
 [35 <./img/distribucion_posesiones.pdf>] [36] [37] [38] [39] [40] [41] [42] [43]
 <img/consistencia-hvattum.PNG, id=462, 1736.4875pt x 912.40875pt>
 File: img/consistencia-hvattum.PNG Graphic file (type png)
 <use img/consistencia-hvattum.PNG>
-Package pdftex.def Info: img/consistencia-hvattum.PNG  used on input line 1995.
+Package pdftex.def Info: img/consistencia-hvattum.PNG  used on input line 1987.
 (pdftex.def)             Requested size: 388.99704pt x 204.39209pt.
 [44] [45 <./img/consistencia-hvattum.png (PNG copy)>] [46] [47] [48] [49] [50] [51]
 <img/pm_por_posesiones.pdf, id=503, 505.89pt x 361.35pt>
 File: img/pm_por_posesiones.pdf Graphic file (type pdf)
 <use img/pm_por_posesiones.pdf>
-Package pdftex.def Info: img/pm_por_posesiones.pdf  used on input line 2262.
+Package pdftex.def Info: img/pm_por_posesiones.pdf  used on input line 2254.
 (pdftex.def)             Requested size: 389.01158pt x 277.86542pt.
 [52 <./img/pm_por_posesiones.pdf>]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 2293.
+(Font)              <9> on input line 2285.
 [53]
 <img/distribucion_pm100_por_equipo.pdf, id=524, 505.89pt x 361.35pt>
 File: img/distribucion_pm100_por_equipo.pdf Graphic file (type pdf)
 <use img/distribucion_pm100_por_equipo.pdf>
-Package pdftex.def Info: img/distribucion_pm100_por_equipo.pdf  used on input line 2362.
+Package pdftex.def Info: img/distribucion_pm100_por_equipo.pdf  used on input line 2354.
 (pdftex.def)             Requested size: 413.32722pt x 295.23373pt.
 [54 <./img/distribucion_pm100_por_equipo.pdf>] [55] [56]
-Underfull \hbox (badness 1028) in paragraph at lines 2477--2484
+Underfull \hbox (badness 1028) in paragraph at lines 2469--2476
 \T1/lmr/m/n/12 a continuaci髇 se presentan los resultados obtenidos mediante los modelos estad韘ticos
  []
 
 
-Underfull \hbox (badness 2717) in paragraph at lines 2496--2500
+Underfull \hbox (badness 2717) in paragraph at lines 2488--2492
 []\T1/lmr/m/n/12 Los hiperpar醡etros de cada t閏nica de regularizaci髇 se seleccionaron mediante el
  []
 
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 2508.
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 2500.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <11> on input line 2508.
+(Font)              <11> on input line 2500.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7.69997> on input line 2508.
+(Font)              <7.69997> on input line 2500.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5.5> on input line 2508.
+(Font)              <5.5> on input line 2500.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
@@ -780,60 +780,55 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <img/dist_betas_normal.pdf, id=552, 505.89pt x 361.35pt>
 File: img/dist_betas_normal.pdf Graphic file (type pdf)
 <use img/dist_betas_normal.pdf>
-Package pdftex.def Info: img/dist_betas_normal.pdf  used on input line 2544.
+Package pdftex.def Info: img/dist_betas_normal.pdf  used on input line 2536.
 (pdftex.def)             Requested size: 437.63513pt x 312.59654pt.
 [58] [59 <./img/dist_betas_normal.pdf>]
 <img/dist_betas_multi.pdf, id=571, 505.89pt x 361.35pt>
 File: img/dist_betas_multi.pdf Graphic file (type pdf)
 <use img/dist_betas_multi.pdf>
-Package pdftex.def Info: img/dist_betas_multi.pdf  used on input line 2619.
+Package pdftex.def Info: img/dist_betas_multi.pdf  used on input line 2610.
 (pdftex.def)             Requested size: 437.63513pt x 312.59654pt.
 [60] [61 <./img/dist_betas_multi.pdf>]
 <img/grafico_ofensivo_wepts.pdf, id=591, 505.89pt x 361.35pt>
 File: img/grafico_ofensivo_wepts.pdf Graphic file (type pdf)
 <use img/grafico_ofensivo_wepts.pdf>
-Package pdftex.def Info: img/grafico_ofensivo_wepts.pdf  used on input line 2659.
+Package pdftex.def Info: img/grafico_ofensivo_wepts.pdf  used on input line 2650.
 (pdftex.def)             Requested size: 486.2664pt x 347.33316pt.
 [62 <./img/grafico_ofensivo_wepts.pdf>]
 <img/grafico_defensivo_wepts.pdf, id=607, 505.89pt x 361.35pt>
 File: img/grafico_defensivo_wepts.pdf Graphic file (type pdf)
 <use img/grafico_defensivo_wepts.pdf>
-Package pdftex.def Info: img/grafico_defensivo_wepts.pdf  used on input line 2694.
+Package pdftex.def Info: img/grafico_defensivo_wepts.pdf  used on input line 2685.
 (pdftex.def)             Requested size: 486.2664pt x 347.33316pt.
 [63] [64 <./img/grafico_defensivo_wepts.pdf>] [65]
 <img/simulacion_proporcion_empirica.pdf, id=632, 505.89pt x 361.35pt>
 File: img/simulacion_proporcion_empirica.pdf Graphic file (type pdf)
 <use img/simulacion_proporcion_empirica.pdf>
-Package pdftex.def Info: img/simulacion_proporcion_empirica.pdf  used on input line 2771.
+Package pdftex.def Info: img/simulacion_proporcion_empirica.pdf  used on input line 2762.
 (pdftex.def)             Requested size: 437.63513pt x 312.59654pt.
 [66 <./img/simulacion_proporcion_empirica.pdf>]
 <img/consistencia_modelos.pdf, id=649, 505.89pt x 361.35pt>
 File: img/consistencia_modelos.pdf Graphic file (type pdf)
 <use img/consistencia_modelos.pdf>
-Package pdftex.def Info: img/consistencia_modelos.pdf  used on input line 2814.
+Package pdftex.def Info: img/consistencia_modelos.pdf  used on input line 2805.
 (pdftex.def)             Requested size: 437.63513pt x 312.59654pt.
 [67] [68 <./img/consistencia_modelos.pdf>] [69] [70] [71]
-Underfull \hbox (badness 1112) in paragraph at lines 2986--2995
+Underfull \hbox (badness 1112) in paragraph at lines 2977--2986
 []\T1/lmr/m/n/12 Como an醠isis complementario, se compararon los rankings estimados con las medidas
  []
 
 [72] [73]
-Underfull \hbox (badness 1077) in paragraph at lines 3049--3063
+Underfull \hbox (badness 1077) in paragraph at lines 3040--3054
 \T1/lmr/m/n/12 predictiva fueron pr醕ticamente inexistentes. Los valores de RMSE obtenidos mediante
  []
 
-[74]
-Underfull \hbox (badness 1314) in paragraph at lines 3114--3125
-[]\T1/lmr/m/n/12 Finalmente, los resultados obtenidos llevan entonces a priorizar las m閠ricas EPTS y
- []
-
-[75] [76] [77] [78]
-Underfull \hbox (badness 1584) in paragraph at lines 3269--3275
+[74] [75] [76] [77] [78]
+Underfull \hbox (badness 1584) in paragraph at lines 3260--3266
 []\T1/lmr/m/n/12 La incorporaci髇 de informaci髇 correspondiente a nuevas temporadas permitir韆
  []
 
 
-Underfull \hbox (badness 1137) in paragraph at lines 3269--3275
+Underfull \hbox (badness 1137) in paragraph at lines 3260--3266
 \T1/lmr/m/n/12 aumentar la cantidad de observaciones disponibles y podr韆 contribuir a obtener
  []
 
@@ -841,13 +836,13 @@ Underfull \hbox (badness 1137) in paragraph at lines 3269--3275
 <img/error_puntos_1_2_.png, id=732, 268.00125pt x 380.17032pt>
 File: img/error_puntos_1_2_.png Graphic file (type png)
 <use img/error_puntos_1_2_.png>
-Package pdftex.def Info: img/error_puntos_1_2_.png  used on input line 3402.
+Package pdftex.def Info: img/error_puntos_1_2_.png  used on input line 3393.
 (pdftex.def)             Requested size: 243.12906pt x 344.88815pt.
 [82]
 <img/error_puntos_2_2_.png, id=737, 266.49562pt x 379.4175pt>
 File: img/error_puntos_2_2_.png Graphic file (type png)
 <use img/error_puntos_2_2_.png>
-Package pdftex.def Info: img/error_puntos_2_2_.png  used on input line 3417.
+Package pdftex.def Info: img/error_puntos_2_2_.png  used on input line 3408.
 (pdftex.def)             Requested size: 243.1376pt x 346.16203pt.
 [83 <./img/error_puntos_1_2_.PNG>] [84 <./img/error_puntos_2_2_.PNG>] (./Tesina-de-grado---Simon-Gazze.aux)
  ***********
@@ -857,14 +852,14 @@ L3 programming layer <2026-08-10>
  ) 
 Here is how much of TeX's memory you used:
  16327 strings out of 469088
- 273068 string characters out of 5457440
- 723014 words of memory out of 5000000
+ 273065 string characters out of 5457440
+ 723008 words of memory out of 5000000
  44888 multiletter control sequences out of 15000+600000
  766682 words of font info for 132 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  88i,19n,93p,1099b,652s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx9.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbxi10.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi12.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi9.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmib10.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr6.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr9.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri12.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt12.pfb><c:/Users/Simon/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Tesina-de-grado---Simon-Gazze.pdf (91 pages, 3153674 bytes).
+Output written on Tesina-de-grado---Simon-Gazze.pdf (91 pages, 3153340 bytes).
 PDF statistics:
  1128 PDF objects out of 1200 (max. 8388607)
  936 compressed objects within 10 object streams
