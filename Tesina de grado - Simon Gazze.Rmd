@@ -109,7 +109,7 @@ El básquetbol es uno de los deportes que más ha incorporado el análisis estad
 
 ### Analítica deportiva en el básquetbol argentino {-}
 
-El creciente interés por la analítica deportiva que se ha evidenciado en los últimos años en distintos paises del mundo, ha empezado a captar la atención de las entidades deportivas en Argentina. En particular, durante 2025, la Confederación Argentina de Básquetbol (CABB) y la Asociación de Clubes (AdC) anunciaron en octubre la ampliación de su alianza con Catapult (empresa australiana de tecnología deportiva), integrando equipamiento de *wearables* (GPS) y software de videoanálisis para las 19 franquicias de la Liga Nacional, las 34 de la Liga Argentina y las selecciones nacionales en todas las ramas. Mientras que en el ámbito educativo, el Instituto CAB (creado en 2023) realizó un convenio con Sports Data Campus (España) para ofrecer, en agosto de este año, el primer curso de *Big Data aplicado al básquetbol* en Argentina, con el objetivo de que entrenadores y *staff* técnico colaboren en proyectos reales de la CABB, aportando soluciones basadas en datos sobre rendimiento, *scouting* y optimización de procesos[^2].
+El creciente interés por la analítica deportiva que se ha evidenciado en los últimos años en distintos paises del mundo, ha empezado a captar la atención de las entidades deportivas en Argentina. En particular, durante 2025, la Confederación Argentina de Básquetbol (CABB) y la Asociación de Clubes (AdC) anunciaron la ampliación de su alianza con Catapult (empresa australiana de tecnología deportiva), integrando equipamiento de *wearables* (GPS) y software de videoanálisis para las 19 franquicias de la Liga Nacional, las 34 de la Liga Argentina y las selecciones nacionales en todas las ramas. Mientras que en el ámbito educativo, el Instituto CAB (creado en 2023) realizó un convenio con Sports Data Campus (España) para ofrecer, en agosto de este año, el primer curso de *Big Data aplicado al básquetbol* en Argentina, con el objetivo de que entrenadores y *staff* técnico colaboren en proyectos reales de la CABB, aportando soluciones basadas en datos sobre rendimiento, *scouting* y optimización de procesos[^2].
 
 [^2]: Confederación Argentina de Básquetbol (2025). *La Confederación Argentina de Básquet y Sports Data Campus firman un acuerdo de colaboración*. [Link al artículo](https://www.argentina.basketball/ver/noticia/la-confederacion-argentina-de-basquet-y-sports-data-campus-firman-un-acuerdo-de-colaboracion).
 
@@ -161,7 +161,7 @@ El objetivo general de esta tesina es estimar el aporte individual de los jugado
 
 2)  Diferenciar el aporte ofensivo y defensivo de cada uno de los jugadores de la liga, obteniendo finalmente rankings que identifiquen a los mejores jugadores en cada rubro.
 
-3)  Desarrollar una metodología adecuada que permita solucionar el problema de los coeficientes extremos asociados a los jugadores con pocos minutos de juego (*LTPs Players*) durante la temporada.
+3)  Desarrollar una metodología adecuada que permita solucionar el problema de los coeficientes extremos asociados a los jugadores con pocos minutos de juego (*LTPs*) durante la temporada.
 
 4)  Comparar modelos en base a distintos criterios de evaluación, para poder determinar cuál de ellos proporciona mejores métricas, debiendo resumir de manera consistente y precisa el aporte ofensivo y defensivo de cada jugador en relación al desempeño de su equipo.
 
@@ -189,7 +189,7 @@ En el \hyperref[cap:datos]{Capítulo 2} se describe el proceso de generación y 
 
 En el \hyperref[cap:metodologia]{Capítulo 3} se desarrolla la metodología estadística empleada en el trabajo. Se presentan los modelos propuestos, las métricas derivadas de los mismos, los principales problemas que suelen presentarse en este tipo de enfoques y las técnicas de regularización utilizadas para abordarlos. Finalmente, se describen los criterios adoptados para comparar el desempeño de los distintos modelos considerados.
 
-En el \hyperref[cap:resultados]{Capítulo 4} se presentan los resultados obtenidos. Inicialmente, se realiza un análisis descriptivo de los datos y de distintas medidas basadas en plus-minus. Posteriormente, se analizan los rankings obtenidos mediante RAPM, EPTS y wEPTS y se comparan las distintas alternativas propuestas de acuerdo con los criterios de evaluación definidos previamente.
+En el \hyperref[cap:resultados]{Capítulo 4} se presentan los resultados obtenidos. Inicialmente, se realiza un análisis descriptivo de los datos y de distintas medidas basadas en *plus-minus*. Posteriormente, se analizan los rankings obtenidos mediante RAPM, EPTS y wEPTS y se comparan las distintas alternativas propuestas de acuerdo con los criterios de evaluación definidos previamente.
 
 En el \hyperref[cap:conclusiones]{Capítulo 5} se presentan las principales conclusiones del trabajo, sintetizando los resultados más relevantes obtenidos a partir de la comparación de los distintos modelos.
 
@@ -691,7 +691,7 @@ El modelo logístico multinomial proporciona, para cada jugador, tres coeficient
 
 ### *Expected points* (EPTS)
 
-<!-- En el modelo expuesto en la Sección 3.1.2, los coeficientes <!--{$\beta_1^o$,$\beta_2^o$,$\beta_3^o$} y {$\beta_1^d$,$\beta_2^d$,$\beta_3^d$}--> representan las contribuciones de cada jugador en los distintos tipos de anotación. Aunque puede resultar interesante y permita realizar diversos tipos de análisis, el objetivo final de este estudio es obtener una métrica que unifique la contribución ofensiva y defensiva en una única medida general. -->
+<!-- En el modelo expuesto en la Sección 3.1.2, los coeficientes {$\beta_1^o$,$\beta_2^o$,$\beta_3^o$} y {$\beta_1^d$,$\beta_2^d$,$\beta_3^d$} representan las contribuciones de cada jugador en los distintos tipos de anotación. Aunque puede resultar interesante y permita realizar diversos tipos de análisis, el objetivo final de este estudio es obtener una métrica que unifique la contribución ofensiva y defensiva en una única medida general. -->
 
 A diferencia del modelo de regresión lineal múltiple, el cambio en la cantidad esperada de puntos al sustituir un jugador por otro no sólo está determinado por los coeficientes de ambos jugadores, sino también por los coeficientes de sus cuatro compañeros y de los cinco jugadores rivales. Por lo tanto, siguiendo la estrategia propuesta por Damoulaki et al. (2025), se evalúa a cada jugador bajo un escenario simplificado. En este escenario, el único jugador con coeficiente distinto de cero es el jugador de interés, mientras que todos los demás jugadores presentes en cancha pertenecen al grupo de referencia, es decir, poseen coeficientes iguales a cero. De este modo, la cantidad esperada de puntos por posesión refleja exclusivamente la contribución ofensiva o defensiva del jugador evaluado.
 
@@ -770,15 +770,13 @@ En el modelo de regresión lineal múltiple, los parámetros se estiman mediante
 S = \sum_{i=1}^n (y_i-\mu_i)^2.
 \end{equation}
 
-Los estimadores de $\beta_l$ se definen como aquellos que minimizan la suma de cuadrados $S$, y se denotan como $\hat{\beta}_0, \ldots, \hat{\beta}_P$.
-
-Obteniendo de esta manera los siguientes coeficientes estimados:
+Los estimadores de $\beta_l$ se definen como aquellos que minimizan la suma de cuadrados $S$, y se denotan como $\hat{\beta}_0, \ldots, \hat{\beta}_P$. Obteniendo de esta manera los siguientes coeficientes estimados:
 
 \begin{equation}
 \hat{\beta_l} = \frac{\sum_{i=1}^n x_{il}^*y_{i}}{\sum_{i=1}^n (x_{il}^*)^2},
 \end{equation}
 
-para $l= 0,...,P$, donde $x_{il}^*$ son los valores de la $l$-ésima variable explicativa $x_l$ después de haber sido ajustada por todas las demás variables explicativas $x_0,...,x_P$ excepto $x_l$. La variable explicativa ajustada $x_{l}^*$ es aquella parte de $x_l$ que no puede ser explicada mediante una regresión sobre las otras variables explicativas (Dunn y Smyth, 2018).REVISAR
+para $l= 0,...,P$, donde $x_{il}^*$ son los valores de la $l$-ésima variable explicativa $x_l$ después de haber sido ajustada por todas las demás variables explicativas $x_0,...,x_P$ excepto $x_l$. La variable explicativa ajustada $x_{l}^*$ es aquella parte de $x_l$ que no puede ser explicada mediante una regresión sobre las otras variables explicativas (Dunn y Smyth, 2018).
 
 ### Método de máxima verosimilitud
 
@@ -841,13 +839,13 @@ Para abordar este problema, distintos autores recurrieron a estimaciones basadas
 
 ## Tratamiento de los jugadores con poco tiempo de juego (*Low time players - LTP*)
 
-En el presente trabajo se identificaron 346 jugadores que participaron en al menos una posesión a lo largo de la temporada, lo que representa un promedio de 17,3 jugadores utilizados por equipo. En la FIgura 8 se observa que la distribución de posesiones presenta una marcada asimetría, con jugadores que participaron en apenas una o dos posesiones, mientras que otros, titulares indiscutibles, participaron en más de 4000 posesiones.
+En el presente trabajo se identificaron 346 jugadores que participaron en al menos una posesión a lo largo de la temporada, lo que representa un promedio de 17,3 jugadores utilizados por equipo. En la Figura 8 se observa que la distribución de posesiones presenta una marcada asimetría, con jugadores que participaron en apenas una o dos posesiones, mientras que otros, titulares indiscutibles, participaron en más de 4000 posesiones.
 
 ```{r, fig.cap="Distribución de posesiones disputadas por jugador", out.width="80%", fig.align="center"}
 knitr::include_graphics("img/distribucion_posesiones.pdf")
 ```
 
-las estimaciones de los coeficientes de jugadores que juegan muy poco, y por lo tanto, cuentan con muy pocas observaciones en la base, se ven fuertemente afectadas y presentan coeficientes extremos. Para intentar solucionar esta problemática, dentro de la literatura relevante sobre RAPM, se han definido distintos criterios de exclusión de jugadores en base a la cantidad de minutos que disputaron en las temporadas analizadas.
+Las estimaciones de los coeficientes de jugadores que juegan muy poco, y por lo tanto, cuentan con muy pocas observaciones en la base, se ven fuertemente afectadas y presentan coeficientes extremos. Para intentar solucionar esta problemática, dentro de la literatura relevante sobre RAPM, se han definido distintos criterios de exclusión de jugadores en base a la cantidad de minutos que disputaron en las temporadas analizadas.
 
 Rosenbaum (2004) propone excluir a los jugadores con menos de 250 minutos disputados, mientras que Ilardi (2007) e Ilardi y Barzilai (2008) utilizan un umbral de 400 minutos. Sill (2010) evalúa distintos puntos de corte, comprendidos entre 800 y 1200 minutos, seleccionando el más adecuado mediante validación cruzada. En un enfoque diferente, Gong y Chen (2024) no eliminan a estos jugadores, sino que agrupan a aquellos con menos de 10 minutos por partido en una categoría específica, representando al 20% del total de jugadores, y les asignan un prior particular dentro de su modelo bayesiano. Mientras que en el artículo de referencia de este trabajo, Damoulaki et al. (2025) excluye a los jugadores con menos de 200 minutos, lo que representa el 32% de los jugadores de su base de datos.
 
@@ -942,7 +940,7 @@ donde, $\lambda$ controla la intensidad de la regularización, mientras que $\al
 
 Los modelos que incorporan técnicas de regularización (Ridge, Lasso y Elastic Net) requieren la selección de uno o más hiperparámetros que controlan la intensidad de la penalización. En particular, Ridge y Lasso dependen únicamente del parámetro de regularización $\lambda$, mientras que Elastic Net incorpora además el parámetro $\alpha$, que determina la combinación entre las penalizaciones $L_1$ y $L_2$.
 
-La selección de estos hiperparámetros se realizó mediante una búsqueda exhaustiva (*Grid Search*) sobre un conjunto predefinido de valores candidatos. Para cada combinación de hiperparámetros se ajustó el modelo utilizando validación cruzada de 10 particiones (*10-Fold Cross-Validation*), seleccionándose aquella que minimizó el error cuadrático medio en la regresión lineal múltiple y el *deviance* en la regresión logística multinomial, calculados como el promedio de dichas métricas sobre los conjuntos de validación.
+La selección de estos hiperparámetros se realizó mediante una búsqueda exhaustiva (*Grid Search*) sobre un conjunto predefinido de valores candidatos. Para cada combinación de hiperparámetros se ajustó el modelo utilizando validación cruzada de 10 particiones (*10-Fold Cross-Validation*), seleccionándose aquella que minimizó el error cuadrático medio en la regresión lineal múltiple y la *deviance* en la regresión logística multinomial, calculados como el promedio de dichas métricas sobre los conjuntos de validación.
 
 La *deviance* es una medida de discrepancia basada en la log-verosimilitud, que compara el ajuste del modelo estimado con el de un modelo saturado. Valores menores indican una menor discrepancia respecto de los resultados observados y, por lo tanto, un mejor ajuste.
 
@@ -954,7 +952,7 @@ Una vez obtenidos los rankings de jugadores a través de las distintas técnicas
 
 En primera instancia, se evalúa la bondad de ajuste de los distintos modelos mediante medidas de error y procedimientos de validación basados en simulación. De manera complementaria, se realizan comparaciones a través de estrategias propuestas en artículos relevantes dentro de la literatura de RAPM, buscando evaluar la **consistencia** y la **validez** de los rankings generados.
 
-Particularmente, en el ámbito del fútbol, Lars Magnus Hvattum, quien ha desarrollado una extensa línea de investigación sobre métricas *plus-minus* para la evaluación de jugadores, plantea distintas propuestas metodológicas para la comparación de modelos, las cuales no parecen haber sido implementadas en básquetbol hasta la fecha. En el artículo *Modelling the financial contribution of soccer players to their clubs* (Sæbø & Hvattum, 2019) y en videos de su canal de YouTube [Football Player Ratings](https://www.youtube.com/@footballplayerratings) se definen dos criterios para medir los distintos sistemas de rankings. Esta metodología es se replica para medir la consistencia de los modelos realizados, mientras que, para evaluar su validez, se recurre a criterios de validación externa, tomando como referencia la propuesta de Damoulaki et al. (2025) pero adaptándola a la información disponible en la Liga Nacional de Básquet Argentina.
+Particularmente, en el ámbito del fútbol, Lars Magnus Hvattum, quien ha desarrollado una extensa línea de investigación sobre métricas *plus-minus* para la evaluación de jugadores, plantea distintas propuestas metodológicas para la comparación de modelos, las cuales no parecen haber sido implementadas en básquetbol hasta la fecha. En el artículo *Modelling the financial contribution of soccer players to their clubs* (Sæbø & Hvattum, 2019) y en videos de su canal de , [Football Player Ratings](https://www.youtube.com/@footballplayerratings), se definen dos criterios para medir los distintos sistemas de rankings. Esta metodología es se replica para medir la consistencia de los modelos realizados, mientras que, para evaluar su validez, se recurre a criterios de validación externa, tomando como referencia la propuesta de Damoulaki et al. (2025) pero adaptándola a la información disponible en la Liga Nacional de Básquet Argentina.
 
 ### Bondad de ajuste
 
@@ -982,11 +980,11 @@ $$\hat{y}_i = \hat{\mu}_i$$.
 En cambio, el modelo logístico multinomial considera a los puntos por posesión como variable categórica, permitiendo estimar las probabilidades $\hat{\pi}_{ic}$ para cada categoría de anotación. Para obtener una predicción puntual en la escala original de puntos, se utiliza una ponderación análoga a la definida en la Sección 3.2.1 para la construcción del EPTS, pero calculando las probabilidades sobre el conjunto de jugadores presentes en la posesión $i$:
 
 $$
-\hat{y_i} = 
-0\hat{\pi_{i0}}
-+1\hat{\pi_{i1}}
-+2\hat{\pi_{i2}}
-+3,0304\hat{\pi_{i3}}.
+\hat{y}_i = 
+0\hat{\pi}_{i0}
++1\hat{\pi}_{i1}
++2\hat{\pi}_{i2}
++3,0304\hat{\pi}_{i3}.
 $$
 
 De esta manera, las predicciones obtenidas mediante ambos enfoques pueden compararse directamente a través del RMSE.
@@ -1028,7 +1026,7 @@ El objetivo de esta metodología es evaluar si el modelo multinomial es capaz de
 
 ### Evaluación de la consistencia de los resultados
 
-Siguiendo el criterio de consistencia presentado por Hvattum (Football Player Ratings, 2023), un buen modelo producirá resultados similares independientemente de qué partidos hayan sido incluidos en el *dataset*. Bajo este enfoque, si un mismo sistema de rankings brinda estimaciones de RAPMs similares al ser aplicado a distintas muestras del dataset (de tamaños similares), entonces dicho modelo será consistente.
+Siguiendo el criterio de consistencia presentado por Hvattum (Football Player Ratings, 2023), un buen modelo producirá resultados similares independientemente de qué partidos hayan sido incluidos en el *dataset*. Bajo este enfoque, si un mismo sistema de rankings brinda estimaciones de RAPMs similares al ser aplicado a distintas muestras (de tamaños similares), entonces dicho modelo será consistente.
 
 Para evaluar esto, se divide el conjunto de datos completo en dos particiones con cantidades similares de posesiones. Luego, se calculan las métricas de los jugadores para cada partición y se estima la correlación de Pearson entre ambos conjuntos de coeficientes. Cuanto mayor sea este coeficiente, mayor será la consistencia del modelo.
 
@@ -1057,7 +1055,7 @@ Con el objetivo de evaluar la validez de los rankings obtenidos mediante los dis
 
 El conjunto de criterios elegidos fue el siguiente:
 
--   *Criterio de jugadores galardonados*: A lo largo de la temporada la LNB premia a los integrantes del quinteto ideal de la semana (durante las 28 semanas de temporada regular), así como también a los mejores quintetos de las distintas instancias de post-temporada. Por otro lado, al finalizar la temporada regular, se otorgan los principales premios individuales de desempeño (Jugador Más Valioso, Mejor Jugador Nacional, Mejor Jugador Extranjero, Mejor Defensor, Jugador Revelación, Sexto Hombre y Jugador de Mayor Progresión), donde para cada uno de estos premios se selecciona previamente una terna de tres jugadores. Dentro de esta ceremonia se premia también al quinteto ideal de toda la temporada.En total, se identificaron 81 jugadores que recibieron al menos un galardón o que integraron alguna terna durante la temporada en  estudio. 
+-   *Criterio de jugadores galardonados*: A lo largo de la temporada la LNB premia a los integrantes del quinteto ideal de la semana (durante las 28 semanas de temporada regular), así como también a los mejores quintetos de las distintas instancias de post-temporada. Por otro lado, al finalizar la temporada regular, se otorgan los principales premios individuales de desempeño (Jugador Más Valioso, Mejor Jugador Nacional, Mejor Jugador Extranjero, Mejor Defensor, Jugador Revelación, Sexto Hombre y Jugador de Mayor Progresión), donde para cada uno de estos premios se selecciona previamente una terna de tres jugadores. Dentro de esta ceremonia se premia también al quinteto ideal de toda la temporada. En total, se identificaron 81 jugadores que recibieron al menos un galardón o que integraron alguna terna durante la temporada en  estudio. 
 
   Como medida de validación, se consideró para cada modelo a los 50 primeros jugadores del ranking ofensivo y los 50 primeros del defensivo de manera conjunta, y se identificó cuántos de los 81 jugadores galardonados aparecían en al menos uno de estos rankings.<!--Adicionalmente, se analizaron mediante distintas visualizaciones las posiciones alcanzadas por los jugadores más distinguidos de la temporada. -->
 

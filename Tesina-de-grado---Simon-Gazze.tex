@@ -271,20 +271,19 @@ El creciente interés por la analítica deportiva que se ha evidenciado en
 los últimos años en distintos paises del mundo, ha empezado a captar la
 atención de las entidades deportivas en Argentina. En particular,
 durante 2025, la Confederación Argentina de Básquetbol (CABB) y la
-Asociación de Clubes (AdC) anunciaron en octubre la ampliación de su
-alianza con Catapult (empresa australiana de tecnología deportiva),
-integrando equipamiento de \emph{wearables} (GPS) y software de
-videoanálisis para las 19 franquicias de la Liga Nacional, las 34 de la
-Liga Argentina y las selecciones nacionales en todas las ramas. Mientras
-que en el ámbito educativo, el Instituto CAB (creado en 2023) realizó un
-convenio con Sports Data Campus (España) para ofrecer, en agosto de este
-año, el primer curso de \emph{Big Data aplicado al básquetbol} en
-Argentina, con el objetivo de que entrenadores y \emph{staff} técnico
-colaboren en proyectos reales de la CABB, aportando soluciones basadas
-en datos sobre rendimiento, \emph{scouting} y optimización de
-procesos\footnote{Confederación Argentina de Básquetbol (2025). \emph{La
-  Confederación Argentina de Básquet y Sports Data Campus firman un
-  acuerdo de colaboración}.
+Asociación de Clubes (AdC) anunciaron la ampliación de su alianza con
+Catapult (empresa australiana de tecnología deportiva), integrando
+equipamiento de \emph{wearables} (GPS) y software de videoanálisis para
+las 19 franquicias de la Liga Nacional, las 34 de la Liga Argentina y
+las selecciones nacionales en todas las ramas. Mientras que en el ámbito
+educativo, el Instituto CAB (creado en 2023) realizó un convenio con
+Sports Data Campus (España) para ofrecer, en agosto de este año, el
+primer curso de \emph{Big Data aplicado al básquetbol} en Argentina, con
+el objetivo de que entrenadores y \emph{staff} técnico colaboren en
+proyectos reales de la CABB, aportando soluciones basadas en datos sobre
+rendimiento, \emph{scouting} y optimización de procesos\footnote{Confederación
+  Argentina de Básquetbol (2025). \emph{La Confederación Argentina de
+  Básquet y Sports Data Campus firman un acuerdo de colaboración}.
   \href{https://www.argentina.basketball/ver/noticia/la-confederacion-argentina-de-basquet-y-sports-data-campus-firman-un-acuerdo-de-colaboracion}{Link
   al artículo}.}.
 
@@ -473,7 +472,7 @@ ranking que refleje su impacto en el desempeño de sus equipos.
 \item
   Desarrollar una metodología adecuada que permita solucionar el
   problema de los coeficientes extremos asociados a los jugadores con
-  pocos minutos de juego (\emph{LTPs Players}) durante la temporada.
+  pocos minutos de juego (\emph{LTPs}) durante la temporada.
 \item
   Comparar modelos en base a distintos criterios de evaluación, para
   poder determinar cuál de ellos proporciona mejores métricas, debiendo
@@ -503,7 +502,7 @@ modelos considerados.
 
 En el \hyperref[cap:resultados]{Capítulo 4} se presentan los resultados
 obtenidos. Inicialmente, se realiza un análisis descriptivo de los datos
-y de distintas medidas basadas en plus-minus. Posteriormente, se
+y de distintas medidas basadas en \emph{plus-minus}. Posteriormente, se
 analizan los rankings obtenidos mediante RAPM, EPTS y wEPTS y se
 comparan las distintas alternativas propuestas de acuerdo con los
 criterios de evaluación definidos previamente.
@@ -1335,12 +1334,6 @@ y wEPTS.
 \subsubsection{\texorpdfstring{\emph{Expected points}
 (EPTS)}{Expected points (EPTS)}}\label{expected-points-epts}
 
-representan las contribuciones de cada jugador en los distintos tipos de
-anotación. Aunque puede resultar interesante y permita realizar diversos
-tipos de análisis, el objetivo final de este estudio es obtener una
-métrica que unifique la contribución ofensiva y defensiva en una única
-medida general. --\textgreater{}
-
 A diferencia del modelo de regresión lineal múltiple, el cambio en la
 cantidad esperada de puntos al sustituir un jugador por otro no sólo
 está determinado por los coeficientes de ambos jugadores, sino también
@@ -1476,9 +1469,8 @@ S = \sum_{i=1}^n (y_i-\mu_i)^2.
 
 Los estimadores de \(\beta_l\) se definen como aquellos que minimizan la
 suma de cuadrados \(S\), y se denotan como
-\(\hat{\beta}_0, \ldots, \hat{\beta}_P\).
-
-Obteniendo de esta manera los siguientes coeficientes estimados:
+\(\hat{\beta}_0, \ldots, \hat{\beta}_P\). Obteniendo de esta manera los
+siguientes coeficientes estimados:
 
 \begin{equation}
 \hat{\beta_l} = \frac{\sum_{i=1}^n x_{il}^*y_{i}}{\sum_{i=1}^n (x_{il}^*)^2},
@@ -1489,7 +1481,7 @@ para \(l= 0,...,P\), donde \(x_{il}^*\) son los valores de la
 por todas las demás variables explicativas \(x_0,...,x_P\) excepto
 \(x_l\). La variable explicativa ajustada \(x_{l}^*\) es aquella parte
 de \(x_l\) que no puede ser explicada mediante una regresión sobre las
-otras variables explicativas (Dunn y Smyth, 2018).REVISAR
+otras variables explicativas (Dunn y Smyth, 2018).
 
 \subsubsection{Método de máxima
 verosimilitud}\label{muxe9todo-de-muxe1xima-verosimilitud}
@@ -1585,7 +1577,7 @@ LTP})}{Tratamiento de los jugadores con poco tiempo de juego (Low time players -
 
 En el presente trabajo se identificaron 346 jugadores que participaron
 en al menos una posesión a lo largo de la temporada, lo que representa
-un promedio de 17,3 jugadores utilizados por equipo. En la FIgura 8 se
+un promedio de 17,3 jugadores utilizados por equipo. En la Figura 8 se
 observa que la distribución de posesiones presenta una marcada
 asimetría, con jugadores que participaron en apenas una o dos
 posesiones, mientras que otros, titulares indiscutibles, participaron en
@@ -1600,7 +1592,7 @@ más de 4000 posesiones.
 \caption{Distribución de posesiones disputadas por jugador}\label{fig:unnamed-chunk-15}
 \end{figure}
 
-las estimaciones de los coeficientes de jugadores que juegan muy poco, y
+Las estimaciones de los coeficientes de jugadores que juegan muy poco, y
 por lo tanto, cuentan con muy pocas observaciones en la base, se ven
 fuertemente afectadas y presentan coeficientes extremos. Para intentar
 solucionar esta problemática, dentro de la literatura relevante sobre
@@ -1823,7 +1815,7 @@ exhaustiva (\emph{Grid Search}) sobre un conjunto predefinido de valores
 candidatos. Para cada combinación de hiperparámetros se ajustó el modelo
 utilizando validación cruzada de 10 particiones (\emph{10-Fold
 Cross-Validation}), seleccionándose aquella que minimizó el error
-cuadrático medio en la regresión lineal múltiple y el \emph{deviance} en
+cuadrático medio en la regresión lineal múltiple y la \emph{deviance} en
 la regresión logística multinomial, calculados como el promedio de
 dichas métricas sobre los conjuntos de validación.
 
@@ -1858,9 +1850,9 @@ desarrollado una extensa línea de investigación sobre métricas
 propuestas metodológicas para la comparación de modelos, las cuales no
 parecen haber sido implementadas en básquetbol hasta la fecha. En el
 artículo \emph{Modelling the financial contribution of soccer players to
-their clubs} (Sæbø \& Hvattum, 2019) y en videos de su canal de YouTube
+their clubs} (Sæbø \& Hvattum, 2019) y en videos de su canal de ,
 \href{https://www.youtube.com/@footballplayerratings}{Football Player
-Ratings} se definen dos criterios para medir los distintos sistemas de
+Ratings}, se definen dos criterios para medir los distintos sistemas de
 rankings. Esta metodología es se replica para medir la consistencia de
 los modelos realizados, mientras que, para evaluar su validez, se
 recurre a criterios de validación externa, tomando como referencia la
@@ -1909,11 +1901,11 @@ la construcción del EPTS, pero calculando las probabilidades sobre el
 conjunto de jugadores presentes en la posesión \(i\):
 
 \[
-\hat{y_i} = 
-0\hat{\pi_{i0}}
-+1\hat{\pi_{i1}}
-+2\hat{\pi_{i2}}
-+3,0304\hat{\pi_{i3}}.
+\hat{y}_i = 
+0\hat{\pi}_{i0}
++1\hat{\pi}_{i1}
++2\hat{\pi}_{i2}
++3,0304\hat{\pi}_{i3}.
 \]
 
 De esta manera, las predicciones obtenidas mediante ambos enfoques
@@ -1973,8 +1965,7 @@ Player Ratings, 2023), un buen modelo producirá resultados similares
 independientemente de qué partidos hayan sido incluidos en el
 \emph{dataset}. Bajo este enfoque, si un mismo sistema de rankings
 brinda estimaciones de RAPMs similares al ser aplicado a distintas
-muestras del dataset (de tamaños similares), entonces dicho modelo será
-consistente.
+muestras (de tamaños similares), entonces dicho modelo será consistente.
 
 Para evaluar esto, se divide el conjunto de datos completo en dos
 particiones con cantidades similares de posesiones. Luego, se calculan
@@ -2017,9 +2008,9 @@ El conjunto de criterios elegidos fue el siguiente:
   Jugador Revelación, Sexto Hombre y Jugador de Mayor Progresión), donde
   para cada uno de estos premios se selecciona previamente una terna de
   tres jugadores. Dentro de esta ceremonia se premia también al quinteto
-  ideal de toda la temporada.En total, se identificaron 81 jugadores que
-  recibieron al menos un galardón o que integraron alguna terna durante
-  la temporada en estudio.
+  ideal de toda la temporada. En total, se identificaron 81 jugadores
+  que recibieron al menos un galardón o que integraron alguna terna
+  durante la temporada en estudio.
 \end{itemize}
 
 Como medida de validación, se consideró para cada modelo a los 50
