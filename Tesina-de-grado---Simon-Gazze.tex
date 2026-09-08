@@ -165,7 +165,7 @@
 El crecimiento de la analítica deportiva ha impulsado el desarrollo de
 métricas destinadas a evaluar con mayor precisión la contribución de los
 jugadores al rendimiento de sus equipos. Particularmente en el
-básquetbol, las estadísticas individuales derivadas del box score
+básquetbol, las estadísticas individuales derivadas del \emph{box score}
 presentan limitaciones para capturar el impacto real de los jugadores
 sobre el resultado del juego. Una de las medidas desarrolladas con este
 propósito es el \emph{plus-minus}, que registra la diferencia de puntos
@@ -437,14 +437,13 @@ En los últimos años, muchos investigadores han publicado trabajos
 orientados a mejorar los resultados de las métricas RAPM. En este
 trabajo se toma como referencia central al artículo titulado
 \textbf{Lasso multinomial performance indicators for in‑play basketball
-data} (Damoulaki et al.~, 2025), el cual presenta diferencias
-importantes respecto de los estudios previos. Dicho artículo utiliza
-posesiones (definidas, según Kubatko et al.~(2007), como el periodo que
-comienza cuando un equipo obtiene el control de la pelota y termina
-cuando cede su control al rival) como unidad de análisis, puntos en esas
-posesiones como variable respuesta y emplea modelos logísticos
-multinomiales que representan de manera más adecuada la naturaleza de la
-respuesta.
+data} (Damoulaki et al., 2025), el cual presenta diferencias importantes
+respecto de los estudios previos. Dicho artículo utiliza posesiones
+(definidas, según Kubatko et al.~(2007), como el periodo que comienza
+cuando un equipo obtiene el control de la pelota y termina cuando cede
+su control al rival) como unidad de análisis, puntos en esas posesiones
+como variable respuesta y emplea modelos logísticos multinomiales que
+representan de manera más adecuada la naturaleza de la respuesta.
 
 \newpage
 
@@ -528,7 +527,7 @@ estadístico, fue necesario diseñar y ejecutar un proceso de \emph{web
 scraping} que permita recolectar, integrar y depurar la información de
 manera sistemática y reproducible. Los datos necesarios se extrajeron
 del \href{https://www.laliganacional.com.ar/laliga/}{Sitio Oficial de la
-Liga Nacional de Básquet} , utilizando librerías de Python como
+Liga Nacional de Básquet}, utilizando librerías de Python como
 \texttt{Selenium} y \texttt{BeautifulSoup}.
 
 Posteriormente, se realizó un preprocesamiento orientado a transformar
@@ -653,7 +652,7 @@ resulta indispensable a la hora de realizar los análisis posteriores.
 jugadores-equipos}\label{tabla-de-jugadores-equipos}
 
 Para resolver este problema, se obtuvo dicha información a partir de los
-datos provenientes del \emph{Box Score}, localizados en la pestaña
+datos provenientes del \emph{box score}, localizados en la pestaña
 ``Estadísticas'' de la página web del partido (Figura 4). Aquí se
 encuentra información referida a cada uno de los jugadores anotados en
 la planilla de ambos equipos.
@@ -664,7 +663,7 @@ la planilla de ambos equipos.
 
 }
 
-\caption{Ejemplo del Box Score de un partido}\label{fig:unnamed-chunk-7}
+\caption{Ejemplo del box score de un partido}\label{fig:unnamed-chunk-7}
 \end{figure}
 
 En esta pestaña, la información se organiza en dos tablas con
@@ -926,13 +925,13 @@ ejemplificado en el Cuadro 2.
 \toprule
 Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión\\
 \midrule
-1 & 00:08:54 & TIRO DE 3 FALLADO & STENTA, NICOLAS & BOCA &  & 4\\
-1 & 00:09:12 & REBOTE DEFENSIVO \#11 & VILDOZA, JOSE IGNACIO & BOCA &  & 4\\
-1 & 00:09:13 & TIRO DE 3 FALLADO & BUEMO, CARLOS EMANUEL & ATENAS &  & 3\\
-1 & 00:09:18 & FALTA RECIBIDA & BUENDIA, CARLOS MANUEL & ATENAS &  & 3\\
-1 & 00:09:32 & TRIPLE & PIÑERO, FACUNDO & BOCA &  & 2\\
-1 & 00:09:42 & REBOTE DEFENSIVO \#11 & VILDOZA, JOSE IGNACIO & BOCA &  & 2\\
-1 & 00:09:43 & TIRO DE 2 FALLADO & OBERTO, JUAN CRUZ MATEO & ATENAS &  & 1\\
+1 & 00:08:54 & TIRO DE 3 FALLADO & Stenta, Nicolas & Boca Juniors &  & 4\\
+1 & 00:09:12 & REBOTE DEFENSIVO \#11 & Vildoza, Jose Ignacio & Boca Juniors &  & 4\\
+1 & 00:09:13 & TIRO DE 3 FALLADO & Buemo, Carlos Emanuel & Atenas &  & 3\\
+1 & 00:09:18 & FALTA RECIBIDA & Buendia, Carlos Manuel & Atenas &  & 3\\
+1 & 00:09:32 & TRIPLE & Piñero, Facundo & Boca Juniors &  & 2\\
+1 & 00:09:42 & REBOTE DEFENSIVO \#11 & Vildoza, Jose Ignacio & Boca Juniors &  & 2\\
+1 & 00:09:43 & TIRO DE 2 FALLADO & Oberto, Juan Cruz Mateo & Atenas &  & 1\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -965,10 +964,10 @@ fila por posesión e incorporando la cantidad de puntos anotados.
 \toprule
 Cuarto & Tiempo & Acción & Jugador & Equipo & ... & Posesión & Puntos\\
 \midrule
-1 & 00:08:54 & TIRO DE 3 FALLADO & STENTA, NICOLAS & BOCA &  & 4 & 0\\
-1 & 00:09:13 & TIRO DE 3 FALLADO & BUEMO, CARLOS EMANUEL & ATENAS &  & 3 & 0\\
-1 & 00:09:32 & TRIPLE & PIÑERO, FACUNDO & BOCA &  & 2 & 3\\
-1 & 00:09:43 & TIRO DE 2 FALLADO & OBERTO, JUAN CRUZ MATEO & ATENAS &  & 1 & 0\\
+1 & 00:08:54 & TIRO DE 3 FALLADO & Stenta, Nicolas & Boca Juniors &  & 4 & 0\\
+1 & 00:09:13 & TIRO DE 3 FALLADO & Buemo, Carlos Emanuel & Atenas &  & 3 & 0\\
+1 & 00:09:32 & TRIPLE & Piñero, Facundo & Boca Juniors &  & 2 & 3\\
+1 & 00:09:43 & TIRO DE 2 FALLADO & Oberto, Juan Cruz Mateo & Atenas &  & 1 & 0\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1543,16 +1542,16 @@ contra 10 minutos en la LNB) es mayor.
 \toprule
 Jugador A & Jugador B & Posesiones juntos & \% de A con B & \% de B con A & Correlación ofensiva\\
 \midrule
-BARREIRO, A. & BROCAL, A. & 3.893 & 80.9 & 84.1 & 0.819\\
-BRUSSINO, J. & MILLER, T. & 2.753 & 81.2 & 79.9 & 0.800\\
-ANDUJAR, L. & THORNTON, W. & 3.302 & 77.9 & 81.2 & 0.788\\
-LUGARINI, B. & VILDOZA, L. & 2.629 & 77.3 & 79.6 & 0.779\\
-THOMAS JR, M. & THORNTON, W. & 3.132 & 78.4 & 77.0 & 0.769\\
-POMOLI LARRABURU, N. & VILDOZA, L. & 2.507 & 77.3 & 75.9 & 0.759\\
-DEFELIPPO, J. & SHRIVER, D. & 3.084 & 76.6 & 75.7 & 0.755\\
-BARRAL, P. & MATA, M. & 2.874 & 75.7 & 75.3 & 0.747\\
-LUGARINI, B. & POMOLI LARRABURU, N. & 2.533 & 74.5 & 78.1 & 0.757\\
-CABRERA, M. & VALLEJOS, R. & 3.038 & 78.9 & 74.1 & 0.757\\
+Barreiro, A. & Brocal, A. & 3.893 & 80.9 & 84.1 & 0.819\\
+Brussino, J. & Miller, T. & 2.753 & 81.2 & 79.9 & 0.800\\
+Andujar, L. & Thornton, W. & 3.302 & 77.9 & 81.2 & 0.788\\
+Lugarini, B. & Vildoza, L. & 2.629 & 77.3 & 79.6 & 0.779\\
+Thomas Jr, M. & Thornton, W. & 3.132 & 78.4 & 77.0 & 0.769\\
+Pomoli Larraburu, N. & Vildoza, L. & 2.507 & 77.3 & 75.9 & 0.759\\
+Defelippo, J. & Shriver, D. & 3.084 & 76.6 & 75.7 & 0.755\\
+Barral, P. & Mata, M. & 2.874 & 75.7 & 75.3 & 0.747\\
+Lugarini, B. & Pomoli Larraburu, N. & 2.533 & 74.5 & 78.1 & 0.757\\
+Cabrera, M. & Vallejos, R. & 3.038 & 78.9 & 74.1 & 0.757\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1728,7 +1727,7 @@ pérdida resulta:
 S^*= \sum_{i=1}^n (y_i-\mu_i)^2 + \lambda \sum_{l=1}^P |\beta_l|=S+\lambda \sum_{l=1}^P |\beta_l|.
 \end{equation}
 
-En esta técnica se presenta la función \((|\beta_l|)\) , la cual no es
+En esta técnica se presenta la función \((|\beta_l|)\), la cual no es
 diferenciable en cero y presenta un punto anguloso en dicho valor. Esta
 característica permite que, para determinados valores de \(\lambda\), el
 mínimo de la función objetivo se alcance exactamente en \(\beta_l=0\).
@@ -1850,7 +1849,7 @@ desarrollado una extensa línea de investigación sobre métricas
 propuestas metodológicas para la comparación de modelos, las cuales no
 parecen haber sido implementadas en básquetbol hasta la fecha. En el
 artículo \emph{Modelling the financial contribution of soccer players to
-their clubs} (Sæbø \& Hvattum, 2019) y en videos de su canal de ,
+their clubs} (Sæbø \& Hvattum, 2019) y en videos de su canal de YouTube,
 \href{https://www.youtube.com/@footballplayerratings}{Football Player
 Ratings}, se definen dos criterios para medir los distintos sistemas de
 rankings. Esta metodología es se replica para medir la consistencia de
@@ -1984,14 +1983,15 @@ Fuente: Hvattum (2023), \textit{How to evaluate football player ratings?} [Video
 externa}\label{criterios-de-validaciuxf3n-externa}
 
 Con el objetivo de evaluar la validez de los rankings obtenidos mediante
-los distintos modelos, se evaluaron distintos criterios externos basados
-en la propuesta de Damoulaki et al.~(2025), adaptados a la información
-disponible para la Liga Nacional de Básquetbol. Estos criterios no
-intervienen directamente en la estimación de los coeficientes de los
-modelos y permiten contrastar los rankings obtenidos con reconocimientos
-individuales, niveles de participación y estadísticas tradicionales de
-los jugadores, por lo que permiten evaluar la capacidad de las métricas
-para identificar a jugadores reconocidos por su buen desempeño.
+los distintos modelos, se definieron distintos criterios externos
+basados en la propuesta de Damoulaki et al.~(2025), adaptados a la
+información disponible para la Liga Nacional de Básquetbol. Estos
+criterios no intervienen directamente en la estimación de los
+coeficientes de los modelos y permiten contrastar los rankings obtenidos
+con reconocimientos individuales, niveles de participación y
+estadísticas tradicionales de los jugadores, por lo que permiten evaluar
+la capacidad de las métricas para identificar a jugadores reconocidos
+por su buen desempeño.
 
 El conjunto de criterios elegidos fue el siguiente:
 
@@ -2010,47 +2010,59 @@ El conjunto de criterios elegidos fue el siguiente:
   tres jugadores. Dentro de esta ceremonia se premia también al quinteto
   ideal de toda la temporada. En total, se identificaron 81 jugadores
   que recibieron al menos un galardón o que integraron alguna terna
-  durante la temporada en estudio.
+  durante la temporada en estudio. Para cada modelo se consideraron
+  conjuntamente las primeras 25 posiciones del ranking ofensivo y las
+  primeras 25 del defensivo. Luego se calculó la proporción de estas 50
+  posiciones que estaba ocupada por jugadores que recibieron al menos un
+  galardón durante la temporada.
 \end{itemize}
-
-Como medida de validación, se consideró para cada modelo a los 50
-primeros jugadores del ranking ofensivo y los 50 primeros del defensivo
-de manera conjunta, y se identificó cuántos de los 81 jugadores
-galardonados aparecían en al menos uno de estos rankings.
 
 \begin{itemize}
 \item
   \emph{Criterio de jugadores con poco tiempo de juego}: Se
   identificaron los 50 jugadores con menor cantidad de minutos
-  disputados entre los jugadores incluidos en los modelos y se calculó
-  la proporción de ellos que aparecían entre los 50 mejores jugadores
-  según cada ranking ofensivo y defensivo. Dado que la escasa
-  participación suele generar estimaciones inestables, se espera que un
-  modelo con mejor desempeño ubique a una menor cantidad de estos
-  jugadores en las primeras posiciones de los rankings.
+  disputados entre aquellos incluidos en los modelos. Para cada modelo
+  se calculó la proporción de las 50 posiciones superiores (25 ofensivas
+  y 25 defensivas) que estaba ocupada por jugadores pertenecientes a
+  este grupo. Dado que la escasa participación suele generar
+  estimaciones inestables, se espera que un modelo con mejor desempeño
+  ubique a una menor cantidad de estos jugadores en las primeras
+  posiciones de los rankings.
 \item
   \emph{Criterio de jugadores titulares}: Se definieron como titulares a
   los seis jugadores con mayor cantidad de minutos disputados de cada
-  equipo. Para cada modelo se calculó la proporción de las 100
-  posiciones correspondientes al top 50 ofensivo y al top 50 defensivo
-  que estaban ocupadas por jugadores pertenecientes a este grupo. Una
-  mayor proporción indica una mayor presencia de jugadores con alto
-  volumen de juego entre los mejor valorados. También se calculó, de
-  manera complementaria, la proporción de las 100 posiciones
-  correspondientes a los últimos 50 puestos de cada ranking que estaban
-  ocupadas por jugadores titulares, con el objetivo de evaluar su
-  presencia entre los jugadores a los que los modelos asignan las
-  valoraciones más bajas.
+  equipo. Para cada modelo se calculó la proporción de las 50 posiciones
+  superiores (25 ofensivas y 25 defensivas) que estaba ocupada por
+  jugadores pertenecientes a este grupo. Una mayor proporción indica una
+  mayor presencia de jugadores con un elevado volumen de participación
+  entre los mejor valorados. También se calculó, de manera
+  complementaria, la proporción de posiciones correspondientes a los
+  últimos puestos de cada ranking que estaban ocupadas por jugadores
+  titulares, con el objetivo de evaluar su presencia entre los jugadores
+  a los que los modelos asignan las valoraciones más bajas.
 \item
-  \emph{Criterio del box score}: Se identificaron los 50 mejores
-  jugadores según distintas estadísticas tradicionales del \emph{box
-  score}. Para la evaluación ofensiva se consideraron los puntos, las
-  asistencias y los rebotes ofensivos, mientras que para la evaluación
-  defensiva se utilizaron los rebotes defensivos, los recuperos y las
-  tapas. Posteriormente, se calculó la proporción de coincidencias entre
-  estos grupos de jugadores y el top 50 de los rankings ofensivos y
-  defensivos, respectivamente.
+  \emph{Criterio del box score}: Se identificaron los 50 jugadores con
+  mayores valores acumulados durante la temporada en distintas
+  estadísticas tradicionales del \emph{box score}. Para la evaluación
+  ofensiva se consideraron los puntos, las asistencias y los rebotes
+  ofensivos, mientras que para la evaluación defensiva se utilizaron los
+  rebotes defensivos, las recuperaciones y los tapones. Estos conjuntos
+  se utilizaron como grupos externos de referencia de los jugadores con
+  mayor producción en cada estadística. Para cada modelo se calculó la
+  proporción de los 25 jugadores mejor posicionados en cada ranking
+  (ofensivo y defensivo) que pertenecía al grupo de mejores jugadores en
+  cada estadística.
 \end{itemize}
+
+A diferencia de Damoulaki et al.~(2025), donde se consideran las
+primeras 50 posiciones de cada ranking dentro de un universo de 485
+jugadores, lo que representa aproximadamente el 10,3 \% del total. En
+este trabajo se seleccionaron las primeras 25 posiciones entre los 229
+jugadores incluidos en los modelos, equivalentes al 10,9 \%. Esta
+adaptación mantiene una selectividad relativa similar y permite que,
+incluso en los modelos estimado mediante LASSO donde se reduce una gran
+cantidad de coeficientes a cero, las posiciones superiores seleccionadas
+correspondan a coeficientes positivos.
 
 \section{Resultados}\label{cap:resultados}
 
@@ -2084,13 +2096,13 @@ se resume en el Cuadro 5.
 \toprule
 Puntos & Posesiones & \%\\
 \midrule
-0 & 31241 & 53,29\\
+0 & 31241 & 53,290\\
 1 & 2385 & 4,068\\
 2 & 16670 & 28,435\\
 3 & 8134 & 13,875\\
 4 & 143 & 0,244\\
 5 & 45 & 0,077\\
-6 & 6 & 0,01\\
+6 & 6 & 0,010\\
 7 & 1 & 0,002\\
 \bottomrule
 \end{tabular}
@@ -2166,19 +2178,19 @@ mitad de la tabla de posiciones.
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lll}
 \toprule
-jugador & Equipos & +/-\\
+Jugador & Equipo & +/-\\
 \midrule
-LOUIS, ARNOLD MICHAEL & QUIMSA & \cellcolor[HTML]{B7E4C7}{\textbf{306}}\\
-VILDOZA, LEANDRO & INSTITUTO & \cellcolor[HTML]{B9E4C6}{\textbf{297}}\\
-POMOLI LARRABURU, NICOLA & INSTITUTO & \cellcolor[HTML]{BCE5C6}{\textbf{284}}\\
-CUELLO, MARTIN NICOLAS & BOCA & \cellcolor[HTML]{C3E6C4}{\textbf{254}}\\
-COPELLO, NICOLAS & INSTITUTO & \cellcolor[HTML]{C4E7C3}{\textbf{245}}\\
-VORHEES, WILLIAM LEONARD-DEUBLER & OBERA & \cellcolor[HTML]{C9E8C2}{\textbf{224}}\\
-LUGARINI, BAUTISTA & INSTITUTO & \cellcolor[HTML]{CCE8C1}{\textbf{211}}\\
-VILDOZA, JOSE IGNACIO & BOCA & \cellcolor[HTML]{CCE8C1}{\textbf{209}}\\
-FIGUEREDO, DIEGO RAFAEL & RIACHUELO & \cellcolor[HTML]{CDE8C1}{\textbf{205}}\\
-BRUSSINO, JUAN IGNACIO & QUIMSA & \cellcolor[HTML]{CEE8C0}{\textbf{201}}\\
-CHACON TIRADO, MARCOS & GIMNASIA & \cellcolor[HTML]{CEE8C0}{\textbf{201}}\\
+Louis, Arnold Michael & Quimsa & \cellcolor[HTML]{B7E4C7}{\textbf{306}}\\
+Vildoza, Leandro & Instituto & \cellcolor[HTML]{B9E4C6}{\textbf{297}}\\
+Pomoli Larraburu, Nicola & Instituto & \cellcolor[HTML]{BCE5C6}{\textbf{284}}\\
+Cuello, Martin Nicolas & Boca Juniors & \cellcolor[HTML]{C3E6C4}{\textbf{254}}\\
+Copello, Nicolas & Instituto & \cellcolor[HTML]{C4E7C3}{\textbf{245}}\\
+Vorhees, William Leonard-Deubler & Oberá & \cellcolor[HTML]{C9E8C2}{\textbf{224}}\\
+Lugarini, Bautista & Instituto & \cellcolor[HTML]{CCE8C1}{\textbf{211}}\\
+Vildoza, Jose Ignacio & Boca Juniors & \cellcolor[HTML]{CCE8C1}{\textbf{209}}\\
+Figueredo, Diego Rafael & Riachuelo & \cellcolor[HTML]{CDE8C1}{\textbf{205}}\\
+Brussino, Juan Ignacio & Quimsa & \cellcolor[HTML]{CEE8C0}{\textbf{201}}\\
+Chacon Tirado, Marcos & Gimnasia & \cellcolor[HTML]{CEE8C0}{\textbf{201}}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2197,18 +2209,18 @@ competencia pertenecieron exclusivamente a esos equipos.
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lll}
 \toprule
-jugador & Equipos & +/-\\
+Jugador & Equipo & +/-\\
 \midrule
-GOMEZ, MANUEL ALEJANDRO & ARGENTINO & \cellcolor[HTML]{F4A6A6}{\textbf{-409}}\\
-SLIDER, JONATAN & ARGENTINO & \cellcolor[HTML]{F6B3A8}{\textbf{-352}}\\
-ALLENDE, TOMAS DANIEL & ARGENTINO & \cellcolor[HTML]{F8BFA9}{\textbf{-295}}\\
-FRONTERA, RAMIRO JEREMIAS & ARGENTINO & \cellcolor[HTML]{FAC6AA}{\textbf{-264}}\\
-PIÑERO, PATRICIO & ZARATE BASKET & \cellcolor[HTML]{FAC8AB}{\textbf{-252}}\\
-PODESTA, FERNANDO ARIEL & ARGENTINO & \cellcolor[HTML]{FAC8AB}{\textbf{-251}}\\
-HERNANDEZ, MANUEL ALONSO & ARGENTINO & \cellcolor[HTML]{FACBAB}{\textbf{-241}}\\
-MERCHANT, EDGAR HENRY & ZARATE BASKET & \cellcolor[HTML]{FCD5AC}{\textbf{-194}}\\
-DIGGS, AVERY GERELL & ZARATE BASKET & \cellcolor[HTML]{FCD5AC}{\textbf{-190}}\\
-CAPPONI, FEBO LORENZO & ZARATE BASKET & \cellcolor[HTML]{FCD6AD}{\textbf{-187}}\\
+Gomez, Manuel Alejandro & Argentino & \cellcolor[HTML]{F4A6A6}{\textbf{-409}}\\
+Slider, Jonatan & Argentino & \cellcolor[HTML]{F6B3A8}{\textbf{-352}}\\
+Allende, Tomas Daniel & Argentino & \cellcolor[HTML]{F8BFA9}{\textbf{-295}}\\
+Frontera, Ramiro Jeremias & Argentino & \cellcolor[HTML]{FAC6AA}{\textbf{-264}}\\
+Piñero, Patricio & Zárate & \cellcolor[HTML]{FAC8AB}{\textbf{-252}}\\
+Podesta, Fernando Ariel & Argentino & \cellcolor[HTML]{FAC8AB}{\textbf{-251}}\\
+Hernandez, Manuel Alonso & Argentino & \cellcolor[HTML]{FACBAB}{\textbf{-241}}\\
+Merchant, Edgar Henry & Zárate & \cellcolor[HTML]{FCD5AC}{\textbf{-194}}\\
+Diggs, Avery Gerell & Zárate & \cellcolor[HTML]{FCD5AC}{\textbf{-190}}\\
+Capponi, Febo Lorenzo & Zárate & \cellcolor[HTML]{FCD6AD}{\textbf{-187}}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2225,7 +2237,7 @@ posesiones}{Análisis del plus-minus por cada 100 posesiones}}\label{anuxe1lisis
 
 Además de estar influenciado por el desempeño del equipo al que
 pertenece el jugador, el \emph{plus-minus} es una medida acumulativa a
-lo largo de la temporada , por lo que su valor depende tanto del
+lo largo de la temporada, por lo que su valor depende tanto del
 diferencial de puntos registrado mientras el jugador se encuentra en
 cancha como de la cantidad de posesiones en las que participa. En este
 sentido, en grandes equipos que generalmente registran diferenciales
@@ -2236,9 +2248,9 @@ contribución individual. Con el propósito de reducir inicialmente la
 influencia de este volumen de participación, se calculó el
 \emph{plus-minus} por cada 100 posesiones:
 
-\[PM^{100}_k = \frac{PM_k \cdot 100}{N_k}\] donde \(PM_k\) representa el
-\emph{plus-minus} acumulado del jugador k y \(N_k\) la cantidad de
-posesiones en las que participó.
+\[(+/-)^{100}_k = \frac{(+/-)_k \cdot 100}{N_k},\] donde \((+/-)_k\)
+representa el \emph{plus-minus} acumulado del jugador k y \(N_k\) la
+cantidad de posesiones en las que participó.
 
 \begin{figure}[H]
 
@@ -2249,10 +2261,12 @@ posesiones en las que participó.
 \caption{Ranking de plus-minus ponderado por cantidad de posesiones}\label{fig:unnamed-chunk-20}
 \end{figure}
 
-Al observar los resultados, los valores más extremos de la distribución
-se concentran entre los jugadores con menor participación. En
-particular, los 15 valores más altos y los 39 más bajos corresponden a
-jugadores que participaron en menos de 500 posesiones durante la
+La relación entre el \emph{plus-minus} por cada 100 posesiones y la
+cantidad de posesiones disputadas por cada jugador se presenta en la
+Figura 10. Como puede observarse, los valores más extremos de la
+distribución se concentran entre los jugadores con menor participación.
+En particular, los 15 valores más altos y los 39 más bajos corresponden
+a jugadores que participaron en menos de 500 posesiones durante la
 temporada. Esta concentración en ambos extremos sugiere que, cuando se
 presentan pocas observaciones, la métrica resulta especialmente sensible
 a unas pocas acciones favorables o desfavorables y, por lo tanto,
@@ -2263,8 +2277,9 @@ adoptado posteriormente para el tratamiento de los jugadores con poca
 participación, se restringió el análisis a quienes disputaron al menos
 500 posesiones en la temporada.
 
-En el cuadro 9 se presentan los diez valores más altos y los diez más
-bajos del plus-minus por cada 100 posesiones bajo esta condición.
+En los Cuadros 9 y 10 se presentan, respectivamente, los diez valores
+más altos y los diez más bajos del \emph{plus-minus} por cada 100
+posesiones entre los jugadores que disputaron al menos 500 posesiones.
 
 \begin{table}[H]
 \centering
@@ -2273,18 +2288,18 @@ bajos del plus-minus por cada 100 posesiones bajo esta condición.
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{llrrl}
 \toprule
-jugador & Equipos & posesiones & +/- & $PM^{100}$\\
+Jugador & Equipo & Posesiones & +/- & +/- por 100 posesiones\\
 \midrule
-LOUIS, ARNOLD MICHAEL & QUIMSA & 3052 & 306 & \cellcolor[HTML]{B7E4C7}{\textbf{10.0262}}\\
-VILDOZA, LEANDRO & INSTITUTO & 3302 & 297 & \cellcolor[HTML]{BEE5C5}{\textbf{8.9945}}\\
-POMOLI LARRABURU, NICOLA & INSTITUTO & 3243 & 284 & \cellcolor[HTML]{C0E6C4}{\textbf{8.7573}}\\
-CHACON TIRADO, MARCOS & GIMNASIA & 2326 & 201 & \cellcolor[HTML]{C1E6C4}{\textbf{8.6414}}\\
-VASIRANI, EDUARDO MARTIN & QUIMSA & 2383 & 182 & \cellcolor[HTML]{C8E7C2}{\textbf{7.6374}}\\
-SANSIMONI, BRUNO & QUIMSA & 2006 & 152 & \cellcolor[HTML]{C8E7C2}{\textbf{7.5773}}\\
-RIVERO, CARLOS EZEQUIEL & GIMNASIA & 1629 & 123 & \cellcolor[HTML]{C9E7C2}{\textbf{7.5506}}\\
-COPELLO, NICOLAS & INSTITUTO & 3366 & 245 & \cellcolor[HTML]{CAE8C1}{\textbf{7.2787}}\\
-PIÑERO, FACUNDO & BOCA & 2387 & 160 & \cellcolor[HTML]{CEE9C0}{\textbf{6.703}}\\
-CUELLO, MARTIN NICOLAS & BOCA & 3850 & 254 & \cellcolor[HTML]{CFE9C0}{\textbf{6.5974}}\\
+Louis, Arnold Michael & Quimsa & 3052 & 306 & \cellcolor[HTML]{B7E4C7}{\textbf{10.0262}}\\
+Vildoza, Leandro & Instituto & 3302 & 297 & \cellcolor[HTML]{BEE5C5}{\textbf{8.9945}}\\
+Pomoli Larraburu, Nicola & Instituto & 3243 & 284 & \cellcolor[HTML]{C0E6C4}{\textbf{8.7573}}\\
+Chacon Tirado, Marcos & Gimnasia & 2326 & 201 & \cellcolor[HTML]{C1E6C4}{\textbf{8.6414}}\\
+Vasirani, Eduardo Martin & Quimsa & 2383 & 182 & \cellcolor[HTML]{C8E7C2}{\textbf{7.6374}}\\
+Sansimoni, Bruno & Quimsa & 2006 & 152 & \cellcolor[HTML]{C8E7C2}{\textbf{7.5773}}\\
+Rivero, Carlos Ezequiel & Gimnasia & 1629 & 123 & \cellcolor[HTML]{C9E7C2}{\textbf{7.5506}}\\
+Copello, Nicolas & Instituto & 3366 & 245 & \cellcolor[HTML]{CAE8C1}{\textbf{7.2787}}\\
+Piñero, Facundo & Boca Juniors & 2387 & 160 & \cellcolor[HTML]{CEE9C0}{\textbf{6.703}}\\
+Cuello, Martin Nicolas & Boca Juniors & 3850 & 254 & \cellcolor[HTML]{CFE9C0}{\textbf{6.5974}}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2301,18 +2316,18 @@ destacando en un equipo de mitad de tabla.
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{llrrl}
 \toprule
-jugador & Equipos & posesiones & +/- & $PM^{100}$\\
+Jugador & Equipo & Posesiones & +/- & +/- por 100 posesiones\\
 \midrule
-ALONSO, GONZALO NICOLAS & LA UNION FSA. & 541 & -65 & \cellcolor[HTML]{F4A6A6}{\textbf{-12.0148}}\\
-GOMEZ, MANUEL ALEJANDRO & ARGENTINO & 3702 & -409 & \cellcolor[HTML]{F5ADA7}{\textbf{-11.0481}}\\
-ROVERES, AUGUSTO DANIEL & FERRO & 511 & -53 & \cellcolor[HTML]{F6B2A8}{\textbf{-10.3718}}\\
-THORNTON, RAYNERE ZYNIQUE & ARGENTINO & 1088 & -108 & \cellcolor[HTML]{F7B5A8}{\textbf{-9.9265}}\\
-SLIDER, JONATAN & ARGENTINO & 3685 & -352 & \cellcolor[HTML]{F7B7A8}{\textbf{-9.5522}}\\
-MAXWELL, DU'VAUGHN ELISHA & OLIMPICO & 611 & -54 & \cellcolor[HTML]{F8BDA9}{\textbf{-8.838}}\\
-ALLENDE, TOMAS DANIEL & ARGENTINO & 3344 & -295 & \cellcolor[HTML]{F8BDA9}{\textbf{-8.8218}}\\
-CAPPONI, FEBO LORENZO & ZARATE BASKET & 2179 & -187 & \cellcolor[HTML]{F8BEA9}{\textbf{-8.5819}}\\
-PODESTA, FERNANDO ARIEL & ARGENTINO & 3047 & -251 & \cellcolor[HTML]{F9C1AA}{\textbf{-8.2376}}\\
-ROMERO, GONZALO EMMANUEL & ARGENTINO & 587 & -48 & \cellcolor[HTML]{F9C1AA}{\textbf{-8.1772}}\\
+Alonso, Gonzalo Nicolas & La Unión & 541 & -65 & \cellcolor[HTML]{F4A6A6}{\textbf{-12.0148}}\\
+Gomez, Manuel Alejandro & Argentino & 3702 & -409 & \cellcolor[HTML]{F5ADA7}{\textbf{-11.0481}}\\
+Roveres, Augusto Daniel & Ferro & 511 & -53 & \cellcolor[HTML]{F6B2A8}{\textbf{-10.3718}}\\
+Thornton, Raynere Zynique & Argentino & 1088 & -108 & \cellcolor[HTML]{F7B5A8}{\textbf{-9.9265}}\\
+Slider, Jonatan & Argentino & 3685 & -352 & \cellcolor[HTML]{F7B7A8}{\textbf{-9.5522}}\\
+Maxwell, Du'vaughn Elisha & Olímpico & 611 & -54 & \cellcolor[HTML]{F8BDA9}{\textbf{-8.838}}\\
+Allende, Tomas Daniel & Argentino & 3344 & -295 & \cellcolor[HTML]{F8BDA9}{\textbf{-8.8218}}\\
+Capponi, Febo Lorenzo & Zárate & 2179 & -187 & \cellcolor[HTML]{F8BEA9}{\textbf{-8.5819}}\\
+Podesta, Fernando Ariel & Argentino & 3047 & -251 & \cellcolor[HTML]{F9C1AA}{\textbf{-8.2376}}\\
+Romero, Gonzalo Emmanuel & Argentino & 587 & -48 & \cellcolor[HTML]{F9C1AA}{\textbf{-8.1772}}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2346,7 +2361,7 @@ negativa.
 
 }
 
-\caption{plus-minus cada 100 posesiones por equipo}\label{fig:unnamed-chunk-23}
+\caption{Plus-minus cada 100 posesiones por equipo}\label{fig:unnamed-chunk-23}
 \end{figure}
 
 Pensando en mitigar el efecto, tanto positivo como negativo, que genera
@@ -2362,7 +2377,7 @@ la desviación absoluta mediana (\emph{median absolute deviation}, MAD),
 en lugar de la media y la desviación estándar. Para un jugador \(k\)
 perteneciente al equipo \(e\), se definió:
 
-\[PM^{est}_k = \frac{PM^{100}_k - \widetilde{PM^{100}}_e}{MAD_e(PM^{100})}\]
+\[(+/-)^{est}_k = \frac{(+/-)^{100}_k - \widetilde{(+/-)^{100}}_e}{MAD_e((+/-)^{100})}\]
 Valores positivos indican que el jugador registró un +/- por 100
 posesiones superior a la mediana de sus compañeros, mientras que los
 valores negativos señalan un desempeño inferior en términos relativos
@@ -2375,23 +2390,23 @@ dentro de su equipo.
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{llrrl}
 \toprule
-jugador & Equipos & Posesiones & +/- & +/- estandarizado\\
+Jugador & Equipo & Posesiones & +/- & +/- estandarizado\\
 \midrule
-SANDERS, NAKIE GERALD & ATENAS & 1211 & 60 & \cellcolor[HTML]{D6EABE}{\textbf{5.5182}}\\
-GARELLO, VICENTE & SAN MARTIN & 1524 & 95 & \cellcolor[HTML]{E2EDBA}{\textbf{3.6429}}\\
-MAINOLDI, LEONARDO ANDRES & OLIMPICO & 595 & 41 & \cellcolor[HTML]{E6EEB9}{\textbf{3.0983}}\\
-CHACON TIRADO, MARCOS & GIMNASIA & 2326 & 201 & \cellcolor[HTML]{E7EEB8}{\textbf{2.8492}}\\
-HARINA MARTINI, FEDERICO GABRIEL & LA UNION FSA. & 2982 & 55 & \cellcolor[HTML]{EAEEB7}{\textbf{2.3924}}\\
-RIVERO, CARLOS EZEQUIEL & GIMNASIA & 1629 & 123 & \cellcolor[HTML]{EAEEB7}{\textbf{2.3861}}\\
-CAPELLI, SANTIAGO & ARGENTINO & 554 & -16 & \cellcolor[HTML]{EBEFB7}{\textbf{2.2476}}\\
-CARABALI POROZO, BRYAN JOSE & SAN MARTIN & 790 & 33 & \cellcolor[HTML]{ECEFB7}{\textbf{2.156}}\\
-LOUIS, ARNOLD MICHAEL & QUIMSA & 3052 & 306 & \cellcolor[HTML]{EDEFB6}{\textbf{2.0007}}\\
-DATO, MARTINIANO & GIMNASIA & 2653 & 173 & \cellcolor[HTML]{EDEFB6}{\textbf{1.949}}\\
+Sanders, Nakie Gerald & Atenas & 1211 & 60 & \cellcolor[HTML]{D6EABE}{\textbf{5.5182}}\\
+Garello, Vicente & San Martín & 1524 & 95 & \cellcolor[HTML]{E2EDBA}{\textbf{3.6429}}\\
+Mainoldi, Leonardo Andres & Olímpico & 595 & 41 & \cellcolor[HTML]{E6EEB9}{\textbf{3.0983}}\\
+Chacon Tirado, Marcos & Gimnasia & 2326 & 201 & \cellcolor[HTML]{E7EEB8}{\textbf{2.8492}}\\
+Harina Martini, Federico Gabriel & La Unión & 2982 & 55 & \cellcolor[HTML]{EAEEB7}{\textbf{2.3924}}\\
+Rivero, Carlos Ezequiel & Gimnasia & 1629 & 123 & \cellcolor[HTML]{EAEEB7}{\textbf{2.3861}}\\
+Capelli, Santiago & Argentino & 554 & -16 & \cellcolor[HTML]{EBEFB7}{\textbf{2.2476}}\\
+Carabali Porozo, Bryan Jose & San Martín & 790 & 33 & \cellcolor[HTML]{ECEFB7}{\textbf{2.156}}\\
+Louis, Arnold Michael & Quimsa & 3052 & 306 & \cellcolor[HTML]{EDEFB6}{\textbf{2.0007}}\\
+Dato, Martiniano & Gimnasia & 2653 & 173 & \cellcolor[HTML]{EDEFB6}{\textbf{1.949}}\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-En el cuadro 11 se observa que los tres primeros puestos corresponden a
+En el Cuadro 11 se observa que los tres primeros puestos corresponden a
 jugadores que no disputaron la temporada completa con sus respectivos
 equipos. Nakye Sanders y Vicente Garello se incorporaron como refuerzos
 a Atenas y San Martín, respectivamente, mientras que Leonardo Mainoldi
@@ -2425,18 +2440,18 @@ considerablemente más favorable que el de sus compañeros.
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{llrrl}
 \toprule
-jugador & Equipos & Posesiones & +/- & +/- estandarizado\\
+Jugador & Equipo & Posesiones & +/- & +/- estandarizado\\
 \midrule
-ALONSO, GONZALO NICOLAS & LA UNION FSA. & 541 & -65 & \cellcolor[HTML]{FBCFAC}{\textbf{-6.2205}}\\
-PAYTON CLOTTEY, EMMANUEL TRAVON & SAN MARTIN & 966 & -63 & \cellcolor[HTML]{FCD3AC}{\textbf{-5.5804}}\\
-DIGON, ALEJO ADRIEL & OBRAS & 691 & -33 & \cellcolor[HTML]{FCD9AD}{\textbf{-4.7101}}\\
-ROVERES, AUGUSTO DANIEL & FERRO & 511 & -53 & \cellcolor[HTML]{FDDEAE}{\textbf{-4.0184}}\\
-LEDESMA, RAMIRO & ATENAS & 1484 & -75 & \cellcolor[HTML]{FDE0AE}{\textbf{-3.6748}}\\
-MAXWELL, DU'VAUGHN ELISHA & OLIMPICO & 611 & -54 & \cellcolor[HTML]{FEE7AF}{\textbf{-2.7516}}\\
-MITCHELL JR, TONY RASEAN & UNION & 690 & -55 & \cellcolor[HTML]{FEE8AF}{\textbf{-2.6258}}\\
-KRAYEM, OMAR NABIL & RIACHUELO & 551 & -35 & \cellcolor[HTML]{FEE8AF}{\textbf{-2.5965}}\\
-JARA, CESAR AGUSTIN & INDEPENDIENTE & 3016 & -175 & \cellcolor[HTML]{FEE9AF}{\textbf{-2.4791}}\\
-ROMANO, NICOLAS & QUIMSA & 2186 & 28 & \cellcolor[HTML]{FEE9AF}{\textbf{-2.4588}}\\
+Alonso, Gonzalo Nicolas & La Unión & 541 & -65 & \cellcolor[HTML]{FBCFAC}{\textbf{-6.2205}}\\
+Payton Clottey, Emmanuel Travon & San Martín & 966 & -63 & \cellcolor[HTML]{FCD3AC}{\textbf{-5.5804}}\\
+Digon, Alejo Adriel & Obras & 691 & -33 & \cellcolor[HTML]{FCD9AD}{\textbf{-4.7101}}\\
+Roveres, Augusto Daniel & Ferro & 511 & -53 & \cellcolor[HTML]{FDDEAE}{\textbf{-4.0184}}\\
+Ledesma, Ramiro & Atenas & 1484 & -75 & \cellcolor[HTML]{FDE0AE}{\textbf{-3.6748}}\\
+Maxwell, Du'vaughn Elisha & Olímpico & 611 & -54 & \cellcolor[HTML]{FEE7AF}{\textbf{-2.7516}}\\
+Mitchell Jr, Tony Rasean & Unión & 690 & -55 & \cellcolor[HTML]{FEE8AF}{\textbf{-2.6258}}\\
+Krayem, Omar Nabil & Riachuelo & 551 & -35 & \cellcolor[HTML]{FEE8AF}{\textbf{-2.5965}}\\
+Jara, Cesar Agustin & Independiente & 3016 & -175 & \cellcolor[HTML]{FEE9AF}{\textbf{-2.4791}}\\
+Romano, Nicolas & Quimsa & 2186 & 28 & \cellcolor[HTML]{FEE9AF}{\textbf{-2.4588}}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2445,7 +2460,7 @@ En el Cuadro 12 se observa que, de manera similar al caso de Capelli,
 entre los puestos inferiores del ranking aparece Nicolas Romano,
 presentando un +/- positivo en términos absolutos. Dicho jugador integró
 al equipo con mayor +/- a lo largo de la temporada, pero presentó un
-desempeño muy por debajo al de de sus compañeros.
+desempeño muy por debajo al de sus compañeros.
 
 Esta medida complementa el análisis del +/- por 100 posesiones al
 identificar la posición relativa de cada jugador dentro de su plantel.
@@ -2501,8 +2516,8 @@ Las distintas regularizaciones presentaron medidas de error muy
 similares, siendo Elastic Net la mejor entre las tres alternativas.
 También se observan valores absolutos bajos para los coeficientes de
 penalización, lo cual no debe confundirse con una baja penalización, ya
-que para el caso de LASSO se redujo el 78,60\% de los coeficientes a 0.
-Mientras que en el caso de Elastic Net donde se presentó una
+que para el caso de LASSO se redujo el 78,60\% de los coeficientes a
+cero. Mientras que en el caso de Elastic Net donde se presentó una
 penalización aparentemente dominada por \(L_2\) (\(\alpha\) = 0,005),
 también se anularon un 27,72\% de los coeficientes.
 
@@ -2518,7 +2533,7 @@ disputadas como con la elevada correlación existente entre jugadores que
 comparten frecuentemente sus minutos en cancha.
 
 Por otro lado, el modelo Ridge no reduce los coeficientes exactamente
-hasta 0, pero sí los contrae hacia ese valor: 51 coeficientes
+hasta cero, pero sí los contrae hacia ese valor: 51 coeficientes
 presentaron una magnitud inferior a 0,001 puntos por posesión,
 equivalente a un efecto inferior a 0,1 puntos cada 100 posesiones.
 
@@ -2655,17 +2670,17 @@ consecuencia, registraron caídas relevantes en el ranking:
 
 \begin{itemize}
 \item
-  \texttt{MORRISON,\ DOMINIQUE\ MONTEL} pasó del 1.º puesto en el
-  ranking de EPTS al 3.º en el de wEPTS.
+  \textbf{Dominique Montel Morrison} pasó del 1.º puesto en el ranking
+  de EPTS al 3.º en el de wEPTS.
 \item
-  \texttt{CHACON\ TIRADO,\ MARCOS} pasó del 3.º puesto al 15.º,
-  recibiendo la mayor penalización entre las métricas ofensivas (una
-  diferencia de -0,02118 puntos esperados).
+  \textbf{Marcos Chacón Tirado} pasó del 3.º puesto al 15.º, recibiendo
+  la mayor penalización entre las métricas ofensivas (una diferencia de
+  -0,02118 puntos esperados).
 \item
-  \texttt{DATO,\ MARTINIANO} pasó del 4.º puesto al 9.º en el ranking
+  \textbf{Martiniano Dato} pasó del 4.º puesto al 9.º en el ranking
   wEPTS.
 \item
-  \texttt{THOMAS\ III,\ CHARLES\ PRICE} pasó del 5.º puesto al 12.º.
+  \textbf{Charles Price Thomas III} pasó del 5.º puesto al 12.º.
 \end{itemize}
 
 Por otra parte, al analizar las métricas defensivas presentadas en la
@@ -2680,12 +2695,12 @@ Figura 15 también se observa un comportamiento similar al mencionado.
 \caption{Comparación de distribuciones: EPTS vs wEPTS}\label{fig:unnamed-chunk-31}
 \end{figure}
 
-Donde destaca \texttt{SANDERS,\ NAKIE\ GERALD}, quien presentó la mayor
+Donde destaca \textbf{Nakye Gerald Sanders}, quien presentó la mayor
 variación absoluta entre EPTS y wEPTS entre todos los jugadores, con una
 diferencia de 0,02215 puntos esperados por posesión. Como consecuencia,
 pasó del 9.º al 39.º puesto del ranking defensivo. Entre los cinco
 jugadores con mayor penalización en la métrica defensiva vuelve a
-aparecer \texttt{CHACON\ TIRADO,\ MARCOS}, quien pasó del 7.º al 13.º
+aparecer \textbf{Marcos Chacón Tirado}, quien pasó del 7.º al 13.º
 puesto. Sumado a que presentó la mayor penalización en el componente
 ofensivo, este resultado lo identifica como uno de los jugadores cuya
 valoración se ve más afectada por la incorporación de la ponderación.
@@ -2775,16 +2790,15 @@ estimados sean igualmente confiables. Un modelo puede reproducir
 adecuadamente los resultados observados y, al mismo tiempo, generar
 métricas muy sensibles a los partidos incluidos en el conjunto de datos.
 
-Siguiendo el enfoque comentado en el apartado metodológico (Sección
-3.8.2), se evaluó entonces la consistencia de los modelos, entendida
-como su capacidad para producir valoraciones similares al ser ajustados
-sobre muestras diferentes. Para ello, los partidos fueron distribuidos
-aleatoriamente en dos particiones con cantidades similares de
-posesiones, manteniendo todas las posesiones de un mismo encuentro
-dentro de una única partición. Posteriormente, cada modelo fue
-reajustado de manera independiente y se calculó la correlación de
-Pearson entre los rankings obtenidos para los jugadores presentes en
-ambas muestras.
+Siguiendo el enfoque comentado en la Sección 3.8.2, se evaluó entonces
+la consistencia de los modelos, entendida como su capacidad para
+producir valoraciones similares al ser ajustados sobre muestras
+diferentes. Para ello, los partidos fueron distribuidos aleatoriamente
+en dos particiones con cantidades similares de posesiones, manteniendo
+todas las posesiones de un mismo encuentro dentro de una única
+partición. Posteriormente, cada modelo fue reajustado de manera
+independiente y se calculó la correlación de Pearson entre los rankings
+obtenidos para los jugadores presentes en ambas muestras.
 
 El análisis se realizó separadamente para las contribuciones ofensivas y
 defensivas. Como referencia adicional, las correlaciones observadas se
@@ -2851,11 +2865,11 @@ criterios de validación externa definidos en la Sección 3.8.3.
 Estos criterios comparan a los rankings obtenidos con distintas
 referencias vinculadas al desempeño de los jugadores, como los
 reconocimientos recibidos durante la temporada, su nivel de
-participación y las estadísticas tradicionales del box score. Si bien
-estas referencias no constituyen una medida definitiva del verdadero
-aporte individual, permiten evaluar la concordancia de las distintas
-métricas con otras referencias vinculadas al rendimiento de los
-jugadores.
+participación y las estadísticas tradicionales del \emph{box score}. Si
+bien estas referencias no constituyen una medida definitiva del
+verdadero aporte individual, permiten evaluar la concordancia de las
+distintas métricas con otras referencias vinculadas al rendimiento de
+los jugadores.
 
 \begin{table}[H]
 \centering
@@ -2868,33 +2882,33 @@ jugadores.
 \toprule
 Modelo & Criterio 1 (\%) & Criterio 2 (\%) & Criterio 3a (\%) & Criterio 3b (\%)\\
 \midrule
-RAPM - Ridge & 49.4 & 6.0 & 66.0 & 59.0\\
-RAPM - Lasso & 43.2 & 13.0 & 61.0 & 57.0\\
-RAPM - Elastic Net & 50.6 & 6.0 & 65.0 & 59.0\\
-EPTS - Ridge & 49.4 & 12.0 & 61.0 & 54.0\\
-EPTS - Lasso & \textbf{54.3} & 5.0 & 67.0 & 64.0\\
-EPTS - Elastic Net & 49.4 & 11.0 & 61.0 & 55.0\\
-wEPTS - Ridge & 53.1 & \textbf{2.0} & \textbf{78.0} & \textbf{73.0}\\
-wEPTS - Lasso & \textbf{54.3} & 5.0 & 68.0 & 63.0\\
-wEPTS - Elastic Net & 53.1 & \textbf{2.0} & 77.0 & 72.0\\
+RAPM - Ridge & 58.0 & 4.0 & 70.0 & 60.0\\
+RAPM - Lasso & 62.0 & 2.0 & 74.0 & 60.0\\
+RAPM - Elastic Net & 58.0 & 4.0 & 70.0 & 55.0\\
+EPTS - Ridge & 56.0 & 6.0 & 68.0 & 47.5\\
+EPTS - Lasso & 66.0 & 4.0 & 74.0 & 52.5\\
+EPTS - Elastic Net & 58.0 & 4.0 & 70.0 & 50.0\\
+wEPTS - Ridge & \textbf{68.0} & \textbf{0.0} & \textbf{84.0} & \textbf{85.0}\\
+wEPTS - Lasso & \textbf{68.0} & \textbf{0.0} & 80.0 & 70.0\\
+wEPTS - Elastic Net & \textbf{68.0} & \textbf{0.0} & \textbf{84.0} & 82.5\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}[para]
-\item Para el criterio de galardonados (1), la proporción corresponde al número de jugadores reconocidos identificados entre los top 50 ofensivo y defensivo, sobre un total de 81 jugadores galardonados. Para los criterios de poco tiempo de juego y titulares (2 y 3), las proporciones se calculan sobre 100 posiciones de ranking: 50 ofensivas y 50 defensivas.
+\item Para los criterios de jugadores galardonados (1), jugadores con poco tiempo de juego (2) y titulares en las posiciones superiores (3a), los porcentajes se calcularon sobre 50 posiciones: las primeras 25 de los rankings ofensivos y las primeras 25 de los defensivos. Para el criterio complementario de titulares en las posiciones inferiores (3b), el porcentaje se calculó sobre 40 posiciones: las últimas 20 de cada componente.
 \end{tablenotes}
 \end{threeparttable}}
 \end{table}
 
 Los resultados del Cuadro 16 muestran un patrón favorable para las
-métricas derivadas del modelo logístico multinomial. En todos los
-criterios, los valores más favorables fueron alcanzados por EPTS o
-wEPTS. En particular, EPTS y wEPTS estimados mediante LASSO
-identificaron al 54,3 \% de los 81 jugadores galardonados, mientras que
-los wEPTS estimados mediante Ridge y Elastic Net presentaron la menor
-presencia de jugadores con poco tiempo de juego entre las posiciones
-superiores, con apenas 2 de las 100 posiciones consideradas. A su vez,
-wEPTS estimado con Ridge registró la mayor presencia de titulares en
-estas posiciones, alcanzando 78 de las 100.
+métricas derivadas del modelo logístico multinomial, especialmente para
+la versión ponderada. En todos los criterios analizados, los valores más
+favorables fueron alcanzados por wEPTS. En particular, en los tres
+rankings generados por wEPTS, el 68 \% de las 50 posiciones superiores
+(34 posiciones) estuvo ocupado por jugadores galardonados, mientras que
+ninguna de ellas correspondió a jugadores con poco tiempo de juego. A su
+vez, las métricas wEPTS estimadas mediante Ridge y Elastic Net
+presentaron la mayor presencia de titulares en las posiciones
+superiores, con 42 de las 50 posiciones consideradas.
 
 Las diferencias favorables observadas en los criterios vinculados con la
 participación para las métricas de wEPTS resultan esperables, dado que
@@ -2917,15 +2931,15 @@ superiores del ranking.
 \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
 Modelo & PTS (\%) & AST (\%) & OREB (\%) & DREB (\%) & STL (\%) & BLK (\%)\\
 \midrule
-RAPM - Ridge & 40.0 & 34.0 & 34.0 & 22.0 & 30.0 & 26.0\\
-RAPM - Lasso & 36.0 & 30.0 & 30.0 & 30.0 & 30.0 & \textbf{30.0}\\
-RAPM - Elastic Net & 40.0 & 34.0 & 34.0 & 22.0 & 30.0 & 26.0\\
-EPTS - Ridge & 36.0 & 26.0 & 34.0 & 22.0 & 28.0 & \textbf{30.0}\\
-EPTS - Lasso & 44.0 & 28.0 & 32.0 & 26.0 & \textbf{36.0} & 24.0\\
-EPTS - Elastic Net & 38.0 & 28.0 & 36.0 & 22.0 & 28.0 & \textbf{30.0}\\
-wEPTS - Ridge & \textbf{48.0} & 38.0 & \textbf{42.0} & \textbf{32.0} & \textbf{36.0} & 28.0\\
-wEPTS - Lasso & 44.0 & 28.0 & 32.0 & 26.0 & \textbf{36.0} & 24.0\\
-wEPTS - Elastic Net & \textbf{48.0} & \textbf{40.0} & 40.0 & 30.0 & \textbf{36.0} & 28.0\\
+RAPM - Ridge & 52.0 & \textbf{36.0} & 32.0 & 28.0 & 40.0 & 28.0\\
+RAPM - Lasso & 60.0 & \textbf{36.0} & 36.0 & 32.0 & 44.0 & 28.0\\
+RAPM - Elastic Net & 52.0 & 32.0 & 32.0 & 28.0 & 40.0 & 28.0\\
+EPTS - Ridge & 56.0 & 28.0 & 36.0 & 24.0 & 44.0 & \textbf{32.0}\\
+EPTS - Lasso & 60.0 & 32.0 & 36.0 & 28.0 & 40.0 & 24.0\\
+EPTS - Elastic Net & 60.0 & 32.0 & 36.0 & 28.0 & 44.0 & 28.0\\
+wEPTS - Ridge & 60.0 & 32.0 & \textbf{40.0} & \textbf{36.0} & \textbf{52.0} & 28.0\\
+wEPTS - Lasso & \textbf{64.0} & 32.0 & 36.0 & 32.0 & 48.0 & 20.0\\
+wEPTS - Elastic Net & 60.0 & 32.0 & \textbf{40.0} & \textbf{36.0} & \textbf{52.0} & 28.0\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}[para]
@@ -2935,14 +2949,15 @@ wEPTS - Elastic Net & \textbf{48.0} & \textbf{40.0} & 40.0 & 30.0 & \textbf{36.0
 \end{table}
 
 El patrón observado en el Cuadro 16 se mantiene al comparar los rankings
-con las estadísticas tradicionales del box score. En las seis variables
-consideradas, el mayor porcentaje de coincidencia fue alcanzado por al
-menos una de las métricas derivadas del modelo logístico multinomial.
-Por otra parte, al analizar las distintas técnicas de regularización
-implementadas, se encontraron mejores resultados en los wEPTS estimados
-mediante Ridge y Elastic Net. Particularmente al centrarse en las
-medidas ofensivas, donde presentaron los mayores niveles de concordancia
-en puntos, asistencias y rebotes ofensivos.
+con las estadísticas tradicionales del \emph{box score}. En las seis
+variables consideradas, el mayor porcentaje de coincidencia fue
+alcanzado por al menos una de las métricas derivadas del modelo
+logístico multinomial. Por otra parte, al analizar las distintas
+técnicas de regularización implementadas, se encontraron mejores
+resultados en los wEPTS estimados mediante Ridge y Elastic Net.
+Particularmente al centrarse en las medidas ofensivas, donde presentaron
+los mayores niveles de concordancia en puntos, asistencias y rebotes
+ofensivos.
 
 En las estadísticas defensivas las diferencias entre métricas fueron
 menos marcadas y no se identificó una única combinación dominante. No
@@ -2988,15 +3003,15 @@ simples que buscan explicar el mismo fenómeno.
 \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
 Modelo & Por posesión (\%) & Estandarizados (\%) & Por posesión (\%) & Estandarizados (\%)\\
 \midrule
-RAPM - Ridge & \textbf{86} & 58 & 76 & 66\\
-RAPM - Lasso & 48 & 48 & 54 & 50\\
-RAPM - Elastic Net & 84 & 58 & \textbf{78} & 66\\
-EPTS - Ridge & 78 & 58 & 66 & \textbf{72}\\
-EPTS - Lasso & 62 & 56 & 60 & 58\\
-EPTS - Elastic Net & 78 & \textbf{60} & 66 & 70\\
-wEPTS - Ridge & 72 & 54 & 60 & 58\\
-wEPTS - Lasso & 60 & 56 & 60 & 58\\
-wEPTS - Elastic Net & 74 & 52 & 62 & 58\\
+RAPM - Ridge & \textbf{60} & \textbf{44} & 56 & 48\\
+RAPM - Lasso & 52 & 36 & 56 & 48\\
+RAPM - Elastic Net & \textbf{60} & 40 & \textbf{60} & \textbf{52}\\
+EPTS - Ridge & 52 & \textbf{44} & \textbf{60} & 48\\
+EPTS - Lasso & 56 & 40 & 48 & \textbf{52}\\
+EPTS - Elastic Net & 52 & \textbf{44} & 56 & 48\\
+wEPTS - Ridge & 44 & 36 & 40 & 36\\
+wEPTS - Lasso & 52 & 40 & 40 & 40\\
+wEPTS - Elastic Net & 44 & 36 & 40 & 36\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}[para]
@@ -3007,7 +3022,7 @@ wEPTS - Elastic Net & 74 & 52 & 62 & 58\\
 
 A diferencia de lo observado en los criterios de validación externa, los
 rankings RAPM derivados del modelo normal mostraron una mayor
-concordancia con las medidas descriptivas basadas en plus-minus,
+concordancia con las medidas descriptivas basadas en \emph{plus-minus},
 particularmente con aquellas calculadas por posesión. A su vez, los
 modelos estimados mediante Ridge y Elastic Net presentaron mayores
 porcentajes de coincidencia que los obtenidos mediante LASSO.
@@ -3120,40 +3135,40 @@ En este marco, resulta importante considerar tanto las fortalezas de la
 metodología desarrollada como las limitaciones que pueden haber
 condicionado los resultados obtenidos.
 
-\subsection{Fortalezas del trabajo}\label{fortalezas-del-trabajo}
+\subsection{Aportes del trabajo}\label{aportes-del-trabajo}
 
-Más allá de los rankings, una de las principales fortalezas del trabajo
-se encuentra en la construcción de los datos necesarios para realizar
-este tipo de análisis. Debido a que la información del
-\emph{play-by-play} y del \emph{box score} de la Liga Nacional no se
-encontraban disponibles como bases estructuradas y descargables para su
-análisis, fue necesario desarrollar procedimientos para su extracción,
-procesamiento y depuración. A partir de estas fuentes se construyó,
-además, la base \emph{poss-by-poss} utilizada para la estimación de los
-modelos, que resume las posesiones disputadas e identifica los jugadores
-presentes en ataque y defensa. La disponibilidad pública tanto de estas
-bases como de los procedimientos utilizados para generarlas permite que
-los resultados puedan ser reproducidos en futuras temporadas.
+Más allá de los rankings, uno de los principales aportes del trabajo se
+encuentra en la construcción de los datos necesarios para realizar este
+tipo de análisis. Debido a que la información del \emph{play-by-play} y
+del \emph{box score} de la Liga Nacional no se encontraban disponibles
+como bases estructuradas y descargables para su análisis, fue necesario
+desarrollar procedimientos para su extracción, procesamiento y
+depuración. A partir de estas fuentes se construyó, además, la base
+\emph{poss-by-poss} utilizada para la estimación de los modelos, que
+resume las posesiones disputadas e identifica los jugadores presentes en
+ataque y defensa. La disponibilidad pública tanto de estas bases como de
+los procedimientos utilizados para generarlas permite que los resultados
+puedan ser reproducidos en futuras temporadas.
 
-Otra fortaleza del trabajo reside en la incorporación de Elastic Net
-dentro de la comparación de técnicas de regularización, una alternativa
-poco explorada en la literatura de métricas RAPM aplicada al básquetbol.
-Su inclusión permitió ampliar el análisis más allá de Ridge y LASSO y
-evaluar el comportamiento de una penalización que combina
-características de ambas.
+La incorporación de Elastic Net dentro de la comparación de técnicas de
+regularización constituye otro aporte del trabajo, dado que se trata de
+una alternativa poco explorada en la literatura de métricas RAPM
+aplicada al básquetbol. Su inclusión permitió ampliar el análisis más
+allá de Ridge y LASSO y evaluar el comportamiento de una penalización
+que combina características de ambas.
 
-También se considera una fortaleza la utilización de distintos criterios
-para evaluar los rankings obtenidos. La capacidad predictiva fue
-complementada con un análisis de consistencia frente a modificaciones en
-los partidos utilizados para estimar las métricas y con criterios de
-validación externa basados en información independiente de los modelos.
-Esta combinación resulta especialmente relevante dado que una buena
-capacidad de ajuste o predicción no garantiza que las valoraciones
-individuales obtenidas sean estables o representen adecuadamente el
-desempeño de los jugadores. Evaluar distintos criterios toma
-importancia, ya que, como señala Hvattum (2019), no existe un criterio
-universalmente aceptado para determinar la calidad de las distintas
-métricas RAPM.
+La utilización de distintos criterios para evaluar los rankings
+obtenidos constituye también un aspecto relevante del trabajo. La
+capacidad predictiva fue complementada con un análisis de consistencia
+frente a modificaciones en los partidos utilizados para estimar las
+métricas y con criterios de validación externa basados en información
+independiente de los modelos. Esta combinación resulta especialmente
+relevante dado que una buena capacidad de ajuste o predicción no
+garantiza que las valoraciones individuales obtenidas sean estables o
+representen adecuadamente el desempeño de los jugadores. Evaluar
+distintos criterios toma importancia, ya que, como señala Hvattum
+(2019), no existe un criterio universalmente aceptado para determinar la
+calidad de las distintas métricas RAPM.
 
 Por último, se considera como aporte de valor el haber realizado una
 primera aplicación sistemática de este tipo de modelos en la Liga
@@ -3164,7 +3179,7 @@ de estas metodologías al básquetbol argentino permite establecer una
 base sobre la cual puedan desarrollarse análisis posteriores y nuevas
 aplicaciones orientadas al estudio del rendimiento individual.
 
-\subsection{Debilidades del trabajo}\label{debilidades-del-trabajo}
+\subsection{Limitaciones del trabajo}\label{limitaciones-del-trabajo}
 
 La principal limitación del estudio se encuentra asociada a la calidad
 de los datos disponibles. El \emph{play-by-play} utilizado fue
@@ -3342,8 +3357,8 @@ jugadores presentes en cada quinteto para cada una de las acciones del
 partido. Dicha variable debería contabilizar un valor menor o igual a
 cinco para ambos equipos en todas las acciones registradas.
 
-De esta manera se detectó un caso puntual en el partido de ZARATE BASKET
-vs ATENAS (C), donde el quinteto local registraba seis jugadores en
+De esta manera se detectó un caso puntual en el partido de Zárate Basket
+vs Atenas (C), donde el quinteto local registraba seis jugadores en
 cancha. Esta inconsistencia se observó desde el inicio del segundo
 cuarto, con 10:00 minutos restantes, hasta el minuto 4:42 del mismo
 período.
@@ -3354,7 +3369,7 @@ identificar que al comienzo del segundo cuarto se había registrado
 incorrectamente el ingreso de seis jugadores en lugar de cinco, lo cual
 constituye un error atribuible a la mesa de control. Una vez
 identificada esta problemática, se revisó el contexto de las siguientes
-jugadas y pudo determinarse que el jugador MERCHANT, EDGAR HENRY no se
+jugadas y pudo determinarse que el jugador Edgar Henry Merchant no se
 encontraba realmente en cancha durante ese tramo del partido.
 
 En consecuencia, se procedió a corregir el error eliminando al jugador
@@ -3371,13 +3386,13 @@ caso \emph{QUIMSA vs BOCA (019/10/2024
 Al revisar uno de los partidos con presencia de puntos incompatibles, se
 detectó que en el minuto 02:27 del tercer cuarto, el marcador parcial
 reflejaba correctamente el resultado del partido (64 - 42 a favor de
-QUIMSA). Sin embargo, la acción de anotación siguiente, el TIRO LIBRE
-ANOTADO del jugador de BOCA, PIÑERO, FACUNDO, en el minuto 02:21 del
-tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43. Se
-observa entonces que el marcador parcial aumentó en tres puntos para el
-equipo local (QUIMSA) entre una acción y la siguiente, sin que existiera
-ninguna anotación registrada en el \emph{play-by-play} que justificara
-dicha variación (Figura 18).
+Quimsa). Sin embargo, la acción de anotación siguiente, el TIRO LIBRE
+ANOTADO del jugador de Boca Juniors, Facundo Piñero, en el minuto 02:21
+del tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43.
+Se observa entonces que el marcador parcial aumentó en tres puntos para
+el equipo local (Quimsa) entre una acción y la siguiente, sin que
+existiera ninguna anotación registrada en el \emph{play-by-play} que
+justificara dicha variación (Figura 18).
 
 \begin{figure}[H]
 
@@ -3390,9 +3405,9 @@ dicha variación (Figura 18).
 
 Estos errores siguieron presentándose en las siguientes acciones de
 anotación hasta el minuto 00:40, donde, con el TRIPLE del jugador de
-BOCA, CUELLO, MARTIN NICOLAS, el marcador parcial se reestableció a su
-valor real en ese momento (70 - 50), esta secuencia queda reflejada en
-la Figura 19.
+Boca Juniors, Martín Nicolás Cuello, el marcador parcial se reestableció
+a su valor real en ese momento (70 - 50), esta secuencia queda reflejada
+en la Figura 19.
 
 \begin{figure}[H]
 
