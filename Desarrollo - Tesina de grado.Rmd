@@ -260,26 +260,6 @@ box_score1 = box_score %>% dplyr::select(-c(1:5)) %>% relocate(NombreCompleto_li
 # posterior sin registrarse previamente su ingreso. Estos casos se conservan
 # los quintetos en base a los ingresos y salidas, y se contempla ese error.
 
-df_pbp_final = read_csv("C:/Users/Simon/Downloads/df_pbp_final.csv")
-
-df_pbp_final = df_pbp_final %>% mutate(across(
-      where(is.character),
-      ~ .x %>%
-        str_replace_all(
-          "MAINOLDI , LEONARDO ANDRES",
-          "MAINOLDI, LEONARDO ANDRES"
-        ) %>%
-        str_replace_all(
-          "GRUN, FEDERICO JOSE",
-          "GRÜN, FEDERICO JOSE"
-        )
-    ))
-
-
-# write.csv(poss_by_poss, file = "poss_by_poss.csv", row.names = FALSE)
-# write.csv(box_score1, file = "box_score.csv", row.names = FALSE)
-# write.csv(df_pbp_final, file = "df_pbp_final.csv", row.names = FALSE)
-
 ```
 
 Base de datos unificada - box plot + minutos + plus minus
@@ -1696,7 +1676,7 @@ $$ \mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_
 
 ```{r}
 #Puntos por posesión realizados y recibidos, estandarizados.
-plus_minus_por_equipo = readRDS("tablas_desarrollo/plus_minus_por_equipo.RDS")
+plus_minus_por_equipo = readRDS("resultados/tablas_desarrollo/plus_minus_por_equipo.RDS")
 plus_minus_por_equipo = plus_minus_por_equipo %>%  filter(posesiones_totales > 500)
 
 #OP 2
@@ -2239,7 +2219,7 @@ aplico directamente el modelo separando los efectos ofensivos y defensivos
 # 
 # min(modelo_ridge$cvm)
 # saveRDS(modelo_ridge, "modelo_ridge.RDS")
-modelo_ridge = readRDS("tablas_desarrollo/modelo_ridge.RDS")
+modelo_ridge = readRDS("resultados/tablas_desarrollo/modelo_ridge.RDS")
 
 betas <- as.matrix(coef(modelo_ridge, s = "lambda.min"))
 
@@ -2361,7 +2341,7 @@ grilla_lasso <- 10^seq(1, -5, length = 200)
 
 # saveRDS(modelo_lasso, "modelo_lasso.RDS")
 
-modelo_lasso = readRDS("tablas_desarrollo/modelo_lasso.RDS")
+modelo_lasso = readRDS("resultados/tablas_desarrollo/modelo_lasso.RDS")
 
 betas <- as.matrix(coef(modelo_lasso, s = "lambda.min"))
 
@@ -2543,7 +2523,7 @@ alphas   <- c(0.005)
 # 
 # saveRDS(modelo_enet, "modelo_enet.RDS")
 
-modelo_enet = readRDS("tablas_desarrollo/modelo_enet.RDS")
+modelo_enet = readRDS("resultados/tablas_desarrollo/modelo_enet.RDS")
 
 # alpha_optimo <- alphas[which.min(cv_errors)]
 # 
@@ -2939,7 +2919,7 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 
 ```{r}
 
-modelo_multi_ridge = readRDS("tablas_desarrollo/modelo_multi_ridge.RDS")
+modelo_multi_ridge = readRDS("resultados/tablas_desarrollo/modelo_multi_ridge.RDS")
 
 # X <- model.matrix(
 #   puntos_pos ~ .,
@@ -3064,7 +3044,7 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 \end{equation}
 
 ```{r}
-modelo_multi_lasso = readRDS("tablas_desarrollo/modelo_multi_lasso.RDS")
+modelo_multi_lasso = readRDS("resultados/tablas_desarrollo/modelo_multi_lasso.RDS")
 
 # grilla_lasso_1 <- 10^seq(0.25, -7, length = 100)
 # 
@@ -3343,7 +3323,7 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 # # 
 # saveRDS(modelo_multi_enet, "modelo_multi_enet.RDS")
 
-modelo_multi_enet = readRDS("tablas_desarrollo/modelo_multi_enet.RDS")
+modelo_multi_enet = readRDS("resultados/tablas_desarrollo/modelo_multi_enet.RDS")
 
 coefs <- coef(modelo_multi_enet, s = "lambda.min")
 
@@ -3656,7 +3636,7 @@ $\hat{W}_k^r = \underbrace{\frac{n_k^r}{n_{t_k,\text{activo}}^r}}_{\text{partici
 donde ntk, son las posesiones del equipo solo en los partidos en que el jugador estuvo en el plantel. Podrías argumentar que la penalización debería aplicarse solo sobre el primer factor (participación efectiva), neutralizando el segundo.
 
 ```{r}
-poss_por_jug = readRDS("tablas_desarrollo/plus_minus_por_equipo_1.RDS")
+poss_por_jug = readRDS("resultados/tablas_desarrollo/plus_minus_por_equipo_1.RDS")
 
 poss_por_jug1 = poss_por_jug %>% group_by(jugador_id) %>% summarise( 
   equipo_del_jugador = equipo_del_jugador[which.max(posesiones_totales)], posesiones_totales = sum(posesiones_totales), posesiones_ofensivas = sum(posesiones_ofensivas), posesiones_defensivas = sum(posesiones_defensivas))
@@ -4785,7 +4765,7 @@ Grafico de la distriución de las proporciones en vez de la media
 #   )
 
 # saveRDS(distribuciones_simuladas, "distribuciones_simuladas.RDS")
-distribuciones_simuladas = readRDS("tablas_desarrollo/distribuciones_simuladas.RDS")
+distribuciones_simuladas = readRDS("resultados/tablas_desarrollo/distribuciones_simuladas.RDS")
 
 distribucion_empirica <- tibble(
   Categoria = c("0", "1", "2", "+3"),
@@ -4917,7 +4897,7 @@ grafico_final <- wrap_plots(graficos, ncol = 2) +
 # 
 # saveRDS(df_metricas, "df_metricas.RDS")
 
-df_metricas = readRDS("tablas_desarrollo/df_metricas.RDS")
+df_metricas = readRDS("resultados/tablas_desarrollo/df_metricas.RDS")
 
 library(tidyverse)
 library(scales)
@@ -6162,9 +6142,9 @@ library(dplyr)
 library(gt)
 library(stringr)
 
-paleta_sem <- readRDS("tablas_desarrollo/paleta_sem.rds")
-mej_pm <- readRDS("tablas_desarrollo/mej_pm.rds")
-peor_pm <- readRDS("tablas_desarrollo/peor_pm.rds")
+paleta_sem <- readRDS("resultados/tablas_desarrollo/paleta_sem.rds")
+mej_pm <- readRDS("resultados/tablas_desarrollo/mej_pm.rds")
+peor_pm <- readRDS("resultados/tablas_desarrollo/peor_pm.rds")
 
 tabla_pm <- mej_pm %>%
   rename(
@@ -7149,7 +7129,7 @@ library(ggplot2)
 # -----------------------------------------------------------------------------
 
 carpeta_resultados <- file.path(
-  "resultados_consistencia",
+  "resultados/resultados_consistencia",
   "consistencia_20_divisiones"
 )
 
@@ -7389,7 +7369,7 @@ library(gt)
 # -----------------------------------------------------------------------------
 
 tabla_criterios <- readRDS(
-  "tablas_desarrollo/tabla_validacion_modelos1.rds"
+  "resultados/tablas_desarrollo/tabla_validacion_modelos1.rds"
 )
 
 # -----------------------------------------------------------------------------
@@ -7612,7 +7592,7 @@ library(dplyr)
 library(gt)
 
 tabla_boxscore <- readRDS(
-  "tablas_desarrollo/tabla_validacion_boxscore1.rds"
+  "resultados/tablas_desarrollo/tabla_validacion_boxscore1.rds"
 )
 
 # -----------------------------------------------------------------------------
@@ -7860,7 +7840,7 @@ library(gt)
 # -----------------------------------------------------------------------------
 
 tabla_concordancia_descriptiva <- readRDS(
-  "tablas_desarrollo/tabla_concordancia_descriptiva1.rds"
+  "resultados/tablas_desarrollo/tabla_concordancia_descriptiva1.rds"
 )
 
 # -----------------------------------------------------------------------------
@@ -8720,7 +8700,7 @@ crear_ranking_bump <- function(
     )
 }
 
-rankings <- readRDS("tablas_desarrollo/rankings_completos_enet.rds")
+rankings <- readRDS("resultados/tablas_desarrollo/rankings_completos_enet.rds")
 
 grafico_ofensivo <- crear_ranking_bump(
   rankings = rankings,
@@ -8793,8 +8773,8 @@ library(gt)
 # 1. Leer tablas
 # -----------------------------------------------------------------------------
 
-tabla_boxscore <- readRDS("tablas_desarrollo/tabla_validacion_boxscore1.rds")
-tabla_criterios <- readRDS("tablas_desarrollo/tabla_validacion_modelos1.rds")
+tabla_boxscore <- readRDS("resultados/tablas_desarrollo/tabla_validacion_boxscore1.rds")
+tabla_criterios <- readRDS("resultados/tablas_desarrollo/tabla_validacion_modelos1.rds")
 
 # -----------------------------------------------------------------------------
 # 2. Preparar nombres para presentación

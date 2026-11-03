@@ -68,7 +68,7 @@ min_posesiones_por_mitad <- 1L
 
 # Las rutas se interpretan desde getwd(), normalmente la carpeta del proyecto.
 guardar_resultados <- TRUE
-carpeta_salida <- file.path("resultados", "consistencia_20_divisiones")
+carpeta_salida <- file.path("resultados_consistencia", "consistencia_20_divisiones")
 
 stopifnot(
   n_repeticiones >= 2, n_repeticiones == as.integer(n_repeticiones),
@@ -116,7 +116,7 @@ poss_by_poss_temporada <- poss_by_poss_temporada %>%
   ) %>%
   dplyr::select(-equipos)
 
-df_mod_ltp_sep = readRDS("df_mod_ltp_sep.rds")
+df_mod_ltp_sep = readRDS("resultados/resultados_consistencia/df_mod_ltp_sep.rds")
 
 nombres_modelos <- c(
   "modelo_ridge", "modelo_enet", "modelo_lasso",

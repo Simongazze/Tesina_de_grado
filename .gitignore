@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+*.log
+/Tesina-de-grado---Simon-Gazze.tex
+/data/df_pbp_final.csv
