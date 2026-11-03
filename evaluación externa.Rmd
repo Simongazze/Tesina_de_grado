@@ -48,6 +48,8 @@ Para evaluar los distintos rankings, se procederá a compararlos en base a disti
 
 ```{r setup-validacion, message=FALSE, warning=FALSE}
 
+df_estadisticas = readRDS("tabla_evaluacion_externa/df_estadisticas.RDS")
+
 # ── Jugadores con pocos minutos ────────────────────────────────────────────────
 df_pocos_minutos <- df_estadisticas %>%
   filter(!is.na(pm_estandarizado)) %>%

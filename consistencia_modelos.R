@@ -1,316 +1,237 @@
-library(dplyr)
-library(tidyr)
-library(purrr)
-library(stringr)
-library(tibble)
-library(ggplot2)
-library(glmnet)
-
 # =============================================================================
-# EVALUACIÓN DE CONSISTENCIA
-# 3 regularizaciones x 3 métricas x 2 componentes = 18 correlaciones
+# CONSISTENCIA: 20 DIVISIONES ALEATORIAS EN DOS MITADES
+# =============================================================================
+# Adaptación de Hvattum y Gelade (2021), apartado "Reliability":
+# https://doi.org/10.2478/ijcss-2021-0002
+#
+# Se repite 20 veces la división, el reajuste y la correlación de Pearson.
+# Aquí se dividen POSESIONES DENTRO DE CADA PARTIDO, no segmentos sin cambios.
+# Cada mitad contiene aproximadamente el 50% de las posesiones de cada partido.
+# Por lo tanto, se evalúa estabilidad entre subconjuntos de los mismos encuentros.
+#
+# Se mantienen los alpha y lambda seleccionados con la temporada completa.
+# Los coeficientes, interceptos y pesos de wEPTS se recalculan en cada mitad.
+# Las mismas divisiones se utilizan para todos los métodos.
+#
+# Gráfico: puntos pequeños = correlaciones de cada división;
+#          rombos blancos = promedio aritmético de las correlaciones.
+# No se calculan permutaciones ni intervalos de confianza.
+#
+# Ejecutar DESPUÉS de crear estos objetos:
+#   poss_by_poss_temporada, df_mod_ltp_sep
+#   modelo_ridge, modelo_lasso, modelo_enet
+#   modelo_multi_ridge, modelo_multi_lasso, modelo_multi_enet
+#
+# Los seis modelos deben ser objetos cv.glmnet de la temporada completa.
+# df_mod_ltp_sep ya debe estar restringido a los jugadores elegibles
+# (en la tesina, al menos 500 posesiones en la temporada).
+# Ambas bases deben contener las mismas posesiones EN EL MISMO ORDEN.
+# No se requiere df_metricas.
+#
+# Paquetes, si faltaran:
+# install.packages(c("dplyr", "tidyr", "purrr", "stringr", "tibble",
+#                    "ggplot2", "glmnet", "Matrix"))
 # =============================================================================
 
-# El código supone que ya existen en el entorno:
-#   - poss_by_poss_temporada
-#   - df_mod_ltp_sep
-#   - modelo_ridge, modelo_lasso, modelo_enet
-#   - modelo_multi_ridge, modelo_multi_lasso, modelo_multi_enet
-#
-# Los seis objetos anteriores deben ser los cv.glmnet ajustados con la temporada
-# completa. De ellos se toma lambda.min y se lo mantiene fijo al reajustar A y B.
-#
-# df_mod_ltp_sep debe conservar partido_key y puntos_pos, y contener las
-# indicadoras de jugadores con sufijos _off y _def. En tu desarrollo ya está
-# restringido a los 229 jugadores con al menos 500 posesiones en la temporada.
+paquetes <- c("dplyr", "tidyr", "purrr", "stringr", "tibble",
+              "ggplot2", "glmnet", "Matrix")
+faltan_paquetes <- paquetes[
+  !vapply(paquetes, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1))
+]
+if (length(faltan_paquetes)) {
+  stop("Instalá estos paquetes antes de continuar: ",
+       paste(faltan_paquetes, collapse = ", "), call. = FALSE)
+}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(tidyr)
+  library(purrr)
+  library(stringr)
+  library(tibble)
+  library(ggplot2)
+  library(glmnet)
+})
 
 # -----------------------------------------------------------------------------
-# 1. Parámetros que podés modificar
+# 1. Configuración
 # -----------------------------------------------------------------------------
 
-semilla_particion <- 20260809
-semilla_azar <- 20260809
-
-B_azar <- 5000
-
-# En Desarrollo - Tesina de grado ambos Elastic Net usan actualmente 0.005.
-# Modificá estos valores si finalmente elegís otros alpha.
+n_repeticiones <- 20L
+semilla_particion <- 20260809L
 alpha_normal_enet <- 0.005
 alpha_multi_enet <- 0.005
-
-# Valor medio observado dentro de la categoría de 3 o más puntos.
-# Se mantiene el valor utilizado actualmente en tu código.
 valor_3_mas <- 3.0304
 
-# Para comparar un jugador se exige que haya aparecido, al menos, en esta
-# cantidad de posesiones de cada partición. Con 1 solo se excluyen los ausentes.
-min_posesiones_por_mitad <- 1
+# Mínimo POR COMPONENTE en CADA mitad. Con 1 se excluyen solo los ausentes.
+# No se vuelve a aplicar el umbral de 500 posesiones a cada mitad.
+min_posesiones_por_mitad <- 1L
+
+# Las rutas se interpretan desde getwd(), normalmente la carpeta del proyecto.
+guardar_resultados <- TRUE
+carpeta_salida <- file.path("resultados", "consistencia_20_divisiones")
+
+stopifnot(
+  n_repeticiones >= 2, n_repeticiones == as.integer(n_repeticiones),
+  min_posesiones_por_mitad >= 1,
+  alpha_normal_enet > 0, alpha_normal_enet < 1,
+  alpha_multi_enet > 0, alpha_multi_enet < 1,
+  is.finite(valor_3_mas), valor_3_mas >= 3
+)
 
 # -----------------------------------------------------------------------------
-# 2. Matriz de diseño y controles de correspondencia
+# 2. Objetos, correspondencia entre filas y matriz de diseño
 # -----------------------------------------------------------------------------
 
-id_partido <- df_mod_ltp_sep$partido_key
+#Poss-by-poss
+
+poss_by_poss_temporada <- read_csv("data/poss_by_poss_temporada.csv")
+poss_by_poss_temporada <- poss_by_poss_temporada[,-1]
+poss_by_poss_temporada = poss_by_poss_temporada %>% 
+  dplyr::select(- c(`ARN BUSTAMANTE, LUCAS  MARTIN`,`COSTA,  ALBANO NAHUEL` ))
+
+poss_by_poss_temporada = poss_by_poss_temporada %>% 
+  mutate(`GRÜN, FEDERICO JOSE` = `GRÜN, FEDERICO JOSE` + `GRUN, FEDERICO JOSE`, `MAINOLDI, LEONARDO ANDRES` = `MAINOLDI, LEONARDO ANDRES` + `MAINOLDI , LEONARDO ANDRES`) %>%
+  dplyr::select(- c(`GRUN, FEDERICO JOSE`,`MAINOLDI , LEONARDO ANDRES`))
+
+poss_by_poss_temporada <- poss_by_poss_temporada %>%
+  mutate(
+    equipos = str_split(partido_key, " vs "),
+    equipo_local = str_trim(sapply(equipos, `[`, 1)),
+    equipo_visitante = str_trim(sapply(equipos, `[`, 2)),
+    
+    # opcional: limpiar lo que venga después del nombre (paréntesis, fecha, etc.)
+    equipo_local = str_remove(equipo_local, " \\(.*"),
+    equipo_visitante = str_remove(equipo_visitante, " \\(.*"),
+    
+    equipo_limpio = if_else(
+      tipo_equipo_accion == "local",
+      equipo_local,
+      equipo_visitante
+    ),
+    equipo_limpio_def = if_else(
+      tipo_equipo_accion == "local",
+      equipo_visitante,
+      equipo_local
+    )
+  ) %>%
+  dplyr::select(-equipos)
+
+df_mod_ltp_sep = readRDS("df_mod_ltp_sep.rds")
+
+nombres_modelos <- c(
+  "modelo_ridge", "modelo_enet", "modelo_lasso",
+  "modelo_multi_ridge", "modelo_multi_enet", "modelo_multi_lasso"
+)
+objetos_necesarios <- c(
+  "poss_by_poss_temporada", "df_mod_ltp_sep", nombres_modelos
+)
+faltan_objetos <- objetos_necesarios[
+  !vapply(objetos_necesarios, exists, inherits = TRUE, FUN.VALUE = logical(1))
+]
+if (length(faltan_objetos)) {
+  stop("Primero debés crear: ", paste(faltan_objetos, collapse = ", "),
+       call. = FALSE)
+}
+stopifnot(
+  all(c("partido_key", "puntos_pos") %in% names(df_mod_ltp_sep)),
+  all(c("partido_key", "equipo_limpio", "equipo_limpio_def") %in%
+        names(poss_by_poss_temporada)),
+  nrow(df_mod_ltp_sep) == nrow(poss_by_poss_temporada),
+  identical(as.character(df_mod_ltp_sep$partido_key),
+            as.character(poss_by_poss_temporada$partido_key))
+)
+if ("puntos_pos" %in% names(poss_by_poss_temporada)) {
+  stopifnot(identical(as.numeric(df_mod_ltp_sep$puntos_pos),
+                      as.numeric(poss_by_poss_temporada$puntos_pos)))
+}
+
+id_partido <- as.character(df_mod_ltp_sep$partido_key)
 y <- df_mod_ltp_sep$puntos_pos
-
+stopifnot(
+  !anyNA(id_partido), all(nzchar(id_partido)),
+  is.numeric(y), all(is.finite(y)), all(y >= 0), all(y == floor(y))
+)
 variables_jugadores <- names(df_mod_ltp_sep) %>%
   keep(~ str_ends(.x, "_off") | str_ends(.x, "_def")) %>%
-  setdiff(
-    c(
-      "puntos_pos_off",
-      "puntos_pos_def"
-    )
-  )
-
-normalizar_nombre <- function(x) {
-  x %>%
-    str_to_upper() %>%
-    str_squish()
-}
-
-jugadores_metricas <- df_metricas %>%
-  distinct(jugador, posesiones_totales) %>%
-  mutate(
-    clave_jugador = normalizar_nombre(jugador)
-  )
-
-jugadores_X <- tibble(
-  variable = variables_jugadores
-) %>%
-  mutate(
-    componente = case_when(
-      str_ends(variable, "_off") ~ "Ofensivo",
-      str_ends(variable, "_def") ~ "Defensivo",
-      TRUE ~ NA_character_
-    ),
-    jugador_X = str_remove(variable, "_(off|def)$"),
-    clave_jugador = normalizar_nombre(jugador_X)
-  ) %>%
-  filter(!is.na(componente)) %>%
-  distinct(clave_jugador, jugador_X)
-
-faltantes_en_X <- jugadores_metricas %>%
-  anti_join(
-    jugadores_X,
-    by = "clave_jugador"
-  )
-
-faltantes_en_X
-
-X <- df_mod_ltp_sep %>%
-  dplyr::select(all_of(variables_jugadores)) %>%
-  as.matrix()
-
+  setdiff(c("puntos_pos_off", "puntos_pos_def"))
 stopifnot(
-  nrow(X) == length(y),
-  length(y) == length(id_partido),
-  nrow(poss_by_poss_temporada) == nrow(df_mod_ltp_sep),
-  identical(
-    as.character(poss_by_poss_temporada$partido_key),
-    as.character(df_mod_ltp_sep$partido_key)
-  ),
-  all(c("equipo_limpio", "equipo_limpio_def") %in%
-        names(poss_by_poss_temporada))
+  length(variables_jugadores) >= 2,
+  !anyDuplicated(variables_jugadores),
+  all(vapply(df_mod_ltp_sep[variables_jugadores], is.numeric, logical(1)))
 )
 
-# -----------------------------------------------------------------------------
-# 3. Partición de posesiones dentro de cada partido
-# -----------------------------------------------------------------------------
+mapa_variables <- tibble(
+  variable = variables_jugadores,
+  jugador = str_remove(str_remove_all(variables_jugadores, "\x60"), "_(off|def)$"),
+  componente = if_else(str_ends(variables_jugadores, "_off"),
+                       "Ofensivo", "Defensivo")
+)
+stopifnot(!anyDuplicated(mapa_variables[c("jugador", "componente")]))
 
-# En cada partido se distribuye aproximadamente la mitad de las posesiones
-# en A y la otra mitad en B. Cuando el número de posesiones es impar,
-# se determina aleatoriamente qué partición recibe la posesión adicional.
-
-crear_mitades_dentro_partidos <- function(
-    id_partido,
-    seed = 20260812
-) {
-  
-  set.seed(seed)
-  
-  particion <- character(length(id_partido))
-  
-  indices_por_partido <- split(
-    seq_along(id_partido),
-    as.character(id_partido)
-  )
-  
-  for (idx in indices_por_partido) {
-    
-    # Se sortea qué partición recibe primero una observación.
-    # Esto evita que A reciba sistemáticamente la observación adicional
-    # en los partidos con una cantidad impar de posesiones.
-    orden_particiones <- sample(c("A", "B"))
-    
-    etiquetas <- rep(
-      orden_particiones,
-      length.out = length(idx)
-    )
-    
-    # Se distribuyen aleatoriamente las etiquetas entre las posesiones
-    # correspondientes a ese partido.
-    particion[idx] <- sample(etiquetas)
+# Matriz dispersa para reducir memoria y costo de los 240 reajustes.
+X <- Matrix::Matrix(
+  as.matrix(dplyr::select(df_mod_ltp_sep, all_of(variables_jugadores))),
+  sparse = TRUE
+)
+stopifnot(all(is.finite(X@x)))
+columnas_off <- which(mapa_variables$componente == "Ofensivo")
+columnas_def <- which(mapa_variables$componente == "Defensivo")
+stopifnot(
+  length(columnas_off) > 0, length(columnas_def) > 0,
+  all(X[, columnas_off, drop = FALSE]@x %in% c(0, 1)),
+  all(X[, columnas_def, drop = FALSE]@x %in% c(0, -1))
+)
+for (columna in c("equipo_limpio", "equipo_limpio_def")) {
+  equipos <- as.character(poss_by_poss_temporada[[columna]])
+  if (anyNA(equipos) || any(!nzchar(trimws(equipos)))) {
+    stop("Hay equipos faltantes en ", columna,
+         "; revisalos antes de calcular los pesos de wEPTS.")
   }
-  
-  particion
 }
 
-particion_filas <- crear_mitades_dentro_partidos(
-  id_partido,
-  seed = semilla_particion
-)
-
-resumen_particiones <- tibble(
-  partido_key = id_partido,
-  particion = particion_filas
-) %>%
-  group_by(particion) %>%
-  summarise(
-    partidos_representados = n_distinct(partido_key),
-    posesiones = n(),
-    porcentaje_posesiones =
-      100 * posesiones / length(id_partido),
-    .groups = "drop"
-  )
-
-print(resumen_particiones)
-
-# Resumen por partido para controlar el reparto.
-resumen_particiones_por_partido <- tibble(
-  partido_key = id_partido,
-  particion = particion_filas
-) %>%
-  count(
-    partido_key,
-    particion,
-    name = "posesiones"
-  ) %>%
-  pivot_wider(
-    names_from = particion,
-    values_from = posesiones,
-    values_fill = 0
-  ) %>%
-  mutate(
-    diferencia = abs(A - B)
-  )
-
-print(resumen_particiones_por_partido)
-
-# Todos los partidos deben estar representados en ambas particiones.
-stopifnot(
-  all(resumen_particiones_por_partido$A > 0),
-  all(resumen_particiones_por_partido$B > 0)
-)
-
-# Dentro de cada partido, la diferencia entre A y B debe ser como máximo
-# de una posesión.
-stopifnot(
-  all(resumen_particiones_por_partido$diferencia <= 1)
-)
+indices_por_partido <- split(seq_along(id_partido), id_partido)
+if (any(lengths(indices_por_partido) < 2L)) {
+  stop("Hay partidos con menos de dos posesiones: no pueden repartirse en A y B.")
+}
 
 # -----------------------------------------------------------------------------
-# 4. Especificaciones con los lambda ya seleccionados
+# 3. Especificaciones fijas de regularización
 # -----------------------------------------------------------------------------
 
-# Los lambda fueron seleccionados previamente mediante validación cruzada con la
-# temporada completa. En la evaluación de consistencia se mantienen fijos para
-# que la comparación mida la estabilidad de los ratings y no vuelva a ejecutar
-# una validación cruzada costosa dentro de cada mitad.
-especificaciones_normal <- list(
-  list(
-    regularizacion = "Ridge",
-    alpha = 0,
-    lambda = unname(modelo_ridge$lambda.min)
-  ),
-  list(
-    regularizacion = "Elastic Net",
-    alpha = alpha_normal_enet,
-    lambda = unname(modelo_enet$lambda.min)
-  ),
-  list(
-    regularizacion = "LASSO",
-    alpha = 1,
-    lambda = unname(modelo_lasso$lambda.min)
-  )
+especificaciones <- tibble(
+  objeto = nombres_modelos,
+  familia = rep(c("gaussian", "multinomial"), each = 3),
+  regularizacion = rep(c("Ridge", "Elastic Net", "LASSO"), 2),
+  alpha = c(0, alpha_normal_enet, 1, 0, alpha_multi_enet, 1),
+  lambda = map_dbl(nombres_modelos, function(nombre) {
+    modelo <- get(nombre, inherits = TRUE)
+    if (!inherits(modelo, "cv.glmnet")) {
+      stop(nombre, " debe ser un objeto cv.glmnet.")
+    }
+    valor <- unname(modelo$lambda.min)
+    if (length(valor) != 1 || !is.finite(valor) || valor <= 0) {
+      stop("lambda.min no es válido en ", nombre)
+    }
+    valor
+  })
 )
-
-especificaciones_multi <- list(
-  list(
-    regularizacion = "Ridge",
-    alpha = 0,
-    lambda = unname(modelo_multi_ridge$lambda.min)
-  ),
-  list(
-    regularizacion = "Elastic Net",
-    alpha = alpha_multi_enet,
-    lambda = unname(modelo_multi_enet$lambda.min)
-  ),
-  list(
-    regularizacion = "LASSO",
-    alpha = 1,
-    lambda = unname(modelo_multi_lasso$lambda.min)
-  )
-)
-
-stopifnot(
-  all(map_lgl(especificaciones_normal, ~ length(.x$lambda) == 1)),
-  all(map_lgl(especificaciones_multi, ~ length(.x$lambda) == 1)),
-  all(map_dbl(especificaciones_normal, "lambda") > 0),
-  all(map_dbl(especificaciones_multi, "lambda") > 0)
-)
-
-lambda_utilizados <- bind_rows(
-  map_dfr(
-    especificaciones_normal,
-    ~ tibble(
-      familia = "Normal",
-      regularizacion = .x$regularizacion,
-      alpha = .x$alpha,
-      lambda = .x$lambda
-    )
-  ),
-  map_dfr(
-    especificaciones_multi,
-    ~ tibble(
-      familia = "Multinomial",
-      regularizacion = .x$regularizacion,
-      alpha = .x$alpha,
-      lambda = .x$lambda
-    )
-  )
-)
-
+lambda_utilizados <- especificaciones %>%
+  dplyr::select(familia, regularizacion, alpha, lambda)
 print(lambda_utilizados)
 
 # -----------------------------------------------------------------------------
-# 5. Funciones para extraer RAPM y EPTS
+# 4. Funciones: división, pesos y extracción de valoraciones
 # -----------------------------------------------------------------------------
 
-extraer_rapm <- function(ajuste, regularizacion, particion, lambda_fijo) {
-  matriz_beta <- as.matrix(coef(ajuste, s = lambda_fijo))
-
-  tibble(
-    variable = str_remove_all(rownames(matriz_beta), "`"),
-    valor = as.numeric(matriz_beta[, 1])
-  ) %>%
-    filter(variable != "(Intercept)") %>%
-    mutate(
-      componente = case_when(
-        str_ends(variable, "_off") ~ "Ofensivo",
-        str_ends(variable, "_def") ~ "Defensivo",
-        TRUE ~ NA_character_
-      ),
-      jugador = str_remove(variable, "_(off|def)$"),
-      metrica = "RAPM",
-      regularizacion = regularizacion,
-      particion = particion,
-      lambda_usado = lambda_fijo
-    ) %>%
-    filter(!is.na(componente)) %>%
-    dplyr::select(
-      jugador, componente, metrica, regularizacion,
-      particion, valor, lambda_usado
-    )
+crear_mitades_dentro_partidos <- function(indices, n_filas, seed) {
+  set.seed(seed)
+  particion <- character(n_filas)
+  for (idx in indices) {
+    # Si el número de posesiones es impar, se sortea qué mitad recibe una más.
+    etiquetas <- rep(sample(c("A", "B")), length.out = length(idx))
+    particion[idx] <- sample(etiquetas)
+  }
+  particion
 }
 
 softmax <- function(eta) {
@@ -318,491 +239,334 @@ softmax <- function(eta) {
   z / sum(z)
 }
 
-extraer_epts <- function(
-    ajuste,
-    regularizacion,
-    particion,
-    lambda_fijo,
-    valor_3_mas = 3.0304) {
-
-  coefs <- coef(ajuste, s = lambda_fijo)
-
-  matriz_beta <- do.call(
-    cbind,
-    lapply(coefs, function(z) as.numeric(z[, 1]))
-  )
-
-  rownames(matriz_beta) <- str_remove_all(
-    rownames(coefs[[1]]),
-    "`"
-  )
-  colnames(matriz_beta) <- names(coefs)
-
-  valores_categoria <- c(
-    "0" = 0,
-    "1" = 1,
-    "2" = 2,
-    "3" = valor_3_mas
-  )
-  valores_categoria <- valores_categoria[colnames(matriz_beta)]
-
-  interceptos <- matriz_beta["(Intercept)", ]
-  epts_0 <- sum(valores_categoria * softmax(interceptos))
-
-  variables <- setdiff(rownames(matriz_beta), "(Intercept)")
-
-  map_dfr(variables, function(variable) {
-    es_ofensivo <- str_ends(variable, "_off")
-    es_defensivo <- str_ends(variable, "_def")
-
-    if (!es_ofensivo && !es_defensivo) return(NULL)
-
-    # La presencia ofensiva está codificada con +1 y la defensiva con -1.
-    signo_x <- if (es_ofensivo) 1 else -1
-
-    probabilidades <- softmax(
-      interceptos + signo_x * matriz_beta[variable, ]
-    )
-
-    tibble(
-      jugador = str_remove(variable, "_(off|def)$"),
-      componente = if_else(es_ofensivo, "Ofensivo", "Defensivo"),
-      metrica = "EPTS",
-      regularizacion = regularizacion,
-      particion = particion,
-      valor = sum(valores_categoria * probabilidades),
-      epts_0 = epts_0,
-      lambda_usado = lambda_fijo
-    )
-  })
-}
-
-# -----------------------------------------------------------------------------
-# 6. Reajuste de los modelos en cada partición
-# -----------------------------------------------------------------------------
-
-ajustar_normales_particion <- function(particion) {
-  idx <- which(particion_filas == particion)
-  X_sub <- X[idx, , drop = FALSE]
-  y_sub <- y[idx]
-  # Se eliminan únicamente las columnas sin ninguna aparición en esta mitad.
-  activas <- colSums(X_sub != 0) > 0
-  X_sub <- X_sub[, activas, drop = FALSE]
-
-  map_dfr(
-    especificaciones_normal,
-    function(esp) {
-      message(
-        "Ajustando Normal - ", esp$regularizacion,
-        " - partición ", particion,
-        " - lambda fijo = ", signif(esp$lambda, 6)
-      )
-
-      tiempo_inicio <- Sys.time()
-
-      ajuste <- glmnet(
-        x = X_sub,
-        y = y_sub,
-        family = "gaussian",
-        alpha = esp$alpha,
-        lambda = esp$lambda,
-        standardize = FALSE
-      )
-
-      message(
-        "Finalizado en ",
-        round(as.numeric(difftime(Sys.time(), tiempo_inicio, units = "secs")), 1),
-        " segundos"
-      )
-
-      extraer_rapm(
-        ajuste,
-        regularizacion = esp$regularizacion,
-        particion = particion,
-        lambda_fijo = esp$lambda
-      )
-    }
-  )
-}
-
-ajustar_multinomiales_particion <- function(particion) {
-  idx <- which(particion_filas == particion)
-  X_sub <- X[idx, , drop = FALSE]
-  y_sub <- ifelse(y[idx] >= 3, 3, y[idx])
-  activas <- colSums(X_sub != 0) > 0
-  X_sub <- X_sub[, activas, drop = FALSE]
-
-  map_dfr(
-    especificaciones_multi,
-    function(esp) {
-      message(
-        "Ajustando Multinomial - ", esp$regularizacion,
-        " - partición ", particion,
-        " - lambda fijo = ", signif(esp$lambda, 6)
-      )
-
-      tiempo_inicio <- Sys.time()
-
-      ajuste <- glmnet(
-        x = X_sub,
-        y = factor(y_sub, levels = 0:3),
-        family = "multinomial",
-        type.multinomial = "grouped",
-        alpha = esp$alpha,
-        lambda = esp$lambda,
-        standardize = FALSE
-      )
-
-      message(
-        "Finalizado en ",
-        round(as.numeric(difftime(Sys.time(), tiempo_inicio, units = "secs")), 1),
-        " segundos"
-      )
-
-      extraer_epts(
-        ajuste,
-        regularizacion = esp$regularizacion,
-        particion = particion,
-        lambda_fijo = esp$lambda,
-        valor_3_mas = valor_3_mas
-      )
-    }
-  )
-}
-
-rapm_A <- ajustar_normales_particion("A")
-rapm_B <- ajustar_normales_particion("B")
-
-epts_A <- ajustar_multinomiales_particion("A")
-epts_B <- ajustar_multinomiales_particion("B")
-
-# -----------------------------------------------------------------------------
-# 7. Pesos de participación para wEPTS dentro de cada partición
-# -----------------------------------------------------------------------------
-
-# Para un jugador que actuó en un solo equipo:
-#     W = posesiones del jugador / posesiones de su equipo.
-#
-# Para los jugadores que actuaron en más de un equipo dentro de una partición,
-# el denominador suma las posesiones de todos esos equipos. Esto evita asignar
-# arbitrariamente al jugador a solo uno de ellos.
-calcular_pesos_particion <- function(particion) {
-  idx <- which(particion_filas == particion)
-
-  X_sub <- X[idx, , drop = FALSE]
-  pbp_sub <- poss_by_poss_temporada[idx, , drop = FALSE]
-
-  map_dfr(colnames(X_sub), function(variable) {
-    es_ofensivo <- str_ends(variable, "_off")
-    es_defensivo <- str_ends(variable, "_def")
-
-    if (!es_ofensivo && !es_defensivo) return(NULL)
-
-    presente <- X_sub[, variable] != 0
-    n_jugador <- sum(presente)
-
-    if (n_jugador == 0) return(NULL)
-
-    equipo_fila <- if (es_ofensivo) {
+calcular_pesos <- function(X_sub, pbp_sub) {
+  map_dfr(seq_len(ncol(X_sub)), function(j) {
+    variable <- colnames(X_sub)[j]
+    presente <- as.numeric(X_sub[, j]) != 0
+    equipo_fila <- if (str_ends(variable, "_off")) {
       as.character(pbp_sub$equipo_limpio)
     } else {
       as.character(pbp_sub$equipo_limpio_def)
     }
-
-    equipos_jugador <- unique(equipo_fila[presente & !is.na(equipo_fila)])
-    n_equipos <- sum(equipo_fila %in% equipos_jugador, na.rm = TRUE)
-
+    equipos_jugador <- unique(equipo_fila[presente])
+    denominador <- sum(equipo_fila %in% equipos_jugador)
+    n_jugador <- sum(presente)
+    stopifnot(n_jugador > 0, denominador >= n_jugador)
     tibble(
-      jugador = str_remove(str_remove_all(variable, "`"), "_(off|def)$"),
-      componente = if_else(es_ofensivo, "Ofensivo", "Defensivo"),
-      particion = particion,
+      variable = variable,
       posesiones_jugador = n_jugador,
-      posesiones_equipos = n_equipos,
+      posesiones_equipos = denominador,
       cantidad_equipos = length(equipos_jugador),
-      equipos = paste(sort(equipos_jugador), collapse = ", "),
-      peso = n_jugador / n_equipos
+      peso = n_jugador / denominador
     )
   })
 }
+# Para quienes actuaron en varios equipos se conserva tu definición anterior:
+# el denominador suma las posesiones de esos equipos dentro de la mitad.
 
-pesos_A <- calcular_pesos_particion("A")
-pesos_B <- calcular_pesos_particion("B")
-pesos_particiones <- bind_rows(pesos_A, pesos_B)
-
-stopifnot(
-  all(pesos_particiones$peso >= 0, na.rm = TRUE),
-  all(pesos_particiones$peso <= 1, na.rm = TRUE)
-)
-
-crear_wepts <- function(epts, pesos) {
-  epts %>%
-    left_join(
-      pesos %>%
-        dplyr::select(
-          jugador, componente, particion,
-          posesiones_jugador, peso
-        ),
-      by = c("jugador", "componente", "particion")
+extraer_valoraciones <- function(ajuste, esp, pesos) {
+  coefs <- coef(ajuste, s = esp$lambda)
+  if (esp$familia == "gaussian") {
+    beta <- as.matrix(coefs)
+    ratings <- tibble(
+      variable = rownames(beta),
+      metrica = "RAPM",
+      valor = as.numeric(beta[, 1]),
+      epts_0 = NA_real_
     ) %>%
-    mutate(
-      metrica = "wEPTS",
-      valor = peso * valor + (1 - peso) * epts_0
-    )
+      filter(variable != "(Intercept)") %>%
+      left_join(pesos, by = "variable")
+  } else {
+    beta <- do.call(cbind, lapply(coefs, function(z) as.numeric(z[, 1])))
+    rownames(beta) <- rownames(coefs[[1]])
+    colnames(beta) <- names(coefs)
+    stopifnot(setequal(colnames(beta), as.character(0:3)))
+    valores_categoria <- c("0" = 0, "1" = 1, "2" = 2, "3" = valor_3_mas)
+    valores_categoria <- valores_categoria[colnames(beta)]
+    interceptos <- beta["(Intercept)", ]
+    epts_base <- sum(valores_categoria * softmax(interceptos))
+    variables <- setdiff(rownames(beta), "(Intercept)")
+    epts <- tibble(
+      variable = variables,
+      metrica = "EPTS",
+      valor = map_dbl(variables, function(variable) {
+        # +1 ofensivo; -1 defensivo, igual que en la matriz de diseño.
+        signo <- if (str_ends(variable, "_off")) 1 else -1
+        sum(valores_categoria * softmax(interceptos + signo * beta[variable, ]))
+      }),
+      epts_0 = epts_base
+    ) %>%
+      left_join(pesos, by = "variable")
+    wepts <- epts %>%
+      mutate(metrica = "wEPTS", valor = peso * valor + (1 - peso) * epts_0)
+    ratings <- bind_rows(epts, wepts)
+  }
+  stopifnot(all(is.finite(ratings$valor)), !anyNA(ratings$peso))
+  ratings %>%
+    left_join(mapa_variables, by = "variable") %>%
+    mutate(regularizacion = esp$regularizacion, alpha = esp$alpha,
+           lambda_usado = esp$lambda)
 }
 
-wepts_A <- crear_wepts(epts_A, pesos_A)
-wepts_B <- crear_wepts(epts_B, pesos_B)
-
-# -----------------------------------------------------------------------------
-# 8. Base final de ratings de cada mitad
-# -----------------------------------------------------------------------------
-
-ratings_A <- bind_rows(
-  rapm_A %>%
-    left_join(
-      pesos_A %>%
-        dplyr::select(jugador, componente, posesiones_jugador),
-      by = c("jugador", "componente")
-    ),
-  epts_A %>%
-    left_join(
-      pesos_A %>%
-        dplyr::select(jugador, componente, posesiones_jugador),
-      by = c("jugador", "componente")
-    ),
-  wepts_A
-) %>%
-  dplyr::select(
-    jugador, componente, metrica, regularizacion,
-    particion, valor, lambda_usado, posesiones_jugador
+ajustar_mitad <- function(particion_filas, mitad, repeticion) {
+  idx <- which(particion_filas == mitad)
+  X_sub <- X[idx, , drop = FALSE]
+  # No se confunden coeficientes anulados por LASSO con jugadores ausentes.
+  presentes <- Matrix::colSums(X_sub != 0) > 0
+  X_sub <- X_sub[, presentes, drop = FALSE]
+  y_sub <- y[idx]
+  y_multi <- factor(pmin(y_sub, 3), levels = 0:3)
+  if (ncol(X_sub) < 2 || sd(y_sub) == 0 || any(table(y_multi) < 2)) {
+    stop("Información insuficiente en repetición ", repeticion, ", mitad ", mitad)
+  }
+  pesos <- calcular_pesos(
+    X_sub, poss_by_poss_temporada[idx, , drop = FALSE]
   )
-
-ratings_B <- bind_rows(
-  rapm_B %>%
-    left_join(
-      pesos_B %>%
-        dplyr::select(jugador, componente, posesiones_jugador),
-      by = c("jugador", "componente")
-    ),
-  epts_B %>%
-    left_join(
-      pesos_B %>%
-        dplyr::select(jugador, componente, posesiones_jugador),
-      by = c("jugador", "componente")
-    ),
-  wepts_B
-) %>%
-  dplyr::select(
-    jugador, componente, metrica, regularizacion,
-    particion, valor, lambda_usado, posesiones_jugador
-  )
-
-ratings_pareados <- ratings_A %>%
-  transmute(
-    jugador,
-    componente,
-    metrica,
-    regularizacion,
-    valor_A = valor,
-    lambda_A = lambda_usado,
-    posesiones_A = posesiones_jugador
-  ) %>%
-  inner_join(
-    ratings_B %>%
-      transmute(
-        jugador,
-        componente,
-        metrica,
-        regularizacion,
-        valor_B = valor,
-        lambda_B = lambda_usado,
-        posesiones_B = posesiones_jugador
-      ),
-    by = c("jugador", "componente", "metrica", "regularizacion")
-  ) %>%
-  filter(
-    posesiones_A >= min_posesiones_por_mitad,
-    posesiones_B >= min_posesiones_por_mitad,
-    complete.cases(valor_A, valor_B)
-  )
-
-# Comprobación: A y B utilizaron exactamente los mismos lambda fijos.
-lambda_seleccionados <- ratings_pareados %>%
-  distinct(metrica, regularizacion, lambda_A, lambda_B) %>%
-  arrange(metrica, regularizacion)
-
-print(lambda_seleccionados)
-
-stopifnot(all(dplyr::near(
-  lambda_seleccionados$lambda_A,
-  lambda_seleccionados$lambda_B
-)))
-
-# -----------------------------------------------------------------------------
-# 9. Las 18 correlaciones observadas
-# -----------------------------------------------------------------------------
+  map_dfr(seq_len(nrow(especificaciones)), function(i) {
+    esp <- especificaciones[i, ]
+    message("  ", repeticion, "/", n_repeticiones, " | mitad ", mitad,
+            " | ", esp$familia, " - ", esp$regularizacion)
+    # Recorrido corto para aprovechar los warm starts de glmnet.
+    # Se extrae SOLO la solución en el lambda fijo; NO se selecciona otro lambda.
+    argumentos <- list(
+      x = X_sub,
+      y = if (esp$familia == "gaussian") y_sub else y_multi,
+      family = esp$familia,
+      alpha = esp$alpha,
+      lambda = esp$lambda * c(10, 5, 2, 1),
+      standardize = FALSE,
+      intercept = TRUE
+    )
+    if (esp$familia == "multinomial") {
+      argumentos$type.multinomial <- "grouped"
+    }
+    ajuste <- do.call(glmnet::glmnet, argumentos)
+    if ((!is.null(ajuste$jerr) && ajuste$jerr != 0) ||
+        !any(abs(ajuste$lambda - esp$lambda) <= 1e-10 * esp$lambda)) {
+      stop("No se obtuvo una solución válida en el lambda seleccionado: ",
+           "repetición ", repeticion, ", mitad ", mitad, ", ", esp$objeto)
+    }
+    extraer_valoraciones(ajuste, esp, pesos) %>%
+      mutate(repeticion = repeticion, particion = mitad)
+  })
+}
 
 cor_segura <- function(x, y, method = "pearson") {
-  completos <- complete.cases(x, y)
+  completos <- is.finite(x) & is.finite(y)
   x <- x[completos]
   y <- y[completos]
-
+  # Una correlación indefinida NO se reemplaza por cero.
   if (length(x) < 3 || sd(x) == 0 || sd(y) == 0) return(NA_real_)
-
   cor(x, y, method = method)
 }
 
-consistencia_observada <- ratings_pareados %>%
-  group_by(metrica, regularizacion, componente) %>%
-  summarise(
-    jugadores_comparados = n(),
-    correlacion_pearson = cor_segura(valor_A, valor_B, "pearson"),
-    correlacion_spearman = cor_segura(valor_A, valor_B, "spearman"),
-    .groups = "drop"
-  )
-
-stopifnot(nrow(consistencia_observada) == 18)
-
 # -----------------------------------------------------------------------------
-# 10. Distribución de referencia por permutaciones
+# 5. Veinte divisiones completas: 12 reajustes y 18 correlaciones por división
 # -----------------------------------------------------------------------------
 
-# No se trata de un séptimo modelo. En cada repetición se mantienen los ratings
-# de ambas mitades, pero se permutan las identidades de los jugadores en B. Así
-# se obtiene la correlación esperable si no existiera correspondencia entre el
-# rendimiento de un mismo jugador en A y en B.
-set.seed(semilla_azar)
-
-consistencia_azar <- ratings_pareados %>%
-  group_by(metrica, regularizacion, componente) %>%
-  group_modify(~ {
-    tibble(
-      simulacion = seq_len(B_azar),
-      correlacion_azar = replicate(
-        B_azar,
-        cor_segura(.x$valor_A, sample(.x$valor_B), "pearson")
-      )
-    )
-  }) %>%
-  ungroup()
-
-resumen_azar <- consistencia_azar %>%
-  group_by(metrica, regularizacion, componente) %>%
-  summarise(
-    azar_p025 = quantile(correlacion_azar, 0.025, na.rm = TRUE),
-    azar_mediana = median(correlacion_azar, na.rm = TRUE),
-    azar_p975 = quantile(correlacion_azar, 0.975, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-resultados_consistencia <- consistencia_observada %>%
-  left_join(
-    resumen_azar,
-    by = c("metrica", "regularizacion", "componente")
-  ) %>%
-  left_join(
-    consistencia_azar %>%
-      inner_join(
-        consistencia_observada %>%
-          dplyr::select(
-            metrica, regularizacion, componente,
-            correlacion_pearson
-          ),
-        by = c("metrica", "regularizacion", "componente")
-      ) %>%
-      group_by(metrica, regularizacion, componente) %>%
-      summarise(
-        p_permutacion = (
-          1 + sum(
-            abs(correlacion_azar) >= abs(correlacion_pearson),
-            na.rm = TRUE
-          )
-        ) / (1 + sum(!is.na(correlacion_azar))),
-        .groups = "drop"
-      ),
-    by = c("metrica", "regularizacion", "componente")
-  ) %>%
-  mutate(
-    supera_azar_95 = correlacion_pearson > azar_p975,
-    metrica = factor(metrica, levels = c("RAPM", "EPTS", "wEPTS")),
-    regularizacion = factor(
-      regularizacion,
-      levels = c("Ridge", "Elastic Net", "LASSO")
-    ),
-    componente = factor(
-      componente,
-      levels = c("Ofensivo", "Defensivo")
-    )
-  ) %>%
-  arrange(metrica, regularizacion, componente)
-
-tabla_consistencia <- resultados_consistencia %>%
-  transmute(
-    Metrica = metrica,
-    Regularizacion = regularizacion,
-    Componente = componente,
-    Jugadores = jugadores_comparados,
-    Pearson = correlacion_pearson,
-    Spearman = correlacion_spearman,
-    Mediana_azar = azar_mediana,
-    LI_azar = azar_p025,
-    LS_azar = azar_p975,
-    p_permutacion
-  )
-
-print(tabla_consistencia)
-
-# -----------------------------------------------------------------------------
-# 11. Gráfico de las 18 correlaciones
-# -----------------------------------------------------------------------------
-
-colores_componente <- c(
-  "Ofensivo" = "steelblue3",
-  "Defensivo" = "#E38D65"
+semillas <- semilla_particion + seq_len(n_repeticiones) - 1L
+configuracion_consistencia <- list(
+  n_repeticiones = n_repeticiones, semillas = semillas,
+  unidad_division = "Posesiones dentro de cada partido",
+  min_posesiones_por_mitad = min_posesiones_por_mitad,
+  valor_3_mas = valor_3_mas, lambda_utilizados = lambda_utilizados,
+  n_posesiones = nrow(X), n_partidos = length(indices_por_partido),
+  n_jugadores = n_distinct(mapa_variables$jugador)
 )
+if (guardar_resultados) {
+  dir.create(carpeta_salida, recursive = TRUE, showWarnings = FALSE)
+}
+resultados_repeticiones <- vector("list", n_repeticiones)
+inicio_total <- Sys.time()
 
-posicion <- position_dodge(width = 0.55)
-
-grafico_consistencia <- ggplot(
-  resultados_consistencia,
-  aes(
-    x = correlacion_pearson,
-    y = regularizacion,
-    color = componente,
-    group = componente
+for (r in seq_len(n_repeticiones)) {
+  inicio_r <- Sys.time()
+  message("\nDIVISIÓN ", r, " DE ", n_repeticiones)
+  particion_filas <- crear_mitades_dentro_partidos(
+    indices_por_partido, nrow(X), semillas[r]
   )
-) +
-  geom_vline(
-    xintercept = 0,
-    linetype = "dashed",
-    color = "grey45",
-    linewidth = 0.6
-  ) +
-  geom_errorbar(
-    aes(
-      xmin = azar_p025,
-      xmax = azar_p975
-    ),
-    orientation = "y",
-    position = posicion,
-    width = 0.16,
-    linewidth = 1.1,
-    color = "grey65"
+  conteos <- tibble(partido_key = id_partido, particion = particion_filas) %>%
+    count(partido_key, particion, name = "posesiones") %>%
+    pivot_wider(names_from = particion, values_from = posesiones, values_fill = 0)
+  stopifnot(all(conteos$A > 0), all(conteos$B > 0),
+            all(abs(conteos$A - conteos$B) <= 1))
+
+  ratings <- bind_rows(
+    ajustar_mitad(particion_filas, "A", r),
+    ajustar_mitad(particion_filas, "B", r)
+  )
+  pares <- ratings %>%
+    dplyr::select(repeticion, variable, jugador, componente, metrica,
+                  regularizacion, particion, valor, posesiones_jugador) %>%
+    pivot_wider(
+      names_from = particion,
+      values_from = c(valor, posesiones_jugador)
+    ) %>%
+    mutate(
+      elegible = !is.na(posesiones_jugador_A) & !is.na(posesiones_jugador_B) &
+        posesiones_jugador_A >= min_posesiones_por_mitad &
+        posesiones_jugador_B >= min_posesiones_por_mitad &
+        is.finite(valor_A) & is.finite(valor_B)
+    )
+  correlaciones <- pares %>%
+    group_by(repeticion, metrica, regularizacion, componente) %>%
+    summarise(
+      jugadores_comparados = sum(elegible),
+      correlacion_pearson = cor_segura(valor_A[elegible], valor_B[elegible]),
+      correlacion_spearman = cor_segura(valor_A[elegible], valor_B[elegible],
+                                       "spearman"),
+      .groups = "drop"
+    )
+  stopifnot(nrow(correlaciones) == 18L)
+
+  # Control para identificar a los jugadores excluidos en alguna división.
+  cobertura <- tibble(
+    variable = colnames(X),
+    posesiones_A = as.numeric(Matrix::colSums(X[particion_filas == "A", ] != 0)),
+    posesiones_B = as.numeric(Matrix::colSums(X[particion_filas == "B", ] != 0))
+  ) %>%
+    left_join(mapa_variables, by = "variable") %>%
+    mutate(
+      repeticion = r,
+      elegible = posesiones_A >= min_posesiones_por_mitad &
+        posesiones_B >= min_posesiones_por_mitad
+    )
+  resumen_mitades <- tibble(
+    repeticion = r, semilla = semillas[r], particion = c("A", "B"),
+    partidos_representados = c(sum(conteos$A > 0), sum(conteos$B > 0)),
+    posesiones = c(sum(conteos$A), sum(conteos$B))
+  )
+  resultados_repeticiones[[r]] <- list(
+    correlaciones = correlaciones, ratings = ratings,
+    cobertura = cobertura, resumen_mitades = resumen_mitades
+  )
+  if (guardar_resultados) {
+    # Conserva las repeticiones terminadas si interrumpís una ejecución larga.
+    # No hay reanudación automática: este archivo es un respaldo de resultados.
+    saveRDS(
+      list(configuracion = configuracion_consistencia,
+           repeticiones_completadas = r,
+           resultados = resultados_repeticiones[seq_len(r)]),
+      file.path(carpeta_salida, "consistencia_resultados_parciales.RDS")
+    )
+  }
+  message("División terminada en ",
+          round(as.numeric(difftime(Sys.time(), inicio_r, units = "secs")), 1),
+          " segundos.")
+}
+
+# -----------------------------------------------------------------------------
+# 6. Resultados individuales, resumen y controles de cobertura
+# -----------------------------------------------------------------------------
+
+ordenar_factores <- function(datos) {
+  datos %>%
+    mutate(
+      metrica = factor(metrica, levels = c("RAPM", "EPTS", "wEPTS")),
+      regularizacion = factor(regularizacion,
+                               levels = c("LASSO", "Elastic Net", "Ridge")),
+      componente = factor(componente, levels = c("Ofensivo", "Defensivo"))
+    )
+}
+consistencia_por_repeticion <- map_dfr(resultados_repeticiones, "correlaciones") %>%
+  ordenar_factores()
+ratings_todas_repeticiones <- map_dfr(resultados_repeticiones, "ratings")
+cobertura_jugadores <- map_dfr(resultados_repeticiones, "cobertura")
+jugadores_excluidos <- cobertura_jugadores %>% filter(!elegible)
+resumen_particiones <- map_dfr(resultados_repeticiones, "resumen_mitades")
+
+resumir_validos <- function(x, funcion) {
+  x <- x[is.finite(x)]
+  if (!length(x)) return(NA_real_)
+  funcion(x)
+}
+resumen_consistencia <- consistencia_por_repeticion %>%
+  group_by(metrica, regularizacion, componente) %>%
+  summarise(
+    repeticiones_totales = n(),
+    repeticiones_validas = sum(is.finite(correlacion_pearson)),
+    jugadores_min = min(jugadores_comparados),
+    jugadores_max = max(jugadores_comparados),
+    pearson_media = resumir_validos(correlacion_pearson, mean),
+    pearson_mediana = resumir_validos(correlacion_pearson, median),
+    pearson_sd = resumir_validos(correlacion_pearson, sd),
+    pearson_min = resumir_validos(correlacion_pearson, min),
+    pearson_max = resumir_validos(correlacion_pearson, max),
+    spearman_repeticiones_validas = sum(is.finite(correlacion_spearman)),
+    spearman_media = resumir_validos(correlacion_spearman, mean),
+    .groups = "drop"
+  )
+
+# Compatibilidad de nombres con el desarrollo anterior.
+resultados_consistencia <- resumen_consistencia
+tabla_consistencia <- resumen_consistencia %>%
+  transmute(
+    Metrica = metrica, Regularizacion = regularizacion, Componente = componente,
+    Repeticiones = repeticiones_totales, Validas = repeticiones_validas,
+    Jugadores_min = jugadores_min, Jugadores_max = jugadores_max,
+    Pearson_media = pearson_media, Pearson_SD = pearson_sd,
+    Pearson_min = pearson_min, Pearson_max = pearson_max,
+    Spearman_media = spearman_media,
+    Spearman_validas = spearman_repeticiones_validas
+  )
+tabla_consistencia_final <- tabla_consistencia
+print(tabla_consistencia, n = Inf, width = Inf)
+
+if (any(resumen_consistencia$repeticiones_validas < n_repeticiones)) {
+  warning(
+    "Hay correlaciones indefinidas (pocos jugadores o valoraciones constantes). ",
+    "Los promedios usan solo las repeticiones válidas; revisá la columna Validas."
+  )
+}
+message("Combinaciones jugador/componente/división excluidas por participación: ",
+        nrow(jugadores_excluidos))
+if (nrow(jugadores_excluidos)) print(jugadores_excluidos, n = 20)
+
+# -----------------------------------------------------------------------------
+# 7. Gráfico: las 20 correlaciones y su promedio (sin IC ni permutaciones)
+# -----------------------------------------------------------------------------
+
+datos_grafico <- consistencia_por_repeticion %>%
+  filter(is.finite(correlacion_pearson))
+medias_grafico <- resumen_consistencia %>% filter(is.finite(pearson_media))
+colores_componente <- c("Ofensivo" = "steelblue3", "Defensivo" = "#E38D65")
+
+# La escala es común para los seis paneles e incluye cero y todos los resultados.
+rango_x <- range(c(0, datos_grafico$correlacion_pearson))
+margen_x <- max(0.04, diff(rango_x) * 0.08)
+limites_x <- c(max(-1, rango_x[1] - margen_x), min(1, rango_x[2] + margen_x))
+nota_validas <- if (any(resumen_consistencia$repeticiones_validas < n_repeticiones)) {
+  "\nSe omiten correlaciones indefinidas; el promedio usa las repeticiones válidas."
+} else {
+  ""
+}
+grafico_consistencia <- ggplot() +
+  geom_vline(xintercept = 0, linetype = "dashed",
+             color = "grey55", linewidth = 0.5) +
+  geom_point(
+    data = datos_grafico,
+    aes(x = correlacion_pearson, y = regularizacion, color = componente),
+    # Solo se desplazan verticalmente; las correlaciones no se alteran.
+    position = position_jitter(width = 0, height = 0.12, seed = 123),
+    size = 1.8, alpha = 0.6, show.legend = FALSE
   ) +
   geom_point(
-    position = posicion,
-    size = 2
+    data = medias_grafico,
+    aes(x = pearson_media, y = regularizacion),
+    shape = 23, fill = "white", color = "black", size = 2.5, stroke = 0.9
   ) +
-  facet_wrap(~ metrica, nrow = 1) +
+  facet_grid(componente ~ metrica, drop = FALSE) +
   scale_color_manual(values = colores_componente) +
-  coord_cartesian(xlim = c(-0.25, 1)) +
+  scale_x_continuous(
+    labels = function(x) format(x, decimal.mark = ",", trim = TRUE)
+  ) +
+  scale_y_discrete(drop = FALSE) +
+  coord_cartesian(xlim = limites_x) +
   labs(
-    x = "Correlación de Pearson entre particiones",
+    x = "Correlación de Pearson entre las valoraciones de ambas mitades",
     y = NULL,
-    color = "Componente",
-    caption = paste(
-      "Los segmentos grises representan el intervalo central del 95%",
-      "de las correlaciones obtenidas al permutar los jugadores."
+    caption = paste0(
+      "Rombos blancos: promedio de las 20 correlaciones."
     )
   ) +
   theme_minimal(base_size = 11) +
@@ -810,46 +574,52 @@ grafico_consistencia <- ggplot(
     panel.grid.minor = element_blank(),
     panel.grid.major.y = element_blank(),
     strip.text = element_text(face = "bold"),
-    legend.position = "bottom"
+    legend.position = "none",
+    plot.caption = element_text(hjust = 0, size = 9),
+    panel.spacing = grid::unit(1, "lines")
   )
-
-grafico_consistencia
-
-tabla_consistencia_final <- tabla_consistencia
-
-# saveRDS(tabla_consistencia_final, "tabla_consistencia.RDS")
-
-# tabla_consistencia_partidos_completos <- tabla_consistencia
-
-# ggsave(
-#   "img/consistencia_modelos.pdf",
-#   grafico_consistencia,
-#   width = 7,
-#   height = 5
-# )
+print(grafico_consistencia)
 
 # -----------------------------------------------------------------------------
-# 12. Tabla opcional con kableExtra
+# 8. Guardado: tablas, gráfico y resultados completos
 # -----------------------------------------------------------------------------
 
-# tabla_consistencia %>%
-#   mutate(
-#     across(
-#       c(Pearson, Spearman, Mediana_azar, LI_azar, LS_azar, p_permutacion),
-#       ~ round(.x, 3)
-#     )
-#   ) %>%
-#   knitr::kable(
-#     col.names = c(
-#       "Métrica", "Regularización", "Componente", "Jugadores",
-#       "Pearson", "Spearman", "Mediana azar", "LI azar",
-#       "LS azar", "p"
-#     ),
-#     caption = "Consistencia de los ratings entre particiones",
-#     booktabs = TRUE,
-#     linesep = ""
-#   ) %>%
-#   kableExtra::kable_styling(
-#     full_width = FALSE,
-#     position = "center"
-#   )
+if (guardar_resultados) {
+  write.csv2(tabla_consistencia,
+             file.path(carpeta_salida, "tabla_consistencia_resumen.csv"),
+             row.names = FALSE, fileEncoding = "UTF-8")
+  write.csv2(consistencia_por_repeticion,
+             file.path(carpeta_salida, "correlaciones_por_division.csv"),
+             row.names = FALSE, fileEncoding = "UTF-8")
+  write.csv2(cobertura_jugadores,
+             file.path(carpeta_salida, "cobertura_jugadores.csv"),
+             row.names = FALSE, fileEncoding = "UTF-8")
+  saveRDS(tabla_consistencia_final,
+          file.path(carpeta_salida, "tabla_consistencia.RDS"))
+  saveRDS(
+    list(
+      configuracion = configuracion_consistencia,
+      correlaciones = consistencia_por_repeticion,
+      resumen = resumen_consistencia,
+      ratings = ratings_todas_repeticiones,
+      cobertura = cobertura_jugadores,
+      particiones = resumen_particiones,
+      grafico = grafico_consistencia,
+      sesion = sessionInfo()
+    ),
+    file.path(carpeta_salida, "consistencia_resultados_completos.RDS")
+  )
+  ggsave(file.path("img", "consistencia_modelos_20_divisiones.pdf"),
+         grafico_consistencia, width = 7, height = 5, units = "in")
+  ggsave(file.path(carpeta_salida, "consistencia_modelos_20_divisiones.png"),
+         grafico_consistencia, width = 9, height = 5.6, units = "in", dpi = 300)
+  message("Resultados guardados en: ", normalizePath(carpeta_salida))
+}
+message("Tiempo total: ",
+        round(as.numeric(difftime(Sys.time(), inicio_total, units = "mins")), 2),
+        " minutos.")
+
+# Cuando quieras usar este gráfico en la tesina, podés ejecutar:
+# dir.create("img", showWarnings = FALSE)
+# ggsave("img/consistencia_modelos.pdf", grafico_consistencia,
+#        width = 9, height = 5.6, units = "in")

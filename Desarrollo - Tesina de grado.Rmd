@@ -95,27 +95,27 @@ box_score = box_score %>% mutate(Tiempo_mod = as_hms(Tiempo_mod),
   )
 
 #Temporada
-
-box_sc_temp = box_score %>%
-  group_by(jugador) %>%
-  summarise(
-    # 1. Variables de control
-    Equipos = paste(unique(equipo), collapse = ", "),
-    
-    # 2. Un único across que calcula Totales y Promedios a la vez
-    across(
-      where(is.numeric) & !c(IdJugador, IdClub, IdEquipo),
-      list(
-        total = \(x) sum(x, na.rm = TRUE),
-        prom  = \(x) mean(x, na.rm = TRUE)
-      ),
-      .names = "{.fn}_{.col}" # Aplica el prefijo 'total_' o 'prom_'
-    ),
-    
-    Partidos = n(),
-    
-    .groups = "drop"
-  )
+# 
+# box_sc_temp = box_score %>%
+#   group_by(jugador) %>%
+#   summarise(
+#     # 1. Variables de control
+#     Equipos = paste(unique(equipo), collapse = ", "),
+#     
+#     # 2. Un único across que calcula Totales y Promedios a la vez
+#     across(
+#       where(is.numeric) & !c(IdJugador, IdClub, IdEquipo),
+#       list(
+#         total = \(x) sum(x, na.rm = TRUE),
+#         prom  = \(x) mean(x, na.rm = TRUE)
+#       ),
+#       .names = "{.fn}_{.col}" # Aplica el prefijo 'total_' o 'prom_'
+#     ),
+#     
+#     Partidos = n(),
+#     
+#     .groups = "drop"
+#   )
 
 
 #Tiempo jugado
@@ -154,11 +154,65 @@ df_plus_minus <- plus_minus %>%
 
 # +/- por posesión
 
+# 1. Definimos el vector con los nombres de los jugadores
+# jugador_cols <- colnames(poss_by_poss_temporada)[24:369]
+# 
+ # 2. Transformación y cálculo
+# plus_minus_por_equipo1 <- poss_by_poss_temporada %>%
+#   # Pasamos de 350 columnas de jugadores a 2 columnas: "jugador" y "presencia"
+#   pivot_longer(
+#     cols = all_of(jugador_cols),
+#     names_to = "jugador_id",
+#     values_to = "presencia"
+#   )
+# 
+#   plus_minus_por_equipo_1 = plus_minus_por_equipo1 %>% 
+#   # Nos quedamos solo con las filas donde el jugador participó (1 o -1)
+#   filter(presencia != 0) %>%
+#   # Identificamos en qué equipo estaba jugando en esa posesión
+#   # Si presencia es 1, estaba en el equipo local. Si es -1, en el visitante.
+#   mutate(
+#     equipo_del_jugador = if_else(presencia == 1, equipo_limpio, if_else(equipo_limpio == equipo_local,equipo_visitante,equipo_local))
+#   ) %>%
+#   # Agrupamos por el nombre del jugador Y por el equipo en el que estaba
+#   group_by(jugador_id, equipo_del_jugador) %>%
+#   summarise(
+#     plus_minus_total = sum(puntos_pos * presencia, na.rm = TRUE),
+#     posesiones_totales = n(),
+#     
+#     # 🔹 cantidad de posesiones en ataque (presencia == 1)
+#     posesiones_ofensivas = sum(presencia == 1, na.rm = TRUE),
+#     
+#     # 🔹 cantidad de posesiones en defensa (presencia == -1)
+#     posesiones_defensivas = sum(presencia == -1, na.rm = TRUE),
+#     
+#     # 🔹 suma de puntos en posesiones ofensivas
+#     puntos_ofensivos = sum(puntos_pos[presencia == 1], na.rm = TRUE),
+#     
+#     # 🔹 suma de puntos en posesiones defensivas
+#     puntos_defensivos = sum(puntos_pos[presencia == -1], na.rm = TRUE),
+#     .groups = "drop"
+#   )
+# 
+# a = plus_minus_por_equipo_1 %>% 
+#   group_by(jugador_id) %>%
+#   filter(n() > 1)
+# 
+# saveRDS(plus_minus_por_equipo_1, "plus_minus_por_equipo_1.RDS")
+
+  # Opcional: Calcular el +/- cada 100 posesiones para que sea comparable
+#  %>% mutate(plus_minus_100 = (plus_minus_total / posesiones_totales) * 100, pts_recib_por_pos = ((-1)*puntos_defensivos)/posesiones_defensivas, pts_realizad_por_pos = puntos_ofensivos/posesiones_ofensivas)
+#
+#plus_minus_por_equipo = plus_minus_por_equipo %>% rename(jugador = jugador_id)
+
+#saveRDS(plus_minus_por_equipo, "plus_minus_por_equipo.RDS")
+
+#Faltaría agregar los equipos a esa tabla de jugadores y +/- creo que sería de interes. Hay algunos jugadores que estuvieron en más de un equipo a lo largo de la temporada, ver que hacer en ese caso. También la cantidad de partidos, quizas sería rico.
 
 
 # +/- por posesión estandarizado por equipo
 
-plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS") #Ya está filtrado
+plus_minus_por_equipo = readRDS("tablas_desarrollo/plus_minus_por_equipo.RDS") #Ya está filtrado
 plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales > 500) %>% rename(jugador = jugador_id)
 
 #OP 2
@@ -222,9 +276,9 @@ df_pbp_final = df_pbp_final %>% mutate(across(
     ))
 
 
-write.csv(poss_by_poss, file = "poss_by_poss.csv", row.names = FALSE)
-write.csv(box_score1, file = "box_score.csv", row.names = FALSE)
-write.csv(df_pbp_final, file = "df_pbp_final.csv", row.names = FALSE)
+# write.csv(poss_by_poss, file = "poss_by_poss.csv", row.names = FALSE)
+# write.csv(box_score1, file = "box_score.csv", row.names = FALSE)
+# write.csv(df_pbp_final, file = "df_pbp_final.csv", row.names = FALSE)
 
 ```
 
@@ -413,6 +467,103 @@ prop = g1 %>% summarise(
 ult_grupo = g1 %>% filter(posesiones > 2500) %>% count(Equipos)#contabilizar cuantos jugadores de cada equipo hay en el último grupo
 ```
 
+versión de gráfico para presentación
+
+```{r}
+g2 = ggplot(g1, aes(x = posesiones)) +
+
+  # Región sombreada (< 500 posesiones)
+  annotate(
+    "rect",
+    xmin = -Inf,
+    xmax = 500,
+    ymin = -Inf,
+    ymax = Inf,
+    fill = "#f9a350",
+    alpha = 0.12
+  ) +
+
+  # Histograma de frecuencias
+  geom_histogram(
+    bins = 35,
+    fill = "#e95e24",
+    color = "#242841",
+    linewidth = 0.3
+  ) +
+
+  # Umbral
+  geom_vline(
+    xintercept = 500,
+    linetype = "dashed",
+    color = "#f9a350",
+    linewidth = 0.8
+  ) +
+
+  # Etiqueta del umbral
+  annotate(
+    "text",
+    x = 520,
+    y = Inf,
+    label = "Criterio de exclusión: 117 jugadores (33,8%)",
+    hjust = 0,
+    vjust = 1.5,
+    color = "#f9a350",
+    fontface = "bold",
+    size = 7
+  ) +
+
+  labs(
+    x = "Posesiones disputadas",
+    y = "Cantidad de jugadores"
+  ) +
+
+  theme_minimal(base_size = 12) +
+
+  theme(
+    # Fondos transparentes
+    plot.background = element_rect(
+      fill = "transparent",
+      color = NA
+    ),
+    panel.background = element_rect(
+      fill = "transparent",
+      color = NA
+    ),
+
+    # Texto
+    axis.text = element_text(
+      color = "#E8EAF2"
+    ),
+    axis.title = element_text(
+      color = "#FFFFFF"
+    ),
+
+    # Grillas
+    panel.grid.major = element_line(
+      color = "#454A65",
+      linewidth = 0.4
+    ),
+    panel.grid.minor = element_blank(),
+
+    plot.title = element_text(
+      face = "bold",
+      color = "#FFFFFF"
+    )
+  )
+```
+
+```{r}
+ggsave(
+  "histograma_posesiones_presentacion.png",
+  plot = g2,
+  bg = "transparent",
+  width = 11,
+  height = 5,
+  dpi = 300
+)
+```
+
+
 ### Puntos por posesión
 
 Cada una de las posesiones analizadas contabilizaba cierta cantidad de puntos al finalizar, pudiendo observarse un rango de puntos que varió de 0 a 7 puntos. Resultando los casos de 5,6 y 7 puntos situaciones extremadamente atípicas (0.089% de los casos). El resultado más frecuente al finalizar una posesión fue la ausencia de puntos, obteniendose en 31241 posesiones, lo cual representa un 53.2% del total de posesiones.
@@ -580,8 +731,6 @@ tabla_gt <- tabla_gt %>%
   tab_header(title = "Tabla de posiciones LNB - Temporada 24/25")
 
 tabla_gt
-
-#saveRDS(tabla_gt, "tabla_posiciones.rds")
 ```
 
 ### Análisis del +/- penalizado por la cantidad de posesiones
@@ -1547,7 +1696,7 @@ $$ \mu_i = \beta_0 + \sum_{k=1}^{K} \beta^o_k x^o_{ik} + \sum_{k=1}^{K} \beta^d_
 
 ```{r}
 #Puntos por posesión realizados y recibidos, estandarizados.
-plus_minus_por_equipo = readRDS("plus_minus_por_equipo.RDS")
+plus_minus_por_equipo = readRDS("tablas_desarrollo/plus_minus_por_equipo.RDS")
 plus_minus_por_equipo = plus_minus_por_equipo %>%  filter(posesiones_totales > 500)
 
 #OP 2
@@ -1580,109 +1729,177 @@ posesiones_def = df_mod_ltp_sep %>% summarise_each(funs(sum), contains("_def")) 
 
 ```
 
-<!-- Cantidad de posesiones compartidas y, tabla para el informe% -->
+Cantidad de posesiones compartidas y, tabla para el informe + base completa separada
 
-<!-- ```{r} -->
-<!-- library(dplyr) -->
-<!-- library(stringr) -->
-<!-- library(purrr) -->
+```{r}
+library(dplyr)
+library(stringr)
+library(purrr)
 
-<!-- # Nombres de los jugadores (sin _off ni _def) -->
-<!-- jugadores <- unique( -->
-<!--   str_remove( -->
-<!--     names(df_mod_ltp_sep)[-1], -->
-<!--     "_(off|def)$" -->
-<!--   ) -->
-<!-- ) -->
+# Genero la base separada con todos los jugadores
 
-<!-- # Matriz de presencia (1 = jugador en cancha) -->
-<!-- X_presencia <- sapply(jugadores, function(j){ -->
+df_mod_ltp_sep <- df_mod_ltp
 
-<!--   off <- paste0(j, "_off") -->
-<!--   def <- paste0(j, "_def") -->
+jugadores <- names(df_mod_ltp_sep)[3:231]
 
-<!--   as.integer(df_mod_ltp_sep[[off]] != 0 | df_mod_ltp_sep[[def]] != 0) -->
+for (j in jugadores) {
+  
+  df_mod_ltp_sep[[paste0(j, "_off")]] <- ifelse(df_mod_ltp[[j]] == 1, 1, 0)
+  
+  df_mod_ltp_sep[[paste0(j, "_def")]] <- ifelse(df_mod_ltp[[j]] == -1, -1, 0)
+}
 
-<!-- }) -->
+df_mod_ltp_sep <- df_mod_ltp_sep %>%
+  dplyr::select(-all_of(jugadores))
 
-<!-- colnames(X_presencia) <- jugadores -->
+# Nombres de los jugadores (sin _off ni _def)
+# jugadores <- unique(
+#   str_remove(
+#     names(df_mod_ltp)[-1],
+#     "_(off|def)$"
+#   )
+# )
 
-<!-- # Matriz de posesiones compartidas -->
-<!-- M_comp <- t(X_presencia) %*% X_presencia -->
+# Matriz de presencia (1 = jugador en cancha)
+X_presencia <- sapply(jugadores, function(j){
 
-<!-- # Posesiones totales de cada jugador -->
-<!-- posesiones <- diag(M_comp) -->
+  off <- paste0(j, "_off")
+  def <- paste0(j, "_def")
 
-<!-- tabla_pares <- expand.grid( -->
-<!--   JugadorA = jugadores, -->
-<!--   JugadorB = jugadores, -->
-<!--   stringsAsFactors = FALSE -->
-<!-- ) |> -->
-<!--   dplyr::filter(JugadorA < JugadorB) |> -->
-<!--   rowwise() |> -->
-<!--   mutate( -->
+  as.integer(df_mod_ltp_sep[[off]] != 0 | df_mod_ltp_sep[[def]] != 0)
 
-<!--     posesiones_juntos = -->
-<!--       M_comp[JugadorA, JugadorB], -->
+})
 
-<!--     posesiones_A = -->
-<!--       posesiones[JugadorA], -->
+colnames(X_presencia) <- jugadores
 
-<!--     posesiones_B = -->
-<!--       posesiones[JugadorB], -->
+# Matriz de posesiones compartidas
+M_comp <- t(X_presencia) %*% X_presencia
 
-<!--     pct_A_con_B = -->
-<!--       100 * posesiones_juntos / posesiones_A, -->
+# Posesiones totales de cada jugador
+posesiones <- diag(M_comp)
 
-<!--     pct_B_con_A = -->
-<!--       100 * posesiones_juntos / posesiones_B -->
+tabla_pares <- expand.grid(
+  JugadorA = jugadores,
+  JugadorB = jugadores,
+  stringsAsFactors = FALSE
+) |>
+  dplyr::filter(JugadorA < JugadorB) |>
+  rowwise() |>
+  mutate(
 
-<!--   ) |> -->
-<!--   ungroup() -->
+    posesiones_juntos =
+      M_comp[JugadorA, JugadorB],
 
-<!-- tabla_top10 <- tabla_pares |> -->
-<!--   mutate( -->
-<!--     pct_compartido = pmin(pct_A_con_B, pct_B_con_A) -->
-<!--   ) |> -->
-<!--   arrange(desc(pct_compartido)) |> -->
-<!--   slice_head(n = 10) -->
-<!-- ``` -->
+    posesiones_A =
+      posesiones[JugadorA],
+
+    posesiones_B =
+      posesiones[JugadorB],
+
+    pct_A_con_B =
+      100 * posesiones_juntos / posesiones_A,
+
+    pct_B_con_A =
+      100 * posesiones_juntos / posesiones_B
+
+  ) |>
+  ungroup()
+
+tabla_top10 <- tabla_pares |>
+  mutate(
+    pct_compartido = pmin(pct_A_con_B, pct_B_con_A)
+  ) |>
+  arrange(desc(pct_compartido)) |>
+  slice_head(n = 10)
+```
 
 
-<!-- correlaciones -->
+correlaciones
 
-<!-- ```{r} -->
-<!-- X_off <- df_mod_ltp_sep |> -->
-<!--   dplyr::select(ends_with("_off")) -->
+```{r}
+X_off <- df_mod_ltp_sep |>
+  dplyr::select(ends_with("_off"))
 
-<!-- cor_off <- cor(X_off) -->
+cor_off <- cor(df_mod_ltp_sep[-c(1,2)])
 
-<!-- tabla_top10 <- tabla_top10 |> -->
-<!--   mutate( -->
-<!--     correlacion = -->
-<!--       map2_dbl(JugadorA, JugadorB, -->
-<!--                ~cor_off[paste0(.x, "_off"), -->
-<!--                         paste0(.y, "_off")]) -->
-<!--   ) -->
-<!-- ``` -->
+sum(cor_off > 0.7) - 458
 
-<!-- correlaciones defensivas -->
-<!-- ```{r} -->
-<!-- X_def <- df_mod_ltp_sep |> -->
-<!--   dplyr::select(ends_with("_def")) -->
 
-<!-- cor_def <- cor(X_def) -->
+tabla_top10 <- tabla_top10 |>
+  mutate(
+    correlacion =
+      map2_dbl(JugadorA, JugadorB,
+               ~cor_off[paste0(.x, "_off"),
+                        paste0(.y, "_off")])
+  )
+```
 
-<!-- tabla_top10 <- tabla_top10 |> -->
-<!--   mutate( -->
-<!--     correlacion_def = -->
-<!--       map2_dbl(JugadorA, JugadorB, -->
-<!--                ~cor_def[paste0(.x, "_def"), -->
-<!--                         paste0(.y, "_def")]) -->
-<!--   ) -->
+correlaciones defensivas
+```{r}
+X_def <- df_mod_ltp_sep |>
+  dplyr::select(ends_with("_def"))
 
-<!-- #saveRDS(tabla_top10, "tabla_top10.rds") -->
-<!-- ``` -->
+cor_def <- cor(X_def)
+
+tabla_top10 <- tabla_top10 |>
+  mutate(
+    correlacion_def =
+      map2_dbl(JugadorA, JugadorB,
+               ~cor_def[paste0(.x, "_def"),
+                        paste0(.y, "_def")])
+  )
+
+#saveRDS(tabla_top10, "tabla_top10.rds")
+```
+
+Cálculo de dependencias lineales
+
+```{r}
+p <- ncol(df_mod_completa_sep[-1])
+rango <- qr(df_mod_completa_sep[-1])$rank
+
+dependencias <- p - rango
+
+p
+rango
+dependencias
+```
+cálculo del vif para la base con 229 jugadores
+
+```{r}
+calcular_vif <- function(X) {
+  
+  X <- as.data.frame(X)
+  
+  vif <- sapply(seq_along(X), function(j) {
+    
+    y <- X[[j]]
+    X_rest <- X[, -j, drop = FALSE]
+    
+    modelo <- lm(y ~ ., data = X_rest)
+    
+    R2 <- summary(modelo)$r.squared
+    
+    1 / (1 - R2)
+  })
+  
+  names(vif) <- colnames(X)
+  
+  return(vif)
+}
+
+vif <- calcular_vif(df_mod_ltp_sep[-c(1,2)])
+
+sum(vif>10)
+
+kappa(df_mod_ltp_sep[-c(1,2)])
+
+sv <- svd(df_mod_ltp_sep[-c(1,2)])$d
+
+max(sv) / min(sv)
+```
+
+
 
 ```{r}
 plus_minus_sep = df_mod_ltp_sep[, 2:459]*df_mod_ltp_sep[[1]]
@@ -1896,6 +2113,8 @@ for (j in jugadores) {
 
 df_mod_ltp_sep <- df_mod_ltp_sep %>%
   dplyr::select(-dplyr::all_of(jugadores))
+
+#saveRDS(df_mod_ltp_sep, "df_mod_ltp_sep.rds")
 ```
 
 Genero los folds por partido
@@ -2020,7 +2239,7 @@ aplico directamente el modelo separando los efectos ofensivos y defensivos
 # 
 # min(modelo_ridge$cvm)
 # saveRDS(modelo_ridge, "modelo_ridge.RDS")
-modelo_ridge = readRDS("modelo_ridge.RDS")
+modelo_ridge = readRDS("tablas_desarrollo/modelo_ridge.RDS")
 
 betas <- as.matrix(coef(modelo_ridge, s = "lambda.min"))
 
@@ -2142,7 +2361,7 @@ grilla_lasso <- 10^seq(1, -5, length = 200)
 
 # saveRDS(modelo_lasso, "modelo_lasso.RDS")
 
-modelo_lasso = readRDS("modelo_lasso.RDS")
+modelo_lasso = readRDS("tablas_desarrollo/modelo_lasso.RDS")
 
 betas <- as.matrix(coef(modelo_lasso, s = "lambda.min"))
 
@@ -2300,7 +2519,6 @@ Para cada α en la grilla (0, 0.1, 0.2, …, 1.0), cv.glmnet internamente hace v
 ```{r}
 alphas   <- c(0.005)
 # 0=Ridge, 1=Lasso
-cv_lista <- list()
 
 # set.seed(20260809)
 # for (a in alphas) {
@@ -2325,7 +2543,7 @@ cv_lista <- list()
 # 
 # saveRDS(modelo_enet, "modelo_enet.RDS")
 
-modelo_enet = readRDS("modelo_enet.RDS")
+modelo_enet = readRDS("tablas_desarrollo/modelo_enet.RDS")
 
 # alpha_optimo <- alphas[which.min(cv_errors)]
 # 
@@ -2552,6 +2770,108 @@ dist_betas_normal = ggplot(betas_no_nulos, aes(x = beta, fill = modelo, color = 
     y = "Densidad") +
   theme_minimal()
 
+# Debe contener los 458 coeficientes de cada modelo,
+# incluidos los que son exactamente cero
+
+ancho_comun <- diff(range(betas_modelos$beta)) / 50
+
+ggplot(betas_modelos, aes(x = beta, fill = modelo)) +
+  geom_histogram(
+    binwidth = ancho_comun,
+    color = "white",
+    linewidth = 0.2
+  ) +
+  facet_wrap(
+    ~ modelo,
+    ncol = 1
+  ) +
+  scale_fill_brewer(
+    palette = "Set2",
+    guide = "none"
+  ) +
+  labs(
+    x = "Coeficientes estimados",
+    y = "Cantidad de coeficientes"
+  ) +
+  theme_minimal()
+
+ggplot(betas_modelos, aes(x = beta, fill = modelo)) +
+  geom_histogram(
+    binwidth = ancho_comun,
+    boundary = 0,
+    closed = "right",
+    color = "white",
+    linewidth = 0.2
+  ) +
+  geom_rug(
+    aes(color = modelo),
+    sides = "b",
+    alpha = 0.7
+  ) +
+  facet_wrap(~ modelo, ncol = 1) +
+  scale_fill_brewer(palette = "Set2", guide = "none") +
+  scale_color_brewer(palette = "Set2", guide = "none") +
+  labs(
+    x = "Coeficientes estimados",
+    y = "Cantidad de coeficientes"
+  ) +
+  theme_minimal()
+
+ggplot(
+  betas_modelos,
+  aes(x = beta, color = modelo)
+) +
+  stat_ecdf(
+    geom = "step",
+    linewidth = 0.9,
+    pad = FALSE
+  ) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dashed",
+    color = "grey40",
+    linewidth = 0.5
+  ) +
+  scale_color_brewer(
+    palette = "Set2",
+    name = "Modelo"
+  ) +
+  labs(
+    x = "Coeficientes estimados",
+    y = "Proporción acumulada"
+  ) +
+  theme_minimal()
+
+# Usamos betas_modelos completo, sin filtrar por beta != 0
+
+# Para anotar el % de ceros en cada panel
+pct_ceros <- betas_modelos %>%
+  group_by(modelo) %>%
+  summarise(pct = mean(beta == 0) * 100, .groups = "drop")
+
+top20 <- betas_modelos %>% slice_max(beta, n = 20)
+bottom12 <- betas_modelos %>% slice_min(beta, n = 12)
+extremos <- bind_rows(top20, bottom12)
+
+ggplot(betas_no_nulos, aes(x = beta, fill = modelo)) +
+  geom_histogram(
+    binwidth = ancho_comun,
+    boundary = 0,
+    closed = "right",
+    color = "white",
+    linewidth = 0.2
+  ) +
+  geom_text(
+    data = pct_ceros,
+    aes(x = -Inf, y = Inf, label = paste0(round(pct, 1), "% en cero")),
+    hjust = -0.1, vjust = 1.5, inherit.aes = FALSE, size = 3.2
+  ) +
+  facet_wrap(~ modelo, ncol = 1, scales = "free_y") +
+  scale_fill_brewer(palette = "Set2", guide = "none") +
+  scale_color_brewer(palette = "Set2", guide = "none") +
+  labs(x = "Coeficientes estimados", y = "Cantidad de coeficientes") +
+  theme_minimal()
+
 # ggsave(
 #   "img/dist_betas_normal.pdf",
 #   dist_betas_normal,
@@ -2619,7 +2939,7 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 
 ```{r}
 
-modelo_multi_ridge = readRDS("modelo_multi_ridge.RDS")
+modelo_multi_ridge = readRDS("tablas_desarrollo/modelo_multi_ridge.RDS")
 
 # X <- model.matrix(
 #   puntos_pos ~ .,
@@ -2744,7 +3064,7 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 \end{equation}
 
 ```{r}
-modelo_multi_lasso = readRDS("modelo_multi_lasso.RDS")
+modelo_multi_lasso = readRDS("tablas_desarrollo/modelo_multi_lasso.RDS")
 
 # grilla_lasso_1 <- 10^seq(0.25, -7, length = 100)
 # 
@@ -3023,7 +3343,7 @@ L^*_m(\boldsymbol{\beta},\boldsymbol{y})=\sum_{i=1}^nw_i\sum_{j=1}^cy_{ij}log(\p
 # # 
 # saveRDS(modelo_multi_enet, "modelo_multi_enet.RDS")
 
-modelo_multi_enet = readRDS("modelo_multi_enet.RDS")
+modelo_multi_enet = readRDS("tablas_desarrollo/modelo_multi_enet.RDS")
 
 coefs <- coef(modelo_multi_enet, s = "lambda.min")
 
@@ -3336,7 +3656,7 @@ $\hat{W}_k^r = \underbrace{\frac{n_k^r}{n_{t_k,\text{activo}}^r}}_{\text{partici
 donde ntk, son las posesiones del equipo solo en los partidos en que el jugador estuvo en el plantel. Podrías argumentar que la penalización debería aplicarse solo sobre el primer factor (participación efectiva), neutralizando el segundo.
 
 ```{r}
-poss_por_jug = readRDS("plus_minus_por_equipo_1.RDS")
+poss_por_jug = readRDS("tablas_desarrollo/plus_minus_por_equipo_1.RDS")
 
 poss_por_jug1 = poss_por_jug %>% group_by(jugador_id) %>% summarise( 
   equipo_del_jugador = equipo_del_jugador[which.max(posesiones_totales)], posesiones_totales = sum(posesiones_totales), posesiones_ofensivas = sum(posesiones_ofensivas), posesiones_defensivas = sum(posesiones_defensivas))
@@ -4465,7 +4785,7 @@ Grafico de la distriución de las proporciones en vez de la media
 #   )
 
 # saveRDS(distribuciones_simuladas, "distribuciones_simuladas.RDS")
-distribuciones_simuladas = readRDS("distribuciones_simuladas.RDS")
+distribuciones_simuladas = readRDS("tablas_desarrollo/distribuciones_simuladas.RDS")
 
 distribucion_empirica <- tibble(
   Categoria = c("0", "1", "2", "+3"),
@@ -4502,6 +4822,13 @@ colores_modelo <- c(
 
 categorias <- c("0", "1", "2", "+3")
 
+nombres_categorias <- c(
+  "0"  = "0 puntos",
+  "1"  = "1 punto",
+  "2"  = "2 puntos",
+  "+3" = "3 o más puntos"
+)
+
 graficos <- lapply(categorias, function(cat) {
   
   prop_emp <- distribucion_empirica %>%
@@ -4527,12 +4854,19 @@ graficos <- lapply(categorias, function(cat) {
       linetype = "dashed",
       linewidth = 0.7
     ) +
+    scale_x_discrete(
+      labels = c(
+        "Ridge" = "Ridge",
+        "Elastic Net" = "Elastic Net",
+        "LASSO" = "LASSO"
+      )
+    ) +
     scale_fill_manual(values = colores_modelo) +
     scale_color_manual(values = colores_modelo) +
     labs(
       x = NULL,
-      y = "Proporción",
-      title = cat,
+      y = "Proporción de posesiones",
+      title = nombres_categorias[[cat]],
       subtitle = NULL
     ) +
     theme_minimal() +
@@ -4544,8 +4878,9 @@ graficos <- lapply(categorias, function(cat) {
 
 grafico_final <- wrap_plots(graficos, ncol = 2) +
   plot_annotation(
-    caption = "La línea punteada representa la proporción empírica"
-  )
+    caption = paste(
+      "La línea horizontal punteada representa la proporción empírica observada."
+    ))
 
 # ggsave(
 #   "img/simulacion_proporcion_empirica.pdf",
@@ -4582,7 +4917,7 @@ grafico_final <- wrap_plots(graficos, ncol = 2) +
 # 
 # saveRDS(df_metricas, "df_metricas.RDS")
 
-df_metricas = readRDS("df_metricas.RDS")
+df_metricas = readRDS("tablas_desarrollo/df_metricas.RDS")
 
 library(tidyverse)
 library(scales)
@@ -5240,15 +5575,15 @@ RAPM/EPTS/wEPTS - Top 50
 
 #Coeficientes ofensivos
 
-top_wepts_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_ridge)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_ridge) %>% arrange(desc(coef_of)) %>% slice(1:50)
+top_wepts_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_ridge)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_ridge) %>% arrange(desc(coef_of)) %>% slice(1:10)
 
 top_wepts_lasso = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_lasso)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_lasso) %>% arrange(desc(coef_of)) %>% slice(1:50)
 
-top_wepts_enet = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_enet)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_enet) %>% arrange(desc(coef_of)) %>% slice(1:50)
+top_wepts_enet = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_enet)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_enet) %>% arrange(desc(coef_of)) %>% slice(1:10)
 
 top_rapm_off_ridge <- beta_hat_ridge_multi_off %>%
   arrange(desc(epts)) %>%
-  slice(1:50) %>% 
+  slice(1:10) %>% 
   mutate(jugador = str_replace_all(jugador, "_off", "")) %>% 
   rename(coef_of = epts)
 
@@ -5260,7 +5595,7 @@ top_rapm_off_lasso <- beta_hat_lasso_multi_off %>%
 
 top_rapm_off_enet <- beta_hat_enet_multi_off %>%
   arrange(desc(epts)) %>%
-  slice(1:50) %>% 
+  slice(1:10) %>% 
   mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_off", "")) %>% 
   rename(coef_of = epts)
 
@@ -5293,15 +5628,15 @@ rankings <- list(
 
 #Coeficientes defensivos
 
-top_wepts_def_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_ridge)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_ridge) %>% arrange(desc(coef_def)) %>% slice(1:50)
+top_wepts_def_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_ridge)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_ridge) %>% arrange(coef_def) %>% slice(1:10)
 
-top_wepts_def_lasso = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_lasso)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_lasso) %>% arrange(desc(coef_def)) %>% slice(1:50)
+top_wepts_def_lasso = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_lasso)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_lasso) %>% desc(coef_def) %>% slice(1:50)
 
-top_wepts_def_enet = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_enet)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_enet) %>% arrange(desc(coef_def)) %>% slice(1:50)
+top_wepts_def_enet = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_enet)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_enet) %>% arrange(coef_def) %>% slice(1:10)
 
 top_rapm_def_ridge <- beta_hat_ridge_multi_def %>%
-  arrange(desc(epts)) %>%
-  slice(1:50) %>% 
+  arrange(epts) %>%
+  slice(1:10) %>% 
   mutate(jugador = str_replace_all(jugador, "_def", "")) %>% 
   rename(coef_def = epts)
 
@@ -5312,9 +5647,9 @@ top_rapm_def_lasso <- beta_hat_lasso_multi_def %>%
   rename(coef_def = epts)
 
 top_rapm_def_enet <- beta_hat_enet_multi_def %>%
-  arrange(desc(epts)) %>%
-  slice(1:50) %>% 
-  mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_def", "")) %>% 
+  arrange(epts) %>%
+  slice(1:10) %>% 
+  mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_def", "")) %>%
   rename(coef_def = epts)
 
 top_rapm_def_ridge_normal <- beta_hat_ridge_normal_def %>%
@@ -5625,8 +5960,151 @@ resultados_def <- purrr::imap_dfr(
 
 ```
 
+### Rankings
 
+```{r}
+nombres_equipos <- c(
+  "ATENAS"        = "Atenas",
+  "ARGENTINO"     = "Argentino",
+  "BOCA"          = "Boca Juniors",
+  "FERRO"         = "Ferro",
+  "GIMNASIA"      = "Gimnasia",
+  "INDEPENDIENTE" = "Independiente",
+  "INSTITUTO"     = "Instituto",
+  "LA UNION FSA." = "La Unión",
+  "OBERA"         = "Oberá",
+  "OBRAS"         = "Obras",
+  "OLIMPICO"      = "Olímpico",
+  "PEÑAROL"       = "Peñarol",
+  "PLATENSE"      = "Platense",
+  "QUIMSA"        = "Quimsa",
+  "REGATAS"       = "Regatas",
+  "RIACHUELO"     = "Riachuelo",
+  "SAN LORENZO"   = "San Lorenzo",
+  "SAN MARTIN"    = "San Martín",
+  "UNION"         = "Unión",
+  "ZARATE BASKET" = "Zárate"
+)
 
+#Coeficientes ofensivos
+
+top_wepts_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_ridge)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_ridge) %>% arrange(desc(coef_of)) %>% slice(1:10)
+
+top_wepts_enet = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_off_enet)) %>% rename(jugador = jugador_id, coef_of = w_epts_off_enet) %>% arrange(desc(coef_of)) %>% slice(1:10)
+
+top_rapm_off_ridge <- beta_hat_ridge_multi_off %>%
+  arrange(desc(epts)) %>%
+  slice(1:10) %>% 
+  mutate(jugador = str_replace_all(jugador, "_off", "")) %>% 
+  rename(coef_of = epts)
+
+top_rapm_off_enet <- beta_hat_enet_multi_off %>%
+  arrange(desc(epts)) %>%
+  slice(1:10) %>% 
+  mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_off", "")) %>%
+  rename(coef_of = epts)
+
+#Coeficientes defensivos
+
+top_wepts_def_ridge = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_ridge)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_ridge) %>% arrange(coef_def) %>% slice(1:10)
+
+top_wepts_def_enet = poss_eq_jug %>% dplyr::select(c(jugador_id, w_epts_def_enet)) %>% rename(jugador = jugador_id, coef_def = w_epts_def_enet) %>% arrange(coef_def) %>% slice(1:10)
+
+top_rapm_def_ridge <- beta_hat_ridge_multi_def %>%
+  arrange(epts) %>%
+  slice(1:10) %>% 
+  mutate(jugador = str_replace_all(jugador, "_def", "")) %>% 
+  rename(coef_def = epts)
+
+top_rapm_def_enet <- beta_hat_enet_multi_def %>%
+  arrange(epts) %>%
+  slice(1:10) %>% 
+  mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_def", "")) %>%
+  rename(coef_def = epts)
+
+#Coeficientes totales
+
+poss_eq_jug = poss_eq_jug %>% mutate(w_epts_total_enet = w_epts_off_enet - w_epts_def_enet,
+                                     w_epts_total_ridge = w_epts_off_ridge - w_epts_def_ridge
+                                     )
+
+epts_total_enet = beta_hat_enet_multi_def %>% mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = epts) %>% left_join(beta_hat_enet_multi_off %>% mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_off = epts) %>% dplyr::select(c(jugador,coef_off))) %>% mutate(epts_total = coef_off - coef_def)
+
+epts_total_ridge = beta_hat_ridge_multi_def %>% mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_def", "")) %>% rename(coef_def = epts) %>% left_join(beta_hat_ridge_multi_off %>% mutate(jugador = str_remove_all(jugador, "`"), jugador = str_replace_all(jugador, "_off", "")) %>% rename(coef_off = epts) %>% dplyr::select(c(jugador,coef_off))) %>% mutate(epts_total = coef_off - coef_def)
+
+#saveRDS(poss_eq_jug, "poss_eq_jug.rds")
+
+```
+
+Tablas
+
+```{r}
+# Si el objeto no está cargado en la sesión:
+# poss_eq_jug <- readRDS("poss_eq_jug.rds")
+
+ranking_epts <- poss_eq_jug %>%
+  transmute(
+    Jugador = jugador_id,
+    Equipo = equipo_del_jugador,
+    Posesiones = posesiones_totales,
+    Ofensivo = epts_off_enet,
+    Defensivo = epts_def_enet,
+    Total = epts_off_enet - epts_def_enet
+  ) %>% mutate(Equipo = recode(Equipo, !!!nombres_equipos), Jugador = stringr::str_to_title(Jugador))
+
+ranking_wepts <- poss_eq_jug %>%
+  transmute(
+    Jugador = jugador_id,
+    Equipo = equipo_del_jugador,
+    Posesiones = posesiones_totales,
+    Ofensivo = w_epts_off_enet,
+    Defensivo = w_epts_def_enet,
+    Total = w_epts_total_enet
+  ) %>% mutate(Equipo = recode(Equipo, !!!nombres_equipos), Jugador = stringr::str_to_title(Jugador))
+
+# Listados completos: las filas con valores faltantes quedan al final.
+rankings_finales <- list(
+  EPTS_ofensivo = ranking_epts %>% arrange(desc(Ofensivo)),
+  wEPTS_ofensivo = ranking_wepts %>% arrange(desc(Ofensivo)),
+  EPTS_defensivo = ranking_epts %>% arrange(Defensivo),
+  wEPTS_defensivo = ranking_wepts %>% arrange(Defensivo),
+  EPTS_total = ranking_epts %>% arrange(desc(Total)),
+  wEPTS_total = ranking_wepts %>% arrange(desc(Total))
+)
+
+# Primeros diez jugadores de cada listado.
+n_mostrar <- 10
+
+tablas_finales <- lapply(rankings_finales, function(tabla) {
+  tabla %>%
+    slice_head(n = n_mostrar) %>%
+    mutate(Posicion = row_number(), .before = 1)
+})
+
+#saveRDS(rankings_finales, "rankings_completos_enet.rds")
+#saveRDS(tablas_finales, "tablas_rankings_enet.rds")
+
+# Ejemplo: acceder a una tabla individual.
+tablas_finales$EPTS_ofensivo
+```
+
+Las seis tablas se muestran en el orden ofensivo, defensivo y general, conservando
+las mismas columnas, como en Hvattum (2020). El redondeo es solo de presentación.
+
+```{r tablas-rankings-finales, results='asis'}
+for (nombre in names(tablas_finales)) {
+  tabla <- knitr::kable(
+    tablas_finales[[nombre]],
+    caption = paste("Ranking", gsub("_", " ", nombre), "- Elastic Net"),
+    booktabs = TRUE,
+    digits = c(0, 0, 0, 0, 4, 4, 4),
+    align = c("r", "l", "l", "r", "r", "r", "r"),
+    format.args = list(decimal.mark = ",", big.mark = ".")
+  ) %>%
+    kableExtra::kable_styling(full_width = FALSE, position = "center", font_size = 9)
+  cat(as.character(tabla), "\n\n")
+}
+```
 
 
 
@@ -5650,3 +6128,2951 @@ La restricción Σβ = 0 no es una restricción "neutral", sino que modifica la 
 Algunas cosas que probablemente se va a querer analizar al momento de comparar:
 
 Estabilidad de los coeficientes entre modelos (correlación de Spearman entre rankings). Error de predicción fuera de muestra con validación cruzada. Sensatez deportiva de los resultados, es decir, si los jugadores que el modelo valora coinciden razonablemente con la percepción externa.
+
+
+# Tablas para la presentación 
+
+## plus-minus
+
+```{r}
+nombres_equipos <- c(
+  "ATENAS"        = "Atenas",
+  "ARGENTINO"     = "Argentino",
+  "BOCA"          = "Boca Juniors",
+  "FERRO"         = "Ferro",
+  "GIMNASIA"      = "Gimnasia",
+  "INDEPENDIENTE" = "Independiente",
+  "INSTITUTO"     = "Instituto",
+  "LA UNION FSA." = "La Unión",
+  "OBERA"         = "Oberá",
+  "OBRAS"         = "Obras",
+  "OLIMPICO"      = "Olímpico",
+  "PEÑAROL"       = "Peñarol",
+  "PLATENSE"      = "Platense",
+  "QUIMSA"        = "Quimsa",
+  "REGATAS"       = "Regatas",
+  "RIACHUELO"     = "Riachuelo",
+  "SAN LORENZO"   = "San Lorenzo",
+  "SAN MARTIN"    = "San Martín",
+  "UNION"         = "Unión",
+  "ZARATE BASKET" = "Zárate"
+)
+
+library(dplyr)
+library(gt)
+library(stringr)
+
+paleta_sem <- readRDS("tablas_desarrollo/paleta_sem.rds")
+mej_pm <- readRDS("tablas_desarrollo/mej_pm.rds")
+peor_pm <- readRDS("tablas_desarrollo/peor_pm.rds")
+
+tabla_pm <- mej_pm %>%
+  rename(
+    Jugador = jugador,
+    Equipo = Equipos
+  ) %>%
+  mutate(
+    Equipo = recode(Equipo, !!!nombres_equipos),
+    Jugador = str_to_title(Jugador),
+    Jugador = str_replace(Jugador, "^(.*?,\\s*\\S+).*$", "\\1")
+  ) %>%
+  
+  gt() %>%
+  
+  data_color(
+    columns = `+/-`,
+    fn = paleta_sem,
+    autocolor_text = FALSE
+  ) %>%
+  
+  opt_table_font(
+    font = "Roboto"
+  ) %>%
+  
+  # Fondo de columnas sin heatmap
+  tab_style(
+    style = cell_fill(color = "#242841"),
+    locations = cells_body(columns = c(Jugador, Equipo))
+  ) %>%
+  
+  # Texto general del cuerpo
+  tab_style(
+    style = cell_text(
+      color = "white",
+      size = px(21)
+    ),
+    locations = cells_body(columns = c(Jugador, Equipo))
+  ) %>%
+  
+  # Texto de la columna +/-
+  tab_style(
+    style = cell_text(
+      color = "#242841",
+      weight = "bold",
+      size = px(27)
+    ),
+    locations = cells_body(columns = `+/-`)
+  ) %>%
+  
+  # Encabezados
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(22),
+        weight = "normal"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  
+  tab_options(
+    table.background.color = "#242841",
+    column_labels.background.color = "#242841",
+    data_row.padding = px(7),
+    
+    table.border.top.color = "white",
+    table.border.top.width = px(2),
+    
+    column_labels.border.bottom.color = "white",
+    column_labels.border.bottom.width = px(2),
+    
+    table.border.bottom.color = "white",
+    table.border.bottom.width = px(2)
+  ) %>%
+  
+  cols_align(
+    align = "left",
+    columns = c(Jugador, Equipo)
+  ) %>%
+  
+  cols_align(
+    align = "center",
+    columns = `+/-`
+  ) %>%
+  
+  cols_width(
+    Jugador ~ px(280),
+    Equipo ~ px(140),
+    `+/-` ~ px(90)
+  )
+
+gtsave(
+  tabla_pm, #cambiar a peor
+  "tabla_mejor_pm.png", 
+  vwidth = 900,
+  vheight = 600,
+  expand = 0
+)
+```
+## plus minus por 100 posesiones
+
+```{r}
+mej_pm_aj1 <- readRDS("tablas_desarrollo/mej_pm_aj1.rds")
+peor_pm_aj1 <- readRDS("tablas_desarrollo/peor_pm_aj1.rds")
+paleta_sem1 <- readRDS("tablas_desarrollo/paleta_sem1.rds")
+
+tabla_pm_aj1 <- peor_pm_aj1 %>%
+  rename(
+    Jugador = jugador,
+    Equipo = Equipos,
+    Posesiones = posesiones
+  ) %>%
+  mutate(
+    Equipo = recode(Equipo, !!!nombres_equipos),
+    
+    # Apellido + primer nombre
+    Jugador = str_to_title(Jugador),
+    Jugador = str_replace(
+      Jugador,
+      "^(.*?,\\s*\\S+).*$",
+      "\\1"
+    )
+  ) %>%
+  
+  # Ajustá este select según el nombre exacto de tu +/- original
+  select(
+    Jugador,
+    Equipo,
+    Posesiones,
+    `+/-`,
+    pm_ajust_pos
+  ) %>%
+  
+  gt() %>%
+  
+  # Nombre visual de la última columna
+  cols_label(
+    pm_ajust_pos = html("+/-<sup>100</sup>")
+  ) %>%
+  
+  # 4 decimales para +/-100
+  fmt_number(
+    columns = pm_ajust_pos,
+    decimals = 2
+  ) %>%
+  
+  # Color de la última columna
+  data_color(
+    columns = pm_ajust_pos,
+    fn = paleta_sem1,
+    autocolor_text = FALSE
+  ) %>%
+  
+  # Roboto
+  opt_table_font(
+    font = "Roboto"
+  ) %>%
+  
+  # Fondo de columnas normales
+  tab_style(
+    style = cell_fill(color = "#242841"),
+    locations = cells_body(
+      columns = c(Jugador, Equipo, `+/-`, Posesiones)
+    )
+  ) %>%
+  
+  # Texto general
+  tab_style(
+    style = cell_text(
+      color = "white",
+      size = px(21)
+    ),
+    locations = cells_body(
+      columns = c(Jugador, Equipo, `+/-`, Posesiones)
+    )
+  ) %>%
+  
+  # Última columna: oscuro, negrita y más grande
+  tab_style(
+    style = cell_text(
+      color = "#242841",
+      weight = "bold",
+      size = px(25)
+    ),
+    locations = cells_body(columns = pm_ajust_pos)
+  ) %>%
+  
+  # Encabezados
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(22),
+        weight = "normal"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  
+  tab_options(
+    table.background.color = "#242841",
+    column_labels.background.color = "#242841",
+    
+    data_row.padding = px(7),
+    
+    table.border.top.color = "white",
+    table.border.top.width = px(2),
+    
+    column_labels.border.bottom.color = "white",
+    column_labels.border.bottom.width = px(2),
+    
+    table.border.bottom.color = "white",
+    table.border.bottom.width = px(2)
+  ) %>%
+  
+  # Alineaciones
+  cols_align(
+    align = "left",
+    columns = c(Jugador, Equipo)
+  ) %>%
+  
+  cols_align(
+    align = "center",
+    columns = c(`+/-`, Posesiones, pm_ajust_pos)
+  ) %>%
+  
+  # Anchos compactos
+  cols_width(
+    Jugador ~ px(250),
+    Equipo ~ px(115),
+    `+/-` ~ px(65),
+    Posesiones ~ px(110),
+    pm_ajust_pos ~ px(100)
+  )
+
+gtsave(
+  tabla_pm_aj1,
+  "tabla_peor_pm_aj.png",
+  vwidth = 850,
+  vheight = 600,
+  expand = 0
+)
+```
+## plus-minus estandarizado
+
+```{r}
+mej_pm_aj2 <- readRDS("tablas_desarrollo/mej_pm_aj2.rds")
+paleta_sem2 <- readRDS("tablas_desarrollo/paleta_sem2.rds")
+peor_pm_aj2 <- readRDS("tablas_desarrollo/peor_pm_aj2.rds")
+
+tabla_mejor_pm_est <- mej_pm_aj2 %>%
+  rename(
+    Jugador = jugador,
+    Equipo = Equipos
+  ) %>%
+  mutate(
+    Equipo = recode(Equipo, !!!nombres_equipos),
+    
+    # Apellido + primer nombre
+    Jugador = str_to_title(Jugador),
+    Jugador = str_replace(
+      Jugador,
+      "^(.*?,\\s*\\S+).*$",
+      "\\1"
+    )
+  ) %>%
+  
+  # Ajustá este select según el nombre exacto de tu +/- original
+  dplyr::select(
+    Jugador,
+    Equipo,
+    Posesiones,
+    `+/-`,
+    `+/- estandarizado`
+  ) %>%
+  
+  gt() %>%
+  
+  # Nombre visual de la última columna
+  cols_label(
+    `+/- estandarizado` = html("+/-<sup>est</sup>")
+  ) %>%
+  
+  # 4 decimales para +/-100
+  fmt_number(
+    columns = `+/- estandarizado`,
+    decimals = 2
+  ) %>%
+  
+  # Color de la última columna
+  data_color(
+    columns = `+/- estandarizado`,
+    fn = paleta_sem2,
+    autocolor_text = FALSE
+  ) %>%
+  
+  # Roboto
+  opt_table_font(
+    font = "Roboto"
+  ) %>%
+  
+  # Fondo de columnas normales
+  tab_style(
+    style = cell_fill(color = "#242841"),
+    locations = cells_body(
+      columns = c(Jugador, Equipo, `+/-`, Posesiones)
+    )
+  ) %>%
+  
+  # Texto general
+  tab_style(
+    style = cell_text(
+      color = "white",
+      size = px(21)
+    ),
+    locations = cells_body(
+      columns = c(Jugador, Equipo, `+/-`, Posesiones)
+    )
+  ) %>%
+  
+  # Última columna: oscuro, negrita y más grande
+  tab_style(
+    style = cell_text(
+      color = "#242841",
+      weight = "bold",
+      size = px(25)
+    ),
+    locations = cells_body(columns = `+/- estandarizado`)
+  ) %>%
+  
+  # Encabezados
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(22),
+        weight = "normal"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  
+  tab_options(
+    table.background.color = "#242841",
+    column_labels.background.color = "#242841",
+    
+    data_row.padding = px(7),
+    
+    table.border.top.color = "white",
+    table.border.top.width = px(2),
+    
+    column_labels.border.bottom.color = "white",
+    column_labels.border.bottom.width = px(2),
+    
+    table.border.bottom.color = "white",
+    table.border.bottom.width = px(2)
+  ) %>%
+  
+  # Alineaciones
+  cols_align(
+    align = "left",
+    columns = c(Jugador, Equipo)
+  ) %>%
+  
+  cols_align(
+    align = "center",
+    columns = c(`+/-`, Posesiones, `+/- estandarizado`)
+  ) %>%
+  
+  # Anchos compactos
+  cols_width(
+    Jugador ~ px(250),
+    Equipo ~ px(115),
+    `+/-` ~ px(65),
+    Posesiones ~ px(110),
+    `+/- estandarizado` ~ px(100)
+  )
+
+gtsave(
+  tabla_mejor_pm_est,
+  "tabla_mejor_pm_est.png",
+  vwidth = 850,
+  vheight = 600,
+  expand = 0
+)
+```
+## tabla rapm
+
+```{r}
+library(gt)
+
+tabla_penalizacion <- data.frame(
+  Penalizacion = c("Ridge", "Lasso", "Elastic Net"),
+  alpha = c("0", "1", "0,005"),
+  lambda = c("0,06258", "0,00085", "0,04261"),
+  CME_CV = c("1,405088", "1,405401", "1,405031"),
+  Coeficientes = c("458", "98", "331")
+)
+
+tabla_penalizacion_gt <- tabla_penalizacion %>%
+  gt() %>%
+  
+  cols_label(
+    Penalizacion = "Penalización",
+    alpha = html("&alpha;"),
+    lambda = html("&lambda;"),
+    CME_CV = "CME CV",
+    Coeficientes = "Coeficientes activos"
+  ) %>%
+  
+  opt_table_font(
+    font = "Roboto"
+  ) %>%
+  
+  tab_style(
+    style = cell_fill(color = "#242841"),
+    locations = cells_body()
+  ) %>%
+  
+  tab_style(
+    style = cell_text(
+      color = "white",
+      size = px(21)
+    ),
+    locations = cells_body()
+  ) %>%
+  
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(22),
+        weight = "normal"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  
+  tab_options(
+    table.background.color = "#242841",
+    column_labels.background.color = "#242841",
+    
+    data_row.padding = px(8),
+    
+    table.border.top.color = "white",
+    table.border.top.width = px(2),
+    
+    column_labels.border.bottom.color = "white",
+    column_labels.border.bottom.width = px(2),
+    
+    table.border.bottom.color = "white",
+    table.border.bottom.width = px(2)
+  ) %>%
+  
+  cols_align(
+    align = "left",
+    columns = Penalizacion
+  ) %>%
+  
+  cols_align(
+    align = "center",
+    columns = c(alpha, lambda, CME_CV, Coeficientes)
+  ) %>%
+  
+  cols_width(
+    Penalizacion ~ px(170),
+    alpha ~ px(80),
+    lambda ~ px(110),
+    CME_CV ~ px(125),
+    Coeficientes ~ px(180)
+  )
+
+gtsave(
+  tabla_penalizacion_gt,
+  "tabla_penalizacion.png",
+  vwidth = 800,
+  vheight = 300,
+  expand = 0
+)
+```
+## tabla epts
+
+```{r}
+library(gt)
+
+tabla_penalizacion <- data.frame(
+  Penalizacion = c("Ridge", "Lasso", "Elastic Net"),
+  alpha = c("0", "1", "0,005"),
+  lambda = c("0,00946", "0,00039", "0.00920"),
+  Deviance_CV = c("2,195519", "2,196606", "2.195658"),
+  Coeficientes = c("458", "199", "457")
+)
+
+tabla_penalizacion_multinomial_gt <- tabla_penalizacion %>%
+  gt() %>%
+  
+  cols_label(
+    Penalizacion = "Penalización",
+    alpha = html("&alpha;"),
+    lambda = html("&lambda;"),
+    Deviance_CV = "Deviance CV",
+    Coeficientes = "Predictores activos"
+  ) %>%
+  
+  opt_table_font(
+    font = "Roboto"
+  ) %>%
+  
+  tab_style(
+    style = cell_fill(color = "#242841"),
+    locations = cells_body()
+  ) %>%
+  
+  tab_style(
+    style = cell_text(
+      color = "white",
+      size = px(21)
+    ),
+    locations = cells_body()
+  ) %>%
+  
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(22),
+        weight = "normal"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  
+  tab_options(
+    table.background.color = "#242841",
+    column_labels.background.color = "#242841",
+    
+    data_row.padding = px(8),
+    
+    table.border.top.color = "white",
+    table.border.top.width = px(2),
+    
+    column_labels.border.bottom.color = "white",
+    column_labels.border.bottom.width = px(2),
+    
+    table.border.bottom.color = "white",
+    table.border.bottom.width = px(2)
+  ) %>%
+  
+  cols_align(
+    align = "left",
+    columns = Penalizacion
+  ) %>%
+  
+  cols_align(
+    align = "center",
+    columns = c(alpha, lambda, Deviance_CV, Coeficientes)
+  ) %>%
+  
+  cols_width(
+    Penalizacion ~ px(170),
+    alpha ~ px(80),
+    lambda ~ px(110),
+    Deviance_CV ~ px(125),
+    Coeficientes ~ px(180)
+  )
+
+gtsave(
+  tabla_penalizacion_multinomial_gt,
+  "tabla_penalizacion_multinomial.png",
+  vwidth = 800,
+  vheight = 300,
+  expand = 0
+)
+```
+## Comparación EPTS vs wEPTS
+
+```{r}
+datos_ridge <- bind_rows(
+  poss_eq_jug %>%
+    transmute(
+      jugador = jugador_id,
+      tipo = "Ofensivo",
+      participacion = w_off,
+      EPTS = epts_off_ridge,
+      wEPTS = w_epts_off_ridge
+    ),
+  
+  poss_eq_jug %>%
+    transmute(
+      jugador = jugador_id,
+      tipo = "Defensivo",
+      participacion = w_def,
+      EPTS = epts_def_ridge,
+      wEPTS = w_epts_def_ridge
+    )
+) %>%
+  filter(
+    complete.cases(
+      jugador, participacion, EPTS, wEPTS
+    )
+  ) %>%
+  mutate(
+    tipo = factor(
+      tipo,
+      levels = c("Ofensivo", "Defensivo")
+    )
+  )
+
+referencia <- tibble(
+  tipo = factor(
+    c("Ofensivo", "Defensivo"),
+    levels = c("Ofensivo", "Defensivo")
+  ),
+  epts_0 = epts_0_ridge
+)
+
+datos_penalizados <- datos_ridge %>%
+  mutate(
+    jugador = stringr::str_to_title(jugador),
+    penalizacion = case_when(
+      tipo == "Ofensivo" ~ EPTS - wEPTS,
+      tipo == "Defensivo" ~ wEPTS - EPTS
+    )
+  ) %>%
+  filter(penalizacion > 0) %>%
+  group_by(tipo) %>%
+  slice_max(
+    order_by = penalizacion,
+    n = 5,
+    with_ties = FALSE
+  ) %>%
+  ungroup() %>%
+  mutate(
+    etiqueta = str_extract(
+      jugador,
+      "^[^,]+"
+    )
+  )
+
+datos_ridgeline <- datos_ridge %>%
+  pivot_longer(
+    cols = c(EPTS, wEPTS),
+    names_to = "metrica",
+    values_to = "valor"
+  ) %>%
+  mutate(
+    nivel = if_else(
+      metrica == "EPTS",
+      2,
+      1
+    )
+  )
+
+referencia_puntos <- expand_grid(
+  tipo = factor(
+    c("Ofensivo", "Defensivo"),
+    levels = c("Ofensivo", "Defensivo")
+  ),
+  nivel = c(1, 2)
+) %>%
+  mutate(epts_0 = epts_0_ridge)
+
+crear_ridgeline <- function(tipo_elegido) {
+  
+  ggplot() +
+    geom_density_ridges(
+          data = datos_ridgeline %>%
+            filter(tipo == tipo_elegido),
+          aes(
+            x = valor,
+            y = nivel,
+            group = metrica,
+            fill = metrica,
+            color = metrica
+          ),
+          linewidth = 0.6,
+          scale = 0.65,
+          rel_min_height = 0.01
+        ) +
+    
+    geom_vline(
+      data = referencia %>%
+        filter(tipo == tipo_elegido),
+      aes(xintercept = epts_0),
+      inherit.aes = FALSE,
+      linetype = "dashed",
+      linewidth = 0.7,
+      color = "white",
+      alpha = 0.65
+    ) +
+    
+    geom_segment(
+      data = datos_penalizados %>%
+        filter(tipo == tipo_elegido),
+      aes(
+        x = EPTS,
+        xend = wEPTS,
+        y = 2,
+        yend = 1
+      ),
+      inherit.aes = FALSE,
+      color = "#fcc600",
+      alpha = 0.55,
+      linewidth = 0.55
+    ) +
+    
+    geom_point(
+      data = datos_penalizados %>%
+        filter(tipo == tipo_elegido),
+      aes(x = EPTS, y = 2),
+      inherit.aes = FALSE,
+      color = "#fcc600",
+      fill = "#242841",
+      shape = 21,
+      size = 2.2,
+      stroke = 0.9
+    ) +
+    
+    geom_point(
+      data = datos_penalizados %>%
+        filter(tipo == tipo_elegido),
+      aes(x = wEPTS, y = 1),
+      inherit.aes = FALSE,
+      color = "#fcc600",
+      fill = "#fcc600",
+      shape = 21,
+      size = 2.2
+    ) +
+    
+    geom_point(
+      data = referencia_puntos %>%
+        filter(tipo == tipo_elegido),
+      aes(x = epts_0, y = nivel),
+      inherit.aes = FALSE,
+      color = "white",
+      fill = "#242841",
+      shape = 21,
+      size = 2.8,
+      stroke = 1.1
+    ) +
+    
+    geom_text_repel(
+      data = datos_penalizados %>%
+        filter(tipo == tipo_elegido),
+      aes(
+        x = EPTS,
+        y = 2,
+        label = etiqueta
+      ),
+      inherit.aes = FALSE,
+      nudge_y = 0.40,
+      size = 3,
+      color = "white",
+      min.segment.length = 0,
+      segment.color = "grey75",
+      segment.size = 0.3,
+      box.padding = 0.4,
+      point.padding = 0.15,
+      force = 2,
+      force_pull = 0.3,
+      max.iter = 10000,
+      max.time = 2,
+      max.overlaps = Inf,
+      seed = 123
+    ) +
+    
+    scale_y_continuous(
+      breaks = c(1, 2),
+      labels = c("wEPTS", "EPTS"),
+      limits = c(0.75, 2.8),
+      expand = expansion(mult = c(0, 0.02))
+    ) +
+    
+    scale_fill_manual(
+      values = c(
+        "EPTS"  = scales::alpha("#e95e24", 0.35),
+        "wEPTS" = scales::alpha("#f9a350", 0.35)
+      ),
+      guide = "none"
+    ) +
+    
+    scale_color_manual(
+      values = c(
+        "EPTS"  = "#e95e24",
+        "wEPTS" = "#f9a350"
+      ),
+      guide = "none"
+    ) +   
+    
+    labs(
+      title = paste("Componente", tolower(tipo_elegido)),
+      x = "Puntos esperados por posesión",
+      y = NULL
+    ) +
+    
+    theme_minimal() +
+    
+    theme(
+      # Fondo de la presentación
+      panel.background = element_rect(
+        fill = "#242841",
+        color = NA
+      ),
+      plot.background = element_rect(
+        fill = "#242841",
+        color = NA
+      ),
+      
+      panel.grid = element_blank(),
+      
+      # Textos
+      plot.title = element_text(
+        hjust = 0.5,
+        face = "bold",
+        size = 11,
+        color = "white"
+      ),
+      
+      axis.text = element_text(
+        color = "white"
+      ),
+      
+      axis.title.x = element_text(
+        color = "white"
+      ),
+      
+      axis.title.y = element_text(
+        color = "white"
+      )
+    )
+}
+
+grafico_ofensivo <- crear_ridgeline("Ofensivo")
+grafico_defensivo <- crear_ridgeline("Defensivo")
+grafico_ofensivo
+grafico_defensivo
+
+ggsave(
+  "ridgeline_ofensivo.png",
+  grafico_ofensivo,
+  width = 8,
+  height = 3,
+  dpi = 300,
+  bg = "#242841"
+)
+
+
+ggsave(
+  "ridgeline_defensivo.png",
+  grafico_defensivo,
+  width = 8,
+  height = 3,
+  dpi = 300,
+  bg = "#242841"
+)
+```
+
+## simulación de distribuciones
+
+```{r}
+library(dplyr)
+library(ggstatsplot)
+library(patchwork)
+library(ggplot2)
+#tenes que tener distribucion_empirica y distribucion_simulada
+
+colores_modelo <- c(
+  "Ridge" = "#e95e24",
+  "Elastic Net" = "#f9a350",
+  "LASSO" = "#fcc600"
+)
+
+graficos <- lapply(categorias, function(cat) {
+  
+  prop_emp <- distribucion_empirica %>%
+    filter(Categoria == cat) %>%
+    pull(Proporcion_empirica)
+  
+  ggbetweenstats(
+    data = distribuciones_simuladas %>%
+      filter(Categoria == cat),
+    
+    x = Modelo,
+    y = Proporcion,
+    
+    results.subtitle = FALSE,
+    pairwise.display = "none",
+    centrality.plotting = FALSE
+  ) +
+    geom_hline(
+      yintercept = prop_emp,
+      linetype = "dashed",
+      linewidth = 0.7,
+      color = "white",
+      alpha = 0.8
+    ) +
+    scale_x_discrete(
+      labels = c(
+        "Ridge" = "Ridge",
+        "Elastic Net" = "Elastic Net",
+        "LASSO" = "LASSO"
+      )
+    ) +
+    scale_fill_manual(values = colores_modelo) +
+    scale_color_manual(values = colores_modelo) +
+    labs(
+      x = NULL,
+      y = "Proporción de posesiones",
+      title = nombres_categorias[[cat]],
+      subtitle = NULL
+    ) +
+    theme_minimal() +
+    theme(
+      panel.grid = element_blank(),
+      legend.position = "none",
+      
+      panel.background = element_rect(
+        fill = "#242841",
+        color = NA
+      ),
+      plot.background = element_rect(
+        fill = "#242841",
+        color = NA
+      ),
+      
+      axis.text = element_text(color = "white"),
+      axis.title = element_text(color = "white"),
+      axis.ticks = element_line(color = "white"),
+      axis.line = element_line(color = "white"),
+      
+      plot.title = element_text(
+        color = "white",
+        face = "bold",
+        hjust = 0.5
+      ),
+      plot.subtitle = element_text(color = "white")
+    )
+})
+
+grafico_final <- wrap_plots(graficos, ncol = 2) +
+  plot_annotation(
+    caption = "La línea horizontal punteada representa la proporción empírica observada.",
+    theme = theme(
+      plot.caption = element_text(
+        color = "white",
+        hjust = 0.5,
+        size = 10
+      ),
+      plot.background = element_rect(
+        fill = "#242841",
+        color = NA
+      )
+    )
+  )
+
+grafico_final
+
+ggsave(
+  "simulaciones_modelos.png",
+  grafico_final,
+  width = 12.5,
+  height = 7,
+  dpi = 300,
+  bg = "#242841"
+)
+```
+
+## consistencia
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# -----------------------------------------------------------------------------
+# 1. Leer resultados ya calculados
+# -----------------------------------------------------------------------------
+
+carpeta_resultados <- file.path(
+  "resultados_consistencia",
+  "consistencia_20_divisiones"
+)
+
+resultados <- readRDS(
+  file.path(
+    carpeta_resultados,
+    "consistencia_resultados_completos.RDS"
+  )
+)
+
+consistencia_por_repeticion <- resultados$correlaciones
+resumen_consistencia <- resultados$resumen
+
+
+# -----------------------------------------------------------------------------
+# 2. Orden de las variables
+# -----------------------------------------------------------------------------
+
+consistencia_por_repeticion <- consistencia_por_repeticion %>%
+  mutate(
+    metrica = factor(
+      metrica,
+      levels = c("RAPM", "EPTS", "wEPTS")
+    ),
+    regularizacion = factor(
+      regularizacion,
+      levels = c("LASSO", "Elastic Net", "Ridge")
+    ),
+    componente = factor(
+      componente,
+      levels = c("Ofensivo", "Defensivo")
+    )
+  )
+
+resumen_consistencia <- resumen_consistencia %>%
+  mutate(
+    metrica = factor(
+      metrica,
+      levels = c("RAPM", "EPTS", "wEPTS")
+    ),
+    regularizacion = factor(
+      regularizacion,
+      levels = c("LASSO", "Elastic Net", "Ridge")
+    ),
+    componente = factor(
+      componente,
+      levels = c("Ofensivo", "Defensivo")
+    )
+  )
+
+
+# -----------------------------------------------------------------------------
+# 3. Datos utilizados en el gráfico
+# -----------------------------------------------------------------------------
+
+datos_grafico <- consistencia_por_repeticion %>%
+  filter(is.finite(correlacion_pearson))
+
+medias_grafico <- resumen_consistencia %>%
+  filter(is.finite(pearson_media))
+
+
+# -----------------------------------------------------------------------------
+# 4. Límites comunes del eje X
+# -----------------------------------------------------------------------------
+
+rango_x <- range(
+  c(0, datos_grafico$correlacion_pearson)
+)
+
+margen_x <- max(
+  0.04,
+  diff(rango_x) * 0.08
+)
+
+limites_x <- c(
+  max(-1, rango_x[1] - margen_x),
+  min(1, rango_x[2] + margen_x)
+)
+
+
+# -----------------------------------------------------------------------------
+# 5. Gráfico para la presentación
+# -----------------------------------------------------------------------------
+
+grafico_consistencia <- ggplot() +
+  
+  # Línea de referencia en 0
+  geom_vline(
+    xintercept = 0,
+    linetype = "dashed",
+    color = "white",
+    alpha = 0.50,
+    linewidth = 0.5
+  ) +
+  
+  # 20 correlaciones
+  geom_point(
+    data = datos_grafico,
+    aes(
+      x = correlacion_pearson,
+      y = regularizacion
+    ),
+    position = position_jitter(
+      width = 0,
+      height = 0.12,
+      seed = 123
+    ),
+    color = "#e95e24",
+    size = 2,
+    alpha = 0.65
+  ) +
+  
+  # Promedio de las 20 correlaciones
+  geom_point(
+    data = medias_grafico,
+    aes(
+      x = pearson_media,
+      y = regularizacion
+    ),
+    shape = 23,
+    fill = "#fcc600",
+    color = "white",
+    size = 2,
+    stroke = 0.8
+  ) +
+  
+  facet_grid(
+    componente ~ metrica,
+    drop = FALSE
+  ) +
+  
+  scale_x_continuous(
+    labels = function(x) {
+      format(
+        x,
+        decimal.mark = ",",
+        trim = TRUE
+      )
+    }
+  ) +
+  
+  scale_y_discrete(
+    drop = FALSE
+  ) +
+  
+  coord_cartesian(
+    xlim = limites_x
+  ) +
+  
+  labs(
+    x = "Correlación de Pearson entre las valoraciones de ambas mitades",
+    y = NULL,
+    caption = "Rombos amarillos: promedio de las 20 correlaciones."
+  ) +
+  
+  theme_minimal(
+    base_size = 14,
+    base_family = "Roboto"
+  ) +
+  
+  theme(
+    # Fondo
+    panel.background = element_rect(
+      fill = "#242841",
+      color = NA
+    ),
+    plot.background = element_rect(
+      fill = "#242841",
+      color = NA
+    ),
+    
+    # Grilla
+    panel.grid = element_blank(),
+    
+    # Ejes
+    axis.text = element_text(
+      color = "white"
+    ),
+    axis.title = element_text(
+      color = "white"
+    ),
+    axis.ticks = element_line(
+      color = "white"
+    ),
+    
+    # Facetas
+    strip.background = element_rect(
+      fill = "#242841",
+      color = NA
+    ),
+    strip.text = element_text(
+      color = "white",
+      face = "bold",
+      size = 11
+    ),
+    
+    # Caption
+    plot.caption = element_text(
+      color = "white",
+      hjust = 0,
+      size = 11
+    ),
+    
+    legend.position = "none",
+    
+    panel.spacing = grid::unit(
+      1,
+      "lines"
+    )
+  )
+
+grafico_consistencia
+
+ggsave(
+  file.path(
+    carpeta_resultados,
+    "consistencia_modelos_20_divisiones_slides.png"
+  ),
+  grafico_consistencia,
+  width = 9,
+  height = 5.6,
+  units = "in",
+  dpi = 300,
+  bg = "#242841"
+)
+```
+
+## validación 1
+
+```{r}
+library(dplyr)
+library(gt)
+
+# -----------------------------------------------------------------------------
+# 1. Leer tabla
+# -----------------------------------------------------------------------------
+
+tabla_criterios <- readRDS(
+  "tablas_desarrollo/tabla_validacion_modelos1.rds"
+)
+
+# -----------------------------------------------------------------------------
+# 2. Preparar nombres para presentación
+# -----------------------------------------------------------------------------
+
+tabla_criterios_slide <- tabla_criterios %>%
+  mutate(
+    Modelo = case_when(
+      grepl("^RAPM", Modelo) ~ sub(
+        "^RAPM", "RAPM (normal)", Modelo
+      ),
+      grepl("^EPTS", Modelo) ~ sub(
+        "^EPTS", "EPTS (multinomial)", Modelo
+      ),
+      grepl("^wEPTS", Modelo) ~ sub(
+        "^wEPTS", "wEPTS (multinomial)", Modelo
+      ),
+      TRUE ~ Modelo
+    )
+  )
+
+# -----------------------------------------------------------------------------
+# 3. Identificar mejores valores
+# -----------------------------------------------------------------------------
+
+mejor_c1 <- which(
+  dplyr::near(
+    tabla_criterios_slide$galardones,
+    max(tabla_criterios_slide$galardones, na.rm = TRUE)
+  )
+)
+
+mejor_c2 <- which(
+  dplyr::near(
+    tabla_criterios_slide$pocos_minutos,
+    min(tabla_criterios_slide$pocos_minutos, na.rm = TRUE)
+  )
+)
+
+mejor_c3a <- which(
+  dplyr::near(
+    tabla_criterios_slide$titulares_top,
+    max(tabla_criterios_slide$titulares_top, na.rm = TRUE)
+  )
+)
+
+mejor_c3b <- which(
+  dplyr::near(
+    tabla_criterios_slide$titulares_bottom,
+    max(tabla_criterios_slide$titulares_bottom, na.rm = TRUE)
+  )
+)
+
+estilo_maximo <- list(
+  cell_text(
+    weight = "bold",
+    color = "#f9a350"
+  )
+)
+
+# -----------------------------------------------------------------------------
+# 4. Tabla para Slides
+# -----------------------------------------------------------------------------
+
+tabla_criterios_gt <- tabla_criterios_slide %>%
+  
+  dplyr::select(
+    Modelo,
+    galardones,
+    pocos_minutos,
+    titulares_top,
+    titulares_bottom
+  ) %>%
+  
+  gt() %>%
+  
+  # Encabezados
+  cols_label(
+    Modelo = "Modelo",
+    galardones = html("Criterio 1<br>(%)"),
+    pocos_minutos = html("Criterio 2<br>(%)"),
+    titulares_top = html("Criterio 3a<br>(%)"),
+    titulares_bottom = html("Criterio 3b<br>(%)")
+  ) %>%
+  
+  # Un decimal
+  fmt_number(
+    columns = c(
+      galardones,
+      pocos_minutos,
+      titulares_top,
+      titulares_bottom
+    ),
+    decimals = 1,
+    dec_mark = ","
+  ) %>%
+  
+  # Roboto
+  opt_table_font(
+    font = "Roboto"
+  ) %>%
+  
+  # Fondo general
+  tab_style(
+    style = cell_fill(color = "#242841"),
+    locations = cells_body()
+  ) %>%
+  
+  # Texto general
+  tab_style(
+    style = cell_text(
+      color = "white",
+      size = px(20)
+    ),
+    locations = cells_body()
+  ) %>%
+  
+  # Mejores valores en negrita
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = galardones,
+      rows = mejor_c1
+    )
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = pocos_minutos,
+      rows = mejor_c2
+    )
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = titulares_top,
+      rows = mejor_c3a
+    )
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = titulares_bottom,
+      rows = mejor_c3b
+    )
+  ) %>%
+  
+  # Encabezados
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(21),
+        weight = "normal"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  
+  # Fondo + bordes naranjas
+  tab_options(
+    table.background.color = "#242841",
+    column_labels.background.color = "#242841",
+    
+    data_row.padding = px(7),
+    
+    table.border.top.color = "#e95e24",
+    table.border.top.width = px(2),
+    
+    column_labels.border.bottom.color = "#e95e24",
+    column_labels.border.bottom.width = px(2),
+    
+    table.border.bottom.color = "#e95e24",
+    table.border.bottom.width = px(2)
+  ) %>%
+  
+  # Alineaciones
+  cols_align(
+    align = "left",
+    columns = Modelo
+  ) %>%
+  
+  cols_align(
+    align = "center",
+    columns = c(
+      galardones,
+      pocos_minutos,
+      titulares_top,
+      titulares_bottom
+    )
+  ) %>%
+  
+  # Anchos compactos
+  cols_width(
+    Modelo ~ px(320),
+    galardones ~ px(115),
+    pocos_minutos ~ px(115),
+    titulares_top ~ px(115),
+    titulares_bottom ~ px(115)
+  )
+
+gtsave(
+  tabla_criterios_gt,
+  "tabla_criterios_validacion.png",
+  vwidth = 1050,
+  vheight = 500,
+  expand = 0
+)
+```
+
+## validación 2
+
+```{r}
+library(dplyr)
+library(gt)
+
+tabla_boxscore <- readRDS(
+  "tablas_desarrollo/tabla_validacion_boxscore1.rds"
+)
+
+# -----------------------------------------------------------------------------
+# 1. Preparar datos
+# -----------------------------------------------------------------------------
+
+tabla_boxscore_slide <- tabla_boxscore %>%
+  mutate(
+    Modelo = case_when(
+      grepl("^RAPM", Modelo) ~ sub(
+        "^RAPM", "RAPM (normal)", Modelo
+      ),
+      grepl("^EPTS", Modelo) ~ sub(
+        "^EPTS", "EPTS (multinomial)", Modelo
+      ),
+      grepl("^wEPTS", Modelo) ~ sub(
+        "^wEPTS", "wEPTS (multinomial)", Modelo
+      ),
+      TRUE ~ Modelo
+    )
+  )
+
+# Filas con el máximo de cada estadística
+mejor_PTS <- which(
+  near(tabla_boxscore_slide$PTS,
+       max(tabla_boxscore_slide$PTS, na.rm = TRUE))
+)
+
+mejor_AST <- which(
+  near(tabla_boxscore_slide$AST,
+       max(tabla_boxscore_slide$AST, na.rm = TRUE))
+)
+
+mejor_OREB <- which(
+  near(tabla_boxscore_slide$OREB,
+       max(tabla_boxscore_slide$OREB, na.rm = TRUE))
+)
+
+mejor_DREB <- which(
+  near(tabla_boxscore_slide$DREB,
+       max(tabla_boxscore_slide$DREB, na.rm = TRUE))
+)
+
+mejor_STL <- which(
+  near(tabla_boxscore_slide$STL,
+       max(tabla_boxscore_slide$STL, na.rm = TRUE))
+)
+
+mejor_BLK <- which(
+  near(tabla_boxscore_slide$BLK,
+       max(tabla_boxscore_slide$BLK, na.rm = TRUE))
+)
+
+# -----------------------------------------------------------------------------
+# 2. Tabla GT
+# -----------------------------------------------------------------------------
+
+tabla_boxscore_gt <- tabla_boxscore_slide %>%
+  
+  dplyr::select(
+    Modelo,
+    PTS, AST, OREB,
+    DREB, STL, BLK
+  ) %>%
+  
+  gt() %>%
+  
+  # Encabezados individuales
+  cols_label(
+    Modelo = "Modelo",
+    PTS  = html("PTS<br>(%)"),
+    AST  = html("AST<br>(%)"),
+    OREB = html("OREB<br>(%)"),
+    DREB = html("DREB<br>(%)"),
+    STL  = html("STL<br>(%)"),
+    BLK  = html("BLK<br>(%)")
+  ) %>%
+  
+  # Encabezados agrupados
+  tab_spanner(
+    label = "Estadísticas ofensivas",
+    columns = c(PTS, AST, OREB)
+  ) %>%
+  
+  tab_spanner(
+    label = "Estadísticas defensivas",
+    columns = c(DREB, STL, BLK)
+  ) %>%
+  
+  # Un decimal y coma decimal
+  fmt_number(
+    columns = c(PTS, AST, OREB, DREB, STL, BLK),
+    decimals = 1,
+    dec_mark = ","
+  ) %>%
+  
+  # Roboto
+  opt_table_font(
+    font = "Roboto"
+  ) %>%
+  
+  # Fondo general
+  tab_style(
+    style = cell_fill(color = "#242841"),
+    locations = cells_body()
+  ) %>%
+  
+  # Texto general
+  tab_style(
+    style = cell_text(
+      color = "white",
+      size = px(20)
+    ),
+    locations = cells_body()
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Máximos en negrita
+  # ---------------------------------------------------------------------------
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(columns = PTS, rows = mejor_PTS)
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(columns = AST, rows = mejor_AST)
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(columns = OREB, rows = mejor_OREB)
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(columns = DREB, rows = mejor_DREB)
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(columns = STL, rows = mejor_STL)
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(columns = BLK, rows = mejor_BLK)
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Encabezados
+  # ---------------------------------------------------------------------------
+  
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(20),
+        weight = "normal"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  
+  # Encabezados agrupados
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(21),
+        weight = "bold"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_spanners()
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Fondo y bordes
+  # ---------------------------------------------------------------------------
+  
+  tab_options(
+    table.background.color = "#242841",
+    column_labels.background.color = "#242841",
+    
+    data_row.padding = px(7),
+    
+    table.border.top.color = "#e95e24",
+    table.border.top.width = px(2),
+    
+    column_labels.border.bottom.color = "#e95e24",
+    column_labels.border.bottom.width = px(2),
+    
+    table.border.bottom.color = "#e95e24",
+    table.border.bottom.width = px(2)
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Alineación
+  # ---------------------------------------------------------------------------
+  
+  cols_align(
+    align = "left",
+    columns = Modelo
+  ) %>%
+  
+  cols_align(
+    align = "center",
+    columns = c(PTS, AST, OREB, DREB, STL, BLK)
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Anchos
+  # ---------------------------------------------------------------------------
+  
+  cols_width(
+    Modelo ~ px(320),
+    PTS  ~ px(80),
+    AST  ~ px(80),
+    OREB ~ px(85),
+    DREB ~ px(85),
+    STL  ~ px(80),
+    BLK  ~ px(80)
+  )
+
+gtsave(
+  tabla_boxscore_gt,
+  "tabla_validacion_boxscore.png",
+  vwidth = 1050,
+  vheight = 520,
+  expand = 0
+)
+```
+
+## validación 3
+
+```{r}
+library(dplyr)
+library(gt)
+
+# -----------------------------------------------------------------------------
+# 1. Leer tabla
+# -----------------------------------------------------------------------------
+
+tabla_concordancia_descriptiva <- readRDS(
+  "tablas_desarrollo/tabla_concordancia_descriptiva1.rds"
+)
+
+# -----------------------------------------------------------------------------
+# 2. Preparar datos
+# -----------------------------------------------------------------------------
+
+tabla_concordancia_slide <- tabla_concordancia_descriptiva %>%
+  mutate(
+    Modelo = case_when(
+      grepl("^RAPM", Modelo) ~ sub(
+        "^RAPM", "RAPM (normal)", Modelo
+      ),
+      grepl("^EPTS", Modelo) ~ sub(
+        "^EPTS", "EPTS (multinomial)", Modelo
+      ),
+      grepl("^wEPTS", Modelo) ~ sub(
+        "^wEPTS", "wEPTS (multinomial)", Modelo
+      ),
+      TRUE ~ Modelo
+    )
+  )
+
+# -----------------------------------------------------------------------------
+# 3. Filas con el máximo de cada columna
+# -----------------------------------------------------------------------------
+
+mejor_realiz_100 <- which(
+  near(
+    tabla_concordancia_slide$realizados_100,
+    max(tabla_concordancia_slide$realizados_100, na.rm = TRUE)
+  )
+)
+
+mejor_realiz_est <- which(
+  near(
+    tabla_concordancia_slide$realizados_est,
+    max(tabla_concordancia_slide$realizados_est, na.rm = TRUE)
+  )
+)
+
+mejor_recib_100 <- which(
+  near(
+    tabla_concordancia_slide$recibidos_100,
+    max(tabla_concordancia_slide$recibidos_100, na.rm = TRUE)
+  )
+)
+
+mejor_recib_est <- which(
+  near(
+    tabla_concordancia_slide$recibidos_est,
+    max(tabla_concordancia_slide$recibidos_est, na.rm = TRUE)
+  )
+)
+
+# -----------------------------------------------------------------------------
+# 4. Tabla GT
+# -----------------------------------------------------------------------------
+
+tabla_concordancia_gt <- tabla_concordancia_slide %>%
+  
+  dplyr::select(
+    Modelo,
+    realizados_100,
+    realizados_est,
+    recibidos_100,
+    recibidos_est
+  ) %>%
+  
+  gt() %>%
+  
+  # Encabezados individuales
+  cols_label(
+    Modelo = "Modelo",
+    realizados_100 = html("Por posesión<br>(%)"),
+    realizados_est = html("Estandarizados<br>(%)"),
+    recibidos_100 = html("Por posesión<br>(%)"),
+    recibidos_est = html("Estandarizados<br>(%)")
+  ) %>%
+  
+  # Encabezados agrupados
+  tab_spanner(
+    label = "Puntos realizados",
+    columns = c(realizados_100, realizados_est)
+  ) %>%
+  
+  tab_spanner(
+    label = "Puntos recibidos",
+    columns = c(recibidos_100, recibidos_est)
+  ) %>%
+  
+  # Sin decimales
+  fmt_number(
+    columns = c(
+      realizados_100,
+      realizados_est,
+      recibidos_100,
+      recibidos_est
+    ),
+    decimals = 0
+  ) %>%
+  
+  # Fuente
+  opt_table_font(
+    font = "Roboto"
+  ) %>%
+  
+  # Fondo
+  tab_style(
+    style = cell_fill(color = "#242841"),
+    locations = cells_body()
+  ) %>%
+  
+  # Texto general
+  tab_style(
+    style = cell_text(
+      color = "white",
+      size = px(20)
+    ),
+    locations = cells_body()
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Mejores valores en negrita
+  # ---------------------------------------------------------------------------
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = realizados_100,
+      rows = mejor_realiz_100
+    )
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = realizados_est,
+      rows = mejor_realiz_est
+    )
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = recibidos_100,
+      rows = mejor_recib_100
+    )
+  ) %>%
+  
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = recibidos_est,
+      rows = mejor_recib_est
+    )
+  ) %>%
+  
+  # Encabezados individuales
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(20),
+        weight = "normal"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  
+  # Encabezados agrupados
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(21),
+        weight = "bold"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_spanners()
+  ) %>%
+  
+  # Fondo y bordes naranjas
+  tab_options(
+    table.background.color = "#242841",
+    column_labels.background.color = "#242841",
+    
+    data_row.padding = px(7),
+    
+    table.border.top.color = "#e95e24",
+    table.border.top.width = px(2),
+    
+    column_labels.border.bottom.color = "#e95e24",
+    column_labels.border.bottom.width = px(2),
+    
+    table.border.bottom.color = "#e95e24",
+    table.border.bottom.width = px(2)
+  ) %>%
+  
+  # Alineación
+  cols_align(
+    align = "left",
+    columns = Modelo
+  ) %>%
+  
+  cols_align(
+    align = "center",
+    columns = c(
+      realizados_100,
+      realizados_est,
+      recibidos_100,
+      recibidos_est
+    )
+  ) %>%
+  
+  # Anchos
+  cols_width(
+    Modelo ~ px(320),
+    realizados_100 ~ px(130),
+    realizados_est ~ px(145),
+    recibidos_100 ~ px(130),
+    recibidos_est ~ px(145)
+  )
+
+gtsave(
+  tabla_concordancia_gt,
+  "tabla_concordancia_descriptiva.png",
+  vwidth = 1050,
+  vheight = 480,
+  expand = 0
+)
+```
+## rankings
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(stringi)
+library(ggplot2)
+library(ggimage)
+library(scales)
+library(grid)
+
+
+# =============================================================================
+# 1. ASOCIACIÓN EQUIPO -> LOGO
+# =============================================================================
+
+obtener_logo <- function(equipo, logos_dir = "presentacion/logos2") {
+  
+  equipo_limpio <- equipo %>%
+    str_squish() %>%
+    str_to_lower() %>%
+    stringi::stri_trans_general("Latin-ASCII")
+  
+  archivo <- case_when(
+    str_detect(equipo_limpio, "argentino") ~ "argentino.png",
+    str_detect(equipo_limpio, "atenas") ~ "atenas.png",
+    str_detect(equipo_limpio, "boca") ~ "boca.png",
+    str_detect(equipo_limpio, "ferro") ~ "ferro.png",
+    str_detect(equipo_limpio, "gimnasia") ~ "gimnasia_cr.png",
+    str_detect(equipo_limpio, "independiente") ~ "independiente_oliva.png",
+    str_detect(equipo_limpio, "instituto") ~ "instituto.png",
+    str_detect(equipo_limpio, "la union") ~ "la_union.png",
+    str_detect(equipo_limpio, "obera") ~ "obera.png",
+    str_detect(equipo_limpio, "obras") ~ "obras.png",
+    str_detect(equipo_limpio, "olimpico") ~ "olimpico.png",
+    str_detect(equipo_limpio, "penarol") ~ "penarol.png",
+    str_detect(equipo_limpio, "platense") ~ "platense.png",
+    str_detect(equipo_limpio, "quimsa") ~ "quimsa.png",
+    str_detect(equipo_limpio, "regatas") ~ "regatas.png",
+    str_detect(equipo_limpio, "riachuelo") ~ "riachuelo.png",
+    str_detect(equipo_limpio, "san lorenzo") ~ "san_lorenzo.png",
+    str_detect(equipo_limpio, "san martin") ~ "san_martin.png",
+    str_detect(equipo_limpio, "^union$|union de santa fe") ~ "union.png",
+    str_detect(equipo_limpio, "zarate") ~ "zarate.png",
+    TRUE ~ NA_character_
+  )
+  
+  ifelse(
+    is.na(archivo),
+    NA_character_,
+    file.path(logos_dir, archivo)
+  )
+}
+
+
+# =============================================================================
+# 2. CURVAS SUAVES TIPO BUMP
+# =============================================================================
+
+crear_curvas_bump <- function(datos, n = 160) {
+  
+  datos %>%
+    group_by(Jugador) %>%
+    group_modify(~{
+      
+      .x <- .x %>%
+        arrange(x)
+      
+      y1 <- .x$Pos_plot[1]
+      y2 <- .x$Pos_plot[2]
+      
+      t <- seq(0, 1, length.out = n)
+      
+      # Smoothstep: arranca y termina horizontal
+      suavizado <- 3 * t^2 - 2 * t^3
+      
+      tibble(
+        x_curva = 1 + t,
+        y_curva = y1 + (y2 - y1) * suavizado,
+        Estado = .x$Estado[1]
+      )
+    }) %>%
+    ungroup()
+}
+
+
+# =============================================================================
+# 3. FUNCIÓN PRINCIPAL
+# =============================================================================
+
+crear_ranking_bump <- function(
+    rankings,
+    tipo = c("ofensivo", "defensivo", "total"),
+    top_n = 10,
+    logos_dir = "presentacion/logos2"
+) {
+  
+  tipo <- match.arg(tipo)
+  
+  
+  # ---------------------------------------------------------------------------
+  # Objetos y variable
+  # ---------------------------------------------------------------------------
+  
+  nombre_epts  <- paste0("EPTS_", tipo)
+  nombre_wepts <- paste0("wEPTS_", tipo)
+  
+  variable <- switch(
+    tipo,
+    ofensivo  = "Ofensivo",
+    defensivo = "Defensivo",
+    total     = "Total"
+  )
+  
+  
+  # ---------------------------------------------------------------------------
+  # Rankings completos
+  # ---------------------------------------------------------------------------
+  
+  epts <- rankings[[nombre_epts]] %>%
+    mutate(
+      Posicion = row_number(),
+      Ranking = "EPTS",
+      x = 1,
+      Valor = .data[[variable]]
+    )
+  
+  wepts <- rankings[[nombre_wepts]] %>%
+    mutate(
+      Posicion = row_number(),
+      Ranking = "wEPTS",
+      x = 2,
+      Valor = .data[[variable]]
+    )
+  
+  
+  # ---------------------------------------------------------------------------
+  # Unión de ambos top 10
+  # ---------------------------------------------------------------------------
+  
+  jugadores_mostrar <- union(
+    epts$Jugador[seq_len(min(top_n, nrow(epts)))],
+    wepts$Jugador[seq_len(min(top_n, nrow(wepts)))]
+  )
+  
+  
+  # ---------------------------------------------------------------------------
+  # Comparación de posiciones
+  # ---------------------------------------------------------------------------
+  
+  comparacion <- full_join(
+    
+    epts %>%
+      select(Jugador, pos_epts = Posicion),
+    
+    wepts %>%
+      select(Jugador, pos_wepts = Posicion),
+    
+    by = "Jugador"
+    
+  ) %>%
+    filter(Jugador %in% jugadores_mostrar) %>%
+    mutate(
+      Estado = case_when(
+        pos_epts <= top_n & pos_wepts <= top_n ~ "Se mantiene",
+        pos_epts <= top_n & pos_wepts > top_n  ~ "Sale del top 10",
+        pos_epts > top_n  & pos_wepts <= top_n ~ "Entra al top 10",
+        TRUE ~ "Se mantiene"
+      )
+    )
+  
+  
+  # ---------------------------------------------------------------------------
+  # Datos largos
+  # ---------------------------------------------------------------------------
+  
+  datos <- bind_rows(epts, wepts) %>%
+    filter(Jugador %in% jugadores_mostrar) %>%
+    left_join(
+      comparacion %>%
+        select(Jugador, Estado),
+      by = "Jugador"
+    ) %>%
+    mutate(
+      Jugador_corto = str_to_title(Jugador),
+      Jugador_corto = str_replace(
+        Jugador_corto,
+        "^(.*?,\\s*\\S+).*$",
+        "\\1"
+      ),
+      logo = obtener_logo(Equipo, logos_dir),
+      posesiones_lab = paste0(
+        format(
+          round(Posesiones),
+          big.mark = ".",
+          decimal.mark = ",",
+          scientific = FALSE,
+          trim = TRUE
+        ),
+        " posesiones"
+      ),
+      info_lab = posesiones_lab
+    )
+  
+  
+  # ---------------------------------------------------------------------------
+  # Posición visual
+  # ---------------------------------------------------------------------------
+  
+  separacion_top <- 1.18
+  
+  datos <- datos %>%
+    group_by(Ranking) %>%
+    arrange(Posicion, .by_group = TRUE) %>%
+    mutate(
+      orden_fuera = cumsum(Posicion > top_n),
+      Pos_plot = if_else(
+        Posicion <= top_n,
+        1 + (Posicion - 1) * separacion_top,
+        1 + (top_n - 1) * separacion_top + 1.40 + (orden_fuera - 1) * 1.10
+      )
+    ) %>%
+    ungroup()
+  
+  
+  # ---------------------------------------------------------------------------
+  # Curvas
+  # ---------------------------------------------------------------------------
+  
+  datos_curvas <- crear_curvas_bump(datos) %>%
+    mutate(
+      alpha_base = case_when(
+        Estado == "Se mantiene"    ~ 0.04,
+        Estado == "Entra al top 10" ~ 0.18,
+        Estado == "Sale del top 10" ~ 0.18
+      ),
+      alpha_top = case_when(
+        Estado == "Se mantiene"    ~ 0.2,
+        Estado == "Entra al top 10" ~ 1,
+        Estado == "Sale del top 10" ~ 1
+      )
+    )
+  
+  
+  # ---------------------------------------------------------------------------
+  # Separar lados
+  # ---------------------------------------------------------------------------
+  
+  datos_epts <- datos %>%
+    filter(Ranking == "EPTS")
+  
+  datos_wepts <- datos %>%
+    filter(Ranking == "wEPTS")
+  
+  
+  # ---------------------------------------------------------------------------
+  # Verificar logos
+  # ---------------------------------------------------------------------------
+  
+  logos_faltantes <- datos %>%
+    filter(is.na(logo) | !file.exists(logo)) %>%
+    distinct(Equipo, logo)
+  
+  if (nrow(logos_faltantes) > 0) {
+    print(logos_faltantes)
+    warning("Hay equipos cuyo logo no pudo encontrarse.")
+  }
+  
+  
+  # ---------------------------------------------------------------------------
+  # Referencias visuales
+  # ---------------------------------------------------------------------------
+  
+  y_corte <- 1 + (top_n - 1) * separacion_top + 0.72
+  ymax <- max(datos$Pos_plot) + 0.95
+  
+  
+  # =============================================================================
+  # GRÁFICO
+  # =============================================================================
+  
+  ggplot() +
+    
+    # -------------------------------------------------------------------------
+    # Banda sutil "Fuera del top 10"
+    # -------------------------------------------------------------------------
+    
+    annotate(
+      "rect",
+      xmin = -0.42, xmax = 3.42,
+      ymin = y_corte, ymax = ymax + 0.15,
+      fill = alpha("white", 0.02),
+      color = NA
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Línea de corte
+    # -------------------------------------------------------------------------
+    
+    geom_hline(
+      yintercept = y_corte,
+      color = alpha("white", 0.18),
+      linewidth = 0.7,
+      linetype = "dashed"
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Flujo - base ancha
+    # -------------------------------------------------------------------------
+    
+    geom_path(
+      data = datos_curvas,
+      aes(
+        x = x_curva,
+        y = y_curva,
+        group = Jugador,
+        color = Estado,
+        alpha = alpha_base
+      ),
+      linewidth = 7.2,
+      lineend = "round",
+      show.legend = FALSE
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Flujo - capa principal
+    # -------------------------------------------------------------------------
+    
+    geom_path(
+      data = datos_curvas,
+      aes(
+        x = x_curva,
+        y = y_curva,
+        group = Jugador,
+        color = Estado,
+        alpha = alpha_top
+      ),
+      linewidth = 3.25,
+      lineend = "round"
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Círculos posición EPTS
+    # -------------------------------------------------------------------------
+    
+    geom_point(
+      data = datos_epts,
+      aes(x = 0.89, y = Pos_plot),
+      inherit.aes = FALSE,
+      shape = 21,
+      size = 7.3,
+      stroke = 0,
+      fill = "#e95e24"
+    ) +
+    
+    geom_text(
+      data = datos_epts,
+      aes(x = 0.89, y = Pos_plot, label = Posicion),
+      inherit.aes = FALSE,
+      color = "white",
+      family = "Roboto",
+      fontface = "bold",
+      size = 4.2
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Círculos posición wEPTS
+    # -------------------------------------------------------------------------
+    
+    geom_point(
+      data = datos_wepts,
+      aes(x = 2.11, y = Pos_plot),
+      inherit.aes = FALSE,
+      shape = 21,
+      size = 7.3,
+      stroke = 0,
+      fill = "#e95e24"
+    ) +
+    
+    geom_text(
+      data = datos_wepts,
+      aes(x = 2.11, y = Pos_plot, label = Posicion),
+      inherit.aes = FALSE,
+      color = "white",
+      family = "Roboto",
+      fontface = "bold",
+      size = 4.2
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Logos EPTS
+    # -------------------------------------------------------------------------
+    
+    ggimage::geom_image(
+      data = datos_epts %>% filter(!is.na(logo)),
+      aes(x = 0.69, y = Pos_plot, image = logo),
+      inherit.aes = FALSE,
+      size = 0.07,
+      asp = 1
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Logos wEPTS
+    # -------------------------------------------------------------------------
+    
+    ggimage::geom_image(
+      data = datos_wepts %>% filter(!is.na(logo)),
+      aes(x = 2.31, y = Pos_plot, image = logo),
+      inherit.aes = FALSE,
+      size = 0.060,
+      asp = 1
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Nombres EPTS
+    # -------------------------------------------------------------------------
+    
+    geom_text(
+      data = datos_epts,
+      aes(
+        x = 0.54,
+        y = Pos_plot - 0.11,
+        label = Jugador_corto
+      ),
+      inherit.aes = FALSE,
+      hjust = 1,
+      color = "white",
+      family = "Roboto",
+      fontface = "bold",
+      size = 4.95
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Info EPTS
+    # -------------------------------------------------------------------------
+    
+    geom_text(
+      data = datos_epts,
+      aes(
+        x = 0.54,
+        y = Pos_plot + 0.24,
+        label = info_lab
+      ),
+      inherit.aes = FALSE,
+      hjust = 1,
+      color = alpha("white", 0.56),
+      family = "Roboto",
+      size = 3.00
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Nombres wEPTS
+    # -------------------------------------------------------------------------
+    
+    geom_text(
+      data = datos_wepts,
+      aes(
+        x = 2.46,
+        y = Pos_plot - 0.11,
+        label = Jugador_corto
+      ),
+      inherit.aes = FALSE,
+      hjust = 0,
+      color = "white",
+      family = "Roboto",
+      fontface = "bold",
+      size = 4.95
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Info wEPTS
+    # -------------------------------------------------------------------------
+    
+    geom_text(
+      data = datos_wepts,
+      aes(
+        x = 2.46,
+        y = Pos_plot + 0.24,
+        label = info_lab
+      ),
+      inherit.aes = FALSE,
+      hjust = 0,
+      color = alpha("white", 0.56),
+      family = "Roboto",
+      size = 3.00
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Encabezados laterales
+    # -------------------------------------------------------------------------
+    
+    annotate(
+      "text",
+      x = 0.69,
+      y = -0.18,
+      label = "EPTS",
+      color = "#f9a350",
+      family = "Roboto",
+      fontface = "bold",
+      size = 7.2
+    ) +
+    
+    annotate(
+      "text",
+      x = 2.31,
+      y = -0.18,
+      label = "wEPTS",
+      color = "#f9a350",
+      family = "Roboto",
+      fontface = "bold",
+      size = 7.2
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Etiqueta fuera del top 10 - alineada a la izquierda
+    # -------------------------------------------------------------------------
+    
+    annotate(
+      "text",
+      x = -0.37,
+      y = y_corte + 0.34,
+      label = "FUERA DEL TOP 10",
+      hjust = 0,
+      color = alpha("white", 0.42),
+      family = "Roboto",
+      fontface = "bold",
+      size = 3.1
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Colores
+    # -------------------------------------------------------------------------
+    
+    scale_color_manual(
+      values = c(
+        "Se mantiene"     = "#d8c2a3",
+        "Entra al top 10" = "#fcc600",
+        "Sale del top 10" = "#e95e24"
+      ),
+      breaks = c(
+        "Se mantiene",
+        "Entra al top 10",
+        "Sale del top 10"
+      )
+    ) +
+    
+    scale_alpha_identity() +
+    
+    # -------------------------------------------------------------------------
+    # Escalas
+    # -------------------------------------------------------------------------
+    
+    scale_x_continuous(
+      limits = c(-0.45, 3.45),
+      expand = c(0, 0)
+    ) +
+    
+    scale_y_reverse(
+      limits = c(ymax, -0.70),
+      expand = c(0, 0)
+    ) +
+    
+    # -------------------------------------------------------------------------
+    # Títulos
+    # -------------------------------------------------------------------------
+    
+    # labs(
+    #   title = paste0("RANKING ", str_to_upper(tipo)),
+    #   subtitle = "Variación de posiciones entre EPTS y wEPTS",
+    #   x = NULL,
+    #   y = NULL,
+    #   color = NULL
+    # ) +
+    
+    # -------------------------------------------------------------------------
+    # Tema
+    # -------------------------------------------------------------------------
+    
+    theme_void(base_family = "Roboto") +
+    
+    theme(
+      plot.background = element_rect(
+        fill = "#242841",
+        color = NA
+      ),
+      panel.background = element_rect(
+        fill = "#242841",
+        color = NA
+      ),
+      plot.title = element_text(
+        color = "white",
+        face = "bold",
+        size = 24,
+        hjust = 0.5,
+        margin = margin(b = 5)
+      ),
+      plot.subtitle = element_text(
+        color = alpha("white", 0.72),
+        size = 13,
+        hjust = 0.5,
+        margin = margin(b = 18)
+      ),
+      legend.position = "bottom",
+      legend.direction = "horizontal",
+      legend.title = element_blank(),
+      legend.text = element_text(
+        color = "white",
+        size = 11
+      ),
+      legend.key = element_blank(),
+      legend.spacing.x = unit(10, "pt"),
+      plot.margin = margin(20, 40, 15, 40)
+    ) +
+    
+    guides(
+      alpha = "none",
+      color = guide_legend(
+        override.aes = list(
+          linewidth = c(4.5, 4.5, 4.5),
+          alpha = c(0.35, 1.00, 0.50)
+        )
+      )
+    )
+}
+
+rankings <- readRDS("tablas_desarrollo/rankings_completos_enet.rds")
+
+grafico_ofensivo <- crear_ranking_bump(
+  rankings = rankings,
+  tipo = "ofensivo",
+  top_n = 10,
+  logos_dir = "presentacion/logos2"
+)
+
+grafico_ofensivo
+
+ggsave(
+  "ranking_ofensivo_epts_wepts_v2.png",
+  grafico_ofensivo,
+  width = 13.33,
+  height = 7.5,
+  units = "in",
+  dpi = 300,
+  bg = "#242841"
+)
+
+grafico_defensivo <- crear_ranking_bump(
+  rankings = rankings,
+  tipo = "defensivo",
+  top_n = 10,
+  logos_dir = "presentacion/logos2"
+)
+
+grafico_defensivo
+
+ggsave(
+  "ranking_defensivo_epts_wepts_v2.png",
+  grafico_defensivo,
+  width = 13.33,
+  height = 7.5,
+  units = "in",
+  dpi = 300,
+  bg = "#242841"
+)
+
+grafico_total <- crear_ranking_bump(
+  rankings = rankings,
+  tipo = "total",
+  top_n = 10,
+  logos_dir = "presentacion/logos2"
+)
+
+grafico_total
+
+ggsave(
+  "ranking_total_epts_wepts_v2.png",
+  grafico_total,
+  width = 13.33,
+  height = 7.5,
+  units = "in",
+  dpi = 300,
+  bg = "#242841"
+)
+```
+
+# tablas congreso
+
+## validacion
+
+```{r}
+
+library(dplyr)
+library(gt)
+
+# -----------------------------------------------------------------------------
+# 1. Leer tablas
+# -----------------------------------------------------------------------------
+
+tabla_boxscore <- readRDS("tablas_desarrollo/tabla_validacion_boxscore1.rds")
+tabla_criterios <- readRDS("tablas_desarrollo/tabla_validacion_modelos1.rds")
+
+# -----------------------------------------------------------------------------
+# 2. Preparar nombres para presentación
+# -----------------------------------------------------------------------------
+
+formatear_modelos <- function(tabla) {
+  tabla %>%
+    mutate(
+      Modelo = case_when(
+        grepl("^RAPM", Modelo) ~ sub(
+          "^RAPM", "RAPM (normal)", Modelo
+        ),
+        grepl("^EPTS", Modelo) ~ sub(
+          "^EPTS", "EPTS (multinomial)", Modelo
+        ),
+        grepl("^wEPTS", Modelo) ~ sub(
+          "^wEPTS", "wEPTS (multinomial)", Modelo
+        ),
+        TRUE ~ Modelo
+      )
+    )
+}
+
+tabla_boxscore_slide <- tabla_boxscore %>%
+  formatear_modelos() %>%
+  left_join(
+    tabla_criterios %>%
+      formatear_modelos() %>%
+      select(Modelo, galardones),
+    by = "Modelo"
+  )
+
+# Verificar que todos los modelos tengan galardones
+stopifnot(
+  nrow(tabla_boxscore_slide) == nrow(tabla_boxscore),
+  !anyNA(tabla_boxscore_slide$galardones)
+)
+
+# -----------------------------------------------------------------------------
+# 3. Identificar mejores valores
+# -----------------------------------------------------------------------------
+
+columnas_validacion <- c(
+  "galardones", "PTS", "AST", "OREB",
+  "DREB", "STL", "BLK"
+)
+
+mejores <- lapply(columnas_validacion, function(col) {
+  which(
+    near(
+      tabla_boxscore_slide[[col]],
+      max(tabla_boxscore_slide[[col]], na.rm = TRUE)
+    )
+  )
+})
+
+names(mejores) <- columnas_validacion
+
+# -----------------------------------------------------------------------------
+# 4. Tabla GT
+# -----------------------------------------------------------------------------
+
+estilo_maximo <- list(
+  cell_text(
+    weight = "bold",
+    color = "#f9a350"
+  )
+)
+
+tabla_boxscore_gt <- tabla_boxscore_slide %>%
+  
+  select(
+    Modelo, galardones,
+    PTS, AST, OREB,
+    DREB, STL, BLK
+  ) %>%
+  
+  gt() %>%
+  
+  # Encabezados individuales
+  cols_label(
+    Modelo     = "Modelo",
+    galardones = html("Galardonados<br>(%)"),
+    PTS        = html("PTS<br>(%)"),
+    AST        = html("AST<br>(%)"),
+    OREB       = html("OREB<br>(%)"),
+    DREB       = html("DREB<br>(%)"),
+    STL        = html("STL<br>(%)"),
+    BLK        = html("BLK<br>(%)")
+  ) %>%
+  
+  # Encabezados agrupados
+  tab_spanner(
+    label = "Estadísticas ofensivas",
+    columns = c(PTS, AST, OREB)
+  ) %>%
+  
+  tab_spanner(
+    label = "Estadísticas defensivas",
+    columns = c(DREB, STL, BLK)
+  ) %>%
+  
+  # Un decimal y coma decimal
+  fmt_number(
+    columns = all_of(columnas_validacion),
+    decimals = 1,
+    dec_mark = ","
+  ) %>%
+  
+  # Roboto
+  opt_table_font(
+    font = "Roboto"
+  ) %>%
+  
+  # Fondo general
+  tab_style(
+    style = cell_fill(color = "#242841"),
+    locations = cells_body()
+  ) %>%
+  
+  # Texto general
+  tab_style(
+    style = cell_text(
+      color = "white",
+      size = px(20)
+    ),
+    locations = cells_body()
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Máximos en negrita y fondo naranja
+  # ---------------------------------------------------------------------------
+
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = galardones,
+      rows = mejores$galardones
+    )
+  ) %>%
+
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = PTS,
+      rows = mejores$PTS
+    )
+  ) %>%
+
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = AST,
+      rows = mejores$AST
+    )
+  ) %>%
+
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = OREB,
+      rows = mejores$OREB
+    )
+  ) %>%
+
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = DREB,
+      rows = mejores$DREB
+    )
+  ) %>%
+
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = STL,
+      rows = mejores$STL
+    )
+  ) %>%
+
+  tab_style(
+    style = estilo_maximo,
+    locations = cells_body(
+      columns = BLK,
+      rows = mejores$BLK
+    )
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Encabezados
+  # ---------------------------------------------------------------------------
+  
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(20),
+        weight = "normal"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  
+  # Encabezados agrupados
+  tab_style(
+    style = list(
+      cell_text(
+        color = "white",
+        size = px(21),
+        weight = "bold"
+      ),
+      cell_fill(color = "#242841")
+    ),
+    locations = cells_column_spanners()
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Fondo y bordes
+  # ---------------------------------------------------------------------------
+  
+  tab_options(
+    table.background.color = "#242841",
+    column_labels.background.color = "#242841",
+    
+    data_row.padding = px(7),
+    
+    table.border.top.color = "#e95e24",
+    table.border.top.width = px(2),
+    
+    column_labels.border.bottom.color = "#e95e24",
+    column_labels.border.bottom.width = px(2),
+    
+    table.border.bottom.color = "#e95e24",
+    table.border.bottom.width = px(2)
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Alineación
+  # ---------------------------------------------------------------------------
+  
+  cols_align(
+    align = "left",
+    columns = Modelo
+  ) %>%
+  
+  cols_align(
+    align = "center",
+    columns = all_of(columnas_validacion)
+  ) %>%
+  
+  # ---------------------------------------------------------------------------
+  # Anchos
+  # ---------------------------------------------------------------------------
+  
+  cols_width(
+    Modelo     ~ px(300),
+    galardones ~ px(130),
+    PTS        ~ px(80),
+    AST        ~ px(80),
+    OREB       ~ px(85),
+    DREB       ~ px(85),
+    STL        ~ px(80),
+    BLK        ~ px(80)
+  )
+
+# -----------------------------------------------------------------------------
+# 5. Exportar
+# -----------------------------------------------------------------------------
+
+gtsave(
+  tabla_boxscore_gt,
+  "tabla_validacion_congreso.png",
+  vwidth = 1150,
+  vheight = 520,
+  expand = 0
+)
+
+```
+
