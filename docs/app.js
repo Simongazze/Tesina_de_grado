@@ -10,6 +10,7 @@
   const descriptive = {
     pm100: { name: 'Plus-minus por 100 posesiones', components: ['total'], fields: { total: 'plus_minus_100' }, digits: 2, unit: 'puntos / 100 posesiones' },
     pm: { name: 'Plus-minus acumulado', components: ['total'], fields: { total: 'plus_minus_total' }, digits: 0, unit: 'puntos' },
+    pmstd: { name: 'Plus-minus estandarizado', components: ['total'], fields: { total: 'pm_estand_median' }, digits: 3, unit: 'escala estandarizada' },
     ppp: { name: 'Puntos por posesión', components: ['off', 'def'], fields: { off: 'pts_realizad_por_pos', def: 'pts_recib_por_pos' }, digits: 4, unit: 'puntos / posesión' },
     std: { name: 'Estandarizadas por equipo', components: ['off', 'def'], fields: { off: 'pts_realiz_estand_median', def: 'pts_recib_estand_median' }, digits: 3, unit: 'escala estandarizada' }
   };
@@ -60,7 +61,7 @@
       const reverseDefense = state.descriptive === 'ppp' && component === 'def';
       return { ...config, field: config.fields[component], label: config.name, lower: reverseDefense, multiplier: reverseDefense ? -1 : 1,
         note: reverseDefense ? 'Menor valor = mejor defensa · puntos recibidos en positivo' : 'Mayor valor = mejor rendimiento',
-        formula: state.descriptive === 'std' ? 'Las medidas estandarizadas se comparan dentro de cada equipo.' : '' };
+        formula: state.descriptive === 'pmstd' ? 'Por equipo: (PM/100 − mediana) / MAD' : state.descriptive === 'std' ? 'Las medidas estandarizadas se comparan dentro de cada equipo.' : '' };
     }
     const name = families[family].name;
     const field = family === 'rapm' ? `${component === 'off' ? 'ORAPM' : component === 'def' ? 'DRAPM' : 'RAPM_total'}_${variant}` : `${families[family].prefix}_${component}_${variant}`;
@@ -73,6 +74,8 @@
     $('metric-title').textContent = families[state.family].name;
     $('metric-description').textContent = families[state.family].description;
     const isDescriptive = state.family === 'descriptivas';
+    document.querySelector('.configuration').classList.toggle('is-descriptive', isDescriptive);
+    if (isDescriptive) $('metric-title').textContent = descriptive[state.descriptive].name;
     const options = isDescriptive ? Object.entries(descriptive).map(([value, config]) => [value, config.name]) : Object.entries(regularizations);
     $('variant-control').querySelector('label').textContent = isDescriptive ? 'Medida descriptiva' : 'Regularización';
     $('variant').innerHTML = options.map(([value, label]) => `<option value="${value}">${label}</option>`).join('');
@@ -143,7 +146,7 @@
   updateConfiguration();
   fetch('rankings.csv', { cache: 'no-cache' }).then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.text(); }).then(text => {
     rows = parseCSV(text);
-    const required = ['plus_minus_total', 'plus_minus_100', 'pts_realizad_por_pos', 'pts_recib_por_pos', 'pts_realiz_estand_median', 'pts_recib_estand_median'];
+    const required = ['plus_minus_total', 'plus_minus_100', 'pm_estand_median', 'pts_realizad_por_pos', 'pts_recib_por_pos', 'pts_realiz_estand_median', 'pts_recib_estand_median'];
     for (const variant of Object.keys(regularizations)) required.push(`ORAPM_${variant}`, `DRAPM_${variant}`, `RAPM_total_${variant}`, ...['epts', 'w_epts'].flatMap(prefix => ['off', 'def', 'total'].map(component => `${prefix}_${component}_${variant}`)));
     if (rows.length && required.some(field => !(field in rows[0]))) throw new Error('Faltan columnas de métricas. Revisá el formato de rankings.csv.');
     const teams = [...new Set(rows.map(row => row.equipo_del_jugador))].sort((a,b) => teamLabel(a).localeCompare(teamLabel(b), 'es'));
