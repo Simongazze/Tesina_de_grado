@@ -258,7 +258,7 @@ Posteriormente, se realiza un preprocesamiento orientado a transformar los event
 El primer paso consiste en la identificación y recopilación de los enlaces a las páginas web que contienen las estadísticas individuales de todos los partidos incluidos en el período de estudio (378 partidos de temporada regular). Para ello, se accede a la página de la Liga Nacional, [sección Fixture](https://www.laliganacional.com.ar/laliga/fixture), la cual presenta una tabla dinámica con los encuentros disputados y permite acceder a la información detallada de cada partido.
 
 ```{r, echo=FALSE, fig.cap="Fixture dentro de la página web de la LNB.", out.width="80%", fig.align="center"}
-knitr::include_graphics("img/imagen links partidos.png")
+knitr::include_graphics("img/Imagen links partidos.PNG")
 ```
 
 En la Figura 1 se muestra la interfaz del sitio web, donde se visualiza el listado completo de partidos de la temporada para el rango de fechas seleccionado. Dado que no puede automatizarse la obtención de cada uno de estos links, se procede a copiar manualmente el *DOM* (*Document Object Model*) de la página y a pegarlo en un archivo de texto.
@@ -367,7 +367,7 @@ De este modo, cada acción queda asociada explícitamente a uno de los dos equip
 A partir de la nueva tabla generada, se construye la presencia de los jugadores en cancha a lo largo del partido. Para ello, se identifican las acciones asociadas a sustituciones, distinguiendo entre entradas (acción = ENTRA A PISTA) y salidas de jugadores (acción = ABANDONA LA PISTA), tal como se observa en la Figura 5.
 
 ```{r, echo=FALSE, fig.cap="Ejemplo de secuencia de acciones con sustitución", out.width="50%", fig.align="center"}
-knitr::include_graphics("img/imagen sustitucion.png")
+knitr::include_graphics("img/imagen sustitucion.PNG")
 ```
 
 \newpage
@@ -468,7 +468,7 @@ En consecuencia, se desarrolla un conjunto de reglas basadas en el contexto de l
 Todas las faltas que no cumplen esta condición se eliminan para evitar errores en el conteo de posesiones.
 
 ```{r, echo=FALSE, fig.cap="Ejemplo de falta ofensiva en una secuencia de acciones", out.width="70%", fig.align="center"}
-knitr::include_graphics("img/falta ofensiva.png")
+knitr::include_graphics("img/falta ofensiva.PNG")
 ```
 
 ### Identificación de la finalización de las posesiones
@@ -849,7 +849,7 @@ En los modelos RAPM la multicolinealidad aparece de manera natural debido a la e
 Este problema resulta especialmente relevante en la Liga Nacional de Básquetbol de Argentina, donde la cantidad de observaciones disponibles es considerablemente menor que en competencias como la NBA, donde la cantidad de partidos disputados por cada equipo (82 partidos en la NBA contra 38 en la LNB) y la duración de cada cuarto (12 minutos en la NBA contra 10 minutos en la LNB) son mayores.
 
 ```{r, warning=FALSE}
-tabla_top10 = readRDS("resultados/tablas_presentacion/tabla_top10.RDS")
+tabla_top10 = readRDS("resultados/tablas_presentacion/tabla_top10.rds")
 
 tabla_top10 = tabla_top10 %>% mutate(JugadorA = str_to_title(str_replace(JugadorA, "(, .).*$", "\\1.")),
                                       JugadorB = str_to_title(str_replace(JugadorB, "(, .).*$", "\\1.")))
@@ -2482,14 +2482,13 @@ En consecuencia, se procedió a corregir el error eliminando al jugador menciona
 Al revisar uno de los partidos con presencia de puntos incompatibles, se detectó que en el minuto 02:27 del tercer cuarto, el marcador parcial reflejaba correctamente el resultado del partido (64 - 42 a favor de Quimsa). Sin embargo, la acción de anotación siguiente, el TIRO LIBRE ANOTADO del jugador de Boca Juniors, Facundo Piñero, en el minuto 02:21 del tercer cuarto, registraba un marcador parcial erróneo, de 67 - 43. Se observa entonces que el marcador parcial aumentó en tres puntos para el equipo local (Quimsa) entre una acción y la siguiente, sin que existiera ninguna anotación registrada en el *play-by-play* que justificara dicha variación (Figura 16).
 
 ```{r, echo=FALSE, fig.cap="Comienzo de secuencia de acciones con errores en la carga del marcador", out.width="50%", fig.align="center"}
-knitr::include_graphics("img/error_puntos_1_2_.png")
+knitr::include_graphics("img/error_puntos_1_2_.PNG")
 ```
 
 Estos errores siguieron presentándose en las siguientes acciones de anotación hasta el minuto 00:40, donde, con el TRIPLE del jugador de Boca Juniors, Martín Nicolás Cuello, el marcador parcial se reestableció a su valor real en ese momento (70 - 50), esta secuencia queda reflejada en la Figura 17.
 
 ```{r, echo=FALSE, fig.cap="Fin de secuencia de acciones con errores en la carga del marcador", out.width="50%", fig.align="center"}
-knitr::include_graphics("img/error_puntos_2_2_.png")
+knitr::include_graphics("img/error_puntos_2_2_.PNG")
 ```
 
 Al presentarse errores en el marcador parcial de cada uno de los equipos, los puntos por posesión calculados como la diferencia del marcador de cada equipo con respecto al marcador parcial de la posesión anterior también eran erróneos.
-

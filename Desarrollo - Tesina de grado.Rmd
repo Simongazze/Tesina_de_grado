@@ -9140,6 +9140,11 @@ df_rankings <- df_rankings %>%
 # 4. Guardar sin reemplazar df_metricas
 # ------------------------------------------------------------------
 
+# Agregar el plus-minus estandarizado y actualizar solo los datos del visor.
+# El diseño de docs/index.html se mantiene en HTML, CSS y JavaScript.
+source("actualizar_rankings.R")
+df_rankings <- actualizar_rankings(df_rankings)
+
 saveRDS(
   df_rankings,
   "resultados/tablas_desarrollo/df_rankings.rds"
@@ -9152,33 +9157,4 @@ write.csv(
   fileEncoding = "UTF-8"
 )
 
-# Instalar una sola vez, si faltan:
-# install.packages(c("reactable", "htmlwidgets"))
-
-dir.create("docs", showWarnings = FALSE)
-
-tabla <- reactable::reactable(
-  df_rankings,
-  searchable = TRUE,
-  filterable = TRUE,
-  defaultPageSize = 20,
-  showPageSizeOptions = TRUE,
-  defaultColDef = reactable::colDef(minWidth = 120)
-)
-
-htmlwidgets::saveWidget(
-  tabla,
-  "docs/index.html",
-  selfcontained = TRUE
-)
-
-write.csv(
-  df_rankings,
-  "docs/rankings.csv",
-  row.names = FALSE,
-  fileEncoding = "UTF-8"
-)
-
-file.create("docs/.nojekyll")
 ```
-

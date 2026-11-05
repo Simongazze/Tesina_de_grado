@@ -19,7 +19,7 @@ Para actualizar el CSV ya publicado sin volver a cargar los modelos, se puede ej
 
 Todo el código es editable después de `git pull`: `index.html` contiene textos y estructura, `styles.css` define colores y diseño y `app.js` implementa selectores, filtros, orden y descarga. R prepara los datos; el navegador muestra la página con HTML, CSS y JavaScript. No hay que ejecutar un generador para cambiar el diseño.
 
-Conservar `docs/.nojekyll`. Las dependencias antiguas de `index_files/` no son utilizadas por este visor; pueden retirarse por separado.
+Conservar `docs/.nojekyll`. Los archivos `index.html`, `styles.css` y `app.js` se publican directamente con GitHub Pages.
 
 Los logos del encabezado se publican en `docs/assets/logos/`, con los archivos originales de `img/Logo-unr.png`, `img/logo_lnb_2024_2025.png` e `img/LOGO horizontal gris.png`. El PDF enlazado está en `docs/assets/tesina-simon-gazze.pdf`, copiado de `Tesina-de-grado---Simon-Gazze.pdf`. Si se reemplazan los originales, actualizar también estas copias para que GitHub Pages muestre la nueva versión.
 
