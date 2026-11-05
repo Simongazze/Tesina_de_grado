@@ -21,6 +21,8 @@ Todo el código es editable después de `git pull`: `index.html` contiene textos
 
 Conservar `docs/.nojekyll`. Las dependencias antiguas de `index_files/` no son utilizadas por este visor; pueden retirarse por separado.
 
+Los logos del encabezado se publican en `docs/assets/logos/`, con los archivos originales de `img/Logo-unr.png`, `img/logo_lnb_2024_2025.png` e `img/LOGO horizontal gris.png`. El PDF enlazado está en `docs/assets/tesina-simon-gazze.pdf`, copiado de `Tesina-de-grado---Simon-Gazze.pdf`. Si se reemplazan los originales, actualizar también estas copias para que GitHub Pages muestre la nueva versión.
+
 ## Interpretación
 
 - Se conserva cada fila jugador-equipo. No se agregan ni se eliminan jugadores que cambiaron de club.
