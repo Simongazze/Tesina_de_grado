@@ -51,8 +51,8 @@ La base del visor conserva **235 registros jugador-equipo**, correspondientes a 
 | --- | --- | --- |
 | Descriptivas | Plus-minus acumulado, por 100 posesiones, estandarizado por equipo y puntos por posesión | El sentido se indica para cada medida en el visor |
 | RAPM | Coeficientes del modelo normal para el aporte ofensivo y defensivo | Mayor es mejor en ataque, defensa y total; total = ORAPM + DRAPM |
-| EPTS | Puntos esperados por posesión en un escenario con el jugador y los restantes jugadores de referencia | Mayor es mejor en ataque; menor es mejor en defensa; total = ataque − defensa |
-| wEPTS | Versión de EPTS ponderada por la proporción de posesiones del jugador en su equipo | Mayor es mejor en ataque; menor es mejor en defensa; total = ataque − defensa |
+| EPTS | Puntos esperados por posesión en un escenario con el jugador y los restantes jugadores de referencia | Mayor es mejor en ataque; menor es mejor en defensa; EPTStot = EPTSatq − EPTSdef |
+| wEPTS | Versión de EPTS ponderada por la proporción de posesiones del jugador en su equipo | Mayor es mejor en ataque; menor es mejor en defensa; wEPTStot = wEPTSatq − wEPTSdef |
 
 El **plus-minus estandarizado** se calcula restando al plus-minus por 100 posesiones la mediana del equipo y dividiendo por su MAD. La referencia se calcula al preparar los datos y permanece fija al aplicar filtros en la página.
 
@@ -66,72 +66,9 @@ Las definiciones, fórmulas y decisiones de construcción se desarrollan en la [
 
 Estos resultados corresponden a los datos y criterios de esta aplicación. La reconstrucción de posesiones, los posibles errores del registro original y el uso de una sola temporada son limitaciones discutidas en la tesis.
 
-## Organización del repositorio
-
-| Archivo o carpeta | Contenido |
-| --- | --- |
-| [Tesina de grado - Simon Gazze.Rmd](<Tesina de grado - Simon Gazze.Rmd>) | Documento de la tesis; utiliza tablas y figuras guardadas |
-| [Desarrollo - Tesina de grado.Rmd](<Desarrollo - Tesina de grado.Rmd>) | Preparación de datos, análisis, modelos, comparaciones y generación de resultados |
-| [Web_scraping_play_by_play.ipynb](Web_scraping_play_by_play.ipynb) | Extracción y procesamiento del play-by-play y box score |
-| [consistencia_modelos.R](consistencia_modelos.R) | Comparación de estabilidad mediante divisiones y reajustes de los modelos |
-| [evaluación externa.Rmd](<evaluación externa.Rmd>) | Análisis complementario de los criterios de evaluación externa |
-| [actualizar_rankings.R](actualizar_rankings.R) | Cálculo del plus-minus estandarizado y exportación de los datos del visor |
-| [data/](data/) | Bases procesadas e insumos para los análisis y el scraping |
-| [resultados/](resultados/) | Modelos ajustados, tablas y resultados de consistencia guardados en RDS y CSV |
-| [docs/](docs/) | Sitio publicado con GitHub Pages, rankings y copia del PDF |
-| [img/](img/) | Figuras, capturas y logos utilizados en el documento |
-| [presentacion/](presentacion/) | Recursos gráficos y logos utilizados para las presentaciones |
-
-Los archivos `.RDS` permiten reutilizar resultados sin volver a estimar los modelos. Se distinguen las tablas del desarrollo de las preparadas para el documento y la presentación.
-
-## Cómo utilizarlo
-
 ### Consultar los resultados
 
 El [visor interactivo](https://simongazze.github.io/Tesina_de_grado/) permite elegir la familia de métricas, regularización y dimensión del ranking; buscar jugadores; filtrar por equipo y posesiones; y descargar la selección en CSV. Para usarlo no es necesario instalar R ni Python.
-
-### Trabajar con el código
-
-Clonar el repositorio y abrir `Tesina_de_grado.Rproj`. Las rutas se interpretan desde la **raíz del proyecto**.
-
-```bash
-git clone https://github.com/Simongazze/Tesina_de_grado.git
-```
-
-- **R:** los análisis utilizan, entre otros, `tidyverse`, `glmnet`, `Matrix`, `readxl`, `gt`, `kableExtra` y paquetes de visualización. Las llamadas `library()` de cada archivo detallan sus dependencias.
-- **Python:** el scraping utiliza `pandas`, `numpy`, `selenium`, `webdriver-manager`, `beautifulsoup4` y `tqdm`, además de Chrome/Chromium. El notebook incluye celdas de configuración para un entorno tipo Colab.
-- **Documento PDF:** requiere `rmarkdown`, `knitr`, Pandoc y una distribución LaTeX.
-
-Los documentos de desarrollo se trabajan por bloques. `evaluación externa.Rmd` utiliza objetos preparados durante el desarrollo; `consistencia_modelos.R` requiere los seis modelos ajustados, además de las bases indicadas al inicio del script. Cargar esos objetos antes de ejecutar los análisis correspondientes.
-
-El notebook conserva bloques para un partido, diez partidos y la temporada completa. Para regenerar los datos, seleccionar los bloques correspondientes y revisar las rutas de salida. El intermedio crudo `data/df_pbp_final.csv` está excluido de Git y debe regenerarse si se repite esa parte del scraping. Las bases procesadas necesarias para los análisis ya se incluyen en `data/`.
-
-Las versiones de los paquetes todavía no están fijadas en un archivo de entorno. Esta organización permite consultar y reutilizar el trabajo; la reproducción completa desde cero requiere preparar el entorno y ejecutar las etapas correspondientes.
-
-### Compilar la tesina
-
-Con las dependencias instaladas, las tablas guardadas y LaTeX disponible, ejecutar desde la raíz:
-
-```r
-rmarkdown::render(
-  "Tesina de grado - Simon Gazze.Rmd",
-  output_format = "pdf_document",
-  output_file = "Tesina-de-grado---Simon-Gazze.pdf"
-)
-```
-
-### Actualizar los rankings publicados
-
-Con `df_rankings` preparado en R:
-
-```r
-source("actualizar_rankings.R")
-df_rankings <- actualizar_rankings(df_rankings)
-```
-
-La función agrega el plus-minus estandarizado y actualiza `docs/rankings.csv`. Después, hacer commit y push del CSV para actualizar GitHub Pages.
-
-El diseño del visor se edita en `docs/index.html`, `docs/styles.css` y `docs/app.js`. Los detalles están en [docs/README.md](docs/README.md). Si se reemplaza el PDF de la raíz, actualizar también su copia en `docs/assets/tesina-simon-gazze.pdf`.
 
 ## Bibliografía
 
@@ -150,9 +87,3 @@ El diseño del visor se edita en `docs/index.html`, `docs/styles.css` y `docs/ap
 - **Hvattum, L. M. y Gelade, G. A. (2021).** Comparing bottom-up and top-down ratings for individual soccer players. *International Journal of Computer Science in Sport, 20*(1), 23–42.
 
 La bibliografía completa se encuentra en el **capítulo 7 de la [tesina](Tesina-de-grado---Simon-Gazze.pdf)**.
-
-## Cómo citar este trabajo
-
-Gazze, S. P. (2026). *Métrica RAPM: Evaluación del impacto ofensivo y defensivo de los jugadores de la Liga Nacional de Básquetbol en Argentina* [Tesina de grado, Licenciatura en Estadística, Universidad Nacional de Rosario]. [Repositorio del proyecto](https://github.com/Simongazze/Tesina_de_grado).
-
-Al reutilizar la metodología de EPTS y wEPTS, citar también el artículo de **Damoulaki, Ntzoufras y Pelechrinis (2025)**.
