@@ -9,21 +9,21 @@
 @media(max-width:650px){.configuration.is-descriptive{grid-template-columns:1fr}.configuration.is-descriptive #variant-control{grid-column:1;grid-row:2}.configuration.is-descriptive .component-control{grid-column:1;grid-row:3}}
 
 /* Identidad de la tesina y archivos institucionales originales. */
-.nav{height:auto;min-height:138px;padding-top:20px;padding-bottom:20px;gap:40px}
-.brand{max-width:510px;white-space:normal;font-size:23px;font-weight:650;line-height:1.35;letter-spacing:-.5px}
-.nav-right{flex-direction:column;align-items:flex-end;gap:13px;flex-shrink:0}
+.nav{height:auto;min-height:96px;padding-top:17px;padding-bottom:17px;gap:24px;flex-direction:row;flex-wrap:nowrap;align-items:center}
 .institution-logos{display:flex;align-items:center;gap:16px}
 .logo-frame{display:block;position:relative;flex-shrink:0;height:60px}
 .logo-frame img{display:block;width:100%;height:100%;object-fit:contain}
-.logo-unr{width:138px;padding:6px 9px;background:#fff;border-radius:5px}
-.logo-lnb{width:60px;padding:4px;background:#fff;border-radius:5px}
+.logo-unr{width:138px;padding:0;background:transparent}
+.logo-lnb{width:60px;padding:0;background:transparent}
 .logo-glb{width:172px;overflow:hidden}
-.logo-glb img{position:absolute;width:245px;height:auto;max-width:none;left:50%;top:50%;transform:translate(-50%,-50%)}
-.nav-actions{display:flex;align-items:center;gap:20px}
-.site-header .author{display:inline;font-size:12px;line-height:1.6}
+.logo-glb img{position:absolute;width:144%;height:auto;max-width:none;left:50%;top:50%;transform:translate(-50%,-50%)}
+.nav-actions{display:flex;align-items:center;gap:20px;flex-shrink:0;white-space:nowrap}
+.site-header .author{display:inline;font-size:12px;line-height:1.6;white-space:nowrap}
 .thesis-link{color:#f9a350;text-decoration:underline;text-underline-offset:3px;margin-left:4px;white-space:nowrap}
 .thesis-link:hover{color:#fff}
 .nav-actions .repo-link{font-size:10px;padding:7px 11px}
+.repo-link .repo-label-full,.repo-link .repo-label-compact{margin:0;color:inherit;font-size:inherit}
+.repo-label-compact,.compact-link-label{display:none}
 .hero-inner{gap:40px}
 .hero-copy{flex:1;min-width:0}
 .court{display:block;position:static;width:44%;max-width:460px;height:auto;flex:0 1 460px;margin:0;transform:none;stroke:#ffffff45;stroke-width:1.5;opacity:1}
@@ -36,19 +36,21 @@
 .explorer-description{font-size:13px;line-height:1.8;color:var(--muted);margin:14px 0 0;max-width:900px}
 .explorer-description cite{font-style:normal;font-weight:500;color:#42495d}
 @media(max-width:1000px){
-  .nav{gap:26px}.brand{font-size:20px;max-width:390px}
-  .institution-logos{gap:12px}.logo-unr{width:118px;height:56px}.logo-lnb{width:56px;height:56px}.logo-glb{width:148px;height:56px}.logo-glb img{width:215px}
+  .nav{gap:20px}
+  .institution-logos{gap:12px}.logo-unr{width:118px;height:56px}.logo-lnb{width:56px;height:56px}.logo-glb{width:148px;height:56px}
   .nav-actions{gap:14px}.site-header .author{font-size:11px}
   .hero-inner{gap:22px}.court{width:42%;flex-basis:42%}
   .explorer-description{font-size:12px}.section-heading>div{max-width:none}
 }
+@media(max-width:780px){
+  .author-credit{display:none}.compact-link-label{display:inline}.thesis-link{margin-left:0}
+}
 @media(max-width:650px){
-  .nav{flex-direction:column;align-items:stretch;gap:18px;padding-top:22px;padding-bottom:18px}
-  .brand{max-width:410px;font-size:20px;line-height:1.35}
-  .nav-right{align-items:stretch;gap:15px;width:100%}
-  .institution-logos{justify-content:space-between;gap:10px}
-  .logo-unr{width:118px;height:56px}.logo-lnb{width:50px;height:50px}.logo-glb{width:140px;height:56px}.logo-glb img{width:200px}
-  .nav-actions{justify-content:space-between;gap:10px}.nav-actions .repo-link{font-size:9px;padding:7px 9px}.site-header .author{font-size:11px}
+  .nav{min-height:76px;gap:10px;padding-top:13px;padding-bottom:13px}
+  .institution-logos{gap:clamp(5px,1.5vw,9px)}
+  .logo-unr{width:clamp(66px,18vw,104px);height:clamp(34px,8vw,52px)}.logo-lnb{width:clamp(28px,7.5vw,44px);height:clamp(28px,7.5vw,44px)}.logo-glb{width:clamp(76px,22vw,128px);height:clamp(34px,8vw,52px)}
+  .nav-actions{gap:8px}.nav-actions .repo-link{font-size:10px;padding:7px 8px}.site-header .author{font-size:10px}
+  .repo-label-full{display:none}.repo-label-compact{display:inline}.repo-link .repo-arrow{margin-left:3px;font-size:12px}
   .hero-inner{flex-direction:column;align-items:flex-start;gap:24px;min-height:0;padding-top:30px;padding-bottom:28px}
   .hero h1{font-size:40px}.hero-description{max-width:330px}
   .court{width:100%;max-width:280px;align-self:flex-end;flex-basis:auto;opacity:.85}
@@ -57,6 +59,5 @@
   .explorer-description{font-size:11px;line-height:1.85;margin-top:12px}
 }
 @media(max-width:370px){
-  .institution-logos{gap:8px}.logo-unr{width:96px;height:48px}.logo-lnb{width:40px;height:40px}.logo-glb{width:120px;height:48px}.logo-glb img{width:172px}
-  .nav-actions{gap:7px}.site-header .author{font-size:10px}
+  .nav{gap:6px}.compact-link-label{display:none}.nav-actions{gap:6px}.nav-actions .repo-link{padding:7px 6px}
 }
