@@ -1,6 +1,4 @@
-# Métrica RAPM · Liga Nacional de Básquetbol
-
-**Evaluación del impacto ofensivo y defensivo de los jugadores de la Liga Nacional de Básquetbol en Argentina**
+# Métrica RAPM: Evaluación del impacto ofensivo y defensivo de los jugadores de la Liga Nacional de Básquetbol en Argentina
 
 Repositorio de la tesina de grado de **Simón Pedro Gazze**, Licenciatura en Estadística, Universidad Nacional de Rosario.
 
