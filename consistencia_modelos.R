@@ -68,7 +68,7 @@ min_posesiones_por_mitad <- 1L
 
 # Las rutas se interpretan desde getwd(), normalmente la carpeta del proyecto.
 guardar_resultados <- TRUE
-carpeta_salida <- file.path("resultados_consistencia", "consistencia_20_divisiones")
+carpeta_salida <- file.path("resultados", "resultados_consistencia", "consistencia_20_divisiones")
 
 stopifnot(
   n_repeticiones >= 2, n_repeticiones == as.integer(n_repeticiones),

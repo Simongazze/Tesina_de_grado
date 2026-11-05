@@ -212,7 +212,7 @@ df_plus_minus <- plus_minus %>%
 
 # +/- por posesión estandarizado por equipo
 
-plus_minus_por_equipo = readRDS("tablas_desarrollo/plus_minus_por_equipo.RDS") #Ya está filtrado
+plus_minus_por_equipo = readRDS("resultados/tablas_desarrollo/plus_minus_por_equipo.RDS") #Ya está filtrado
 plus_minus_por_equipo1 = plus_minus_por_equipo %>%  filter(posesiones_totales > 500) %>% rename(jugador = jugador_id)
 
 #OP 2
@@ -6249,9 +6249,9 @@ gtsave(
 ## plus minus por 100 posesiones
 
 ```{r}
-mej_pm_aj1 <- readRDS("tablas_desarrollo/mej_pm_aj1.rds")
-peor_pm_aj1 <- readRDS("tablas_desarrollo/peor_pm_aj1.rds")
-paleta_sem1 <- readRDS("tablas_desarrollo/paleta_sem1.rds")
+mej_pm_aj1 <- readRDS("resultados/tablas_desarrollo/mej_pm_aj1.rds")
+peor_pm_aj1 <- readRDS("resultados/tablas_desarrollo/peor_pm_aj1.rds")
+paleta_sem1 <- readRDS("resultados/tablas_desarrollo/paleta_sem1.rds")
 
 tabla_pm_aj1 <- peor_pm_aj1 %>%
   rename(
@@ -6394,9 +6394,9 @@ gtsave(
 ## plus-minus estandarizado
 
 ```{r}
-mej_pm_aj2 <- readRDS("tablas_desarrollo/mej_pm_aj2.rds")
-paleta_sem2 <- readRDS("tablas_desarrollo/paleta_sem2.rds")
-peor_pm_aj2 <- readRDS("tablas_desarrollo/peor_pm_aj2.rds")
+mej_pm_aj2 <- readRDS("resultados/tablas_desarrollo/mej_pm_aj2.rds")
+paleta_sem2 <- readRDS("resultados/tablas_desarrollo/paleta_sem2.rds")
+peor_pm_aj2 <- readRDS("resultados/tablas_desarrollo/peor_pm_aj2.rds")
 
 tabla_mejor_pm_est <- mej_pm_aj2 %>%
   rename(
@@ -9054,5 +9054,131 @@ gtsave(
   expand = 0
 )
 
+```
+# rankings para publicar
+
+```{r}
+library(dplyr)
+
+df_rankings <- df_metricas
+
+regularizaciones <- c("ridge", "lasso", "enet")
+
+# ------------------------------------------------------------------
+# 1. Completar EPTS y wEPTS de los indicadores anulados
+# ------------------------------------------------------------------
+
+valores_referencia <- c(
+  lasso = epts_0_lasso,
+  enet  = epts_0_enet
+)
+
+for (reg in names(valores_referencia)) {
+
+  columnas <- paste0(
+    c("epts_off_", "epts_def_", "w_epts_off_", "w_epts_def_"),
+    reg
+  )
+
+  referencia <- valores_referencia[[reg]]
+
+  df_rankings <- df_rankings %>%
+    mutate(
+      across(
+        all_of(columnas),
+        ~ coalesce(.x, referencia)
+      )
+    )
+}
+
+# ------------------------------------------------------------------
+# 2. Calcular las valoraciones totales
+# ------------------------------------------------------------------
+
+for (reg in regularizaciones) {
+
+  # RAPM: ofensivo + defensivo
+  df_rankings[[paste0("RAPM_total_", reg)]] <-
+    df_rankings[[paste0("ORAPM_", reg)]] +
+    df_rankings[[paste0("DRAPM_", reg)]]
+
+  # EPTS: ofensivo - defensivo
+  df_rankings[[paste0("epts_total_", reg)]] <-
+    df_rankings[[paste0("epts_off_", reg)]] -
+    df_rankings[[paste0("epts_def_", reg)]]
+
+  # wEPTS: ofensivo - defensivo
+  df_rankings[[paste0("w_epts_total_", reg)]] <-
+    df_rankings[[paste0("w_epts_off_", reg)]] -
+    df_rankings[[paste0("w_epts_def_", reg)]]
+}
+
+# ------------------------------------------------------------------
+# 3. Conservar identificación, participación y métricas
+# ------------------------------------------------------------------
+
+df_rankings <- df_rankings %>%
+  select(
+    jugador,
+    equipo_del_jugador,
+    posesiones_totales,
+
+    # Métricas descriptivas
+    plus_minus_total,
+    plus_minus_100,
+    pts_realizad_por_pos,
+    pts_recib_por_pos,
+    pts_realiz_estand_median,
+    pts_recib_estand_median,
+
+    # Métricas basadas en modelos
+    matches("^(ORAPM|DRAPM|RAPM_total)_"),
+    matches("^(w_)?epts_(off|def|total)_")
+  )
+
+# ------------------------------------------------------------------
+# 4. Guardar sin reemplazar df_metricas
+# ------------------------------------------------------------------
+
+saveRDS(
+  df_rankings,
+  "resultados/tablas_desarrollo/df_rankings.rds"
+)
+
+write.csv(
+  df_rankings,
+  "resultados/tablas_desarrollo/df_rankings.csv",
+  row.names = FALSE,
+  fileEncoding = "UTF-8"
+)
+
+# Instalar una sola vez, si faltan:
+# install.packages(c("reactable", "htmlwidgets"))
+
+dir.create("docs", showWarnings = FALSE)
+
+tabla <- reactable::reactable(
+  df_rankings,
+  searchable = TRUE,
+  filterable = TRUE,
+  defaultPageSize = 20,
+  showPageSizeOptions = TRUE,
+  defaultColDef = reactable::colDef(minWidth = 120)
+)
+
+htmlwidgets::saveWidget(
+  tabla,
+  "docs/index.html",
+  selfcontained = TRUE
+)
+
+write.csv(
+  df_rankings,
+  "docs/rankings.csv",
+  row.names = FALSE,
+  fileEncoding = "UTF-8"
+)
+
+file.create("docs/.nojekyll")
 ```
 
